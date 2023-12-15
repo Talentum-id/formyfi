@@ -1,0 +1,9 @@
+.dfx/
+target/
+dist/
+node_modules/
+wasms/
+
+.DS_Store
+**/*.env
+**/*.pem

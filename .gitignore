@@ -7,3 +7,4 @@ wasms/
 .DS_Store
 **/*.env
 **/*.pem
+/src

@@ -5,9 +5,9 @@ const MENU_LINKS = [
     to: '/',
   },
   {
-    name: 'Responces',
+    name: 'Responses',
     img: 'Talents',
-    to: '/responces',
+    to: '/responses',
   },
 ];
 

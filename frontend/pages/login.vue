@@ -28,17 +28,42 @@ import Auth from '@/layouts/auth.vue';
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import { AuthClient } from '@dfinity/auth-client';
+import { HttpAgent } from '@dfinity/agent';
+import { createActor, user } from '../../src/declarations/user';
 
 const router = useRouter();
 
 onMounted(() => {
   sessionStorage.account = '';
 });
-const nfidConnect = async () => {
-
-};
+const nfidConnect = async () => {};
 const connectWallet = async () => {
+  let actor = user;
 
+  try {
+    let authClient = await AuthClient.create();
+
+    await new Promise((resolve) => {
+      authClient.login({
+        identityProvider: process.env.II_URI,
+        onSuccess: resolve,
+      });
+    });
+
+    const identity = authClient.getIdentity();
+
+    actor = createActor(process.env.USER_CANISTER_ID, {
+      agent: new HttpAgent({ identity }),
+    });
+    console.log(actor);
+
+    sessionStorage.account = identity;
+
+    await router.push('/sign-up');
+  } catch (error) {
+    console.log(error);
+  }
 };
 </script>
 

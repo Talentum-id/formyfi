@@ -15,10 +15,10 @@
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>
           <div class="menu">
-            <router-link class="logout" to="/login"
-              >Logout
+            <p class="logout" @click="authStore.logout()">
+              Logout
               <Icon icon="Kick-out" :size="24"></Icon>
-            </router-link>
+            </p>
           </div>
         </div>
       </div>
@@ -31,6 +31,7 @@ import defaultAvatar from '@/assets/images/User.png';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
+import { useAuthStore } from '@/store/auth';
 
 export default {
   name: 'Header',
@@ -44,17 +45,17 @@ export default {
     const avatar = computed(() => {});
     const showTooltips = ref(false);
     const router = useRouter();
+    const authStore = useAuthStore();
 
     const menu = ref(null);
     const goHome = () => {
       router.push('/');
     };
-    const logout = () => {};
     return {
       avatar,
       menu,
       showTooltips,
-      logout,
+      authStore,
       goHome,
     };
   },

@@ -53,7 +53,7 @@ const router = createRouter({
 });
 
 const isAuthenticated = () => {
-  return sessionStorage.getItem('account');
+  return sessionStorage.getItem('isAuthenticated');
 };
 
 function setPageTitleMiddleware(to, from, next) {

@@ -145,7 +145,7 @@ const validateUsername = () => {
   }
 
   .agreement {
-    color: #161e2d;
+    color: $primary-text;
     text-align: center;
     font-variant-numeric: lining-nums tabular-nums slashed-zero;
     font-family: $default_font;

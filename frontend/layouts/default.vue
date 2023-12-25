@@ -47,7 +47,6 @@ export default {
 .footer_wrapper {
   margin-top: auto;
   position: relative;
-  // z-index: 205;
 }
 
 .main-wrapper {
@@ -66,8 +65,7 @@ export default {
 }
 
 .children-content {
-  padding: 48px 40px 0px 120px;
-  //min-height: calc(100vh - 144px);
+  padding: 48px 40px 0 120px;
   min-height: 100vh;
   transition: padding-left 0.5s ease-in-out;
 
@@ -80,7 +78,6 @@ export default {
   width: 100%;
   height: 100%;
   position: relative;
-  // z-index: 1;
   transition: grid-template-columns 0.5s ease-in-out;
 }
 

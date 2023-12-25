@@ -117,7 +117,7 @@ export function formatPastDate(dateStr) {
 
     const yearsDiff = Math.floor(timeDiff / (365 * 24 * 60 * 60 * 1000));
     const remainingDays = Math.floor(
-        (timeDiff % (365 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000),
+      (timeDiff % (365 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000),
     );
 
     if (yearsDiff > 0) {
@@ -249,7 +249,7 @@ export function formatFutureDate(dateStr) {
 // }
 
 export function formatDate(date) {
-    const options = {month: 'short', day: 'numeric'};
+    const options = { month: 'short', day: 'numeric' };
     const formattedDate = new Date(date).toLocaleDateString('en-US', options);
 
     // Check if the date is from the current year
@@ -261,7 +261,7 @@ export function formatDate(date) {
         return formattedDate;
     } else {
         // Return the formatted date with the year
-        return new Date(date).toLocaleDateString('en-US', {...options, year: 'numeric'});
+        return new Date(date).toLocaleDateString('en-US', { ...options, year: 'numeric' });
     }
 }
 
@@ -477,7 +477,7 @@ export function timestampToString(timestamp) {
     const seconds = ('0' + date.getSeconds()).slice(-2);
 
     const formattedString =
-        year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+      year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
     return formattedString;
 }
 
@@ -505,37 +505,54 @@ export function addLinksToText(text) {
     });
 
     text = text.replace(
-        /<(ol|ul)([^>]*)>((?:.|\n)*?)<\/\1>/g,
-        (match, tag, attributes, listContent) => {
-            const updatedListContent = listContent.replace(/<li>(.*?)<\/li>/g, (liMatch, liContent) => {
-                const checkedLink = liContent.replace(/<\/?p(?:\s+.*?)?>/g, '');
-                if (checkedLink.match(linkRegex)) {
-                    return `<li>${addLinksToText(checkedLink)}</li>`;
-                }
-                return `<li>${checkedLink}</li>`;
-            });
-            return `<${tag} class="list-padding"${attributes}>${updatedListContent}</${tag}>`;
-        },
+      /<(ol|ul)([^>]*)>((?:.|\n)*?)<\/\1>/g,
+      (match, tag, attributes, listContent) => {
+          const updatedListContent = listContent.replace(/<li>(.*?)<\/li>/g, (liMatch, liContent) => {
+              const checkedLink = liContent.replace(/<\/?p(?:\s+.*?)?>/g, '');
+              if (checkedLink.match(linkRegex)) {
+                  return `<li>${addLinksToText(checkedLink)}</li>`;
+              }
+              return `<li>${checkedLink}</li>`;
+          });
+          return `<${tag} class="list-padding"${attributes}>${updatedListContent}</${tag}>`;
+      },
     );
 
     return text;
 }
 
-// export function addLinksToText(text) {
-//   const linkRegex = /(https?:\/\/[^\s]+)/g;
+export function transformDate(dateString) {
+    const inputFormat =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$|^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/;
 
-//   console.log('text BEFORE', text);
+    if (!inputFormat.test(dateString)) {
+        return dateString; // Return original string if it doesn't match the expected format
+    }
 
-//   text = text.replace(linkRegex, (match) => {
-//     const checkedLink = match.replace(/<\/?p(?:\s+.*?)?>/g, '');
-//     return `<a href="${checkedLink}" class="task-link-wrapper" target="_blank">${checkedLink}</a>`;
-//   });
+    const today = new Date();
 
-//   text = text.replace(/<(ol|ul)([^>]*)>/g, (match, tag, attributes) => {
-//     return `<${tag} class="list-padding"${attributes}>`;
-//   });
+    const eventDate = new Date(dateString);
+    const isToday = eventDate.getTime() === today.getTime();
 
-//   console.log('text AFTER', text);
+    if (isToday) {
+        return formatTransformDate(today);
+    } else {
+        return formatTransformDate(eventDate);
+    }
+}
+function formatTransformDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-//   return text;
-// }
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+export function formatDateCurrent(date) {
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    const formattedDate = new Date(date).toLocaleDateString('en-US', options);
+    return formattedDate;
+}

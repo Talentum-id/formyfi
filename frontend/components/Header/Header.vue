@@ -51,6 +51,7 @@ export default {
     const goHome = () => {
       router.push('/');
     };
+
     return {
       avatar,
       menu,

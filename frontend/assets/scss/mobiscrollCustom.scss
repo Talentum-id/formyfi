@@ -1,0 +1,244 @@
+.mbsc-material.mbsc-calendar-controls {
+  background: $white;
+  display: inline-flex;
+}
+
+.mbsc-material.mbsc-calendar-controls > button:nth-child(1) {
+  order: 1;
+}
+
+.mbsc-material.mbsc-calendar-controls > button:nth-child(3) {
+  order: 3;
+}
+
+.mbsc-calendar-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mbsc-material-dark.mbsc-event-list-empty {
+  color: $section-title;
+}
+.mbsc-material-dark.mbsc-eventcalendar {
+  background-color: $white;
+}
+.calendar_wrapper .mbsc-material-dark.mbsc-calendar-week-day,
+.calendar_wrapper .mbsc-material.mbsc-calendar-week-day {
+  color: $section-title;
+}
+.mbsc-material-dark.mbsc-calendar-slide {
+  background: $white;
+}
+.mbsc-material-dark.mbsc-event-day.mbsc-list-header,
+.mbsc-material-dark.mbsc-schedule-date-header {
+  background-color: $white;
+  color: $section-title;
+}
+
+.mbsc-material-dark.mbsc-calendar-button.mbsc-button,
+.mbsc-material.mbsc-calendar-button.mbsc-button {
+  color: $section-title;
+}
+.mbsc-material-dark.mbsc-datepicker-inline,
+.mbsc-material.mbsc-datepicker-inline {
+  background: $white;
+}
+.mbsc-datepicker .mbsc-calendar {
+  background: $white;
+}
+.mbsc-calendar-cell {
+  background-color: $white;
+  color: $black;
+  font-family: 'Basis Grotesque Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+}
+.mbsc-material-dark.mbsc-calendar-cell-text,
+.mbsc-material.mbsc-calendar-cell-text {
+  color: $section-title;
+  &.mbsc-calendar-today {
+    background: $default;
+    border-color: $default;
+    color: $white;
+  }
+}
+.mbsc-material.mbsc-selected .mbsc-calendar-cell-text {
+  font-size: 14px;
+  background-color: $default-border;
+  color: $section-title;
+  border-color: $default-border;
+}
+.mbsc-material-dark.mbsc-calendar-week-day,
+.mbsc-material.mbsc-calendar-week-day {
+  color: $section-title;
+}
+.mbsc-material-dark.mbsc-datepicker-inline .mbsc-calendar-slide,
+.mbsc-material.mbsc-datepicker-inline .mbsc-calendar-slide {
+  background-color: $white;
+}
+.calendar_wrapper .mbsc-material-dark.mbsc-calendar-button.mbsc-button,
+.calendar_wrapper .mbsc-material.mbsc-calendar-button.mbsc-button {
+  color: $section-title;
+}
+.mbsc-material-dark.mbsc-colored-event.mbsc-list-item {
+  background-color: $default-bg;
+  color: $section-title;
+  height: 72px;
+  border-radius: 8px;
+  &:hover {
+    background-color: $default-badge-border;
+  }
+}
+.mbsc-material.mbsc-event-time {
+  font-family: 'Basis Grotesque Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  text-align: right;
+  letter-spacing: 0.014em;
+  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  color: $secondary;
+}
+.mbsc-material.mbsc-event-text {
+  font-family: 'Basis Grotesque Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  color: $default;
+}
+.mbsc-material-dark.mbsc-calendar-cell-text,
+.mbsc-material.mbsc-calendar-cell-text {
+  font-size: 14px;
+  line-height: 2.2;
+}
+.mbsc-material-dark.mbsc-calendar-cell-text.mbsc-calendar-today,
+.mbsc-material.mbsc-calendar-cell-text.mbsc-calendar-today {
+  width: 32px;
+  height: 32px;
+  line-height: 2.2;
+  div {
+    div {
+      translate: none;
+    }
+  }
+}
+
+.mbsc-material-dark.mbsc-calendar-cell-text,
+.mbsc-material.mbsc-calendar-cell-text {
+  width: 32px;
+  height: 32px;
+  div {
+    div {
+      translate: none;
+    }
+  }
+}
+.mbsc-material.mbsc-calendar-marks {
+  margin-top: 0;
+  height: 8px;
+  z-index: 999;
+}
+.mbsc-material-dark.mbsc-calendar-mark {
+  width: 6px;
+  height: 6px;
+  background: $dot_bg;
+}
+.mbsc-calendar-title-wrapper {
+  flex: none;
+  font-family: 'Basis Grotesque Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: $default;
+  border: 1px solid $default-border;
+  border-radius: 8px;
+  height: 32px;
+  order: 2;
+  .mbsc-material.mbsc-button .mbsc-icon {
+    display: none;
+  }
+}
+.mbsc-material-dark.mbsc-datepicker-inline,
+.mbsc-material.mbsc-datepicker-inline {
+  padding: 10px;
+}
+.mbsc-calendar-body-inner {
+  padding-top: 20px;
+}
+.mbsc-material-dark.mbsc-datepicker-inline,
+.mbsc-material.mbsc-datepicker-inline {
+  border-radius: 16px;
+}
+.calendar_wrapper .mbsc-material-dark.mbsc-calendar-week-day,
+.calendar_wrapper .mbsc-material.mbsc-calendar-week-day {
+  font-family: 'Basis Grotesque Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.014em;
+  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  color: $secondary;
+}
+.mbsc-material.mbsc-calendar-day-colors .mbsc-calendar-marks,
+.mbsc-material.mbsc-focus .mbsc-calendar-marks,
+.mbsc-material.mbsc-highlighted .mbsc-calendar-marks,
+.mbsc-material.mbsc-hover .mbsc-calendar-marks,
+.mbsc-material.mbsc-hover-highlighted .mbsc-calendar-marks,
+.mbsc-material.mbsc-selected .mbsc-calendar-marks {
+  translate: none;
+}
+.mbsc-material.mbsc-calendar-day-colors .mbsc-calendar-marks,
+.mbsc-material.mbsc-focus .mbsc-calendar-marks,
+.mbsc-material.mbsc-highlighted .mbsc-calendar-marks,
+.mbsc-material.mbsc-hover .mbsc-calendar-marks,
+.mbsc-material.mbsc-hover-highlighted .mbsc-calendar-marks,
+.mbsc-material.mbsc-selected .mbsc-calendar-marks {
+  translate: none;
+}
+.mbsc-material.mbsc-selected .mbsc-calendar-marks {
+  translate: none;
+}
+.custom-nav {
+  width: 80px;
+  height: 40px;
+  border: 1px solid $default-border;
+  border-radius: 8px;
+}
+.mbsc-material-dark.mbsc-datepicker .mbsc-calendar-slide {
+  background: #fff;
+}
+
+.mbsc-material-dark.mbsc-calendar-week-day,
+.mbsc-material.mbsc-calendar-week-day {
+  font-family: 'Basis Grotesque Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.014em;
+  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  color: #6a6d8f;
+}
+
+.mbsc-material-dark.mbsc-calendar-cell-text.mbsc-calendar-today,
+.mbsc-material.mbsc-calendar-cell-text.mbsc-calendar-today {
+  background: transparent;
+  border-color: transparent;
+  color: $default;
+  &:hover {
+    background-color: $default-badge-border;
+  }
+}
+
+.mbsc-material-dark.mbsc-calendar-cell-text,
+.mbsc-material.mbsc-calendar-cell-text {
+  &:hover {
+    background-color: $default-badge-border;
+  }
+}

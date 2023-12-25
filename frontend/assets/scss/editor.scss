@@ -1,0 +1,203 @@
+.editor-wrapper {
+  &.isEdit {
+    .ql-toolbar.ql-snow + .ql-container.ql-snow {
+      // min-height: auto;
+      min-height: 100px;
+      .ql-editor {
+        height: auto;
+        min-height: 100px;
+        margin-top: 10px;
+        &:focus {
+          background: $default-bg;
+          border-radius: 8px;
+        }
+      }
+    }
+    .ql-editor.ql-blank::before {
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 32px;
+      hanging-punctuation: first last;
+      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on, 'ordn' on, 'ss04' on;
+      color: $section-title;
+    }
+    .ql-toolbar.ql-snow {
+      width: 384px;
+      height: 48px;
+      background: $default-bg;
+      border-radius: 8px;
+      border: none;
+      svg {
+        filter: invert(69%) sepia(6%) saturate(1262%) hue-rotate(214deg) brightness(99%)
+          contrast(22%);
+      }
+      &::placeholder {
+        font-family: 'Basis Grotesque Pro';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        color: $section-title;
+      }
+    }
+    .ql-toolbar.ql-snow + .ql-container.ql-snow {
+      background-color: $white;
+      color: $section-title;
+      border-bottom-right-radius: 8px;
+      border-bottom-left-radius: 8px;
+      height: auto;
+      min-height: 100px;
+      border: 1px solid $default-border;
+      border: none;
+      &::placeholder {
+        font-family: 'Basis Grotesque Pro';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        color: $section-title;
+      }
+    }
+  }
+  &.isError {
+    .ql-toolbar.ql-snow {
+      border: 1px solid $red;
+      border-bottom: none;
+    }
+    .ql-toolbar.ql-snow + .ql-container.ql-snow {
+      border: 1px solid $red;
+      border-top: none;
+    }
+  }
+  .ql-editor.ql-blank::before {
+    font-family: 'Basis Grotesque Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 32px;
+    hanging-punctuation: first last;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on, 'ordn' on, 'ss04' on;
+    color: $colabs-bg;
+  }
+  .editor-wrapper .ql-toolbar.ql-snow + .ql-container.ql-snow .ql-editor {
+    font-family: 'Basis Grotesque Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    color: $colabs-bg;
+    &::placeholder {
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      color: $colabs-bg;
+    }
+  }
+  .editor-text::placeholder {
+    font-family: 'Basis Grotesque Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    color: $colabs-bg;
+  }
+  .editor-wrapper .ql-toolbar.ql-snow + .ql-container.ql-snow {
+    font-family: 'Basis Grotesque Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    color: $colabs-bg;
+    &::placeholder {
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      color: $colabs-bg;
+    }
+  }
+  .ql-toolbar.ql-snow {
+    background-color: $white;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border: 1px solid $default-border;
+    border-bottom: none;
+    &::placeholder {
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      color: $colabs-bg;
+    }
+  }
+  .ql-toolbar.ql-snow + .ql-container.ql-snow {
+    background-color: $white;
+    color: $section-title;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    min-height: 240px;
+    border: 1px solid $default-border;
+    border-top: none;
+    &::placeholder {
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      color: $colabs-bg;
+    }
+    .ql-editor {
+      height: 240px;
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      color: $colabs-bg;
+      &::placeholder {
+        font-family: 'Basis Grotesque Pro';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        color: $colabs-bg;
+      }
+      p {
+        font-family: 'Basis Grotesque Pro';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        color: $colabs-bg;
+        &::placeholder {
+          font-family: 'Basis Grotesque Pro';
+          font-style: normal;
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 24px;
+          font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+          color: $colabs-bg;
+        }
+      }
+    }
+  }
+}

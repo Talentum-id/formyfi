@@ -68,7 +68,7 @@ const setDesktop = () => {
     .title {
       color: $dark;
       text-align: center;
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-size: 48px;
       font-style: normal;
       font-weight: 350;
@@ -78,7 +78,7 @@ const setDesktop = () => {
     .message {
       color: $dark;
       text-align: center;
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-size: 16px;
       font-style: normal;
       font-weight: 400;
@@ -97,7 +97,7 @@ const setDesktop = () => {
       background: $default-bg;
       color: $dark;
       width: fit-content;
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-size: 14px;
       font-style: normal;
       font-weight: 500;

@@ -194,7 +194,7 @@ onMounted(() => {
 
   .title {
     color: $orange;
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-size: 14px;
     font-style: normal;
     font-weight: 500;
@@ -203,7 +203,7 @@ onMounted(() => {
 
   .progress {
     color: $secondary;
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -228,7 +228,7 @@ onMounted(() => {
       border: 1px solid $default-badge-border;
       background: $default-bg;
       color: $default;
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-size: 12px;
       font-style: normal;
       font-weight: 500;
@@ -253,7 +253,7 @@ onMounted(() => {
   .msg {
     color: $secondary;
     font-variant-numeric: lining-nums tabular-nums slashed-zero;
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-size: 11px;
     font-style: normal;
     font-weight: 400;

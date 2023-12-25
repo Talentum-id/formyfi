@@ -87,7 +87,7 @@ const goToSocial = (link) => {
     max-width: 100vw;
 
     div {
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-style: normal;
       font-weight: 500;
       font-size: 16px;

@@ -1,7 +1,6 @@
 import Principal "mo:base/Principal";
+import UserIndex "canister:user_index";
 
-actor {
-  public query ({caller}) func greet() : async Text {
-    return "Hello, " # Principal.toText(caller) # "!";
-  };
+actor User {
+  
 };

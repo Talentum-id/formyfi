@@ -4,6 +4,10 @@
       "main": "canisters/user/main.mo",
       "type": "motoko"
     },
+    "user_index": {
+      "main": "canisters/user_index/main.mo",
+      "type": "motoko"
+    },
     "assets": {
       "dependencies": ["user", "internet_identity"],
       "frontend": {

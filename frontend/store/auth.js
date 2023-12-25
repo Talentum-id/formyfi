@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
-import { createActor } from '~/user';
+import { createActor } from '~/user_index';
 import router from '../router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 
 function createActorFromIdentity(identity) {
-  return createActor(process.env.USER_CANISTER_ID, {
+  return createActor(process.env.USER_INDEX_CANISTER_ID, {
     agent: new HttpAgent({ identity }),
   });
 }

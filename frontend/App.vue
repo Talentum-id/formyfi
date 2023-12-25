@@ -1,5 +1,5 @@
 <template>
-  <router-view />
+  <router-view v-if="isReady" />
 </template>
 <script setup>
 import { useCounterStore } from '@/store';

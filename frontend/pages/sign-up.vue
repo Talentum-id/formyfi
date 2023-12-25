@@ -3,8 +3,21 @@
     <div class="main">
       <span class="title">Create account</span>
       <div class="form-block">
-        <Input name="Username" placeholder="Enter your username" class="name" />
-        <Input name="Name & Surname" placeholder="Enter your name and surname" class="name" />
+        <Input
+          name="Username"
+          placeholder="Enter your username"
+          class="name"
+          v-model="form.username"
+          :error-text="errors.username.trim()"
+          :is-error="!!errors.username.trim().length"
+          @focusout="validateUsername()"
+        />
+        <Input
+          name="Name & Surname"
+          placeholder="Enter your name and surname"
+          class="name"
+          v-model="form.fullName"
+        />
         <Button @click="createAccount()">
           <span class="create">Create</span>
         </Button>
@@ -21,11 +34,74 @@ import Auth from '@/layouts/auth.vue';
 import Input from '@/components/Input.vue';
 import Button from '@/components/Button.vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/store/auth';
+import { computed, onMounted, ref } from 'vue';
 
+const authStore = useAuthStore();
 const router = useRouter();
 
+const form = ref({
+  username: '',
+  fullName: '',
+  loading: false,
+});
+const errors = ref({
+  username: '',
+});
+
+onMounted(() => {
+  authStore.actor?.findUser().then((res) => {
+    if (res.length) {
+      router.push('/');
+    }
+  });
+});
+
+const validationError = computed(() => {
+  if (form.value.fullName.trim() === '' || form.value.username.trim() === '') {
+    return true;
+  }
+
+  return Object.values(errors.value).some((value) => !!value.trim());
+});
+
 const createAccount = () => {
-  router.push('/');
+  form.value.loading = true;
+
+  if (validationError.value) {
+    return;
+  }
+
+  authStore.actor
+    ?.register(form.value.username, form.value.fullName)
+    .then(() => {
+      router.push('/');
+    })
+    .catch((error) => console.log(error))
+    .finally(() => (form.value.loading = false));
+};
+
+const validateUsername = () => {
+  form.value.username = form.value.username.trim().toLowerCase();
+  const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
+
+  if (!alphaNumericWithDot.test(form.value.username)) {
+    errors.value.username = 'Username can only consist of alphanumeric characters and dot';
+  } else {
+    form.value.loading = true;
+
+    authStore.actor
+      ?.findUsername(form.value.username)
+      .then((status) => {
+        if (status) {
+          errors.value.username = 'This username already exists';
+        } else {
+          errors.value.username = '';
+        }
+      })
+      .catch((err) => console.log(err))
+      .finally(() => (form.value.loading = false));
+  }
 };
 </script>
 

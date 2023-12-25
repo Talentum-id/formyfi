@@ -1,5 +1,8 @@
 <template>
   <div class="auth-wrapper">
+    <div class="wrapper-image">
+      <img src="@/assets/images/auth_bg.png" alt="Login" width="100%" />
+    </div>
     <div class="auth-container">
       <div class="header">
         <img
@@ -40,8 +43,15 @@ const goToSocial = (link) => {
   width: 100vw;
   min-height: 100vh;
   overflow: hidden;
-  background: url('@/assets/images/auth_bg.png') no-repeat;
-  background-size: cover;
+  // Internet computer cannot read background image, this needs to be fixed
+  //background: url('@/assets/images/auth_bg.png') no-repeat;
+  //background-size: cover;
+  .wrapper-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .auth-container {

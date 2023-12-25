@@ -1,11 +1,11 @@
 {
   "canisters": {
     "user": {
-      "main": "canisters/user/main.mo",
+      "main": "backend/canisters/user/main.mo",
       "type": "motoko"
     },
     "user_index": {
-      "main": "canisters/user_index/main.mo",
+      "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
     },
     "assets": {

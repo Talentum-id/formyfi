@@ -20,6 +20,7 @@ export const useAuthStore = defineStore('auth', {
       isReady: false,
       isAuthenticated: false,
       identity: null,
+      user: null,
     };
   },
   actions: {
@@ -38,6 +39,15 @@ export const useAuthStore = defineStore('auth', {
 
       if (this.isAuthenticated) {
         sessionStorage.isAuthenticated = true;
+
+        await this.actor
+          .findUser()
+          .then((res) => {
+            if (res.length) {
+              this.setUser(res[0]);
+            }
+          })
+          .catch((err) => this.logout());
       } else {
         sessionStorage.removeItem('isAuthenticated');
       }
@@ -67,7 +77,21 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = false;
       this.identity = this.actor = null;
 
+      this.setUser();
+
       await router.push('/login');
     },
+    setUser(user = null) {
+      if (user == null) {
+        this.user = null;
+      } else {
+        const [username, fullName] = user.split('<==>');
+
+        this.user = { username, fullName };
+      }
+    },
+  },
+  getters: {
+    getUser: ({ user }) => user,
   },
 });

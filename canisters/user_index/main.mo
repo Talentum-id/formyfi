@@ -13,7 +13,7 @@ actor UserIndex {
     let users = Map.fromIter<Principal, Text>(userEntries.vals(), 10000, Principal.equal, Principal.hash);
     let usernames = Map.fromIter<Text, Principal>(usernameEntries.vals(), 10000, Text.equal, Text.hash);
 
-    public shared({caller}) func register(username: Text, fullName: Text): async() {
+    public shared({caller}) func register(username: Text, fullName: Text): async ?Text {
         if (username.size() == 0 or fullName.size() == 0) {
             throw Error.reject("Username and Full name cannot be empty");
         };
@@ -28,7 +28,9 @@ actor UserIndex {
                 };
                 case(?id) { };
             };
-        }
+        };
+
+        return users.get(caller);
     };
 
     public query({caller}) func findUser(): async ?Text {

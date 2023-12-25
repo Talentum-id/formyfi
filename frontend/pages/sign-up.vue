@@ -52,6 +52,8 @@ const errors = ref({
 onMounted(() => {
   authStore.actor?.findUser().then((res) => {
     if (res.length) {
+      authStore.setUser(res[0]);
+
       router.push('/');
     }
   });
@@ -74,7 +76,9 @@ const createAccount = () => {
 
   authStore.actor
     ?.register(form.value.username, form.value.fullName)
-    .then(() => {
+    .then((res) => {
+      authStore.setUser(res[0]);
+
       router.push('/');
     })
     .catch((error) => console.log(error))

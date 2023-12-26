@@ -43,7 +43,7 @@ Download and install NPM from [https://nodejs.org/en/download](https://nodejs.or
 3. Deploy the canisters locally with:
 
    ```bash
-   dfx deploy && dfx generate
+   dfx generate && dfx deploy
    ```
 
    After deployment, you will receive URIs for the canisters. Click on the URI for the `assets` canister to open the local DApp in your browser.

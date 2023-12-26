@@ -8,3 +8,4 @@ wasms/
 **/*.env
 **/*.pem
 /src
+package-lock.json

@@ -9,7 +9,7 @@
       "type": "motoko"
     },
     "assets": {
-      "dependencies": ["user", "internet_identity"],
+      "dependencies": ["user", "user_index", "internet_identity"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },
@@ -22,6 +22,7 @@
       "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
       "remote": {
         "id": {
+          "playground": "rdmx6-jaaaa-aaaaa-aaadq-cai",
           "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
       },

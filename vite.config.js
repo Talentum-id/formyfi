@@ -5,20 +5,23 @@ import path from 'path';
 import dfxJson from './dfx.json';
 import fs from 'fs';
 
-const isDev = process.env['DFX_NETWORK'] === 'local';
+const network = process.env['DFX_NETWORK'];
+const port = process.env['DFX_PORt'];
+
+const isDev = network === 'local';
+const isPlayground = network === 'playground';
 
 let canisterIds;
 try {
   canisterIds = JSON.parse(
-    fs.readFileSync(isDev ? '.dfx/local/canister_ids.json' : './canister_ids.json').toString(),
+    fs.readFileSync(isDev || isPlayground ? `.dfx/${network}/canister_ids.json` : './canister_ids.json').toString(),
   );
 } catch (e) {
   console.error('\n⚠️  Before starting the dev server run: dfx deploy\n\n');
 }
 
 const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name, _value]) => {
-  const networkName = process.env['DFX_NETWORK'] || 'local';
-  const outputRoot = path.join(__dirname, '.dfx', networkName, 'canisters', name);
+  const outputRoot = path.join(__dirname, '.dfx', network || 'local', 'canisters', name);
 
   return {
     ...acc,
@@ -29,14 +32,14 @@ const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name, _value]) =
 const canisterDefinitions = Object.entries(canisterIds).reduce(
   (acc, [key, val]) => ({
     ...acc,
-    [`process.env.${key.toUpperCase()}_CANISTER_ID`]: isDev
-      ? JSON.stringify(val.local)
+    [`process.env.${key.toUpperCase()}_CANISTER_ID`]: isDev || isPlayground
+      ? JSON.stringify(val[network])
       : JSON.stringify(val.ic),
   }),
   {},
 );
 
-const DFX_PORT = dfxJson.networks.local.bind.split(':')[1] || process.env['DFX_PORT'];
+const DFX_PORT = isDev ? dfxJson.networks.local.bind.split(':')[1] || port : port;
 const internetIdentityUri = isDev
   ? `http://localhost:${DFX_PORT}/?canisterId=${JSON.parse(
       canisterDefinitions['process.env.INTERNET_IDENTITY_CANISTER_ID'],

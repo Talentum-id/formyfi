@@ -4,9 +4,9 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import dfxJson from './dfx.json';
 import fs from 'fs';
-
+require('dotenv').config();
 const network = process.env['DFX_NETWORK'];
-const port = process.env['DFX_PORt'];
+const port = process.env['DFX_PORT'];
 
 const isDev = network === 'local';
 const isPlayground = network === 'playground';

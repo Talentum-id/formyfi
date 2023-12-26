@@ -42,7 +42,7 @@ const routes = [
     component: signUp,
     meta: {
       title: `Register`,
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
 ];

@@ -18,9 +18,9 @@
           class="name"
           v-model="form.fullName"
         />
-        <Button @click="createAccount()">
-          <span class="create">Create</span>
-        </Button>
+        <VButton @click="createAccount()" :disabled="validationError || form.loading">
+          <span class="create">{{ form.loading ? 'Loading...' : 'Create' }}</span>
+        </VButton>
         <div class="agreement">
           By proceeding, you agree to <span> Terms of Service</span> & <span>Privacy Policy</span>.
         </div>
@@ -32,7 +32,7 @@
 <script setup>
 import Auth from '@/layouts/auth.vue';
 import Input from '@/components/Input.vue';
-import Button from '@/components/Button.vue';
+import VButton from '@/components/Button.vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { computed, onMounted, ref } from 'vue';
@@ -69,8 +69,8 @@ const validationError = computed(() => {
 
 const createAccount = () => {
   form.value.loading = true;
-
   if (validationError.value) {
+    form.value.loading = false;
     return;
   }
 
@@ -78,7 +78,6 @@ const createAccount = () => {
     ?.register(form.value.username, form.value.fullName)
     .then((res) => {
       authStore.setUser(res[0]);
-
       router.push('/');
     })
     .catch((error) => console.log(error))
@@ -92,8 +91,6 @@ const validateUsername = () => {
   if (!alphaNumericWithDot.test(form.value.username)) {
     errors.value.username = 'Username can only consist of alphanumeric characters and dot';
   } else {
-    form.value.loading = true;
-
     authStore.actor
       ?.findUsername(form.value.username)
       .then((status) => {
@@ -103,8 +100,7 @@ const validateUsername = () => {
           errors.value.username = '';
         }
       })
-      .catch((err) => console.log(err))
-      .finally(() => (form.value.loading = false));
+      .catch((err) => console.log(err));
   }
 };
 </script>

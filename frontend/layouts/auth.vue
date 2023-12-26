@@ -1,7 +1,7 @@
 <template>
   <div class="auth-wrapper">
     <div class="wrapper-image">
-      <img src="@/assets/images/auth_bg.png" alt="Login" width="100%" />
+      <img src="@/assets/images/auth_bg.png" alt="Login" />
     </div>
     <div class="auth-container">
       <div class="header">
@@ -47,10 +47,13 @@ const goToSocial = (link) => {
   //background: url('@/assets/images/auth_bg.png') no-repeat;
   //background-size: cover;
   .wrapper-image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    img {
+      width: 100vw;
+      height: 100vh;
+    }
   }
 }
 

@@ -12,13 +12,18 @@
           class="avatar-img"
         />
         <img v-else src="@/assets/images/default-avatar.png" alt="" class="cursor-pointer" />
+
+        <div class="user-info">
+          <span>{{ user.username }}</span>
+          <span class="fullname">{{ user.fullName }} </span>
+        </div>
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>
           <div class="menu">
-            <p class="logout" @click="authStore.logout()">
+            <span class="logout" @click="authStore.logout()">
               Logout
               <Icon icon="Kick-out" :size="24"></Icon>
-            </p>
+            </span>
           </div>
         </div>
       </div>
@@ -28,7 +33,7 @@
 <script>
 import windowSizeMixin from '@/mixins/windowSizeMixin';
 import defaultAvatar from '@/assets/images/User.png';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 import { useAuthStore } from '@/store/auth';
@@ -46,11 +51,22 @@ export default {
     const showTooltips = ref(false);
     const router = useRouter();
     const authStore = useAuthStore();
-
+    const user = computed(() => authStore.getUser);
     const menu = ref(null);
     const goHome = () => {
       router.push('/');
+      console.log(user);
     };
+
+    const handleClickOutside = (event) => {
+      if (menu.value && !menu.value.contains(event.target)) {
+        showTooltips.value = false;
+      }
+    };
+
+    onMounted(() => {
+      document.addEventListener('click', handleClickOutside);
+    });
 
     return {
       avatar,
@@ -58,6 +74,7 @@ export default {
       showTooltips,
       authStore,
       goHome,
+      user,
     };
   },
   mixins: [windowSizeMixin],
@@ -172,12 +189,35 @@ export default {
 
 .avatar {
   position: relative;
-
+  display: flex;
+  gap: 16px;
+  align-items: center;
   .avatar-img {
     height: 48px;
     width: 48px;
     border-radius: 50px;
     cursor: pointer;
+  }
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    span {
+      font-family: $default_font;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      font-feature-settings: 'zero' on;
+      color: $primary-text;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      justify-content: space-between;
+      text-decoration: none;
+    }
+    .fullname {
+      font-size: 12px;
+    }
   }
 }
 

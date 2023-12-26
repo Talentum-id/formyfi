@@ -3,7 +3,14 @@
     <slot></slot>
   </div>
 </template>
-<script setup></script>
+<script setup>
+defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+</script>
 <style scoped lang="scss">
 .btn {
   display: flex;
@@ -15,5 +22,6 @@
   border-radius: 8px;
   background: $blue;
   cursor: pointer;
+  outline: none;
 }
 </style>

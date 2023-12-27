@@ -5,6 +5,7 @@ import path from 'path';
 import dfxJson from './dfx.json';
 import fs from 'fs';
 require('dotenv').config();
+
 const network = process.env['DFX_NETWORK'];
 const port = process.env['DFX_PORT'];
 

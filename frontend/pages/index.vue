@@ -56,11 +56,11 @@ import CreateQA from '@/components/Creating/CreateQA.vue';
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '100%' },
-    { prop: 'link', label: 'Share Link', width: '50%' },
+    { prop: 'link', label: 'Share Link', width: '60%' },
     {
       prop: 'amount',
       label: 'Participants',
-      width: '60%',
+      width: '50%',
     },
     { prop: 'period', label: 'Started/Filled', width: '70%' },
     { prop: 'end', label: 'End', width: '70%' },
@@ -111,9 +111,7 @@ const requestsRows = computed(
       link: {
         component: Link,
         props: {
-          text: `https://formify.io/qa-question-${Math.floor(
-            Math.random() * (99999 - 10000 + 1) + 10000,
-          )}}`,
+          text: `qa-question-${i + 18}`,
           value: '',
         },
       },
@@ -121,7 +119,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Badge,
           props: {
-            text: `${Math.floor(Math.random() * (1000 - 100 + 1) + 100)} users `,
+            text: `${Math.floor(Math.random() * (100 - 10 + 1) + 10)} users `,
             value: '',
             type: 'claim',
             big: false,

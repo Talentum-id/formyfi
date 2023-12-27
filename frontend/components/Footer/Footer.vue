@@ -5,11 +5,7 @@
       <span> Follow us</span>
       <div class="socials cursor-pointer">
         <!--        <Icon name="Telegram-Default" :size="26" @click="goToCosial('')" />-->
-        <Icon
-          name="Twitter-Default"
-          :size="26"
-          @click="goToSocial('https://twitter.com/TalentumID')"
-        />
+        <Icon name="Twitter-Default" :size="26" />
         <Icon
           name="Discord-Default"
           :size="26"

@@ -98,7 +98,7 @@ const requestsRows = computed(
         id: i,
       };
     });
-    return originalArray.map((item) => ({
+    return originalArray.map((item, i) => ({
       title: {
         singleComponent: {
           component: Text,

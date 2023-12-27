@@ -11,7 +11,7 @@ const routes = [
     component: App,
     meta: {
       title: `Q&A List`,
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
   {

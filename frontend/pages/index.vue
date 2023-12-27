@@ -103,7 +103,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Text,
           props: {
-            text: 'The Q&A for the Starforged Blad',
+            text: `The Q&A for the Starforged Blad #${i + 1}`,
           },
         },
         components: numbers,
@@ -119,7 +119,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Badge,
           props: {
-            text: '0 users ',
+            text: `${Math.floor(Math.random() * (1000 - 100 + 1) + 100)} users `,
             value: '',
             type: 'claim',
             big: false,

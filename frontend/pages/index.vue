@@ -111,7 +111,7 @@ const requestsRows = computed(
       link: {
         component: Link,
         props: {
-          text: '0 users',
+          text: 'https://www.figma.com/',
           value: '',
         },
       },
@@ -142,7 +142,7 @@ const requestsRows = computed(
       end: {
         component: Badge,
         props: {
-          text: '0 users',
+          text: 'Jan 12, 2025 ',
           value: '',
           type: 'claim',
           big: false,

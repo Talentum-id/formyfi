@@ -13,7 +13,7 @@
         />
         <img v-else src="@/assets/images/default-avatar.png" alt="" class="cursor-pointer" />
 
-        <div class="user-info">
+        <div class="user-info" v-if="user">
           <span>{{ user.username }}</span>
           <span class="fullname">{{ user.fullName }} </span>
         </div>
@@ -122,7 +122,7 @@ export default {
   right: 0;
   width: 112px;
   height: fit-content;
-  margin-top: 15px;
+  margin-top: 130px;
   background: $white;
   padding: 13px 16px;
   box-shadow: 0 4px 16px rgba(56, 64, 91, 0.24);

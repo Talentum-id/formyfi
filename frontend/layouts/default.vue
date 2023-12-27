@@ -66,7 +66,6 @@ export default {
 
 .children-content {
   padding: 48px 40px 0 120px;
-  min-height: 100vh;
   transition: padding-left 0.5s ease-in-out;
 
   &.open {

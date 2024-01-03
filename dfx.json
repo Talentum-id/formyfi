@@ -1,15 +1,11 @@
 {
   "canisters": {
-    "user": {
-      "main": "backend/canisters/user/main.mo",
-      "type": "motoko"
-    },
     "user_index": {
       "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
     },
     "assets": {
-      "dependencies": ["user", "user_index", "internet_identity"],
+      "dependencies": ["user_index", "internet_identity"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },

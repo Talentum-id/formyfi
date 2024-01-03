@@ -7,34 +7,46 @@ import Iter "mo:base/Iter";
 import Error "mo:base/Error";
 
 actor UserIndex {
-    stable var userEntries : [(Principal, Text)] = [];
-    stable var usernameEntries : [(Text, Principal)] = [];
+    type UserData = {
+        username: Text;
+        fullName: Text;
+    };
 
-    let users = Map.fromIter<Principal, Text>(userEntries.vals(), 10000, Principal.equal, Principal.hash);
-    let usernames = Map.fromIter<Text, Principal>(usernameEntries.vals(), 10000, Text.equal, Text.hash);
+    stable var userEntries : [(Text, UserData)] = [];
+    stable var usernameEntries : [(Text, Text)] = [];
 
-    public shared({caller}) func register(username: Text, fullName: Text): async ?Text {
+    let users = Map.fromIter<Text, UserData>(userEntries.vals(), 1000, Text.equal, Text.hash);
+    let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
+
+    public shared({caller}) func register(username: Text, fullName: Text): async ?UserData {
         if (username.size() == 0 or fullName.size() == 0) {
             throw Error.reject("Username and Full name cannot be empty");
         };
 
-        if (usernames.get(username) != null) {
+        let identity = Principal.toText(caller);
+
+        if (await findUsername(username)) {
             throw Error.reject("This username already exists");
         } else {
-            switch(users.get(caller)) {
+            let details : UserData = {
+                username = username;
+                fullName = fullName;
+            };
+
+            switch(users.get(identity)) {
                 case null {
-                    users.put(caller, username # "<==>" # fullName);
-                    usernames.put(username, caller);
+                    users.put(identity, details);
+                    usernames.put(username, identity);
                 };
-                case(?id) { };
+                case(?user) { };
             };
         };
 
-        return users.get(caller);
+        users.get(identity);
     };
 
-    public query({caller}) func findUser(): async ?Text {
-        users.get(caller);
+    public query({caller}) func findUser(): async ?UserData {
+        users.get(Principal.toText(caller));
     };
 
     public query func findUsername(username: Text): async Bool {
@@ -45,24 +57,25 @@ actor UserIndex {
         var pairs = "";
 
         for((key, value) in users.entries()) {
-            pairs := "(" # Principal.toText(key) # ", " # value # ") " # pairs
+            pairs := "(" # key # ", " # value.username # " " # value.fullName # ") " # pairs
         };
 
         for((key, value) in usernames.entries()) {
-            pairs := "(" # key # ", " # Principal.toText(value) # ") " # pairs
+            pairs := "(" # key # ", " # value # ") " # pairs
         };
 
         return pairs;
     };
 
-    public func reset(): async() {
+    public func reset(): async () {
         for((key, value) in users.entries()) {
             users.delete(key);
         };
 
-        for((key, value) in usernames.entries()) {
+        for((key, value) in users.entries()) {
             usernames.delete(key);
         };
+
     };
 
     system func preupgrade() {

@@ -4,6 +4,9 @@ Formify is a robust Q&A application fully running on the Internet Computer block
 
 ## Prerequisites
 
+If you are using the Windows operating system, please ensure that you have <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank">WSL</a>
+(Windows Subsystem for Linux) installed on your machine, as all the code below should be executed in the WSL terminal.
+
 Before getting started with Formify, ensure you have the following tools installed:
 
 #### DFX 0.15.2

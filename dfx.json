@@ -4,8 +4,12 @@
       "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
     },
+    "qa_index": {
+      "main": "backend/canisters/qa_index/main.mo",
+      "type": "motoko"
+    },
     "assets": {
-      "dependencies": ["user_index", "internet_identity"],
+      "dependencies": ["user_index", "qa_index", "internet_identity"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },

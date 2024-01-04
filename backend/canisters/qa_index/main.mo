@@ -37,11 +37,25 @@ actor QAIndex {
     };
 
 
-    private func updateUserQA(qa: [QA], data: QA, identity: Text) {
-        let qas = Buffer.fromArray<QA>(qa);
-        qas.add(data);
+    public shared({caller}) func delete(index: Nat): async () {
+        let identity = Principal.toText(caller);
+        let QACheck = QAs.get(identity);
 
-        QAs.put(identity, Buffer.toArray(qas));
+        switch(QACheck) {
+            case null return;
+            case (?userQAs) {
+                let qas = Buffer.fromArray<QA>(userQAs);
+
+                switch(qas.getOpt(index)) {
+                    case null return;
+                    case (qa) {
+                        ignore qas.remove(index);
+
+                        QAs.put(identity, Buffer.toArray(qas));
+                    };
+                };
+            };
+        };
     };
 
     func validate(data: QA): Bool {

@@ -103,7 +103,7 @@ export default {
   justify-content: space-between;
   align-items: center;
 
-  width: 240px;
+  width: 210px;
   height: 40px;
   background: $white;
   border: 1px solid $default-border;
@@ -150,7 +150,7 @@ export default {
   }
   cursor: pointer;
   input {
-    width: 240px;
+    width: 210px;
     height: 40px;
     background: $white;
     border: 1px solid $default-border;

@@ -6,8 +6,6 @@
 </template>
 
 <script setup>
-import Icon from '@/components/Icons/Icon.vue';
-
 const props = defineProps({
   id: {
     type: Number,
@@ -87,6 +85,46 @@ const props = defineProps({
     line-height: 24px;
 
     color: $white;
+  }
+  img {
+    margin-left: 8px;
+  }
+}
+.primary {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 7px 12px;
+  gap: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'Basis Grotesque Pro', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
+  color: #fff;
+  background: #d7dce5;
+
+  &.disabled {
+    background-color: $secondary;
+    cursor: inherit;
+  }
+
+  span {
+    font-family: $default_font;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+
+    color: #344054;
   }
   img {
     margin-left: 8px;

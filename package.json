@@ -22,8 +22,10 @@
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
     "vue": "^3.2.37",
+    "vue-draggable-next": "^2.2.1",
     "vue-icomoon": "^0.6.1",
     "vue-router": "^4.0.13",
+    "vuedraggable": "^2.24.3",
     "web3": "^4.3.0"
   },
   "devDependencies": {

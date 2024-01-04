@@ -27,7 +27,12 @@ actor QAIndex {
             case null {
                 QAs.put(identity, [data]);
             };
-            case (?userQA) updateUserQA(userQA, data, identity);
+            case (?userQA) {
+                let qas = Buffer.fromArray<QA>(userQA);
+                qas.add(data);
+
+                QAs.put(identity, Buffer.toArray(qas));
+            };
         };
     };
 
@@ -40,13 +45,28 @@ actor QAIndex {
     };
 
     func validate(data: QA): Bool {
-        let {title; description; image; start; end; shareLink} = data;
+        let {
+            title;
+            description;
+            image;
+            start;
+            end;
+            shareLink;
+            questions;
+        } = data;
 
-        if (title == "" or description == "" or shareLink == "") {
+        if (
+            title == ""
+            or description == ""
+            or shareLink == ""
+            or image == ""
+            or start == 0 
+            or end == 0
+        ) {
             return false;
         };
 
-        if (start == 0 or end == 0) {
+        if (questions.size() < 1) {
             return false;
         };
 

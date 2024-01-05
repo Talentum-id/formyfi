@@ -43,22 +43,13 @@ actor QAIndex {
         };
     };
 
-    public shared({caller}) func delete(index: Nat): async () {
+    public shared({caller}) func delete(shareLink: Text): async () {
         let identity = Principal.toText(caller);
 
         switch (QAs.get(identity)) {
             case null return;
             case (?userQAs) {
-                let qas = Buffer.fromArray<QA>(userQAs);
-
-                switch(qas.getOpt(index)) {
-                    case null return;
-                    case (qa) {
-                        ignore qas.remove(index);
-
-                        QAs.put(identity, Buffer.toArray(qas));
-                    };
-                };
+                QAs.put(identity, Array.filter<QA>(userQAs, func x = x.shareLink != shareLink));
             };
         };
     };

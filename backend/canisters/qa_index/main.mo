@@ -17,16 +17,20 @@ actor QAIndex {
 
     let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
 
+    public shared({caller}) func get(params: FetchParams): async [QA] {
+        switch (QAs.get(Principal.toText(caller))) {
+            case null [];
+            case (?userQAs) filter(userQAs, params);
+        };
+    };
     public shared({caller}) func store(data: QA) : async () {
         let identity = Principal.toText(caller);
 
-        if (not (validate(data))) {
+        if (not (validate(data, identity))) {
             throw Error.reject("Please, fill required fields!");
         };
 
-        let QACheck = QAs.get(identity);
-
-        switch (QACheck) {
+        switch (QAs.get(identity)) {
             case null {
                 QAs.put(identity, [data]);
             };
@@ -39,20 +43,10 @@ actor QAIndex {
         };
     };
 
-    public shared({caller}) func get(params: FetchParams): async [QA] {
-        let QACheck = QAs.get(Principal.toText(caller));
-
-        switch (QACheck) {
-            case null [];
-            case (?userQAs) filter(userQAs, params);
-        };
-    };
-
     public shared({caller}) func delete(index: Nat): async () {
         let identity = Principal.toText(caller);
-        let QACheck = QAs.get(identity);
 
-        switch (QACheck) {
+        switch (QAs.get(identity)) {
             case null return;
             case (?userQAs) {
                 let qas = Buffer.fromArray<QA>(userQAs);
@@ -87,9 +81,9 @@ actor QAIndex {
             userQAs := Array.sort<QA>(userQAs, func (x: QA, y: QA) {
                 let (key1: Text, key2: Text) = switch (sortBy.key) {
                     case "shareLink" (x.shareLink, y.shareLink);
-                    case "participants" (debug_show(x.participants), debug_show(y.participants));
-                    case "start" (debug_show(x.start), debug_show(y.start));
-                    case "end" (debug_show(x.end), debug_show(y.end));
+                    case "participants" (Nat.toText(x.participants), Nat.toText(y.participants));
+                    case "start" (Nat.toText(x.start), Nat.toText(y.start));
+                    case "end" (Nat.toText(x.end), Nat.toText(y.end));
                     case _ (x.title, y.title);
                 };
 
@@ -105,8 +99,11 @@ actor QAIndex {
         };
 
         if (page != 0 and pageSize != 0) {
-            let offset = page * pageSize;
-            var QAIter = Array.slice<QA>(userQAs, offset, offset + pageSize);
+            var offset: Nat = page - 1;
+            offset := offset * pageSize;
+
+            var limit = if (userQAs.size() < offset + pageSize) userQAs.size() else offset + pageSize; 
+            var QAIter = Array.slice<QA>(userQAs, offset, limit);
 
             userQAs := Iter.toArray(QAIter);
         };
@@ -114,7 +111,7 @@ actor QAIndex {
         userQAs;
     };
 
-    func validate(data: QA): Bool {
+    func validate(data: QA, identity: Text): Bool {
         let {
             title;
             description;
@@ -130,13 +127,24 @@ actor QAIndex {
             or description == ""
             or shareLink == ""
             or image == ""
-            or start == 0 
+            or start == 0
             or end == 0
         ) {
             return false;
         };
 
         if (questions.size() < 1) {
+            return false;
+        };
+
+        let shareLinkExists = switch (QAs.get(identity)) {
+            case null false;
+            case (?userQAs) {
+                Array.find<QA>(userQAs, func x = x.shareLink == shareLink) != null
+            };
+        };
+
+        if (shareLinkExists == true) {
             return false;
         };
 

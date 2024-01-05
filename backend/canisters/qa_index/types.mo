@@ -14,9 +14,9 @@ module Types {
         title: Text;
         description: Text;
         shareLink: Text;
-        participants: Int;
-        start: Int;
-        end: Int;
+        participants: Nat;
+        start: Nat;
+        end: Nat;
         questions: [Question];
     };
 

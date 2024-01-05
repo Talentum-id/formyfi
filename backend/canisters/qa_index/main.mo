@@ -23,6 +23,16 @@ actor QAIndex {
             case (?userQAs) filter(userQAs, params);
         };
     };
+
+    public shared({caller}) func show(shareLink: Text) : async ?QA {
+        switch (QAs.get(Principal.toText(caller))) {
+            case null null;
+            case (?userQAs) {
+                Array.find<QA>(userQAs, func x = x.shareLink == shareLink);
+            };
+        };
+    };
+
     public shared({caller}) func store(data: QA) : async () {
         let identity = Principal.toText(caller);
 

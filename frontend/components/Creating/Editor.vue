@@ -87,8 +87,10 @@ watch(data, (newData) => {
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
-  margin-top: 8px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
 }
 </style>

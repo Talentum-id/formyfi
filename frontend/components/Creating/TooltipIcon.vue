@@ -103,9 +103,8 @@ const props = defineProps({
     height: 18px;
     background: $default;
     transform: rotate(45deg) translateX(-50%);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     z-index: -1;
-    top: 10px;
+    top: 8px;
     left: 50%;
   }
 }

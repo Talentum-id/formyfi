@@ -51,10 +51,11 @@
 </template>
 
 <script setup>
-import {ref, reactive, toRef, watch} from 'vue';
+import { ref, reactive, toRef, watch } from 'vue';
+import { Plus } from '@element-plus/icons-vue';
 import 'element-plus/dist/index.css';
 import { ElDialog, ElUpload, ElIcon, ElRadioGroup, ElRadioButton } from 'element-plus';
-import Icon from "@/components/Icons/Icon.vue";
+import Icon from '@/components/Icons/Icon.vue';
 
 const props = defineProps({
   imagesFiles: { type: Array, default: null },

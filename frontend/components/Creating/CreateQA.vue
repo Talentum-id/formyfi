@@ -19,16 +19,35 @@
         <div class="upload-requirements">
           Recommended size — 480 x 480 px. PNG, JPEG. Maximum 10 MB.
         </div>
-        <TaskBannerUploader :isEditingActive="true" />
+        <TaskBannerUploader
+          :setImage="setTaskBanner"
+          :banner="bannerImage"
+          :isEditingActive="true"
+          :isError="!bannerImage && touched"
+          errorText="Cover Image is Required"
+        />
       </div>
       <div class="section_wrapper">
         <div class="section_wrapper-title">Quest Name</div>
-        <Input name="" placeholder="Enter the quest name" />
+        <Input
+          v-model="questionName"
+          name=""
+          placeholder="Enter the quest name"
+          :isError="!questionName && touched"
+          errorText="Enter the quest name"
+        />
       </div>
       <div class="section_wrapper">
         <div class="section_wrapper-title">Description</div>
-        <div class="section_wrapper-subtitle">These are the instructions to complete the task.</div>
-        <Editor />
+        <div class="section_wrapper-subtitle">
+          These are the instructions to complete the quest.
+        </div>
+        <Editor
+          :description="description"
+          @update="setDescription"
+          :isError="!bannerImage && touched"
+          errorText="Description is Required"
+        />
       </div>
       <div class="section_wrapper last">
         <div class="section_item">
@@ -65,7 +84,7 @@
           :key="index"
         >
           <div class="section_wrapper-title head-control">
-            Questions #{{ question }}
+            Questions #{{ question.id }}
             <div class="controllers">
               <div class="controllers">
                 <img
@@ -94,36 +113,46 @@
           </div>
           <FilterToggle
             :buttons="questsTypeItems"
-            :id="idQuestType"
+            :id="question.type"
             fixedWidth="100%"
-            @select="setIsShowQuestionType($event)"
+            @select="question.type = $event.id"
           />
           <div class="content">
             <div>
               <div class="content-block">
                 <CustomUpload
+                  :imagesFiles="question.files"
+                  @images="question.files = $event"
                   @changeError="handleImageError"
-                  :imagesFiles="images"
-                  @images="images = $event"
                 />
                 <div class="check-btn_wrapper">
                   <div class="check-btn_title">Required</div>
-                  <Switch :checkedProp="true" />
+                  <Switch :checkedProp="question.required" />
                 </div>
               </div>
               <div class="flex flex-col">
-                <Input name="" placeholder="Question" />
-                <TextArea placeholder="Description (optional)" />
+                <Input
+                  name=""
+                  placeholder="Question"
+                  v-model="question.question"
+                  :isError="!question.question && touched"
+                  errorText="Question is Required"
+                />
+                <TextArea placeholder="Description (optional)" v-model="question.description" />
               </div>
-              <div v-if="idQuestType === 2">
-                <draggable class="answers" :list="answers" @change="log">
-                  <div class="answer" v-for="answer in answers">
+              <div v-if="question.type === 2">
+                <draggable class="answers" :list="question.answers">
+                  <div class="answer" v-for="(answer, id) in question.answers" :key="id">
                     <img src="@/assets/icons/item.svg" alt="" />
-                    <Answer />
+                    <Answer
+                      v-model="answer.answer"
+                      :isError="!answer.answer && touched"
+                      errorText="Answer is Required"
+                    />
                     <div
                       class="add-answer"
-                      :class="{ hidden: answers.length - 1 !== answer }"
-                      @click="addAnswers"
+                      :class="{ hidden: question.answers.length - 1 !== id }"
+                      @click="addAnswers(question.answers)"
                     >
                       <img src="@/assets/icons/add.svg" alt="" />
                     </div>
@@ -139,7 +168,7 @@
         </div>
         <div class="flex footer">
           <BaseButton text="Preview" type="primary" />
-          <BaseButton text="Publish Quest" type="normal" />
+          <BaseButton text="Publish Quest" type="normal" @click="check" />
         </div>
       </div>
     </div>
@@ -171,7 +200,7 @@ const twoDaysFromNow = new Date(todayDate);
 const oneDayFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
 const idQuestType = ref(0);
-const setIsShowQuestionType = (event) => {
+const setIsShowQuestionType = (event, id) => {
   idQuestType.value = event.id;
 };
 const questsTypeItems = ref([
@@ -191,28 +220,66 @@ const questsTypeItems = ref([
     name: 'multiple',
   },
 ]);
-const countOfQuestions = ref([0]);
+const countOfQuestions = ref([
+  {
+    id: 1,
+    question: '',
+    type: 0,
+    description: '',
+    files: [],
+    required: false,
+    answers: [
+      {
+        id: 1,
+        answer: '',
+      },
+    ],
+  },
+]);
 const answers = ref([0]);
+const bannerImage = ref(null);
+const questionName = ref('');
+const description = ref('');
 
+const setTaskBanner = (value) => {
+  bannerImage.value = value;
+};
 const handleImageError = (event) => {
   isImagesError.value = event;
 };
 const addQuestion = () => {
   if (countOfQuestions.value.length < 8) {
-    countOfQuestions.value.push(countOfQuestions.value.length);
+    countOfQuestions.value.push({
+      id: countOfQuestions.value.length + 1,
+      question: '',
+      type: 0,
+      description: '',
+      files: [],
+      required: false,
+      answers: [
+        {
+          id: 1,
+          answer: '',
+        },
+      ],
+    });
   }
 };
 const state = reactive({
-  array: [1, 2, 3, 4, 5],
   currentElementIndex: ref(0),
 });
-const addAnswers = () => {
-  answers.value.push(answers.value.length);
+const addAnswers = (arr) => {
+  arr.push({
+    id: arr.length + 1,
+    answer: '',
+  });
 };
 const showPreview = () => {
   show.value = !show.value;
 };
-
+const setDescription = (event) => {
+  description.value = event;
+};
 const shiftQuestionForward = (index) => {
   if (index < countOfQuestions.value.length - 1) {
     swapQuestions(index, index + 1);
@@ -258,6 +325,12 @@ const setStartDate = (event) => {
     startDate.value = event;
   }
 };
+const touched = ref(false);
+const check = () => {
+  touched.value = false;
+  console.log(countOfQuestions.value);
+  touched.value = true;
+};
 </script>
 <script>
 import { defineComponent } from 'vue';
@@ -269,19 +342,8 @@ export default defineComponent({
   data() {
     return {
       enabled: true,
-      list: [
-        { name: 'John', id: 1 },
-        { name: 'Joao', id: 2 },
-        { name: 'Jean', id: 3 },
-        { name: 'Gerard', id: 4 },
-      ],
       dragging: false,
     };
-  },
-  methods: {
-    log(event) {
-      console.log(event);
-    },
   },
 });
 </script>
@@ -446,7 +508,7 @@ export default defineComponent({
   border: 1px solid #d7dce5;
   background: #e9ecf2;
   border-radius: 8px;
-
+  margin-top: 24px;
   .title {
     font-weight: 500;
     font-size: 16px;
@@ -479,7 +541,7 @@ export default defineComponent({
 }
 .flex {
   display: flex;
-  gap: 8px;
+  gap: 24px;
 }
 
 .check-btn_wrapper {
@@ -520,10 +582,12 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin: 12px 0;
 }
 .flex-col {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 .add-talent-btn {
   display: flex;

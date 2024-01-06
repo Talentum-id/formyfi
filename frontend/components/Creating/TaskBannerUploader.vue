@@ -7,7 +7,12 @@
       style="display: none"
       accept="image/*"
     />
-    <div v-if="!banner && !image" class="default-block" @click="uploadImage">
+    <div
+      v-if="!banner && !image"
+      :class="{ error: errorText && isError }"
+      class="default-block"
+      @click="uploadImage"
+    >
       <div class="add-image"><Icon icon="Add" :size="24" /></div>
     </div>
     <div v-else class="background-block" :style="{ backgroundImage: `url(${image || banner})` }">
@@ -22,6 +27,7 @@
         </div>
       </div>
     </div>
+    <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>
   </div>
 </template>
 
@@ -42,6 +48,8 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isError: { type: Boolean, default: false },
+  errorText: { type: String, default: '' },
 });
 
 const hover = ref(false);
@@ -97,6 +105,9 @@ const uploadImage = () => {
     border: 1px dashed #dad9f7;
 
     cursor: pointer;
+    &.error {
+      border-color: $error-border;
+    }
     .add-image {
       display: flex;
       align-items: center;
@@ -168,5 +179,19 @@ const uploadImage = () => {
       }
     }
   }
+}
+.error-message {
+  color: $error-text;
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  margin-top: 8px;
+  letter-spacing: 0.014em;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
 }
 </style>

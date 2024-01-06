@@ -1,17 +1,29 @@
 <template>
   <div class="input">
-    <input type="text" :value="modelValue" @input="updateValue" placeholder="Answer Option" />
+    <input
+      type="text"
+      :value="modelValue"
+      @input="updateValue"
+      placeholder="Answer Option"
+      :class="{ error: isError }"
+    />
+    <!--    <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>-->
   </div>
 </template>
 
 <script>
+import Input from '@/components/Input.vue';
+
 export default {
   name: 'Answer',
+  components: { Input },
   props: {
     modelValue: {
       type: String,
       default: '',
     },
+    isError: { type: Boolean, default: false },
+    errorText: { type: String, default: '' },
   },
   methods: {
     updateValue(event) {
@@ -45,7 +57,9 @@ export default {
       'lnum' on,
       'zero' on;
     color: $section-title;
-
+    &.error {
+      border-color: $error-border;
+    }
     &::placeholder {
       font-family: $default_font;
       font-style: normal;
@@ -63,5 +77,19 @@ export default {
       box-shadow: 0 0 0 3px $default-border;
     }
   }
+}
+.error-message {
+  color: $error-text;
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  margin-top: 8px;
+  letter-spacing: 0.014em;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
 }
 </style>

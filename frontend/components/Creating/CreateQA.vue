@@ -175,7 +175,7 @@
   </BaseModal>
 </template>
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import BaseModal from '@/components/BaseModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
@@ -190,36 +190,21 @@ import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
+
 const show = ref(false);
-const drag = ref(false);
 const images = ref([]);
 const isImagesError = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
-const oneDayFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
 const idQuestType = ref(0);
-const setIsShowQuestionType = (event, id) => {
-  idQuestType.value = event.id;
-};
 const questsTypeItems = ref([
-  {
-    title: `Open Question`,
-    id: 0,
-    name: 'question',
-  },
-  {
-    title: `Quiz Question`,
-    id: 1,
-    name: 'quiz',
-  },
-  {
-    title: `Multiple Choice`,
-    id: 2,
-    name: 'multiple',
-  },
+  { title: 'Open Question', id: 0, name: 'question' },
+  { title: 'Quiz Question', id: 1, name: 'quiz' },
+  { title: 'Multiple Choice', id: 2, name: 'multiple' },
 ]);
+
 const countOfQuestions = ref([
   {
     id: 1,
@@ -228,12 +213,7 @@ const countOfQuestions = ref([
     description: '',
     files: [],
     required: false,
-    answers: [
-      {
-        id: 1,
-        answer: '',
-      },
-    ],
+    answers: [{ id: 1, answer: '' }],
   },
 ]);
 const answers = ref([0]);
@@ -244,9 +224,11 @@ const description = ref('');
 const setTaskBanner = (value) => {
   bannerImage.value = value;
 };
+
 const handleImageError = (event) => {
   isImagesError.value = event;
 };
+
 const addQuestion = () => {
   if (countOfQuestions.value.length < 8) {
     countOfQuestions.value.push({
@@ -256,48 +238,41 @@ const addQuestion = () => {
       description: '',
       files: [],
       required: false,
-      answers: [
-        {
-          id: 1,
-          answer: '',
-        },
-      ],
+      answers: [{ id: 1, answer: '' }],
     });
   }
 };
-const state = reactive({
-  currentElementIndex: ref(0),
-});
+
 const addAnswers = (arr) => {
-  arr.push({
-    id: arr.length + 1,
-    answer: '',
-  });
+  arr.push({ id: arr.length + 1, answer: '' });
 };
+
 const showPreview = () => {
   show.value = !show.value;
 };
-const setDescription = (event) => {
-  description.value = event;
+
+const updateDescription = (question) => {
+  description.value = question.description;
 };
+
 const shiftQuestionForward = (index) => {
   if (index < countOfQuestions.value.length - 1) {
     swapQuestions(index, index + 1);
-    state.currentElementIndex = index + 1; // Обновляем текущий индекс
   }
 };
 
 const shiftQuestionBackward = (index) => {
   if (index > 0) {
     swapQuestions(index, index - 1);
-    state.currentElementIndex = index - 1; // Обновляем текущий индекс
   }
 };
+
 const swapQuestions = (index1, index2) => {
   const temp = countOfQuestions.value[index1];
   countOfQuestions.value[index1] = countOfQuestions.value[index2];
   countOfQuestions.value[index2] = temp;
 };
+
 const deleteQuestion = (index) => {
   if (countOfQuestions.value.length > 1) {
     countOfQuestions.value.splice(index, 1);
@@ -308,24 +283,19 @@ const setEndDate = (event) => {
   const today = new Date();
   const eventDate = new Date(event);
   const isToday = eventDate.getTime() === today.getTime();
-  if (isToday) {
-    endDate.value = todayDate;
-  } else {
-    endDate.value = event;
-  }
+  endDate.value = isToday ? todayDate : event;
 };
+
 const setStartDate = (event) => {
   const today = new Date();
   const eventDate = new Date(event);
   const isToday = eventDate.getTime() === today.getTime();
   const isTodayDate = eventDate.getDate() === today.getDate();
-  if (isTodayDate) {
-    startDate.value = todayDate;
-  } else {
-    startDate.value = event;
-  }
+  startDate.value = isTodayDate ? todayDate : event;
 };
+
 const touched = ref(false);
+
 const check = () => {
   touched.value = false;
   console.log(countOfQuestions.value);

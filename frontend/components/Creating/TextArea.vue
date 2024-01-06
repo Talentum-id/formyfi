@@ -60,6 +60,8 @@ export default {
   textarea {
     min-height: 120px;
     outline: none;
+    max-width: 455px;
+    min-width: 455px;
     background: $white;
     border: 1px solid $colabs-bg;
     border-radius: 8px;

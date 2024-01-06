@@ -1,6 +1,9 @@
 module Types {
     public type Question = {
         question: Text;
+        questionType: Text;
+        description: Text;
+        images: [Text];
         required: Bool;
         incorrect_answers: [Text];
         correct_answers: [Text];
@@ -11,10 +14,19 @@ module Types {
         title: Text;
         description: Text;
         shareLink: Text;
-        participants: Int;
-        start: Int;
-        end: Int;
+        participants: Nat;
+        start: Nat;
+        end: Nat;
         questions: [Question];
     };
 
+    public type QAGetParams = {
+        search: Text;
+        sortBy: {
+            key: Text;
+            value: Text;
+        };
+        page: Nat;
+        pageSize: Nat;
+    };
 };

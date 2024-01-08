@@ -1,12 +1,16 @@
 module Types {
+    public type Answer = {
+        answer: Text;
+        isCorrect: Bool;
+    };
+
     public type Question = {
         question: Text;
         questionType: Text;
         description: Text;
-        images: [Text];
+        files: [Text];
         required: Bool;
-        incorrect_answers: [Text];
-        correct_answers: [Text];
+        answers: [Answer];
     };
 
     public type QA = {

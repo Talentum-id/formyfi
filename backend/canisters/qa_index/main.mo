@@ -12,6 +12,8 @@ import Types "types";
 actor QAIndex {
     type QA = Types.QA;
     type FetchParams = Types.QAGetParams;
+    type Answer = Types.Answer;
+    type Question = Types.Question;
 
     stable var QAEntries: [(Text, [QA])] = [];
     stable var shareLinkEntries: [(Text, Text)] = [];
@@ -41,8 +43,12 @@ actor QAIndex {
     public shared({caller}) func store(data: QA) : async () {
         let identity = Principal.toText(caller);
 
-        if (not (validate(data, identity))) {
+        if (not (validate(data))) {
             throw Error.reject("Please, fill required fields!");
+        };
+
+        if (not (validateQuestions(data.questions))) {
+            throw Error.reject("Please, ensure you have a correct answer for quiz questions!");
         };
 
         let shareLinkExists = await show(data.shareLink);
@@ -129,7 +135,7 @@ actor QAIndex {
         userQAs;
     };
 
-    func validate(data: QA, identity: Text): Bool {
+    func validate(data: QA): Bool {
         let {
             title;
             description;
@@ -156,6 +162,16 @@ actor QAIndex {
         };
 
         true;
+    };
+
+    func validateQuestions(questions: [Question]): Bool {
+        Array.find<Question>(questions, func question =
+            if (question.questionType == "quiz") {
+                Array.find<Answer>(question.answers, func answer = answer.isCorrect == true) == null
+            } else {
+                false
+            } 
+        ) == null;
     };
 
     public query func readAll(): async Text {

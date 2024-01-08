@@ -351,6 +351,7 @@ const check = () => {
       questions: countOfQuestions.value.map((item) => {
         return {
           ...item,
+          images: 'route-image',
           questionType: item.type ? 'question' : 'quiz',
           answers: item.answers
             .map((el) => {

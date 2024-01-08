@@ -333,7 +333,7 @@ const check = () => {
     statusMessage.value = 'Loading Images';
     uploadImage(bannerImage.value);
     countOfQuestions.value.map((item) => {
-      uploadImage(item.images);
+      uploadImage(item.images); // <- ARRAY OF IMAGES
     });
   } catch (e) {
     statusMessage.value = 'Publish Quest';

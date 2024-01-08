@@ -1,0 +1,12 @@
+type UserData = 
+ record {
+   fullName: text;
+   username: text;
+ };
+service : {
+  findUser: () -> (opt UserData) query;
+  findUsername: (text) -> (bool) query;
+  readAll: () -> (text) query;
+  register: (text, text) -> (opt UserData);
+  reset: () -> ();
+}

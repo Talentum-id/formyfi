@@ -63,7 +63,7 @@ export default {
     max-width: 455px;
     min-width: 455px;
     background: $white;
-    border: 1px solid $colabs-bg;
+    border: 1px solid $default-border;
     border-radius: 8px;
     padding: 8px 12px;
     font-family: 'Basis Grotesque Pro';

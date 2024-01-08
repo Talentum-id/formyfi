@@ -1,0 +1,43 @@
+type Question = 
+ record {
+   answers: vec Answer;
+   description: text;
+   files: vec text;
+   question: text;
+   questionType: text;
+   required: bool;
+ };
+type QA = 
+ record {
+   description: text;
+   end: nat;
+   image: text;
+   participants: nat;
+   questions: vec Question;
+   shareLink: text;
+   start: nat;
+   title: text;
+ };
+type FetchParams = 
+ record {
+   page: nat;
+   pageSize: nat;
+   search: text;
+   sortBy: record {
+             key: text;
+             value: text;
+           };
+ };
+type Answer = 
+ record {
+   answer: text;
+   isCorrect: bool;
+ };
+service : {
+  delete: (text) -> ();
+  list: (FetchParams) -> (vec QA);
+  readAll: () -> (text) query;
+  reset: () -> ();
+  show: (text) -> (opt QA) query;
+  store: (QA) -> ();
+}

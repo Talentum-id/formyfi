@@ -85,7 +85,7 @@ export const useAuthStore = defineStore('auth', {
       if (user == null) {
         this.user = null;
       } else {
-        const {username, fullName} = user;
+        const { username, fullName } = user;
 
         this.user = { username, fullName };
       }
@@ -93,5 +93,6 @@ export const useAuthStore = defineStore('auth', {
   },
   getters: {
     getUser: ({ user }) => user,
+    getIdentity: (state) => state.identity,
   },
 });

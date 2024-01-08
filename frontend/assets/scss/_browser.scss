@@ -27,3 +27,8 @@ input:-webkit-autofill:active {
   cursor: pointer;
 }
 
+.el-dialog__body {
+  img {
+    width: 100%;
+  }
+}

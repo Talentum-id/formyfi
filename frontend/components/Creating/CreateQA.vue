@@ -179,7 +179,7 @@
         </div>
         <div class="flex footer">
           <BaseButton text="Preview" type="primary" />
-          <BaseButton text="Publish Quest" type="normal" @click="check" />
+          <BaseButton :text="statusMessage" type="normal" @click="check" />
         </div>
       </div>
     </div>
@@ -202,6 +202,8 @@ import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import { useQAStore } from '@/store/qa';
+import { AssetManager } from '@dfinity/assets';
+import { useAuthStore } from '@/store/auth';
 
 const show = ref(false);
 const images = ref([]);
@@ -210,13 +212,14 @@ const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
-const idQuestType = ref(0);
 const questsTypeItems = ref([
   { title: 'Open Question', id: 0, name: 'question' },
   { title: 'Quiz Question', id: 1, name: 'quiz' },
   // { title: 'Multiple Choice', id: 2, name: 'multiple' },
 ]);
 const qaStore = useQAStore();
+const authStore = useAuthStore();
+const identity = computed(() => authStore.identity);
 const countOfQuestions = ref([
   {
     question: '',
@@ -270,10 +273,6 @@ const showPreview = () => {
   show.value = !show.value;
 };
 
-const updateDescription = (question) => {
-  description.value = question.description;
-};
-
 const shiftQuestionForward = (index) => {
   if (index < countOfQuestions.value.length - 1) {
     swapQuestions(index, index + 1);
@@ -319,36 +318,54 @@ function uuidv4() {
     (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
   );
 }
-
+const statusMessage = ref('Publish Quest');
+const uploadImage = async (image) => {
+  const assetManager = new AssetManager({
+    canisterId: process.env.QA_INDEX_CANISTER_ID, // Principal of assets canister
+    agent: identity.value, // Identity in agent must be authorized by the assets canister to make any changes
+  });
+  await assetManager.store(image);
+  return PATH; // PATH OF IMAGE
+};
 const check = () => {
-  touched.value = false;
-
+  touched.value = true;
   try {
+    statusMessage.value = 'Loading Images';
+    uploadImage(bannerImage.value);
+    countOfQuestions.value.map((item) => {
+      uploadImage(item.images);
+    });
+  } catch (e) {
+    statusMessage.value = 'Publish Quest';
+  }
+  try {
+    statusMessage.value = 'Loading data';
     qaStore.storeQA({
       title: questionName.value,
       description: description.value,
-      image: "route-image",
+      image: 'route-image',
       participants: 0,
       shareLink: uuidv4(),
       end: Date.parse(endDate.value) / 1000,
       start: Date.parse(startDate.value) / 1000,
       questions: countOfQuestions.value.map((item) => {
-      return {
-        ...item,
-        questionType: item.type ? 'question' : 'quiz',
-        answers: item.answers
-          .map((el) => {
-            if (el.answer) {
-              return el;
-            }
-          })
-          .filter((el) => el),
-      };
-    })
+        return {
+          ...item,
+          questionType: item.type ? 'question' : 'quiz',
+          answers: item.answers
+            .map((el) => {
+              if (el.answer) {
+                return el;
+              }
+            })
+            .filter((el) => el),
+        };
+      }),
     });
-  } catch (e) {}
-
-  touched.value = true;
+  } catch (e) {
+    statusMessage.value = 'Publish Quest';
+  }
+  statusMessage.value = 'Publish Quest';
 };
 </script>
 <script>

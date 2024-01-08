@@ -84,7 +84,7 @@
           :key="index"
         >
           <div class="section_wrapper-title head-control">
-            Questions #{{ question.id }}
+            Questions #{{ index + 1 }}
             <div class="controllers">
               <div class="controllers">
                 <img
@@ -140,14 +140,25 @@
                 />
                 <TextArea placeholder="Description (optional)" v-model="question.description" />
               </div>
-              <div v-if="question.type === 2">
-                <draggable class="answers" :list="question.answers">
+              <div v-if="question.type === 1">
+                <div class="answers">
                   <div class="answer" v-for="(answer, id) in question.answers" :key="id">
-                    <img src="@/assets/icons/item.svg" alt="" />
+                    <div class="status">
+                      <Icon
+                        name="Tik"
+                        :class="{ isCorrect: answer.isCorrect }"
+                        @click="
+                          setAllIncorrect();
+                          answer.isCorrect = !answer.isCorrect;
+                        "
+                      ></Icon>
+                    </div>
                     <Answer
                       v-model="answer.answer"
                       :isError="!answer.answer && touched"
+                      :isCorrect="answer.isCorrect"
                       errorText="Answer is Required"
+                      @setIncorrect="setAllIncorrect()"
                     />
                     <div
                       class="add-answer"
@@ -157,7 +168,7 @@
                       <img src="@/assets/icons/add.svg" alt="" />
                     </div>
                   </div>
-                </draggable>
+                </div>
               </div>
             </div>
           </div>
@@ -190,6 +201,7 @@ import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
+import { useQAStore } from '@/store/qa';
 
 const show = ref(false);
 const images = ref([]);
@@ -202,27 +214,34 @@ const idQuestType = ref(0);
 const questsTypeItems = ref([
   { title: 'Open Question', id: 0, name: 'question' },
   { title: 'Quiz Question', id: 1, name: 'quiz' },
-  { title: 'Multiple Choice', id: 2, name: 'multiple' },
+  // { title: 'Multiple Choice', id: 2, name: 'multiple' },
 ]);
-
+const qaStore = useQAStore();
 const countOfQuestions = ref([
   {
-    id: 1,
     question: '',
+    questionType: '',
     type: 0,
     description: '',
     files: [],
     required: false,
-    answers: [{ id: 1, answer: '' }],
+    answers: [{ answer: '', isCorrect: false }],
   },
 ]);
 const answers = ref([0]);
 const bannerImage = ref(null);
 const questionName = ref('');
 const description = ref('');
-
+const setDescription = (event) => {
+  description.value = event;
+};
 const setTaskBanner = (value) => {
   bannerImage.value = value;
+};
+const setAllIncorrect = () => {
+  countOfQuestions.value.map((item) => {
+    item.answers.map((el) => (el.isCorrect = false));
+  });
 };
 
 const handleImageError = (event) => {
@@ -232,13 +251,13 @@ const handleImageError = (event) => {
 const addQuestion = () => {
   if (countOfQuestions.value.length < 8) {
     countOfQuestions.value.push({
-      id: countOfQuestions.value.length + 1,
       question: '',
+      questionType: '',
       type: 0,
       description: '',
       files: [],
       required: false,
-      answers: [{ id: 1, answer: '' }],
+      answers: [{ answer: '', isCorrect: false }],
     });
   }
 };
@@ -295,10 +314,47 @@ const setStartDate = (event) => {
 };
 
 const touched = ref(false);
+function uuidv4() {
+  return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
+    (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
+  );
+}
 
 const check = () => {
   touched.value = false;
-  console.log(countOfQuestions.value);
+  console.log({
+    title: questionName.value,
+    description: description.value,
+    image: bannerImage.value,
+    shareLink: uuidv4(),
+    end: Date.parse(endDate.value) / 1000,
+    start: Date.parse(startDate.value) / 1000,
+    questions: countOfQuestions.value.map((item) => {
+      return {
+        ...item,
+        questionType: item.type ? 'question' : 'quiz',
+        answers: item.answers
+          .map((el) => {
+            if (el.answer) {
+              return el;
+            }
+          })
+          .filter((el) => el),
+      };
+    }),
+  });
+  try {
+    qaStore.storeQA({
+      title: questionName.value,
+      description: description.value,
+      image: bannerImage.value,
+      shareLink: uuidv4(),
+      end: endDate.value,
+      start: startDate.value,
+      questions: countOfQuestions.value,
+    });
+  } catch (e) {}
+
   touched.value = true;
 };
 </script>
@@ -590,7 +646,6 @@ export default defineComponent({
     align-items: center;
     gap: 4px;
     width: 100%;
-    cursor: move;
     .add-answer {
       display: flex;
       padding: 4px;
@@ -618,5 +673,15 @@ export default defineComponent({
 .footer {
   margin-top: 60px;
   gap: 24px;
+}
+.status {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+
+  .isCorrect {
+    filter: invert(51%) sepia(11%) saturate(2579%) hue-rotate(70deg) brightness(102%) contrast(87%);
+  }
 }
 </style>

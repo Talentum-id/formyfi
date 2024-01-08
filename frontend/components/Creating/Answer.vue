@@ -1,13 +1,12 @@
 <template>
-  <div class="input">
-    <input
-      type="text"
-      :value="modelValue"
-      @input="updateValue"
-      placeholder="Answer Option"
-      :class="{ error: isError }"
+  <div class="input" :class="{ error: isError, correct: isCorrect }">
+    <input type="text" :value="modelValue" @input="updateValue" placeholder="Input option" />
+    <img
+      src="@/assets/icons/remove.svg"
+      v-if="isCorrect"
+      @click="$emit('setIncorrect')"
+      class="remove"
     />
-    <!--    <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>-->
   </div>
 </template>
 
@@ -23,6 +22,7 @@ export default {
       default: '',
     },
     isError: { type: Boolean, default: false },
+    isCorrect: { type: Boolean, default: false },
     errorText: { type: String, default: '' },
   },
   methods: {
@@ -37,15 +37,38 @@ export default {
 <style scoped lang="scss">
 .input {
   display: flex;
-  flex-direction: column;
   position: relative;
+  align-items: center;
   width: 100%;
+  outline: none;
+  background: $white;
+  border: 1px solid $default-border;
+  border-radius: 8px;
+  padding: 7px 12px;
+  .remove {
+    visibility: hidden;
+  }
+  &:focus {
+    box-shadow: 0 0 0 3px $default-border;
+  }
+  &.error {
+    border-color: $error-border;
+  }
+  &.correct {
+    border-color: $success-text;
+    &:hover {
+      background: $success-hover-bg;
+      border: 1px solid $success-hover-bg;
+      .remove {
+        visibility: visible;
+      }
+    }
+  }
   input {
+    width: 100%;
     outline: none;
-    background: $white;
-    border: 1px solid $default-border;
-    border-radius: 8px;
-    padding: 7px 12px;
+    border: none;
+    background: transparent;
     font-family: $default_font;
     font-style: normal;
     font-weight: 400;
@@ -57,9 +80,7 @@ export default {
       'lnum' on,
       'zero' on;
     color: $section-title;
-    &.error {
-      border-color: $error-border;
-    }
+
     &::placeholder {
       font-family: $default_font;
       font-style: normal;
@@ -71,10 +92,6 @@ export default {
         'lnum' on,
         'zero' on;
       color: $colabs-bg;
-    }
-
-    &:focus {
-      box-shadow: 0 0 0 3px $default-border;
     }
   }
 }

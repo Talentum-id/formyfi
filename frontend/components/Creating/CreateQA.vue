@@ -183,6 +183,7 @@
         </div>
       </div>
     </div>
+    <Alert message="Success" type="success" v-if="showAlert"></Alert>
   </BaseModal>
 </template>
 <script setup>
@@ -204,6 +205,7 @@ import Icon from '@/components/Icons/Icon.vue';
 import { useQAStore } from '@/store/qa';
 import { AssetManager } from '@dfinity/assets';
 import { useAuthStore } from '@/store/auth';
+import Alert from '@/components/Alert.vue';
 
 const show = ref(false);
 const images = ref([]);
@@ -327,6 +329,7 @@ const uploadImage = async (image) => {
   await assetManager.store(image);
   return PATH; // PATH OF IMAGE
 };
+const showAlert = ref(false);
 const check = () => {
   touched.value = true;
   try {
@@ -363,6 +366,7 @@ const check = () => {
         };
       }),
     });
+    showAlert.value = true;
   } catch (e) {
     statusMessage.value = 'Publish Quest';
   }

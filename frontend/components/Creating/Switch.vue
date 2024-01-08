@@ -104,7 +104,7 @@ function toggleChecked() {
   }
 
   &:hover.not-checked:before {
-    background: $colabs-bg;
+    background: #d7dce5;
   }
 
   &:hover.checked:before {
@@ -119,7 +119,7 @@ function toggleChecked() {
   top: 3px;
   left: 3px !important;
   bottom: 4px;
-  background: $default-border;
+  background: #d7dce5;
   border-radius: 20px;
   -webkit-transition: 0.4s;
   transition: 0.4s;

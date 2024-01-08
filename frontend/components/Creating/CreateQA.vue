@@ -633,8 +633,8 @@ export default defineComponent({
   gap: 8px;
   width: 132px;
   height: 42px;
-  background: $default-badge-border;
-  border: 1px solid $default-border;
+  background: #e9ecf2;
+  border: 1px solid #d7dce5;
   border-radius: 8px;
   cursor: pointer;
 

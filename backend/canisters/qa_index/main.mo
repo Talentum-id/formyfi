@@ -14,21 +14,26 @@ actor QAIndex {
     type FetchParams = Types.QAGetParams;
 
     stable var QAEntries: [(Text, [QA])] = [];
+    stable var shareLinkEntries: [(Text, Text)] = [];
 
     let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
+    let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
 
-    public shared({caller}) func get(params: FetchParams): async [QA] {
+    public shared({caller}) func list(params: FetchParams): async [QA] {
         switch (QAs.get(Principal.toText(caller))) {
             case null [];
             case (?userQAs) filter(userQAs, params);
         };
     };
 
-    public shared({caller}) func show(shareLink: Text) : async ?QA {
-        switch (QAs.get(Principal.toText(caller))) {
-            case null null;
-            case (?userQAs) {
-                Array.find<QA>(userQAs, func x = x.shareLink == shareLink);
+    public query func show(shareLink: Text): async ?QA {
+        switch (shareLinks.get(shareLink)){
+            case null null; 
+            case (?identity) {
+                switch (QAs.get(identity)) {
+                    case null null;
+                    case (?userQAs) Array.find<QA>(userQAs, func x = x.shareLink == shareLink);
+                };
             };
         };
     };
@@ -38,6 +43,12 @@ actor QAIndex {
 
         if (not (validate(data, identity))) {
             throw Error.reject("Please, fill required fields!");
+        };
+
+        let shareLinkExists = await show(data.shareLink);
+
+        if (shareLinkExists != null) {
+            throw Error.reject("This share link already exists!");
         };
 
         switch (QAs.get(identity)) {
@@ -51,6 +62,8 @@ actor QAIndex {
                 QAs.put(identity, Buffer.toArray(qas));
             };
         };
+
+        shareLinks.put(data.shareLink, identity);
     };
 
     public shared({caller}) func delete(shareLink: Text): async () {
@@ -62,9 +75,11 @@ actor QAIndex {
                 QAs.put(identity, Array.filter<QA>(userQAs, func x = x.shareLink != shareLink));
             };
         };
+
+        shareLinks.delete(shareLink);
     };
 
-    func filter (qas: [QA], params: FetchParams) : [QA] {
+    func filter(qas: [QA], params: FetchParams) : [QA] {
         var userQAs = qas;
         let {search; page; pageSize; sortBy} = params;
 
@@ -73,7 +88,9 @@ actor QAIndex {
         };
 
         if (search != "") {
-            userQAs := Array.filter<QA>(userQAs, func qa = Text.contains(qa.title, #text search));
+            let formattedSearch = Text.toLowercase(search);
+
+            userQAs := Array.filter<QA>(userQAs, func qa = Text.contains(Text.toLowercase(qa.title), #text formattedSearch));
         };
 
         if (sortBy.key != "") {
@@ -138,17 +155,6 @@ actor QAIndex {
             return false;
         };
 
-        let shareLinkExists = switch (QAs.get(identity)) {
-            case null false;
-            case (?userQAs) {
-                Array.find<QA>(userQAs, func x = x.shareLink == shareLink) != null
-            };
-        };
-
-        if (shareLinkExists == true) {
-            return false;
-        };
-
         true;
     };
 
@@ -159,6 +165,10 @@ actor QAIndex {
             pairs := "(" # key # ", " # debug_show(value) # ") " # pairs
         };
 
+        for ((key, value) in shareLinks.entries()) {
+            pairs := "(" # key # ", " # value # ") " # pairs
+        };
+
         return pairs;
     };
 
@@ -166,13 +176,19 @@ actor QAIndex {
         for ((key, value) in QAs.entries()) {
             QAs.delete(key);
         };
+
+        for ((key, value) in shareLinks.entries()) {
+            shareLinks.delete(key);
+        };
     };
 
     system func preupgrade() {
         QAEntries := Iter.toArray(QAs.entries());
+        shareLinkEntries := Iter.toArray(shareLinks.entries());
     };
 
     system func postupgrade() {
         QAEntries := [];
+        shareLinkEntries := [];
     };
 };

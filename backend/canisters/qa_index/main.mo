@@ -171,7 +171,7 @@ actor QAIndex {
             } else {
                 false
             } 
-        ) == null;
+        ) != null;
     };
 
     public query func readAll(): async Text {

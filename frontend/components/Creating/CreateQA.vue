@@ -322,14 +322,17 @@ function uuidv4() {
 
 const check = () => {
   touched.value = false;
-  console.log({
-    title: questionName.value,
-    description: description.value,
-    image: bannerImage.value,
-    shareLink: uuidv4(),
-    end: Date.parse(endDate.value) / 1000,
-    start: Date.parse(startDate.value) / 1000,
-    questions: countOfQuestions.value.map((item) => {
+
+  try {
+    qaStore.storeQA({
+      title: questionName.value,
+      description: description.value,
+      image: "route-image",
+      participants: 0,
+      shareLink: uuidv4(),
+      end: Date.parse(endDate.value) / 1000,
+      start: Date.parse(startDate.value) / 1000,
+      questions: countOfQuestions.value.map((item) => {
       return {
         ...item,
         questionType: item.type ? 'question' : 'quiz',
@@ -341,17 +344,7 @@ const check = () => {
           })
           .filter((el) => el),
       };
-    }),
-  });
-  try {
-    qaStore.storeQA({
-      title: questionName.value,
-      description: description.value,
-      image: bannerImage.value,
-      shareLink: uuidv4(),
-      end: endDate.value,
-      start: startDate.value,
-      questions: countOfQuestions.value,
+    })
     });
   } catch (e) {}
 

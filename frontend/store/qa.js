@@ -4,6 +4,7 @@ import router from '../router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
+import { AuthClient } from '@dfinity/auth-client';
 
 function createActorFromIdentity(identity) {
   return createActor(process.env.QA_INDEX_CANISTER_ID, {
@@ -13,13 +14,47 @@ function createActorFromIdentity(identity) {
 
 export const useQAStore = defineStore('qa', {
   id: 'qa',
-  state: () => {
-    return {
-      actor: null,
-      qa: null,
-    };
-  },
+  state: () => ({
+    actor: null,
+    qa: null,
+    authClient: null,
+    isReady: false,
+    isAuthenticated: false,
+    identity: null,
+    list: [],
+  }),
   actions: {
+    async init() {
+      const authClient = await AuthClient.create({
+        idleOptions: {
+          disableIdle: true,
+        },
+      });
+
+      this.authClient = authClient;
+
+      this.isAuthenticated = await authClient.isAuthenticated();
+      this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
+      this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
+
+      if (this.isAuthenticated) {
+        sessionStorage.isAuthenticated = true;
+
+        await this.actor
+          .findUser()
+          .then((res) => {
+            if (res.length) {
+              this.setUser(res[0]);
+            }
+          })
+          .catch((err) => this.logout());
+      } else {
+        sessionStorage.removeItem('isAuthenticated');
+      }
+
+      this.isReady = true;
+    },
+
     async storeQA(params) {
       if (!this.actor) {
         this.actor = createActorFromIdentity(useAuthStore().identity);
@@ -31,6 +66,20 @@ export const useQAStore = defineStore('qa', {
         })
         .catch((e) => console.error(e));
     },
+
+    async getQAs(params, page) {
+      if (!this.actor) {
+        this.actor = createActorFromIdentity(useAuthStore().identity);
+      }
+      await this.actor
+        .list(params)
+        .then((responce) => {
+          this.list = params;
+        })
+        .catch((e) => console.error(e));
+    },
   },
-  getters: {},
+  getters: {
+    getList: (state) => state.list,
+  },
 });

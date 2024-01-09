@@ -4,7 +4,12 @@
       <div class="header">
         <h1 class="title">Q&A Forms</h1>
         <div class="contollers">
-          <InputWithSearch placeholder="Find a Form..." :iconSize="24" />
+          <InputWithSearch
+            placeholder="Find a Form..."
+            :iconSize="24"
+            v-model="search"
+            :intervalFunc="searchInList"
+          />
           <CreateQA></CreateQA>
         </div>
       </div>
@@ -12,7 +17,7 @@
         <div class="sort">
           <span>Sort by:</span>
           <Select
-            :options="[{ name: 123, id: 1 }]"
+            :options="sortOptions"
             scrollHorizontalHidden
             class="select"
             :stringLengthSelected="16"
@@ -29,18 +34,28 @@
         :columns="requestsColumns"
         :rows="requestsRows"
         is-sorting
+        :sortFunction="sortTasks"
+        :sortDirection="sortDirection"
+        :setSortDirection="setSortDirection"
+        :setSortColumn="setSortColumn"
+        :sortColumn="sortColumn"
         pointer
         title="You have no wallet requests"
         icon="icons8-futurama-bender"
       />
-      <Pagination v-if="requestsRows && requestsRows.length" :currentPage="1" :totalPages="5" />
+      <Pagination
+        v-if="requestsRows && requestsRows.length"
+        :currentPage="1"
+        :totalPages="5"
+        @pageChanged="nextPage($event)"
+      />
     </div>
   </Default>
 </template>
 <script setup>
 import Default from '@/layouts/default.vue';
 import CollapseTable from '@/components/Table/CollapseTable.vue';
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import Badge from '@/components/Badge.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
@@ -52,7 +67,9 @@ import Select from '@/components/Select.vue';
 import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
-
+import { useQAStore } from '@/store/qa';
+import { useRoute } from 'vue-router';
+import router from '@/router';
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '100%' },
@@ -67,10 +84,60 @@ const requestsColumns = computed(() => {
     { prop: 'btns', label: '', width: '30%' },
   ];
 });
+const route = useRoute();
+const qaStore = useQAStore();
+let isMounted = false;
+const sortOptions = ref([{ name: 123, id: 1 }]);
+onMounted(async () => {
+  if (route.query && route.query.page) {
+    await nextPage(route.query.page);
+  } else {
+    await qaStore.getQAs();
+  }
+  isMounted = true;
+});
 
+function nextPage(page) {
+  currentPage.value = page;
+}
+const qaList = computed(() => qaStore.getList);
+const sort = ref({});
+const currentPage = ref(route.query ? route.query.page : 1);
+
+const sortTasks = async (prop, direction) => {
+  if (!isMounted) return;
+  await router.push({ query: Object.assign({}, route.query, { page: 1 }) });
+  currentPage.value = 1;
+  if (prop === 'manager') {
+    await sortHandle('name', direction);
+    return;
+  }
+  await sortHandle(prop, direction);
+};
+const sortDirection = ref('');
+const sortColumn = ref('');
+const setSortDirection = (value) => {
+  sortDirection.value = value;
+};
+const setSortColumn = (value) => {
+  sortColumn.value = value;
+};
+const search = ref('');
+
+const sortHandle = async (name, type) => {
+  const params = {};
+  if (type) {
+    params.sortKey = name;
+    params.sortType = type;
+  }
+  sort.value = params;
+};
 const requestsRows = computed(
   () => {
-    const originalArray = [1, 2, 3, 5];
+    const originalArray = qaList.value;
+    if (!originalArray || !originalArray?.length) {
+      return [];
+    }
     const wallets = originalArray.map((el, i) => {
       return {
         component: Wallet,
@@ -103,7 +170,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Text,
           props: {
-            text: `The Q&A for the Starforged Blad #${i + 1}`,
+            text: item.title,
           },
         },
         components: numbers,
@@ -111,7 +178,7 @@ const requestsRows = computed(
       link: {
         component: Link,
         props: {
-          text: `qa-question-${i + 18}`,
+          text: item.shareLink,
           value: '',
         },
       },
@@ -119,7 +186,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Badge,
           props: {
-            text: `${Math.floor(Math.random() * (100 - 10 + 1) + 10)} users `,
+            text: `${item.participants} users `,
             value: '',
             type: 'claim',
             big: false,
@@ -131,7 +198,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Badge,
           props: {
-            text: 'Jan 12, 2024 ',
+            text: item.start,
             value: '',
             type: 'claim',
             big: false,
@@ -142,7 +209,7 @@ const requestsRows = computed(
       end: {
         component: Badge,
         props: {
-          text: 'Jan 12, 2025 ',
+          text: item.end,
           value: '',
           type: 'claim',
           big: false,
@@ -152,6 +219,16 @@ const requestsRows = computed(
   },
   { deep: true },
 );
+const searchInterval = ref(null);
+function searchInList() {
+  clearTimeout(searchInterval.value);
+  searchInterval.value = setTimeout(() => {
+    router.push({
+      query: Object.assign({}, route.query, { page: 1 }),
+    });
+    qaStore.getQAs();
+  }, 500);
+}
 </script>
 <style scoped lang="scss">
 .header {

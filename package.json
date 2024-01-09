@@ -7,11 +7,12 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.19.3",
-    "@dfinity/auth-client": "^0.19.3",
-    "@dfinity/candid": "^0.19.3",
-    "@dfinity/identity": "^0.19.3",
-    "@dfinity/principal": "^0.19.3",
+    "@dfinity/agent": "^0.20.2",
+    "@dfinity/assets": "^0.20.2",
+    "@dfinity/auth-client": "^0.20.2",
+    "@dfinity/candid": "^0.20.2",
+    "@dfinity/identity": "^0.20.2",
+    "@dfinity/principal": "^0.20.2",
     "@mobiscroll/javascript": "^5.22.2",
     "@vueup/vue-quill": "^1.1.1",
     "dotenv": "^16.3.1",

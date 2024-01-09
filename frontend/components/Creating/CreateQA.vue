@@ -329,6 +329,7 @@ const uploadImage = async (image) => {
   await assetManager.store(image);
   return PATH; // PATH OF IMAGE
 };
+
 const showAlert = ref(false);
 const check = () => {
   touched.value = true;

@@ -14,6 +14,7 @@ actor QAIndex {
     type FetchParams = Types.QAGetParams;
     type Answer = Types.Answer;
     type Question = Types.Question;
+    type List = Types.ListResult;
 
     stable var QAEntries: [(Text, [QA])] = [];
     stable var shareLinkEntries: [(Text, Text)] = [];
@@ -21,11 +22,21 @@ actor QAIndex {
     let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
     let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
 
-    public shared({caller}) func list(params: FetchParams): async [QA] {
-        switch (QAs.get(Principal.toText(caller))) {
+    public shared({caller}) func list(params: FetchParams): async List {
+        let data = switch (QAs.get(Principal.toText(caller))) {
             case null [];
             case (?userQAs) filter(userQAs, params);
         };
+
+        let pagination = {
+            total = data.size();
+            count = params.pageSize;
+            per_page = params.pageSize;
+            current_page = params.page;
+            total_pages = data.size() / params.pageSize;
+        };
+
+        {data; pagination};
     };
 
     public query func show(shareLink: Text): async ?QA {

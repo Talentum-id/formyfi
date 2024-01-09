@@ -30,16 +30,16 @@ module Types {
             key: Text;
             value: Text;
         };
-        page: Nat;
-        pageSize: Nat;
+        page: Int;
+        pageSize: Int;
     };
 
     public type Pagination = {
         total: Nat;
-        count: Nat;
-        per_page: Nat;
-        current_page: Nat;
-        total_pages: Nat;
+        count: Int;
+        per_page: Int;
+        current_page: Int;
+        total_pages: Float;
     };
 
     public type ListResult = {

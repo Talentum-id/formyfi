@@ -1,9 +1,11 @@
 import Map "mo:base/HashMap";
 import Principal "mo:base/Principal";
+import Float "mo:base/Float";
 import Iter "mo:base/Iter";
 import Array "mo:base/Array";
 import Text "mo:base/Text";
 import Nat "mo:base/Nat";
+import Int "mo:base/Int";
 import Error "mo:base/Error";
 import Buffer "mo:base/Buffer";
 import Order "mo:base/Order";
@@ -33,7 +35,7 @@ actor QAIndex {
             count = params.pageSize;
             per_page = params.pageSize;
             current_page = params.page;
-            total_pages = data.size() / params.pageSize;
+            total_pages = Float.ceil(Float.fromInt(data.size()) / Float.fromInt(params.pageSize));
         };
 
         {data; pagination};
@@ -134,11 +136,11 @@ actor QAIndex {
         };
 
         if (page != 0 and pageSize != 0) {
-            var offset: Nat = page - 1;
+            var offset: Int = page - 1;
             offset := offset * pageSize;
 
-            var limit = if (userQAs.size() < offset + pageSize) userQAs.size() else offset + pageSize; 
-            var QAIter = Array.slice<QA>(userQAs, offset, limit);
+            var limit :Int = if (userQAs.size() < offset + pageSize) userQAs.size() else offset + pageSize;
+            var QAIter = Array.slice<QA>(userQAs, Int.abs(offset), Int.abs(limit));
 
             userQAs := Iter.toArray(QAIter);
         };

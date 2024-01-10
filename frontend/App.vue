@@ -13,4 +13,8 @@ if (!isReady.value) {
   authStore.init();
 }
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+</style>

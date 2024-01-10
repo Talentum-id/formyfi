@@ -14,43 +14,48 @@
         </div>
       </div>
       <div class="actions">
-        <div class="sort">
-          <span>Sort by:</span>
-          <Select
-            :options="sortOptions"
-            scrollHorizontalHidden
-            class="select"
-            :stringLengthSelected="16"
-            :string-length="14"
-          ></Select>
-        </div>
-        <button class="export-btn">
+        <!--        <div class="sort">-->
+        <!--          <span>Sort by:</span>-->
+        <!--          <Select-->
+        <!--            :options="sortOptions"-->
+        <!--            scrollHorizontalHidden-->
+        <!--            class="select"-->
+        <!--            :stringLengthSelected="16"-->
+        <!--            :string-length="14"-->
+        <!--          ></Select>-->
+        <!--        </div>-->
+        <button class="export-btn" @click="pageScreenToPdf">
           <span>Export as pdf</span>
-          <img :src="downloadIcon" alt="" />
+          <img v-if="!loading" :src="downloadIcon" alt="" @click.stop="pageScreenToPdf" />
+          <span v-else class="loader"></span>
         </button>
       </div>
-
+      <p class="text-red-400">12321321</p>
+      <span class="text-white">12321321</span>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
-
-      <CollapseTable
-        :columns="requestsColumns"
-        :rows="requestsRows"
-        is-sorting
-        :sortFunction="sortTasks"
-        :sortDirection="sortDirection"
-        :setSortDirection="setSortDirection"
-        :setSortColumn="setSortColumn"
-        :sortColumn="sortColumn"
-        pointer
-        title="You have no Q&A"
-        icon="icons8-futurama-bender"
-      />
-      <Pagination
-        v-if="requestsRows && requestsRows.length"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @pageChanged="nextPage($event)"
-      />
+      <div ref="index">
+        <TableSkeleton v-if="!loaded" />
+        <CollapseTable
+          v-else
+          :columns="requestsColumns"
+          :rows="requestsRows"
+          is-sorting
+          :sortFunction="sortTasks"
+          :sortDirection="sortDirection"
+          :setSortDirection="setSortDirection"
+          :setSortColumn="setSortColumn"
+          :sortColumn="sortColumn"
+          pointer
+          title="You have no Q&A"
+          icon="icons8-futurama-bender"
+        />
+        <Pagination
+          v-if="requestsRows && requestsRows.length"
+          :currentPage="currentPage"
+          :totalPages="pagination.total_pages"
+          @pageChanged="nextPage($event)"
+        />
+      </div>
     </div>
   </Default>
 </template>
@@ -73,6 +78,9 @@ import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
 import { formatDate } from '@/util/helpers';
+import html2pdf from 'html2pdf.js';
+import TableSkeleton from '@/components/TableSkeleton.vue';
+const index = ref(null);
 
 const requestsColumns = computed(() => {
   return [
@@ -91,9 +99,8 @@ const requestsColumns = computed(() => {
 const route = useRoute();
 const qaStore = useQAStore();
 let isMounted = false;
-const sortOptions = ref([{ name: 123, id: 1 }]);
+const sortOptions = ref([{ name: '123', id: 1 }]);
 const showAlert = ref(false);
-
 onMounted(async () => {
   if (route.query && route.query.page) {
     await nextPage(route.query.page);
@@ -102,12 +109,31 @@ onMounted(async () => {
   }
   isMounted = true;
 });
-
+const loading = ref(false);
+const pageScreenToPdf = () => {
+  loading.value = true;
+  const style = document.createElement('style');
+  document.head.appendChild(style);
+  style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
+  html2pdf(index.value, {
+    filename: 'dashboard.pdf',
+    image: { type: 'png', quality: 1 },
+    enableLinks: false,
+    pagebreak: { mode: 'css' },
+    html2canvas: { dpi: 96, letterRendering: false, scale: 2, allowTaint: false, useCORS: true },
+    jsPDF: { format: 'a2', orientation: 'p', unit: 'mm' },
+  }).then(() => {
+    style.remove();
+    loading.value = false;
+  });
+};
 function nextPage(page) {
   currentPage.value = page;
   qaStore.getQAs(params.value);
 }
 const qaList = computed(() => qaStore.getList);
+const loaded = computed(() => qaStore.getLoadingStatus);
+
 const params = computed(() => {
   return {
     search: search.value,
@@ -159,12 +185,15 @@ const sortHandle = async (name, type) => {
   sort.value = params;
   await qaStore.getQAs(params.value);
 };
+const pagination = computed(() => qaList.value.pagination);
+
 const requestsRows = computed(
   () => {
     const originalArray = qaList.value.data;
     if (!originalArray || !originalArray?.length) {
       return [];
     }
+    console.log(qaList.value);
     const wallets = originalArray.map((el, i) => {
       return {
         component: Wallet,

@@ -22,6 +22,7 @@ export const useQAStore = defineStore('qa', {
     isAuthenticated: false,
     identity: null,
     list: [],
+    loaded: false,
   }),
   actions: {
     async init() {
@@ -70,17 +71,25 @@ export const useQAStore = defineStore('qa', {
         });
     },
     async getQAs(params) {
+      this.loaded = false;
       if (!this.actor) {
         this.actor = createActorFromIdentity(useAuthStore().identity);
       }
 
       await this.actor
         .list(params)
-        .then((res) => (this.list = res))
-        .catch((e) => console.error(e));
+        .then((res) => {
+          this.list = res;
+          this.loaded = true;
+        })
+        .catch((e) => {
+          console.error(e);
+          this.loaded = true;
+        });
     },
   },
   getters: {
     getList: (state) => state.list,
+    getLoadingStatus: (state) => state.loaded,
   },
 });

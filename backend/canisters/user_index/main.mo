@@ -72,7 +72,7 @@ actor UserIndex {
             users.delete(key);
         };
 
-        for((key, value) in users.entries()) {
+        for((key, value) in usernames.entries()) {
             usernames.delete(key);
         };
 

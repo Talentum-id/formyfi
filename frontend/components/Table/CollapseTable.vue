@@ -139,10 +139,10 @@
             <template v-else />
           </div>
         </div>
-        <div class="arrow-icon" @click="toggleOpenHandler(rowIndex)">
-          <Icon v-if="isRowCollapsed(rowIndex)" name="Up" :size="24" />
-          <Icon v-else name="Down" :size="24" />
-        </div>
+        <!--        <div class="arrow-icon" @click="toggleOpenHandler(rowIndex)">-->
+        <!--          <Icon v-if="isRowCollapsed(rowIndex)" name="Up" :size="24" />-->
+        <!--          <Icon v-else name="Down" :size="24" />-->
+        <!--        </div>-->
       </div>
     </div>
     <EmptyList v-else :title="title" :icon="icon" />

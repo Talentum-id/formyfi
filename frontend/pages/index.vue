@@ -217,13 +217,10 @@ const requestsRows = computed(
     });
     return originalArray.map((item, i) => ({
       title: {
-        singleComponent: {
-          component: Text,
-          props: {
-            text: item.title,
-          },
+        component: Text,
+        props: {
+          text: item.title,
         },
-        components: numbers,
       },
       shareLink: {
         component: Link,
@@ -233,28 +230,22 @@ const requestsRows = computed(
         },
       },
       participants: {
-        singleComponent: {
-          component: Badge,
-          props: {
-            text: `${item.participants} users `,
-            value: '',
-            type: 'claim',
-            big: false,
-          },
+        component: Badge,
+        props: {
+          text: `${item.participants} users `,
+          value: '',
+          type: 'claim',
+          big: false,
         },
-        components: wallets,
       },
       start: {
-        singleComponent: {
-          component: Badge,
-          props: {
-            text: formatDate(Number(item.start) * 1000),
-            value: '',
-            type: 'claim',
-            big: false,
-          },
+        component: Badge,
+        props: {
+          text: formatDate(Number(item.start) * 1000),
+          value: '',
+          type: 'claim',
+          big: false,
         },
-        components: dates,
       },
       end: {
         component: Badge,

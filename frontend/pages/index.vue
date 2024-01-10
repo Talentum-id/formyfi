@@ -10,7 +10,7 @@
             v-model="search"
             :intervalFunc="searchInList"
           />
-          <CreateQA></CreateQA>
+          <CreateQA @refresh="refreshList()"></CreateQA>
         </div>
       </div>
       <div class="actions">
@@ -30,6 +30,8 @@
         </button>
       </div>
 
+      <Alert message="Success" type="success" v-if="showAlert"></Alert>
+
       <CollapseTable
         :columns="requestsColumns"
         :rows="requestsRows"
@@ -40,13 +42,13 @@
         :setSortColumn="setSortColumn"
         :sortColumn="sortColumn"
         pointer
-        title="You have no wallet requests"
+        title="You have no Q&A"
         icon="icons8-futurama-bender"
       />
       <Pagination
         v-if="requestsRows && requestsRows.length"
-        :currentPage="1"
-        :totalPages="5"
+        :currentPage="currentPage"
+        :totalPages="totalPages"
         @pageChanged="nextPage($event)"
       />
     </div>
@@ -57,7 +59,6 @@ import Default from '@/layouts/default.vue';
 import CollapseTable from '@/components/Table/CollapseTable.vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import Badge from '@/components/Badge.vue';
-import BaseButton from '@/components/BaseButton.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Link from '@/components/Table/Link.vue';
 import Wallet from '@/components/Table/Wallet.vue';
@@ -70,6 +71,8 @@ import CreateQA from '@/components/Creating/CreateQA.vue';
 import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import router from '@/router';
+import Alert from '@/components/Alert.vue';
+
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '100%' },
@@ -88,11 +91,13 @@ const route = useRoute();
 const qaStore = useQAStore();
 let isMounted = false;
 const sortOptions = ref([{ name: 123, id: 1 }]);
+const showAlert = ref(false);
+
 onMounted(async () => {
   if (route.query && route.query.page) {
     await nextPage(route.query.page);
   } else {
-    await qaStore.getQAs();
+    await qaStore.getQAs(params.value);
   }
   isMounted = true;
 });
@@ -101,6 +106,17 @@ function nextPage(page) {
   currentPage.value = page;
 }
 const qaList = computed(() => qaStore.getList);
+const params = computed(() => {
+  return {
+    search: search.value,
+      page: parseInt(currentPage.value) || 1,
+      pageSize: 15,
+      sortBy: {
+        key: sort.value.sortKey || '',
+        value: sort.value.sortType || '',
+      },
+  };
+});
 const sort = ref({});
 const currentPage = ref(route.query ? route.query.page : 1);
 
@@ -124,6 +140,14 @@ const setSortColumn = (value) => {
 };
 const search = ref('');
 
+const refreshList = () => {
+  qaStore.getQAs(params.value);
+
+  showAlert.value = true;
+
+  setTimeout(() => showAlert.value = false, 2000);
+};
+
 const sortHandle = async (name, type) => {
   const params = {};
   if (type) {
@@ -134,7 +158,7 @@ const sortHandle = async (name, type) => {
 };
 const requestsRows = computed(
   () => {
-    const originalArray = qaList.value;
+    const originalArray = qaList.value.data;
     if (!originalArray || !originalArray?.length) {
       return [];
     }
@@ -226,7 +250,8 @@ function searchInList() {
     router.push({
       query: Object.assign({}, route.query, { page: 1 }),
     });
-    qaStore.getQAs();
+
+    qaStore.getQAs(params.value);
   }, 500);
 }
 </script>

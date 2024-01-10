@@ -83,13 +83,13 @@ const index = ref(null);
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '100%' },
-    { prop: 'link', label: 'Share Link', width: '130%' },
+    { prop: 'shareLink', label: 'Share Link', width: '130%' },
     {
-      prop: 'amount',
+      prop: 'participants',
       label: 'Participants',
       width: '50%',
     },
-    { prop: 'period', label: 'Started/Filled', width: '70%' },
+    { prop: 'start', label: 'Started/Filled', width: '70%' },
     { prop: 'end', label: 'End', width: '70%' },
     { prop: 'btns', label: '', width: '30%' },
   ];
@@ -229,14 +229,14 @@ const requestsRows = computed(
         },
         components: numbers,
       },
-      link: {
+      shareLink: {
         component: Link,
         props: {
           text: item.shareLink,
           value: '',
         },
       },
-      amount: {
+      participants: {
         singleComponent: {
           component: Badge,
           props: {
@@ -248,7 +248,7 @@ const requestsRows = computed(
         },
         components: wallets,
       },
-      period: {
+      start: {
         singleComponent: {
           component: Badge,
           props: {

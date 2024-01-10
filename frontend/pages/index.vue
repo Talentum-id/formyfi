@@ -34,6 +34,7 @@
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
         <CollapseTable
+          v-else
           :columns="requestsColumns"
           :rows="requestsRows"
           is-sorting
@@ -149,10 +150,6 @@ const sortTasks = async (prop, direction) => {
   if (!isMounted && !loaded) return;
   await router.push({ query: Object.assign({}, route.query, { page: 1 }) });
   currentPage.value = 1;
-  if (prop === 'manager') {
-    await sortHandle('name', direction);
-    return;
-  }
   await sortHandle(prop, direction);
 };
 const sortDirection = ref('');

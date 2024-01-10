@@ -207,7 +207,7 @@ export default {
       localStorage.sortDirection &&
       localStorage.sortColumn
     ) {
-      this.sortFunction(this.sortByColumn(localStorage.sortColumn), localStorage.sortDirection);
+      //this.sortFunction(this.sortByColumn(localStorage.sortColumn), localStorage.sortDirection);
     }
   },
   methods: {

@@ -34,7 +34,6 @@
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
         <CollapseTable
-          v-else
           :columns="requestsColumns"
           :rows="requestsRows"
           is-sorting
@@ -147,7 +146,7 @@ const sort = ref({});
 const currentPage = ref(route.query ? route.query.page : 1);
 
 const sortTasks = async (prop, direction) => {
-  if (!isMounted) return;
+  if (!isMounted && !loaded) return;
   await router.push({ query: Object.assign({}, route.query, { page: 1 }) });
   currentPage.value = 1;
   if (prop === 'manager') {
@@ -175,12 +174,12 @@ const refreshList = () => {
 };
 
 const sortHandle = async (name, type) => {
-  const params = {};
+  const paramsSort = {};
   if (type) {
-    params.sortKey = name;
-    params.sortType = type;
+    paramsSort.sortKey = name;
+    paramsSort.sortType = type;
   }
-  sort.value = params;
+  sort.value = paramsSort;
   await qaStore.getQAs(params.value);
 };
 const pagination = computed(() => qaList.value.pagination);

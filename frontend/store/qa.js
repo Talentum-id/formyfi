@@ -67,7 +67,7 @@ export const useQAStore = defineStore('qa', {
       if (!this.actor) {
         this.actor = createActorFromIdentity(useAuthStore().identity);
       }
-
+      console.log(params);
       await this.actor
         .list(params)
         .then((res) => {

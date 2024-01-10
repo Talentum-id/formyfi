@@ -181,7 +181,7 @@
           <BaseButton text="Preview" type="primary" />
           <BaseButton
             :text="statusMessage"
-            :disabled="!validationCheck"
+            :disabled="!validationCheck || loading"
             type="normal"
             @click="check"
           />
@@ -214,6 +214,7 @@ import Alert from '@/components/Alert.vue';
 const emits = defineEmits('refresh');
 
 const show = ref(false);
+const loading = ref(false);
 const isImagesError = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
@@ -360,7 +361,7 @@ function uuidv4() {
 const loadImages = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (typeof bannerImage.value !== 'string'){
+      if (typeof bannerImage.value !== 'string') {
         bannerImage.value = await assetsStore.assetManager.store(bannerImage.value);
       }
 
@@ -381,42 +382,42 @@ const loadImages = () => {
 };
 
 const saveQA = async () => {
-  return await qaStore
-    .storeQA({
-      title: questionName.value,
-      description: description.value,
-      image: bannerImage.value,
-      participants: 0,
-      shareLink: uuidv4(),
-      end: Date.parse(endDate.value) / 1000,
-      start: Date.parse(startDate.value) / 1000,
-      questions: countOfQuestions.value.map((item) => {
-        return {
-          ...item,
-          questionType: item.type ? 'quiz' : 'open',
-          answers: item.type ? item.answers : [],
-        };
-      }),
-    });
+  return await qaStore.storeQA({
+    title: questionName.value,
+    description: description.value,
+    image: bannerImage.value,
+    participants: 0,
+    shareLink: uuidv4(),
+    end: Date.parse(endDate.value) / 1000,
+    start: Date.parse(startDate.value) / 1000,
+    questions: countOfQuestions.value.map((item) => {
+      return {
+        ...item,
+        questionType: item.type ? 'quiz' : 'open',
+        answers: item.type ? item.answers : [],
+      };
+    }),
+  });
 };
 
 const check = async () => {
   touched.value = true;
-
   if (!validationCheck.value) {
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);
-
     return;
   }
-
+  if (loading.value) {
+    return;
+  }
+  loading.value = true;
   try {
     statusMessage.value = 'Loading images...';
     await loadImages();
 
     statusMessage.value = 'Loading data...';
     await saveQA();
-    
+
     show.value = false;
     emits('refresh');
   } catch (err) {
@@ -426,6 +427,7 @@ const check = async () => {
     setTimeout(() => (showError.value = false), 2000);
   } finally {
     statusMessage.value = 'Publish Quest';
+    loading.value = false;
   }
 };
 </script>

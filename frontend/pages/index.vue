@@ -72,11 +72,12 @@ import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
+import { formatDate } from '@/util/helpers';
 
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '100%' },
-    { prop: 'link', label: 'Share Link', width: '60%' },
+    { prop: 'link', label: 'Share Link', width: '130%' },
     {
       prop: 'amount',
       label: 'Participants',
@@ -104,17 +105,18 @@ onMounted(async () => {
 
 function nextPage(page) {
   currentPage.value = page;
+  qaStore.getQAs(params.value);
 }
 const qaList = computed(() => qaStore.getList);
 const params = computed(() => {
   return {
     search: search.value,
-      page: parseInt(currentPage.value) || 1,
-      pageSize: 15,
-      sortBy: {
-        key: sort.value.sortKey || '',
-        value: sort.value.sortType || '',
-      },
+    page: parseInt(currentPage.value) || 1,
+    pageSize: 15,
+    sortBy: {
+      key: sort.value.sortKey || '',
+      value: sort.value.sortType || '',
+    },
   };
 });
 const sort = ref({});
@@ -145,7 +147,7 @@ const refreshList = () => {
 
   showAlert.value = true;
 
-  setTimeout(() => showAlert.value = false, 2000);
+  setTimeout(() => (showAlert.value = false), 2000);
 };
 
 const sortHandle = async (name, type) => {
@@ -155,6 +157,7 @@ const sortHandle = async (name, type) => {
     params.sortType = type;
   }
   sort.value = params;
+  await qaStore.getQAs(params.value);
 };
 const requestsRows = computed(
   () => {
@@ -222,7 +225,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Badge,
           props: {
-            text: item.start,
+            text: formatDate(Number(item.start) * 1000),
             value: '',
             type: 'claim',
             big: false,
@@ -233,7 +236,7 @@ const requestsRows = computed(
       end: {
         component: Badge,
         props: {
-          text: item.end,
+          text: formatDate(Number(item.end) * 1000),
           value: '',
           type: 'claim',
           big: false,

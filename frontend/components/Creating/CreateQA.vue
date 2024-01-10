@@ -127,7 +127,7 @@
                 />
                 <div class="check-btn_wrapper">
                   <div class="check-btn_title">Required</div>
-                  <Switch :checkedProp="question.required" />
+                  <Switch :checkedProp="question.required" @checked="question.required = $event" />
                 </div>
               </div>
               <div class="flex flex-col">
@@ -179,10 +179,16 @@
         </div>
         <div class="flex footer">
           <BaseButton text="Preview" type="primary" />
-          <BaseButton :text="statusMessage" type="normal" @click="check" />
+          <BaseButton
+            :text="statusMessage"
+            :disabled="!validationCheck"
+            type="normal"
+            @click="check"
+          />
         </div>
       </div>
     </div>
+    <Alert :message="errorMessage" type="error" v-if="showError"></Alert>
   </BaseModal>
 </template>
 <script setup>
@@ -203,6 +209,7 @@ import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import { useQAStore } from '@/store/qa';
 import { useAssetsStore } from '@/store/assets';
+import Alert from '@/components/Alert.vue';
 
 const emits = defineEmits('refresh');
 
@@ -232,8 +239,34 @@ const countOfQuestions = ref([
     answers: [{ answer: '', isCorrect: false }],
   },
 ]);
+const errorMessage = ref('Error');
+const validationCheck = computed(() => {
+  const questionTitleIsEmpty = countOfQuestions.value.find((item) => !item.question);
+  const questionAnswerIsEmpty = countOfQuestions.value.find(
+    (item) => item.type && item.answers.find((el) => !el.answer),
+  );
+  const imagesIsRequired = countOfQuestions.value.find(
+    (item) => !item.images.length && item.required,
+  );
+  if (
+    !questionName.value ||
+    !bannerImage.value ||
+    !endDate.value ||
+    !startDate.value ||
+    !description.value ||
+    !!questionTitleIsEmpty ||
+    !!questionAnswerIsEmpty ||
+    !!imagesIsRequired
+  ) {
+    errorMessage.value = 'Some fields are empty or incorrect';
+    return false;
+  } else {
+    return true;
+  }
+});
 const answers = ref([0]);
 const bannerImage = ref(null);
+const showError = ref(false);
 const questionName = ref('');
 const description = ref('');
 const setDescription = (event) => {
@@ -242,7 +275,7 @@ const setDescription = (event) => {
 const setTaskBanner = (value) => {
   bannerImage.value = value;
 };
-const setAllIncorrect = index => {
+const setAllIncorrect = (index) => {
   countOfQuestions.value[index].answers.map((el) => (el.isCorrect = false));
 };
 
@@ -318,7 +351,7 @@ function uuidv4() {
   return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
     (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
   );
-};
+}
 
 const loadImages = () => {
   return new Promise(async (resolve, reject) => {
@@ -329,10 +362,10 @@ const loadImages = () => {
         countOfQuestions.value.map(async (item) => {
           if (item.images.length) {
             item.files = await Promise.all(
-              item.images.map(async (file) => await assetsStore.assetManager.store(file.raw))
+              item.images.map(async (file) => await assetsStore.assetManager.store(file.raw)),
             );
           }
-        })
+        }),
       );
       resolve();
     } catch (error) {
@@ -342,42 +375,49 @@ const loadImages = () => {
 };
 
 const saveQA = async () => {
-  await qaStore.storeQA({
-    title: questionName.value,
-    description: description.value,
-    image: bannerImage.value,
-    participants: 0,
-    shareLink: uuidv4(),
-    end: Date.parse(endDate.value) / 1000,
-    start: Date.parse(startDate.value) / 1000,
-    questions: countOfQuestions.value.map((item) => {
-      return {
-        ...item,
-        questionType: item.type ? 'quiz' : 'open',
-        answers: item.type ? item.answers : [],
-      };
-    }),
-  })
-  .then(() => {
+  await qaStore
+    .storeQA({
+      title: questionName.value,
+      description: description.value,
+      image: bannerImage.value,
+      participants: 0,
+      shareLink: uuidv4(),
+      end: Date.parse(endDate.value) / 1000,
+      start: Date.parse(startDate.value) / 1000,
+      questions: countOfQuestions.value.map((item) => {
+        return {
+          ...item,
+          questionType: item.type ? 'quiz' : 'open',
+          answers: item.type ? item.answers : [],
+        };
+      }),
+    })
+    .then(() => {
       show.value = false;
-
       emits('refresh');
-  });
+    });
 };
 
 const check = async () => {
   touched.value = true;
-  
+  if (!validationCheck.value) {
+    showError.value = true;
+    setTimeout(() => (showError.value = false), 2000);
+    return;
+  }
   try {
     statusMessage.value = 'Loading images...';
 
     await loadImages();
-    
+
     statusMessage.value = 'Loading data...';
 
     await saveQA();
   } catch (err) {
     console.log(err);
+    errorMessage.value = 'Something went wrong';
+    showError.value = true;
+    setTimeout(() => (showError.value = false), 2000);
   } finally {
     statusMessage.value = 'Publish Quest';
   }

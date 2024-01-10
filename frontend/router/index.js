@@ -3,6 +3,7 @@ import App from '@/pages/index.vue';
 import Responses from '@/pages/Responses.vue';
 import login from '@/pages/login.vue';
 import signUp from '@/pages/sign-up.vue';
+import { useAuthStore } from '@/store/auth';
 
 const routes = [
   {
@@ -11,7 +12,7 @@ const routes = [
     component: App,
     meta: {
       title: `Q&A List`,
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
   {
@@ -64,6 +65,7 @@ function setPageTitleMiddleware(to, from, next) {
 }
 
 router.beforeEach(async (to, from, next) => {
+  console.log(useAuthStore());
   if (to.matched.some((record) => record.meta.requiresAuth) && !isAuthenticated()) {
     console.log('Redirecting to /login');
     next('/login');

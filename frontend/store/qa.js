@@ -64,7 +64,10 @@ export const useQAStore = defineStore('qa', {
         .then(() => {
           this.qa = params;
         })
-        .catch((e) => console.error(e));
+        .catch((e) => {
+          console.error(e);
+          throw new e();
+        });
     },
     async getQAs(params) {
       if (!this.actor) {
@@ -73,7 +76,7 @@ export const useQAStore = defineStore('qa', {
 
       await this.actor
         .list(params)
-        .then(res => this.list = res)
+        .then((res) => (this.list = res))
         .catch((e) => console.error(e));
     },
   },

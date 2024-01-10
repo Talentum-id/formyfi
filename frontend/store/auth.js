@@ -4,6 +4,7 @@ import { createActor } from '~/user_index';
 import router from '../router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
+import { useAssetsStore } from './assets';
 
 function createActorFromIdentity(identity) {
   return createActor(process.env.USER_INDEX_CANISTER_ID, {
@@ -48,6 +49,8 @@ export const useAuthStore = defineStore('auth', {
             }
           })
           .catch((err) => this.logout());
+
+          useAssetsStore().init();
       } else {
         sessionStorage.removeItem('isAuthenticated');
       }
@@ -65,6 +68,8 @@ export const useAuthStore = defineStore('auth', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
 
           sessionStorage.isAuthenticated = true;
+
+          useAssetsStore().init();
 
           await router.push('/sign-up');
         },
@@ -93,6 +98,6 @@ export const useAuthStore = defineStore('auth', {
   },
   getters: {
     getUser: ({ user }) => user,
-    getIdentity: (state) => state.identity,
+    getIdentity: ({ identity }) => identity,
   },
 });

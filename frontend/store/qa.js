@@ -54,11 +54,11 @@ export const useQAStore = defineStore('qa', {
 
       this.isReady = true;
     },
-
     async storeQA(params) {
       if (!this.actor) {
         this.actor = createActorFromIdentity(useAuthStore().identity);
       }
+
       await this.actor
         .store(params)
         .then(() => {
@@ -66,16 +66,14 @@ export const useQAStore = defineStore('qa', {
         })
         .catch((e) => console.error(e));
     },
-
-    async getQAs(params, page) {
+    async getQAs(params) {
       if (!this.actor) {
         this.actor = createActorFromIdentity(useAuthStore().identity);
       }
+
       await this.actor
         .list(params)
-        .then((responce) => {
-          this.list = params;
-        })
+        .then(res => this.list = res)
         .catch((e) => console.error(e));
     },
   },

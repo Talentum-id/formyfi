@@ -121,8 +121,8 @@
             <div>
               <div class="content-block">
                 <CustomUpload
-                  :imagesFiles="question.files"
-                  @images="question.files = $event"
+                  :imagesFiles="question.images"
+                  @images="question.images = $event"
                   @changeError="handleImageError"
                 />
                 <div class="check-btn_wrapper">
@@ -148,7 +148,7 @@
                         name="Tik"
                         :class="{ isCorrect: answer.isCorrect }"
                         @click="
-                          setAllIncorrect();
+                          setAllIncorrect(index);
                           answer.isCorrect = !answer.isCorrect;
                         "
                       ></Icon>
@@ -158,7 +158,7 @@
                       :isError="!answer.answer && touched"
                       :isCorrect="answer.isCorrect"
                       errorText="Answer is Required"
-                      @setIncorrect="setAllIncorrect()"
+                      @setIncorrect="setAllIncorrect(index)"
                     />
                     <div
                       class="add-answer"
@@ -183,7 +183,6 @@
         </div>
       </div>
     </div>
-    <Alert message="Success" type="success" v-if="showAlert"></Alert>
   </BaseModal>
 </template>
 <script setup>
@@ -203,12 +202,11 @@ import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import { useQAStore } from '@/store/qa';
-import { AssetManager } from '@dfinity/assets';
-import { useAuthStore } from '@/store/auth';
-import Alert from '@/components/Alert.vue';
+import { useAssetsStore } from '@/store/assets';
+
+const emits = defineEmits('refresh');
 
 const show = ref(false);
-const images = ref([]);
 const isImagesError = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
@@ -220,8 +218,8 @@ const questsTypeItems = ref([
   // { title: 'Multiple Choice', id: 2, name: 'multiple' },
 ]);
 const qaStore = useQAStore();
-const authStore = useAuthStore();
-const identity = computed(() => authStore.identity);
+const assetsStore = useAssetsStore();
+
 const countOfQuestions = ref([
   {
     question: '',
@@ -229,6 +227,7 @@ const countOfQuestions = ref([
     type: 0,
     description: '',
     files: [],
+    images: [],
     required: false,
     answers: [{ answer: '', isCorrect: false }],
   },
@@ -243,10 +242,8 @@ const setDescription = (event) => {
 const setTaskBanner = (value) => {
   bannerImage.value = value;
 };
-const setAllIncorrect = () => {
-  countOfQuestions.value.map((item) => {
-    item.answers.map((el) => (el.isCorrect = false));
-  });
+const setAllIncorrect = index => {
+  countOfQuestions.value[index].answers.map((el) => (el.isCorrect = false));
 };
 
 const handleImageError = (event) => {
@@ -261,6 +258,7 @@ const addQuestion = () => {
       type: 0,
       description: '',
       files: [],
+      images: [],
       required: false,
       answers: [{ answer: '', isCorrect: false }],
     });
@@ -309,69 +307,80 @@ const setEndDate = (event) => {
 const setStartDate = (event) => {
   const today = new Date();
   const eventDate = new Date(event);
-  const isToday = eventDate.getTime() === today.getTime();
   const isTodayDate = eventDate.getDate() === today.getDate();
   startDate.value = isTodayDate ? todayDate : event;
 };
 
 const touched = ref(false);
+const statusMessage = ref('Publish Quest');
+
 function uuidv4() {
   return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
     (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
   );
-}
-const statusMessage = ref('Publish Quest');
-const uploadImage = async (image) => {
-  const assetManager = new AssetManager({
-    canisterId: process.env.QA_INDEX_CANISTER_ID, // Principal of assets canister
-    agent: identity.value, // Identity in agent must be authorized by the assets canister to make any changes
-  });
-  await assetManager.store(image);
-  return PATH; // PATH OF IMAGE
 };
 
-const showAlert = ref(false);
-const check = () => {
+const loadImages = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      bannerImage.value = await assetsStore.assetManager.store(bannerImage.value);
+
+      await Promise.all(
+        countOfQuestions.value.map(async (item) => {
+          if (item.images.length) {
+            item.files = await Promise.all(
+              item.images.map(async (file) => await assetsStore.assetManager.store(file.raw))
+            );
+          }
+        })
+      );
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const saveQA = async () => {
+  await qaStore.storeQA({
+    title: questionName.value,
+    description: description.value,
+    image: bannerImage.value,
+    participants: 0,
+    shareLink: uuidv4(),
+    end: Date.parse(endDate.value) / 1000,
+    start: Date.parse(startDate.value) / 1000,
+    questions: countOfQuestions.value.map((item) => {
+      return {
+        ...item,
+        questionType: item.type ? 'quiz' : 'open',
+        answers: item.type ? item.answers : [],
+      };
+    }),
+  })
+  .then(() => {
+      show.value = false;
+
+      emits('refresh');
+  });
+};
+
+const check = async () => {
   touched.value = true;
+  
   try {
-    statusMessage.value = 'Loading Images';
-    uploadImage(bannerImage.value);
-    countOfQuestions.value.map((item) => {
-      uploadImage(item.images); // <- ARRAY OF IMAGES
-    });
-  } catch (e) {
+    statusMessage.value = 'Loading images...';
+
+    await loadImages();
+    
+    statusMessage.value = 'Loading data...';
+
+    await saveQA();
+  } catch (err) {
+    console.log(err);
+  } finally {
     statusMessage.value = 'Publish Quest';
   }
-  try {
-    statusMessage.value = 'Loading data';
-    qaStore.storeQA({
-      title: questionName.value,
-      description: description.value,
-      image: 'route-image',
-      participants: 0,
-      shareLink: uuidv4(),
-      end: Date.parse(endDate.value) / 1000,
-      start: Date.parse(startDate.value) / 1000,
-      questions: countOfQuestions.value.map((item) => {
-        return {
-          ...item,
-          images: 'route-image',
-          questionType: item.type ? 'question' : 'quiz',
-          answers: item.answers
-            .map((el) => {
-              if (el.answer) {
-                return el;
-              }
-            })
-            .filter((el) => el),
-        };
-      }),
-    });
-    showAlert.value = true;
-  } catch (e) {
-    statusMessage.value = 'Publish Quest';
-  }
-  statusMessage.value = 'Publish Quest';
 };
 </script>
 <script>

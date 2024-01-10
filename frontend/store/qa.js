@@ -48,7 +48,7 @@ export const useQAStore = defineStore('qa', {
               this.setUser(res[0]);
             }
           })
-          .catch((err) => this.logout());
+          .catch(() => this.logout());
       } else {
         sessionStorage.removeItem('isAuthenticated');
       }
@@ -60,15 +60,7 @@ export const useQAStore = defineStore('qa', {
         this.actor = createActorFromIdentity(useAuthStore().identity);
       }
 
-      await this.actor
-        .store(params)
-        .then(() => {
-          this.qa = params;
-        })
-        .catch((e) => {
-          console.error(e);
-          throw new e();
-        });
+      return await this.actor.store(params);
     },
     async getQAs(params) {
       this.loaded = false;

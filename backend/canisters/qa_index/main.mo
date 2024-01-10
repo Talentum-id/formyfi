@@ -25,20 +25,21 @@ actor QAIndex {
     let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
 
     public shared({caller}) func list(params: FetchParams): async List {
-        let data = switch (QAs.get(Principal.toText(caller))) {
-            case null [];
+        switch (QAs.get(Principal.toText(caller))) {
+            case null {
+                {
+                    pagination = {
+                        total = 0;
+                        count = 0;
+                        per_page = 15;
+                        current_page = 1;
+                        total_pages = 1;
+                    };
+                    data = [];
+                };
+            };
             case (?userQAs) filter(userQAs, params);
         };
-
-        let pagination = {
-            total = data.size();
-            count = params.pageSize;
-            per_page = params.pageSize;
-            current_page = params.page;
-            total_pages = Float.ceil(Float.fromInt(data.size()) / Float.fromInt(params.pageSize));
-        };
-
-        {data; pagination};
     };
 
     public query func show(shareLink: Text): async ?QA {
@@ -98,24 +99,33 @@ actor QAIndex {
         shareLinks.delete(shareLink);
     };
 
-    func filter(qas: [QA], params: FetchParams) : [QA] {
-        var userQAs = qas;
+    func filter(qas: [QA], params: FetchParams) : List {
+        var data = qas;
         let {search; page; pageSize; sortBy} = params;
 
-        if (userQAs.size() < 1) {
-            return qas;
+        if (data.size() < 1) {
+            return {
+                pagination = {
+                    total = 0;
+                    count = 0;
+                    per_page = 15;
+                    current_page = 1;
+                    total_pages = 1;
+                };
+                data = [];
+            };
         };
 
         if (search != "") {
             let formattedSearch = Text.toLowercase(search);
 
-            userQAs := Array.filter<QA>(userQAs, func qa = Text.contains(Text.toLowercase(qa.title), #text formattedSearch));
+            data := Array.filter<QA>(data, func qa = Text.contains(Text.toLowercase(qa.title), #text formattedSearch));
         };
 
         if (sortBy.key != "") {
             let order = if (sortBy.value == "asc") "asc" else "desc";
 
-            userQAs := Array.sort<QA>(userQAs, func (x: QA, y: QA) {
+            data := Array.sort<QA>(data, func (x: QA, y: QA) {
                 let (key1: Text, key2: Text) = switch (sortBy.key) {
                     case "shareLink" (x.shareLink, y.shareLink);
                     case "participants" (Nat.toText(x.participants), Nat.toText(y.participants));
@@ -135,17 +145,25 @@ actor QAIndex {
             });
         };
 
+        let pagination = {
+            total = data.size();
+            count = params.pageSize;
+            per_page = params.pageSize;
+            current_page = params.page;
+            total_pages = Float.ceil(Float.fromInt(data.size()) / Float.fromInt(params.pageSize));
+        };
+
         if (page != 0 and pageSize != 0) {
             var offset: Int = page - 1;
             offset := offset * pageSize;
 
-            var limit :Int = if (userQAs.size() < offset + pageSize) userQAs.size() else offset + pageSize;
-            var QAIter = Array.slice<QA>(userQAs, Int.abs(offset), Int.abs(limit));
+            var limit :Int = if (data.size() < offset + pageSize) data.size() else offset + pageSize;
+            var QAIter = Array.slice<QA>(data, Int.abs(offset), Int.abs(limit));
 
-            userQAs := Iter.toArray(QAIter);
+            data := Iter.toArray(QAIter);
         };
 
-        userQAs;
+        {data; pagination};
     };
 
     func validate(data: QA): Bool {

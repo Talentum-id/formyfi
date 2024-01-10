@@ -299,7 +299,11 @@ const addQuestion = () => {
 };
 
 const addAnswers = (arr) => {
-  arr.push({ id: arr.length + 1, answer: '' });
+  arr.push({
+    id: arr.length + 1,
+    answer: '',
+    isCorrect: false,
+  });
 };
 
 const showPreview = () => {
@@ -356,7 +360,9 @@ function uuidv4() {
 const loadImages = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      bannerImage.value = await assetsStore.assetManager.store(bannerImage.value);
+      if (typeof bannerImage.value !== 'string'){
+        bannerImage.value = await assetsStore.assetManager.store(bannerImage.value);
+      }
 
       await Promise.all(
         countOfQuestions.value.map(async (item) => {
@@ -375,7 +381,7 @@ const loadImages = () => {
 };
 
 const saveQA = async () => {
-  await qaStore
+  return await qaStore
     .storeQA({
       title: questionName.value,
       description: description.value,
@@ -391,28 +397,28 @@ const saveQA = async () => {
           answers: item.type ? item.answers : [],
         };
       }),
-    })
-    .then(() => {
-      show.value = false;
-      emits('refresh');
     });
 };
 
 const check = async () => {
   touched.value = true;
+
   if (!validationCheck.value) {
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);
+
     return;
   }
+
   try {
     statusMessage.value = 'Loading images...';
-
     await loadImages();
 
     statusMessage.value = 'Loading data...';
-
     await saveQA();
+    
+    show.value = false;
+    emits('refresh');
   } catch (err) {
     console.log(err);
     errorMessage.value = 'Something went wrong';

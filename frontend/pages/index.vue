@@ -30,8 +30,6 @@
           <span v-else class="loader"></span>
         </button>
       </div>
-      <p class="text-red-400">12321321</p>
-      <span class="text-white">12321321</span>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
       <div ref="index">
         <TableSkeleton v-if="!loaded" />

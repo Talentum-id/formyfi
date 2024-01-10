@@ -64,6 +64,7 @@ const nfidConnect = async () => {};
     display: flex;
     align-items: center;
     gap: 8px;
+    justify-content: center;
 
     .name-social {
       color: #344054;

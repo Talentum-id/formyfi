@@ -41,7 +41,7 @@ const props = defineProps({
     border-radius: 8px;
     overflow: hidden;
     background: none;
-    background-size: contain !important;
+    background-size: cover !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
   }
@@ -58,6 +58,7 @@ const props = defineProps({
       font-style: normal;
       font-weight: 500;
       line-height: 64px;
+      max-width: 800px;
     }
   }
 }

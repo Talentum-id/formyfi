@@ -20,7 +20,12 @@
       font-size: 16px;
       line-height: 32px;
       hanging-punctuation: first last;
-      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on, 'ordn' on, 'ss04' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on,
+        'ordn' on,
+        'ss04' on;
       color: $section-title;
     }
     .ql-toolbar.ql-snow {
@@ -39,7 +44,10 @@
         font-weight: 400;
         font-size: 16px;
         line-height: 24px;
-        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        font-feature-settings:
+          'tnum' on,
+          'lnum' on,
+          'zero' on;
         color: $section-title;
       }
     }
@@ -58,7 +66,10 @@
         font-weight: 400;
         font-size: 16px;
         line-height: 24px;
-        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        font-feature-settings:
+          'tnum' on,
+          'lnum' on,
+          'zero' on;
         color: $section-title;
       }
     }
@@ -80,7 +91,12 @@
     font-size: 16px;
     line-height: 32px;
     hanging-punctuation: first last;
-    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on, 'ordn' on, 'ss04' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on,
+      'ordn' on,
+      'ss04' on;
     color: $colabs-bg;
   }
   .editor-wrapper .ql-toolbar.ql-snow + .ql-container.ql-snow .ql-editor {
@@ -89,7 +105,10 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $colabs-bg;
     &::placeholder {
       font-family: 'Basis Grotesque Pro';
@@ -97,7 +116,10 @@
       font-weight: 400;
       font-size: 16px;
       line-height: 24px;
-      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $colabs-bg;
     }
   }
@@ -107,7 +129,10 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $colabs-bg;
   }
   .editor-wrapper .ql-toolbar.ql-snow + .ql-container.ql-snow {
@@ -116,7 +141,10 @@
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $colabs-bg;
     &::placeholder {
       font-family: 'Basis Grotesque Pro';
@@ -124,7 +152,10 @@
       font-weight: 400;
       font-size: 16px;
       line-height: 24px;
-      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $colabs-bg;
     }
   }
@@ -141,7 +172,10 @@
       font-weight: 400;
       font-size: 16px;
       line-height: 24px;
-      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $colabs-bg;
     }
   }
@@ -153,13 +187,17 @@
     min-height: 240px;
     border: 1px solid $default-border;
     border-top: none;
+    outline: none;
     &::placeholder {
       font-family: 'Basis Grotesque Pro';
       font-style: normal;
       font-weight: 400;
       font-size: 16px;
       line-height: 24px;
-      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $colabs-bg;
     }
     .ql-editor {
@@ -169,15 +207,22 @@
       font-weight: 400;
       font-size: 16px;
       line-height: 24px;
-      font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $colabs-bg;
+      outline: none;
       &::placeholder {
         font-family: 'Basis Grotesque Pro';
         font-style: normal;
         font-weight: 400;
         font-size: 16px;
         line-height: 24px;
-        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        font-feature-settings:
+          'tnum' on,
+          'lnum' on,
+          'zero' on;
         color: $colabs-bg;
       }
       p {
@@ -186,7 +231,10 @@
         font-weight: 400;
         font-size: 16px;
         line-height: 24px;
-        font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+        font-feature-settings:
+          'tnum' on,
+          'lnum' on,
+          'zero' on;
         color: $colabs-bg;
         &::placeholder {
           font-family: 'Basis Grotesque Pro';
@@ -194,7 +242,10 @@
           font-weight: 400;
           font-size: 16px;
           line-height: 24px;
-          font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+          font-feature-settings:
+            'tnum' on,
+            'lnum' on,
+            'zero' on;
           color: $colabs-bg;
         }
       }

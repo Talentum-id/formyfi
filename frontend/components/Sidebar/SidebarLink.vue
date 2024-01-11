@@ -79,7 +79,7 @@ const props = defineProps({
 
 .active-link {
   color: $section-title;
-  background: $default-border;
+  background: #e9ecf2;
   border-radius: 8px 0px 0px 8px;
 
   .sidebar-icon {
@@ -102,7 +102,7 @@ const props = defineProps({
   align-items: center;
 
   &:hover:not(.active-link) {
-    background-color: $default-badge-border;
+    background-color: #e9ecf2;
     border-radius: 8px 0px 0px 8px;
   }
 

@@ -149,6 +149,7 @@
                           setAllIncorrect(index);
                           answer.isCorrect = !answer.isCorrect;
                         "
+                        :size="24"
                       ></Icon>
                     </div>
                     <Answer
@@ -156,7 +157,8 @@
                       :isError="!answer.answer && touched"
                       :isCorrect="answer.isCorrect"
                       errorText="Answer is Required"
-                      @setIncorrect="setAllIncorrect(index)"
+                      :is-last="question.answers.length === 1"
+                      @remove="question.answers.splice(id, 1)"
                     />
                     <div
                       class="add-answer"
@@ -745,7 +747,10 @@ export default defineComponent({
       align-items: center;
       gap: 8px;
       border-radius: 8px;
-      background: #d7dce5;
+      background: transparent;
+      &:hover {
+        background: #d7dce5;
+      }
     }
   }
 }
@@ -768,11 +773,15 @@ export default defineComponent({
   gap: 24px;
 }
 .status {
-  cursor: pointer;
-  width: 24px;
-  height: 24px;
   display: flex;
+  padding: 4px;
+  align-items: center;
+  border-radius: 8px;
 
+  background: transparent;
+  &:hover {
+    background: #d7dce5;
+  }
   .isCorrect {
     filter: invert(51%) sepia(11%) saturate(2579%) hue-rotate(70deg) brightness(102%) contrast(87%);
   }

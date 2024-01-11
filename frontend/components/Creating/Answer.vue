@@ -1,12 +1,7 @@
 <template>
   <div class="input" :class="{ error: isError, correct: isCorrect }">
     <input type="text" :value="modelValue" @input="updateValue" placeholder="Input option" />
-    <img
-      src="@/assets/icons/remove.svg"
-      v-if="isCorrect"
-      @click="$emit('setIncorrect')"
-      class="remove"
-    />
+    <img v-show="!isLast" src="@/assets/icons/remove.svg" @click="$emit('remove')" class="remove" />
   </div>
 </template>
 
@@ -21,7 +16,9 @@ export default {
       type: String,
       default: '',
     },
+
     isError: { type: Boolean, default: false },
+    isLast: { type: Boolean, default: false },
     isCorrect: { type: Boolean, default: false },
     errorText: { type: String, default: '' },
   },
@@ -45,6 +42,11 @@ export default {
   border: 1px solid $default-border;
   border-radius: 8px;
   padding: 7px 12px;
+  &:hover {
+    .remove {
+      visibility: visible;
+    }
+  }
   .remove {
     visibility: hidden;
   }
@@ -55,12 +57,24 @@ export default {
     border-color: $error-border;
   }
   &.correct {
-    border-color: $success-text;
+    border-color: #ddfadc;
     &:hover {
-      background: $success-hover-bg;
-      border: 1px solid $success-hover-bg;
-      .remove {
-        visibility: visible;
+      background: #ddfadc;
+      border: 1px solid #ddfadc;
+
+      input {
+        &::placeholder {
+          font-family: $default_font;
+          font-style: normal;
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 24px;
+          font-feature-settings:
+            'tnum' on,
+            'lnum' on,
+            'zero' on;
+          color: $section-title;
+        }
       }
     }
   }

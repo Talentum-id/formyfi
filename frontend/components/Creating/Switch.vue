@@ -57,7 +57,7 @@ function toggleChecked() {
   }
 }
 .checked {
-  background: #2637c0 !important;
+  background: #3249ff !important;
 }
 .switch {
   position: relative;

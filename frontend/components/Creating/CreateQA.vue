@@ -546,7 +546,7 @@ export default defineComponent({
           justify-content: center;
           align-items: center;
           z-index: 20;
-          border-right: 1px solid #dad9f7;
+          border-right: 1px solid #d7dce5;
           border-radius: 8px 0 0 8px;
           background-color: #dad9f7;
           top: 0;

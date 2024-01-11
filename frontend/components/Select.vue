@@ -176,7 +176,7 @@ export default {
 
 .custom-select .selected.open {
   background: $white;
-  border: 1px solid #eaeafb;
+  border: 1px solid #d7dce5;
   cursor: pointer;
   user-select: none;
   font-family: 'Basis Grotesque Pro';

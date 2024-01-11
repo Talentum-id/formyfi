@@ -1,5 +1,6 @@
 <template>
   <div :class="[type, { disabled }]" @click="$emit('clickFromComponent', id)">
+    <img v-if="type === 'return'" src="@/assets/icons/return.svg" alt="" />
     <span>{{ text }}</span>
     <img v-if="type === 'base'" src="@/assets/icons/plus.svg" alt="" />
   </div>
@@ -88,6 +89,30 @@ const props = defineProps({
   }
   img {
     margin-left: 8px;
+  }
+}
+.return {
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: fit-content;
+  background: $blue;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  &.disabled {
+    background-color: $secondary;
+    cursor: inherit;
+  }
+
+  span {
+    margin-left: 8px;
+    font-family: $default_font;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+
+    color: $white;
   }
 }
 .primary {

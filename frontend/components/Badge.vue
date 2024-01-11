@@ -124,7 +124,7 @@ div {
   border: 1px solid $default-badge-border;
   background: $transparent-active-bg;
   span {
-    color: $default;
+    color: $default !important;
   }
 }
 .chip {

@@ -178,7 +178,7 @@
           <span>Add Question</span>
         </div>
         <div class="flex-custom footer">
-          <BaseButton text="Preview" type="primary" />
+          <BaseButton text="Preview" type="primary" @click="preview" />
           <BaseButton
             :text="statusMessage"
             :disabled="!validationCheck || loading"
@@ -210,7 +210,9 @@ import Icon from '@/components/Icons/Icon.vue';
 import { useQAStore } from '@/store/qa';
 import { useAssetsStore } from '@/store/assets';
 import Alert from '@/components/Alert.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const emits = defineEmits('refresh');
 
 const show = ref(false);
@@ -377,7 +379,48 @@ const loadImages = () => {
     }
   });
 };
-
+const convertImage = (file) => {
+  return new Promise((resolve) => {
+    if (FileReader && file) {
+      const fr = new FileReader();
+      fr.onload = function () {
+        resolve(fr.result);
+      };
+      fr.readAsDataURL(file);
+    } else {
+      resolve(null);
+    }
+  });
+};
+const preview = async () => {
+  touched.value = true;
+  if (!validationCheck.value) {
+    showError.value = true;
+    setTimeout(() => (showError.value = false), 2000);
+    return;
+  } else {
+    touched.value = false;
+  }
+  const banner = await convertImage(bannerImage.value);
+  const obj = {
+    title: questionName.value,
+    description: description.value,
+    image: banner,
+    participants: 0,
+    shareLink: uuidv4(),
+    end: Date.parse(endDate.value) / 1000,
+    start: Date.parse(startDate.value) / 1000,
+    questions: countOfQuestions.value.map((item) => {
+      return {
+        ...item,
+        questionType: item.type ? 'quiz' : 'open',
+        answers: item.type ? item.answers : [],
+      };
+    }),
+  };
+  localStorage.previewData = JSON.stringify(obj);
+  await window.open('#/preview', '_blank');
+};
 const saveQA = async () => {
   return await qaStore.storeQA({
     title: questionName.value,

@@ -3,6 +3,7 @@ import App from '@/pages/index.vue';
 import Responses from '@/pages/Responses.vue';
 import login from '@/pages/login.vue';
 import signUp from '@/pages/sign-up.vue';
+import Preview from '@/pages/preview.vue';
 import { useAuthStore } from '@/store/auth';
 
 const routes = [
@@ -21,6 +22,15 @@ const routes = [
     component: Responses,
     meta: {
       title: `Responses`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/preview',
+    name: 'preview',
+    component: Preview,
+    meta: {
+      title: `Preview`,
       requiresAuth: true,
     },
   },

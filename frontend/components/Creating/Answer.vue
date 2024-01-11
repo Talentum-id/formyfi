@@ -54,7 +54,7 @@ export default {
     box-shadow: 0 0 0 3px $default-border;
   }
   &.error {
-    border-color: $error-border;
+    border-color: $error-border !important;
   }
   &.correct {
     border-color: #ddfadc;

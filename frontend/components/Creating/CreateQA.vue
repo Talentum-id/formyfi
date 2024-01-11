@@ -174,8 +174,8 @@
           </div>
         </div>
         <div class="add-talent-btn" @click="addQuestion">
-          <span>Add Question</span>
           <img src="@/assets/icons/add.svg" alt="" />
+          <span>Add Question</span>
         </div>
         <div class="flex-custom footer">
           <BaseButton text="Preview" type="primary" />
@@ -715,8 +715,8 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   gap: 8px;
-  width: 132px;
-  height: 42px;
+  width: 100%;
+  height: 40px;
   background: #e9ecf2;
   border: 1px solid #d7dce5;
   border-radius: 8px;

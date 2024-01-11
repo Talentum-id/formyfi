@@ -42,18 +42,22 @@ export const useAuthStore = defineStore('auth', {
       if (this.isAuthenticated) {
         await this.actor
           .findUser()
-          .then((res) => {
+          .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
               sessionStorage.isAuthenticated = true;
 
-              useQAStore().init();
-              useAssetsStore().init();
+              await useQAStore().init();
+              await useAssetsStore().init();
             } else {
               sessionStorage.removeItem('isAuthenticated');
+
+              router.push('/login');
             }
           })
           .catch(() => this.logout());
+      } else {
+        router.push('/login');
       }
 
       this.isReady = true;
@@ -67,6 +71,9 @@ export const useAuthStore = defineStore('auth', {
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
           this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
+
+          await useQAStore().init();
+          await useAssetsStore().init();
 
           sessionStorage.isAuthenticated = true;
 

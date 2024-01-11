@@ -15,10 +15,6 @@ const { isReady } = storeToRefs(authStore);
 
 if (!isReady.value) {
   authStore.init();
-} else {
-  if (assetsStore.actor === null) assetsStore.init();
-
-  if(qaStore.actor == null) qaStore.init();
 }
 </script>
 <style lang="scss">

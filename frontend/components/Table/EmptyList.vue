@@ -34,7 +34,7 @@ export default {
   margin: 0 auto;
   width: 100%;
   height: 352px;
-  background: #eaeafb;
+  background: #e9ecf2;
   grid-column: 1 / -1;
   div {
     font-family: $default_font;
@@ -47,7 +47,7 @@ export default {
       'lnum' on,
       'zero' on;
     margin-top: 10px;
-    color: $secondary;
+    color: #0f1014;
   }
 }
 </style>

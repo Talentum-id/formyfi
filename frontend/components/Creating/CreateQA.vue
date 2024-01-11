@@ -70,7 +70,7 @@
       </div>
       <div class="line"></div>
       <div class="section_wrapper">
-        <div class="section_wrapper-title flex">
+        <div class="section_wrapper-title flex-custom">
           Questions
           <TooltipIcon tooltipText="tooltipText" />
         </div>
@@ -85,27 +85,25 @@
         >
           <div class="section_wrapper-title head-control">
             Questions #{{ index + 1 }}
-            <div class="controllers">
-              <div class="controllers">
-                <img
-                  src="@/assets/icons/up.svg"
-                  @click="shiftQuestionBackward(index)"
-                  alt=""
-                  :class="{ blur: index === 0 }"
-                />
-                <img
-                  src="@/assets/icons/down.svg"
-                  @click="shiftQuestionForward(index)"
-                  alt=""
-                  :class="{ blur: index === countOfQuestions.length - 1 }"
-                />
-                <img
-                  src="@/assets/icons/delete.svg"
-                  @click="deleteQuestion(index)"
-                  alt=""
-                  :class="{ blur: countOfQuestions.length === 1 }"
-                />
-              </div>
+            <div class="flex items-center">
+              <img
+                src="@/assets/icons/up.svg"
+                @click="shiftQuestionBackward(index)"
+                alt=""
+                :class="{ 'blur-custom': index === 0 }"
+              />
+              <img
+                src="@/assets/icons/down.svg"
+                @click="shiftQuestionForward(index)"
+                alt=""
+                :class="{ 'blur-custom': index === countOfQuestions.length - 1 }"
+              />
+              <img
+                src="@/assets/icons/delete.svg"
+                @click="deleteQuestion(index)"
+                alt=""
+                :class="{ 'blur-custom': countOfQuestions.length === 1 }"
+              />
             </div>
           </div>
           <div class="section_wrapper-subtitle">
@@ -130,7 +128,7 @@
                   <Switch :checkedProp="question.required" @checked="question.required = $event" />
                 </div>
               </div>
-              <div class="flex flex-col">
+              <div class="flex-custom flex-col">
                 <Input
                   name=""
                   placeholder="Question"
@@ -177,7 +175,7 @@
           <span>Add Question</span>
           <img src="@/assets/icons/add.svg" alt="" />
         </div>
-        <div class="flex footer">
+        <div class="flex-custom footer">
           <BaseButton text="Preview" type="primary" />
           <BaseButton
             :text="statusMessage"
@@ -400,7 +398,8 @@ const saveQA = async () => {
 const resetFields = () => {
   bannerImage.value = null;
   questionName.value = description.value = null;
-  countOfQuestions.value = [{
+  countOfQuestions.value = [
+    {
       question: '',
       questionType: '',
       type: 0,
@@ -409,7 +408,8 @@ const resetFields = () => {
       images: [],
       required: false,
       answers: [{ answer: '', isCorrect: false }],
-  }];
+    },
+  ];
 };
 
 const check = async () => {
@@ -437,6 +437,7 @@ const check = async () => {
 
     resetFields();
     show.value = false;
+    touched.value = false;
 
     emits('refresh');
   } catch (err) {
@@ -626,7 +627,7 @@ export default defineComponent({
   border: 1px solid #d7dce5;
   background: #e9ecf2;
   border-radius: 8px;
-  margin-top: 24px;
+  margin-top: 12px;
   .title {
     font-weight: 500;
     font-size: 16px;
@@ -657,7 +658,7 @@ export default defineComponent({
     }
   }
 }
-.flex {
+.flex-custom {
   display: flex;
   gap: 24px;
 }
@@ -759,7 +760,7 @@ export default defineComponent({
     cursor: pointer;
   }
 }
-.blur {
+.blur-custom {
   opacity: 0.4;
 }
 .footer {

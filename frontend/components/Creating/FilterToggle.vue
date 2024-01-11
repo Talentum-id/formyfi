@@ -112,7 +112,7 @@ input {
     font-style: normal;
     font-weight: 500;
     font-size: 14px;
-    line-height: 2.3;
+    line-height: 2;
     text-align: center;
     font-feature-settings: 'zero' on;
     color: #161e2d;
@@ -198,7 +198,7 @@ input {
         font-style: normal;
         font-weight: 500;
         font-size: 14px;
-        line-height: 2.3;
+        line-height: 2;
         text-align: center;
         font-feature-settings: 'zero' on;
         color: #161e2d;
@@ -266,7 +266,7 @@ input {
     font-style: normal;
     font-weight: 500;
     font-size: 14px;
-    line-height: 2.3;
+    line-height: 2;
     text-align: center;
     font-feature-settings: 'zero' on;
     color: $default;

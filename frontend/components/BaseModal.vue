@@ -27,7 +27,7 @@
         :class="{ btnLeft }"
         @click="closeModal"
       >
-        <Icon name="Delete" size="24" />
+        <Icon name="Delete" :size="24" />
       </button>
     </div>
   </div>

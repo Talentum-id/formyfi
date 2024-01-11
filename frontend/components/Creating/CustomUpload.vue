@@ -5,11 +5,11 @@
     list-type="picture-card"
     :on-preview="handlePictureCardPreview"
     :on-remove="handleRemove"
-    :limit="3"
+    :limit="1"
     :auto-upload="false"
     accept="application/pdf, .png, .jpg,"
     :class="{
-      'hide-upload': fileList.length >= 3,
+      'hide-upload': fileList.length >= 1,
     }"
   >
     <template #default>

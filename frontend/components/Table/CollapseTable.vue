@@ -297,7 +297,7 @@ export default {
 
 .header-row {
   background: #e9ecf2;
-  border: 1px solid $default-border;
+  border: 1px solid #e9ecf2;
   border-radius: 16px;
   display: flex;
   align-items: center;

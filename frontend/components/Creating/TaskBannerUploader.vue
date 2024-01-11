@@ -140,7 +140,7 @@ const uploadImage = () => {
         justify-content: space-between;
         background: rgba(56, 64, 91, 0.5);
         z-index: 100000;
-        height: 86%;
+        height: 100%;
         padding: 16px;
         align-items: flex-end;
 

@@ -246,9 +246,7 @@ const validationCheck = computed(() => {
   const questionAnswerIsEmpty = countOfQuestions.value.find(
     (item) => item.type && item.answers.find((el) => !el.answer),
   );
-  const imagesIsRequired = countOfQuestions.value.find(
-    (item) => !item.images.length && item.required,
-  );
+
   if (
     !questionName.value ||
     !bannerImage.value ||
@@ -256,8 +254,7 @@ const validationCheck = computed(() => {
     !startDate.value ||
     !description.value ||
     !!questionTitleIsEmpty ||
-    !!questionAnswerIsEmpty ||
-    !!imagesIsRequired
+    !!questionAnswerIsEmpty
   ) {
     errorMessage.value = 'Some fields are empty or incorrect';
     return false;
@@ -400,17 +397,37 @@ const saveQA = async () => {
   });
 };
 
+const resetFields = () => {
+  bannerImage.value = null;
+  questionName.value = description.value = null;
+  countOfQuestions.value = [{
+      question: '',
+      questionType: '',
+      type: 0,
+      description: '',
+      files: [],
+      images: [],
+      required: false,
+      answers: [{ answer: '', isCorrect: false }],
+  }];
+};
+
 const check = async () => {
   touched.value = true;
+
   if (!validationCheck.value) {
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);
+
     return;
   }
+
   if (loading.value) {
     return;
   }
+
   loading.value = true;
+
   try {
     statusMessage.value = 'Loading images...';
     await loadImages();
@@ -418,7 +435,9 @@ const check = async () => {
     statusMessage.value = 'Loading data...';
     await saveQA();
 
+    resetFields();
     show.value = false;
+
     emits('refresh');
   } catch (err) {
     console.log(err);

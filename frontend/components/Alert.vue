@@ -52,19 +52,22 @@ export default {
     min-width: 236px;
   }
   .success {
-    background-image: url('@/assets/images/success-alert.svg');
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-color: #83d681;
+    // background-image: url('../assets/images/success-alert.svg');
+    // background-repeat: no-repeat;
+    // background-size: cover;
   }
   .danger {
-    background-image: url('@/assets/images/danger-alert.svg');
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-color: #e0b439;
+    // background-image: url('../assets/images/danger-alert.svg');
+    // background-repeat: no-repeat;
+    // background-size: cover;
   }
   .error {
-    background-image: url('@/assets/images/error-alert.svg');
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-color: #eb6854;
+    // background-image: url('../assets/images/error-alert.svg');
+    // background-repeat: no-repeat;
+    // background-size: cover;
   }
   .info {
     background-color: #d1ecf1;

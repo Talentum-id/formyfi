@@ -29,7 +29,6 @@ import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 
-const router = useRouter();
 const authStore = useAuthStore();
 
 const nfidConnect = async () => {};

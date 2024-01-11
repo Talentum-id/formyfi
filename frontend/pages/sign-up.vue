@@ -69,8 +69,10 @@ const validationError = computed(() => {
 
 const createAccount = () => {
   form.value.loading = true;
+
   if (validationError.value) {
     form.value.loading = false;
+
     return;
   }
 
@@ -79,6 +81,8 @@ const createAccount = () => {
     .then((res) => {
       authStore.setUser(res[0]);
       router.push('/');
+      
+      sessionStorage.isAuthenticated = true;
     })
     .catch((error) => console.log(error))
     .finally(() => (form.value.loading = false));

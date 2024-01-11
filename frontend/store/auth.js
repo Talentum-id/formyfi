@@ -40,21 +40,20 @@ export const useAuthStore = defineStore('auth', {
       this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
 
       if (this.isAuthenticated) {
-        sessionStorage.isAuthenticated = true;
-
         await this.actor
           .findUser()
           .then((res) => {
             if (res.length) {
               this.setUser(res[0]);
+              sessionStorage.isAuthenticated = true;
+
+              useQAStore().init();
+              useAssetsStore().init();
+            } else {
+              sessionStorage.removeItem('isAuthenticated');
             }
           })
-          .catch((err) => this.logout());
-
-          useQAStore().init();
-          useAssetsStore().init();
-      } else {
-        sessionStorage.removeItem('isAuthenticated');
+          .catch(() => this.logout());
       }
 
       this.isReady = true;
@@ -70,9 +69,6 @@ export const useAuthStore = defineStore('auth', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
 
           sessionStorage.isAuthenticated = true;
-
-          useQAStore().init();
-          useAssetsStore().init();
 
           await router.push('/sign-up');
         },

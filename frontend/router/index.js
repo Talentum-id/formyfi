@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import App from '@/pages/index.vue';
 import Responses from '@/pages/Responses.vue';
 import login from '@/pages/login.vue';
@@ -43,13 +43,13 @@ const routes = [
     component: signUp,
     meta: {
       title: `Register`,
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 

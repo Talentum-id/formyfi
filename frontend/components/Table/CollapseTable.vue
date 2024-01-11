@@ -228,11 +228,12 @@ export default {
     },
     sortByColumn(column) {
       if (!this.isSorting) return;
-      if (this.sortColumn === column) {
-        if (this.sortDirection === 'asc') {
+
+      if (localStorage.sortColumn === column) {
+        if (localStorage.sortDirection === 'asc') {
           this.sortDirection = 'desc';
           localStorage.sortDirection = this.sortDirection;
-        } else if (this.sortDirection === 'desc') {
+        } else if (localStorage.sortDirection === 'desc') {
           this.sortDirection = 'none';
           localStorage.sortDirection = this.sortDirection;
         } else {
@@ -380,7 +381,6 @@ export default {
   justify-content: space-between;
   margin-bottom: 8px;
   overflow: inherit;
-  max-height: 64px;
   padding: 20px;
 
   font-family: $default_font;

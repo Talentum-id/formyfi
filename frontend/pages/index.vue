@@ -173,10 +173,12 @@ const refreshList = () => {
 const sortHandle = async (name, type) => {
   const paramsSort = {};
   if (type) {
-    paramsSort.sortKey = name;
-    paramsSort.sortType = type;
+    sortColumn.value = paramsSort.sortKey = name;
+    sortDirection.value = paramsSort.sortType = type;
   }
+
   sort.value = paramsSort;
+
   await qaStore.getQAs(params.value);
 };
 const pagination = computed(() => qaList.value.pagination);

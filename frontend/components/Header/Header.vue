@@ -55,7 +55,6 @@ export default {
     const menu = ref(null);
     const goHome = () => {
       router.push('/');
-      console.log(user);
     };
 
     const handleClickOutside = (event) => {

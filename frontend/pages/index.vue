@@ -189,7 +189,7 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length) {
       return [];
     }
-    console.log(qaList.value);
+
     const wallets = originalArray.map((el, i) => {
       return {
         component: Wallet,

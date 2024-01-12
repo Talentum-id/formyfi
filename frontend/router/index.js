@@ -75,12 +75,9 @@ function setPageTitleMiddleware(to, from, next) {
 }
 
 router.beforeEach(async (to, from, next) => {
-  console.log(useAuthStore());
   if (to.matched.some((record) => record.meta.requiresAuth) && !isAuthenticated()) {
-    console.log('Redirecting to /login');
     next('/login');
   } else {
-    console.log('Allowing navigation');
     next();
   }
   await setPageTitleMiddleware(to, from, next);

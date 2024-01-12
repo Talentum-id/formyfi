@@ -1,5 +1,4 @@
 export const getTaskStatus = (status) => {
-  console.log('getTaskStatus', status);
   switch (status) {
     case 'available':
       return 'Available';

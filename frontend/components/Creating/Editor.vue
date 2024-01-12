@@ -47,10 +47,6 @@ const data = ref(props.description);
 
 const defaultDataPropRef = toRef(props, 'description');
 
-onMounted(() => {
-  console.log('props.description', props.description);
-});
-
 watch(defaultDataPropRef, (value) => {
   data.value = value;
 });

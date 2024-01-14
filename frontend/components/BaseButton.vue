@@ -3,10 +3,14 @@
     <img v-if="type === 'return'" src="@/assets/icons/return.svg" alt="" />
     <span>{{ text }}</span>
     <img v-if="type === 'base'" src="@/assets/icons/plus.svg" alt="" />
+    <Icon v-if="icon" :name="icon" :size="24"></Icon>
+    <slot></slot>
   </div>
 </template>
 
 <script setup>
+import Icon from '@/components/Icons/Icon.vue';
+
 const props = defineProps({
   id: {
     type: Number,
@@ -134,7 +138,7 @@ const props = defineProps({
     'tnum' on,
     'lnum' on,
     'zero' on;
-  color: #fff;
+  color: #344054;
   background: #d7dce5;
 
   &.disabled {

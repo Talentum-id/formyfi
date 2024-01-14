@@ -1,14 +1,24 @@
 <template>
   <div class="head-container">
     <div class="banner" :style="`background:url(${data.image || defaultBg})`"></div>
-    <div class="info">
+    <div class="info w-full">
       <Talent text="Portal" :img="data.image || defaultBg" square />
-      <div class="flex items-center gap-x-[8px]">
-        <Badge :text="formatDate(Number(data.start) * 1000)" type="claim"></Badge> -
-        <Badge :text="formatDate(Number(data.end) * 1000)" type="claim"></Badge>
+      <div class="flex items-center gap-x-[8px] ml-[12px]">
+        <Badge :text="formatDate(Number(data.start) * 1000)" transparent></Badge> -
+        <Badge :text="formatDate(Number(data.end) * 1000)" transparent></Badge>
       </div>
-      <div class="title">{{ data.title }}</div>
-      <div></div>
+      <div class="title ml-[12px]">{{ data.title }}</div>
+      <div class="counter ml-[12px] w-full">
+        <div>{{ data.questions.length }} steps</div>
+        <div class="items">
+          <div
+            class="item"
+            v-for="(i, idx) in data.questions"
+            :key="i"
+            :class="{ active: idx === 0 }"
+          ></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -59,6 +69,27 @@ const props = defineProps({
       font-weight: 500;
       line-height: 64px;
       max-width: 800px;
+    }
+    .counter {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      .items {
+        display: flex;
+        padding-top: 4px;
+        align-items: flex-start;
+        gap: 2px;
+        flex: 1 0 0;
+        .item {
+          height: 4px;
+          width: 100%;
+          border-radius: 4px;
+          background: #d7dce5;
+        }
+        .active {
+          background: #344054;
+        }
+      }
     }
   }
 }

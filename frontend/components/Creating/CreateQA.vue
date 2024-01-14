@@ -178,7 +178,7 @@
           <span>Add Question</span>
         </div>
         <div class="flex-custom footer">
-          <BaseButton text="Preview" type="primary" @click="preview" />
+          <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton
             :text="statusMessage"
             :disabled="!validationCheck || loading"

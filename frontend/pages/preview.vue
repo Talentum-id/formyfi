@@ -17,7 +17,7 @@ onMounted(() => {
 <template>
   <div class="preview-container" v-if="data">
     <div class="header">
-      <img src="@/assets/images/logo-dark.png" alt="logo" width="108" height="28" />
+      <img src="@/assets/images/logo-dark.svg" alt="logo" width="108" height="28" />
       <base-button text="Back to Creating" @click="closeTab()" type="return"></base-button>
     </div>
     <div class="content"><quest :data="data"></quest></div>

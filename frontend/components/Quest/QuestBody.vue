@@ -12,19 +12,33 @@
           :key="item.id"
           :data="item"
           :is-active="idx === 0"
+          @view="
+            showQuestion = true;
+            currentItem = $event;
+          "
         ></QuestItem>
       </div>
+      <VerticalCarousel
+        v-if="showQuestion"
+        :length="data.questions.length"
+        @close="showQuestion = false"
+        :current-item="currentItem"
+      ></VerticalCarousel>
     </div>
   </div>
 </template>
 <script setup>
 import QuestItem from '@/components/Quest/QuestItem.vue';
+import VerticalCarousel from '@/components/Details/VerticalCarousel.vue';
+import { ref } from 'vue';
 defineProps({
   data: {
     type: Object,
     default: () => {},
   },
 });
+const showQuestion = ref(false);
+const currentItem = ref(null);
 </script>
 <style scoped lang="scss">
 .body-container {

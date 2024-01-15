@@ -1,5 +1,5 @@
 <template>
-  <div class="item" :class="{ active: isActive }">
+  <div class="item" :class="{ active: isActive }" @click="$emit('view', data)">
     <div class="name">{{ data.question }}</div>
     <img v-if="isActive" src="@/assets/icons/play.svg" alt="" />
     <img v-else src="@/assets/icons/lock.svg" alt="" />

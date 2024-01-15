@@ -136,7 +136,7 @@ const params = computed(() => {
   return {
     search: search.value,
     page: parseInt(currentPage.value) || 1,
-    pageSize: 15,
+    pageSize: 10,
     sortBy: {
       key: sort.value.sortKey || '',
       value: sort.value.sortType || '',

@@ -31,7 +31,7 @@ actor QAIndex {
                     pagination = {
                         total = 0;
                         count = 0;
-                        per_page = 15;
+                        per_page = 10;
                         current_page = 1;
                         total_pages = 1;
                     };
@@ -108,7 +108,7 @@ actor QAIndex {
                 pagination = {
                     total = 0;
                     count = 0;
-                    per_page = 15;
+                    per_page = 10;
                     current_page = 1;
                     total_pages = 1;
                 };
@@ -162,6 +162,17 @@ actor QAIndex {
 
             data := Iter.toArray(QAIter);
         };
+
+        data := Array.map<QA, QA>(data, func x = {
+            image = x.image;
+            title = x.title;
+            description = x.description;
+            shareLink = x.shareLink;
+            participants = x.participants;
+            start = x.start;
+            end = x.end;
+            questions = [];
+        });
 
         {data; pagination};
     };

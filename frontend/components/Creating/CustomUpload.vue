@@ -7,7 +7,7 @@
     :on-remove="handleRemove"
     :limit="1"
     :auto-upload="false"
-    accept="application/pdf, .png, .jpg,"
+    accept=".png, .jpg, .svg, .mvk, .mp4, .mov, webm, .wmv"
     :class="{
       'hide-upload': fileList.length >= 1,
     }"

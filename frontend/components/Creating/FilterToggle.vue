@@ -107,7 +107,7 @@ const onSelect = (id) => {
 input {
   display: none;
   &:checked + label {
-    background: #d7dce5;
+    background: $default-border;
     font-family: $default_font;
     font-style: normal;
     font-weight: 500;
@@ -115,7 +115,7 @@ input {
     line-height: 2;
     text-align: center;
     font-feature-settings: 'zero' on;
-    color: #161e2d;
+    color: $primary-text;
     border-radius: 6px;
     &.bgLight {
       color: #667085;
@@ -192,7 +192,7 @@ input {
     }
     input {
       &:checked + label {
-        background: #d7dce5;
+        background: $default-border;
         border-radius: 6px;
         font-family: $default_font;
         font-style: normal;
@@ -201,7 +201,7 @@ input {
         line-height: 2;
         text-align: center;
         font-feature-settings: 'zero' on;
-        color: #161e2d;
+        color: $primary-text;
 
         &.btnLight {
           background: $default-border;

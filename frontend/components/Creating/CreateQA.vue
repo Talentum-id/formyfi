@@ -589,7 +589,7 @@ export default defineComponent({
           justify-content: center;
           align-items: center;
           z-index: 20;
-          border-right: 1px solid #d7dce5;
+          border-right: 1px solid $default-border;
           border-radius: 8px 0 0 8px;
           background-color: #dad9f7;
           top: 0;
@@ -669,7 +669,7 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   padding: 16px;
-  border: 1px solid #d7dce5;
+  border: 1px solid $default-border;
   background: #e9ecf2;
   border-radius: 8px;
   margin-top: 12px;
@@ -761,7 +761,7 @@ export default defineComponent({
   width: 100%;
   height: 40px;
   background: #e9ecf2;
-  border: 1px solid #d7dce5;
+  border: 1px solid $default-border;
   border-radius: 8px;
   cursor: pointer;
 
@@ -792,7 +792,7 @@ export default defineComponent({
       border-radius: 8px;
       background: transparent;
       &:hover {
-        background: #d7dce5;
+        background: $default-border;
       }
     }
   }
@@ -823,7 +823,7 @@ export default defineComponent({
 
   background: transparent;
   &:hover {
-    background: #d7dce5;
+    background: $default-border;
   }
   .isCorrect {
     filter: invert(51%) sepia(11%) saturate(2579%) hue-rotate(70deg) brightness(102%) contrast(87%);

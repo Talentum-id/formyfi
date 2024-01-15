@@ -111,7 +111,7 @@ export default {
 
     width: 40px;
     background: #eaeafb;
-    border-right: 1px solid #d7dce5;
+    border-right: 1px solid $default-border;
 
     &.small {
       height: 30px;

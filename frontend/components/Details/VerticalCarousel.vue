@@ -83,7 +83,7 @@ const props = defineProps({
       height: 12px;
       top: 0;
       border-radius: 0 0 16px 16px;
-      background: #d7dce5;
+      background: $default-border;
     }
     .last-empty {
       width: 696px;
@@ -91,7 +91,7 @@ const props = defineProps({
       height: 12px;
       bottom: 0;
       border-radius: 16px 16px 0 0;
-      background: #d7dce5;
+      background: $default-border;
     }
     .item {
       display: flex;
@@ -109,7 +109,7 @@ const props = defineProps({
       font-weight: 500;
       line-height: 24px;
       border-radius: 16px;
-      background: #d7dce5;
+      background: $default-border;
     }
     .main {
       height: 100%;
@@ -150,7 +150,7 @@ const props = defineProps({
             height: 4px;
             width: 100%;
             border-radius: 4px;
-            background: #d7dce5;
+            background: $default-border;
           }
           .active {
             background: #344054;
@@ -167,7 +167,7 @@ const props = defineProps({
           line-height: 24px; /* 150% */
         }
         .question-title {
-          color: #161e2d;
+          color: $primary-text;
           text-align: center;
           font-variant-numeric: slashed-zero;
           font-family: $default_font;

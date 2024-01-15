@@ -139,7 +139,7 @@ const props = defineProps({
     'lnum' on,
     'zero' on;
   color: #344054;
-  background: #d7dce5;
+  background: $default-border;
 
   &.disabled {
     background-color: $secondary;

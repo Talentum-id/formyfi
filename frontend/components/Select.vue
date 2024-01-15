@@ -155,7 +155,7 @@ export default {
   outline: none;
   z-index: 98;
   line-height: 47px;
-  border: 1px solid #d7dce5;
+  border: 1px solid $default-border;
   border-radius: 8px;
 }
 
@@ -176,7 +176,7 @@ export default {
 
 .custom-select .selected.open {
   background: $white;
-  border: 1px solid #d7dce5;
+  border: 1px solid $default-border;
   cursor: pointer;
   user-select: none;
   font-family: 'Basis Grotesque Pro';

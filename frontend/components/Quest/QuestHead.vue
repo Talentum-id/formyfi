@@ -84,7 +84,7 @@ const props = defineProps({
           height: 4px;
           width: 100%;
           border-radius: 4px;
-          background: #d7dce5;
+          background: $default-border;
         }
         .active {
           background: #344054;

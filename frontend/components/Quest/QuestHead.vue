@@ -2,13 +2,13 @@
   <div class="head-container">
     <div class="banner" :style="`background:url(${data.image || defaultBg})`"></div>
     <div class="info w-full">
-      <Talent text="Portal" :img="data.image || defaultBg" square />
-      <div class="flex items-center gap-x-[8px] ml-[12px]">
+      <Talent text="Portal" class="ml-[-16px]" :img="data.image || defaultBg" square />
+      <div class="flex items-center gap-x-[8px]">
         <Badge :text="formatDate(Number(data.start) * 1000)" transparent></Badge> -
         <Badge :text="formatDate(Number(data.end) * 1000)" transparent></Badge>
       </div>
-      <div class="title ml-[12px]">{{ data.title }}</div>
-      <div class="counter ml-[12px] w-full">
+      <div class="title">{{ data.title }}</div>
+      <div class="counter w-full">
         <div>{{ data.questions.length }} steps</div>
         <div class="items">
           <div
@@ -60,6 +60,7 @@ const props = defineProps({
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+    max-width: 848px;
     align-self: stretch;
     .title {
       color: $primary-text;

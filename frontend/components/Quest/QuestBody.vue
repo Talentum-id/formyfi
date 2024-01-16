@@ -23,6 +23,7 @@
         :length="data.questions.length"
         @close="showQuestion = false"
         :current-item="currentItem"
+        :items="data.questions"
       ></VerticalCarousel>
     </div>
   </div>
@@ -30,8 +31,8 @@
 <script setup>
 import QuestItem from '@/components/Quest/QuestItem.vue';
 import VerticalCarousel from '@/components/Details/VerticalCarousel.vue';
-import { ref } from 'vue';
-defineProps({
+import { computed, ref } from 'vue';
+const props = defineProps({
   data: {
     type: Object,
     default: () => {},

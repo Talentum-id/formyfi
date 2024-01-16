@@ -1,59 +1,80 @@
 <template>
   <div class="layout">
     <div class="slider">
-      <div class="first-empty"></div>
-      <div class="item">Previous Task in the Quest is Сompleted</div>
-      <div class="main">
+      <div class="first-empty" v-if="items[currentIndex - 2]"></div>
+      <div class="item" v-if="items[currentIndex - 1]">{{ items[currentIndex - 1].question }}</div>
+      <div
+        class="main"
+        :class="{
+          marginTop: !items[currentIndex - 1],
+          marginBottom: !items[currentIndex + 1],
+        }"
+      >
         <div class="close" @click="$emit('close')"><Icon name="Cancel" :size="24"></Icon></div>
         <div class="current-item">
           <div class="flex flex-col gap-y-[24px]">
             <div class="counter w-full">
               <div
                 class="count"
-                v-for="(i, idx) in length"
+                v-for="(i, idx) in items.length"
                 :key="i"
-                :class="{ active: idx === 0 }"
+                :class="{ active: currentIndex >= idx }"
               ></div>
             </div>
-            <div class="counter-title">Quiz 1/{{ length }}</div>
-            <div class="question-title">{{ currentItem.question }}</div>
+            <div class="counter-title">Quiz {{ currentIndex + 1 }}/{{ items.length }}</div>
+            <div class="question-title">{{ items[currentIndex].question }}</div>
             <div class="answers">
               <div v-for="i in 4" class="answer">{{ i }}</div>
             </div>
           </div>
           <div class="controllers">
-            <BaseButton type="primary"> Previous</BaseButton>
-            <BaseButton text="Next" type="normal" />
+            <BaseButton type="primary" @click="prevSlide">Previous</BaseButton>
+            <BaseButton text="Next" type="normal" @click="nextSlide" />
           </div>
         </div>
       </div>
-      <div class="item">Previous Task in the Quest is Сompleted</div>
-      <div class="last-empty"></div>
+      <div class="item" v-if="items[currentIndex + 1]">{{ items[currentIndex + 1].question }}</div>
+      <div class="last-empty" v-if="items[currentIndex + 2]"></div>
     </div>
   </div>
 </template>
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   currentItem: {
     type: Object,
     default: () => {},
   },
-  previousItem: {
-    type: Object,
-    default: () => {},
-  },
-  nextItem: {
-    type: Object,
-    default: () => {},
+  items: {
+    type: Array,
+    default: () => [],
   },
   length: {
     type: Number,
     default: 1,
   },
 });
+
+const currentIndex = ref(findCurrentItemIndex());
+
+function findCurrentItemIndex() {
+  return props.items.findIndex((item) => item.question === props.currentItem.question);
+}
+
+const prevSlide = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+  }
+};
+
+const nextSlide = () => {
+  if (currentIndex.value < props.items.length - 1) {
+    currentIndex.value++;
+  }
+};
 </script>
 <style lang="scss">
 .layout {
@@ -114,6 +135,7 @@ const props = defineProps({
     .main {
       height: 100%;
       position: relative;
+
       .close {
         display: flex;
         padding: 8px;
@@ -196,6 +218,12 @@ const props = defineProps({
           }
         }
       }
+    }
+    .marginTop {
+      margin-top: 64px;
+    }
+    .marginBottom {
+      margin-bottom: 64px;
     }
   }
 }

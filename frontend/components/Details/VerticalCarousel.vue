@@ -59,14 +59,17 @@
             </div>
           </div>
           <div class="controllers">
-            <BaseButton :disabled="!items[currentIndex - 1]" type="primary" @click="prevSlide"
+            <BaseButton
+              type="primary"
+              @click="prevSlide"
+              :class="{ invisible: !items[currentIndex - 1] }"
               >Previous</BaseButton
             >
             <BaseButton
               text="Next"
               type="normal"
               @click="nextSlide"
-              :disabled="!items[currentIndex + 1]"
+              :class="{ invisible: !items[currentIndex + 1] }"
             />
           </div>
         </div>
@@ -294,6 +297,7 @@ const nextSlide = () => {
     background: #eaeafb !important;
     border: none;
     * {
+      box-shadow: none !important;
       color: $section-title !important;
       font-variant-numeric: slashed-zero;
       font-family: $default_font;

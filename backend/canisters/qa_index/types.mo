@@ -1,4 +1,6 @@
-module Types {
+import PaginationTypes "../types/Pagination";
+
+module QATypes {
     public type Answer = {
         answer: Text;
         isCorrect: Bool;
@@ -34,16 +36,8 @@ module Types {
         pageSize: Int;
     };
 
-    public type Pagination = {
-        total: Nat;
-        count: Int;
-        per_page: Int;
-        current_page: Int;
-        total_pages: Float;
-    };
-
     public type ListResult = {
         data: [QA];
-        pagination: Pagination;
+        pagination: PaginationTypes.Pagination;
     };
 };

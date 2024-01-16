@@ -33,12 +33,12 @@ actor UserIndex {
                 fullName = fullName;
             };
 
-            switch(users.get(identity)) {
+            switch (users.get(identity)) {
                 case null {
                     users.put(identity, details);
                     usernames.put(username, identity);
                 };
-                case(?user) { };
+                case (?user) { };
             };
         };
 

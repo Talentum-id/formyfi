@@ -1,8 +1,13 @@
 <template>
-  <div class="item" :class="{ active: isActive }" @click="$emit('view', data)">
+  <div
+    class="item"
+    :class="{ active: isActive, completed: isCompleted }"
+    @click="$emit('view', data)"
+  >
     <div class="name">{{ data.question }}</div>
-    <img v-if="isActive" src="@/assets/icons/play.svg" alt="" />
-    <img v-else src="@/assets/icons/lock.svg" alt="" />
+    <img v-if="isActive && !isCompleted" src="@/assets/icons/play.svg" alt="" />
+    <img v-if="!isActive && !isCompleted" src="@/assets/icons/lock.svg" alt="" />
+    <img v-if="!isActive && isCompleted" src="@/assets/icons/completed.svg" alt="" />
   </div>
 </template>
 <script setup>
@@ -12,6 +17,10 @@ defineProps({
     default: () => {},
   },
   isActive: {
+    type: Boolean,
+    default: false,
+  },
+  isCompleted: {
     type: Boolean,
     default: false,
   },
@@ -50,6 +59,15 @@ defineProps({
   cursor: pointer;
   .name {
     color: $white;
+  }
+}
+.completed {
+  border-radius: 8px;
+  background: #e9ecf2;
+  opacity: 1;
+  cursor: pointer;
+  .name {
+    color: #344054;
   }
 }
 </style>

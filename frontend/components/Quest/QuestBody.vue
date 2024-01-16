@@ -11,7 +11,8 @@
           v-for="(item, idx) in data.questions"
           :key="item.id"
           :data="item"
-          :is-active="idx === 0"
+          :is-active="!item.answer?.length"
+          :is-completed="item.answer?.length"
           @view="
             showQuestion = true;
             currentItem = $event;

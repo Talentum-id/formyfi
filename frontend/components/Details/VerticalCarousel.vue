@@ -12,7 +12,7 @@
       >
         <div class="close" @click="$emit('close')"><Icon name="Cancel" :size="24"></Icon></div>
         <div class="current-item">
-          <div class="flex flex-col gap-y-[24px]">
+          <div class="flex flex-col gap-y-[24px] w-full">
             <div class="counter w-full">
               <div
                 class="count"
@@ -22,14 +22,52 @@
               ></div>
             </div>
             <div class="counter-title">Quiz {{ currentIndex + 1 }}/{{ items.length }}</div>
-            <div class="question-title">{{ items[currentIndex].question }}</div>
-            <div class="answers">
-              <div v-for="i in 4" class="answer">{{ i }}</div>
+            <div v-if="newArr[currentIndex].file" class="flex items-center justify-center">
+              <img :src="newArr[currentIndex].file" alt="" width="160" height="160" />
+            </div>
+            <div class="question-title">{{ newArr[currentIndex].question }}</div>
+            <div class="question-description" v-if="newArr[currentIndex].description">
+              {{ newArr[currentIndex].description }}
+            </div>
+            <div
+              class="answer-textarea"
+              v-if="!newArr[currentIndex].answers || !newArr[currentIndex].answers.length"
+            >
+              <TextArea
+                placeholder="Your Answer"
+                v-model="newArr[currentIndex].answer"
+                class="w-full"
+              />
+              <CustomUpload
+                :imagesFiles="newArr[currentIndex].files"
+                @images="newArr[currentIndex].files = $event"
+              ></CustomUpload>
+            </div>
+            <div v-else>
+              <el-radio-group
+                v-model="newArr[currentIndex].answer"
+                class="flex flex-col gap-y-[8px] container-radio"
+                :border="false"
+              >
+                <el-radio-button
+                  class="radio"
+                  :label="answer.answer"
+                  :aria-selected="items[currentIndex].answer === answer.answer"
+                  v-for="answer in items[currentIndex].answers"
+                />
+              </el-radio-group>
             </div>
           </div>
           <div class="controllers">
-            <BaseButton type="primary" @click="prevSlide">Previous</BaseButton>
-            <BaseButton text="Next" type="normal" @click="nextSlide" />
+            <BaseButton :disabled="!items[currentIndex - 1]" type="primary" @click="prevSlide"
+              >Previous</BaseButton
+            >
+            <BaseButton
+              text="Next"
+              type="normal"
+              @click="nextSlide"
+              :disabled="!items[currentIndex + 1]"
+            />
           </div>
         </div>
       </div>
@@ -42,6 +80,9 @@
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import { ref } from 'vue';
+import TextArea from '@/components/Creating/TextArea.vue';
+import CustomUpload from '@/components/Creating/CustomUpload.vue';
+import { ElRadioGroup, ElRadioButton } from 'element-plus';
 
 const props = defineProps({
   currentItem: {
@@ -59,7 +100,7 @@ const props = defineProps({
 });
 
 const currentIndex = ref(findCurrentItemIndex());
-
+const newArr = ref(props.items);
 function findCurrentItemIndex() {
   return props.items.findIndex((item) => item.question === props.currentItem.question);
 }
@@ -198,6 +239,26 @@ const nextSlide = () => {
           font-weight: 500;
           line-height: 40px; /* 125% */
         }
+        .question-description {
+          color: $section-title;
+          text-align: center;
+          font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
+          font-feature-settings:
+            'dlig' on,
+            'ss04' on;
+          font-family: $default_font;
+          font-size: 20px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 32px; /* 160% */
+        }
+        .answer-textarea {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          align-items: flex-end;
+        }
         .answers {
           min-height: 234px;
           display: flex;
@@ -224,6 +285,48 @@ const nextSlide = () => {
     }
     .marginBottom {
       margin-bottom: 64px;
+    }
+  }
+}
+.container-radio {
+  .is-active {
+    border-radius: 8px;
+    background: #eaeafb !important;
+    border: none;
+    * {
+      color: $section-title !important;
+      font-variant-numeric: slashed-zero;
+      font-family: $default_font;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 20px;
+    }
+  }
+  .is-focus {
+    border: none;
+    outline: none;
+  }
+  .radio {
+    cursor: pointer;
+    display: flex;
+    padding: 9px 16px 11px 16px;
+    align-items: center;
+    gap: 24px;
+    align-self: stretch;
+    border-radius: 8px;
+    border: 1px solid #dad9f7;
+    background: $default-bg;
+    * {
+      background: transparent !important;
+      color: $default;
+      font-variant-numeric: slashed-zero;
+      font-family: $default_font;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 20px; /* 142.857% */
+      border: none !important;
     }
   }
 }

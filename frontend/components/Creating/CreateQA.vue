@@ -380,6 +380,7 @@ const loadImages = () => {
   });
 };
 const convertImage = (file) => {
+  console.log(file);
   return new Promise((resolve) => {
     if (FileReader && file) {
       const fr = new FileReader();
@@ -392,6 +393,7 @@ const convertImage = (file) => {
     }
   });
 };
+
 const preview = async () => {
   touched.value = true;
   if (!validationCheck.value) {
@@ -401,7 +403,22 @@ const preview = async () => {
   } else {
     touched.value = false;
   }
+
   const banner = await convertImage(bannerImage.value);
+
+  const questionsPromises = countOfQuestions.value.map(async (item) => {
+    const file = await convertImage(item.images[0]?.raw);
+    return {
+      ...item,
+      questionType: item.type ? 'quiz' : 'open',
+      answers: item.type ? item.answers : [],
+      file: file,
+      answer: null,
+    };
+  });
+
+  const questions = await Promise.all(questionsPromises);
+
   const obj = {
     title: questionName.value,
     description: description.value,
@@ -410,14 +427,9 @@ const preview = async () => {
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,
-    questions: countOfQuestions.value.map((item) => {
-      return {
-        ...item,
-        questionType: item.type ? 'quiz' : 'open',
-        answers: item.type ? item.answers : [],
-      };
-    }),
+    questions: questions,
   };
+
   localStorage.previewData = JSON.stringify(obj);
   await window.open('#/preview', '_blank');
 };

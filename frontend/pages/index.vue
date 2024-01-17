@@ -37,12 +37,6 @@
           v-else
           :columns="requestsColumns"
           :rows="requestsRows"
-          is-sorting
-          :sortFunction="sortTasks"
-          :sortDirection="sortDirection"
-          :setSortDirection="setSortDirection"
-          :setSortColumn="setSortColumn"
-          :sortColumn="sortColumn"
           pointer
           title="You have no Q&A"
           icon="icons8-futurama-bender"
@@ -97,7 +91,6 @@ const requestsColumns = computed(() => {
 const route = useRoute();
 const qaStore = useQAStore();
 let isMounted = false;
-const sortOptions = ref([{ name: '123', id: 1 }]);
 const showAlert = ref(false);
 onMounted(async () => {
   if (route.query && route.query.page) {
@@ -232,13 +225,16 @@ const requestsRows = computed(
         },
       },
       participants: {
-        component: Badge,
-        props: {
-          text: `${item.participants} users `,
-          value: '',
-          transparent: true,
-          big: false,
+        singleComponent: {
+          component: Badge,
+          props: {
+            text: `${item.participants} users `,
+            value: '',
+            transparent: true,
+            big: false,
+          },
         },
+        components: numbers,
       },
       start: {
         component: Badge,

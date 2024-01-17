@@ -69,7 +69,14 @@
               text="Next"
               type="normal"
               @click="nextSlide"
+              :disabled="!newArr[currentIndex].answer"
               :class="{ invisible: !items[currentIndex + 1] }"
+            />
+            <BaseButton
+              text="Send"
+              type="normal"
+              @click="send"
+              v-if="currentIndex + 1 === items.length && !isPreview"
             />
           </div>
         </div>
@@ -82,11 +89,15 @@
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton } from 'element-plus';
+import { useRoute } from 'vue-router';
+import { useCounterStore } from '@/store';
 
+const route = useRoute();
+const counterStore = useCounterStore();
 const props = defineProps({
   currentItem: {
     type: Object,
@@ -96,12 +107,8 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  length: {
-    type: Number,
-    default: 1,
-  },
 });
-
+const isPreview = computed(() => route.name === 'preview');
 const currentIndex = ref(findCurrentItemIndex());
 const newArr = ref(props.items);
 function findCurrentItemIndex() {
@@ -115,9 +122,13 @@ const prevSlide = () => {
 };
 
 const nextSlide = () => {
-  if (currentIndex.value < props.items.length - 1) {
+  if (currentIndex.value < props.items.length - 1 && newArr.value[currentIndex.value].answer) {
     currentIndex.value++;
+    counterStore.setValue(currentIndex.value);
   }
+};
+const send = () => {
+  //sendToBE
 };
 </script>
 <style lang="scss">

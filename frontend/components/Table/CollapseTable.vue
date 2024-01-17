@@ -13,7 +13,7 @@
           {{ column.label }}
           <Sort
             v-if="column.label && isSorting"
-            :direction="sortColumn === modifyStringSpaces(column.prop) ? sortDirection : 'none'"
+            :direction="sortColumn === modifyStringSpaces(column.label) ? sortDirection : 'none'"
           />
         </div>
       </div>
@@ -24,7 +24,7 @@
         v-for="(row, rowIndex) in rows"
         :key="rowIndex"
         class="row"
-        :class="{ pointer, collapse: isRowCollapsed(rowIndex) }"
+        :class="{ pointer, 'collapse-custom': isRowCollapsed(rowIndex) }"
         :style="{ justifyItems: row.justify || 'left' }"
         @click="toHandler(row, rowIndex)"
       >
@@ -39,6 +39,15 @@
             class="adjust"
           >
             <Icon name="Right-Arrow1" :size="20" class="arrow-color" />
+          </div>
+          <div
+            v-if="
+              checkIsPropertyExist(row[column.prop], 'adjustReturnBtn') &&
+              row[column.prop].adjustReturnBtn
+            "
+            class="adjust-btn"
+          >
+            <ReturnBtn />
           </div>
           <div class="mobile-header-row">
             <div class="mobile-header-cell">
@@ -80,8 +89,10 @@
                   }}
                 </div>
               </div>
-
-              <div class="multi-components" :class="{ collapse: isRowCollapsed(rowIndex) }">
+              <div
+                class="multi-components"
+                :class="{ 'collapse-custom': isRowCollapsed(rowIndex) }"
+              >
                 <div v-for="item in row[column.prop].contents" :key="item.id" class="table-text">
                   {{
                     checkIsPropertyExist(row[column.prop], 'reduceLength') &&
@@ -99,7 +110,10 @@
                 checkIsPropertyExist(row[column.prop], 'singleComponent')
               "
             >
-              <div class="single-component">
+              <div
+                class="single-component"
+                :class="{ 'collapse-custom': isRowCollapsed(rowIndex) }"
+              >
                 <component
                   :is="row[column.prop].singleComponent.component"
                   :="row[column.prop].singleComponent.props"
@@ -107,8 +121,7 @@
               </div>
               <div
                 class="multi-components"
-                v-if="isRowCollapsed(rowIndex)"
-                :class="{ collapse: isRowCollapsed(rowIndex) }"
+                :class="{ 'collapse-custom': isRowCollapsed(rowIndex) }"
               >
                 <template v-for="item in row[column.prop].components" :key="item.id">
                   <component :is="item.component" :="item.props" />
@@ -139,10 +152,10 @@
             <template v-else />
           </div>
         </div>
-        <!--        <div class="arrow-icon" @click="toggleOpenHandler(rowIndex)">-->
-        <!--          <Icon v-if="isRowCollapsed(rowIndex)" name="Up" :size="24" />-->
-        <!--          <Icon v-else name="Down" :size="24" />-->
-        <!--        </div>-->
+        <div class="arrow-icon" @click="toggleOpenHandler(rowIndex)">
+          <Icon v-if="isRowCollapsed(rowIndex)" name="Up" :size="24" />
+          <Icon v-else name="Down" :size="24" />
+        </div>
       </div>
     </div>
     <EmptyList v-else :title="title" :icon="icon" />
@@ -153,14 +166,14 @@
 import arrowRight from '@/assets/icons/arrow-right.svg';
 import windowSizeMixin from '@/mixins/windowSizeMixin';
 import { reduceStringLength, checkIsPropertyExist, modifyStringSpaces } from '@/util/helpers';
-import Icon from '@/components/Icons/Icon.vue';
-import EmptyList from '@/components/Table/EmptyList.vue';
 import Sort from '@/components/Table/Sort.vue';
+import Icon from '@/components/Icons/Icon.vue';
 import ReturnBtn from '@/components/Table/ReturnBtn.vue';
+import EmptyList from '@/components/Table/EmptyList.vue';
 
 export default {
-  name: 'CollapseTable',
-  components: { ReturnBtn, Sort, EmptyList, Icon },
+  name: 'BaseTable',
+  components: { EmptyList, ReturnBtn, Icon, Sort },
   data() {
     return {
       reduceStringLength,
@@ -190,9 +203,9 @@ export default {
       type: String,
       default: '',
     },
-    pointer: { type: Boolean, default: false },
-    loading: { type: Boolean, default: false },
-    loaded: { type: Boolean, default: false },
+    pointer: { type: Boolean, defalut: false },
+    loading: { type: Boolean, defalut: false },
+    loaded: { type: Boolean, defalut: false },
     sortFunction: {
       type: Function,
       default: null,
@@ -201,18 +214,19 @@ export default {
     isCollapse: { type: Boolean, default: false },
   },
   mounted() {
-    if (
-      this.sortFunction &&
-      this.isSorting &&
-      localStorage.sortDirection &&
-      localStorage.sortColumn
-    ) {
-      //this.sortFunction(this.sortByColumn(localStorage.sortColumn), localStorage.sortDirection);
-    }
+    // if (
+    //   this.sortFunction &&
+    //   this.isSorting &&
+    //   localStorage.sortDirection &&
+    //   localStorage.sortColumn
+    // ) {
+    //   this.sortFunction(this.sortByColumn(localStorage.sortColumn), localStorage.sortDirection);
+    // }
   },
   methods: {
     isRowCollapsed(rowId) {
-      return this.currentRowId === rowId;
+      if (this.currentRowId === rowId) return true;
+      else return false;
     },
     toHandler(row) {
       if (this.checkIsPropertyExist(row, 'to')) {
@@ -228,12 +242,11 @@ export default {
     },
     sortByColumn(column) {
       if (!this.isSorting) return;
-
-      if (localStorage.sortColumn === column) {
-        if (localStorage.sortDirection === 'asc') {
+      if (this.sortColumn === column) {
+        if (this.sortDirection === 'asc') {
           this.sortDirection = 'desc';
           localStorage.sortDirection = this.sortDirection;
-        } else if (localStorage.sortDirection === 'desc') {
+        } else if (this.sortDirection === 'desc') {
           this.sortDirection = 'none';
           localStorage.sortDirection = this.sortDirection;
         } else {
@@ -256,12 +269,11 @@ export default {
 <style scoped lang="scss">
 .arrow-icon {
   position: absolute;
-  right: 20px;
-  top: 20px;
+  right: 5px;
 }
 
 .table-text {
-  font-family: $default_font;
+  font-family: 'Basis Grotesque Pro';
   color: $default;
 }
 .adjust {
@@ -278,7 +290,7 @@ export default {
   right: 20px;
 }
 .base-table {
-  font-family: $default_font;
+  font-family: 'Basis Grotesque Pro';
   font-size: 14px;
   display: grid;
   grid-template-rows: auto 1fr;
@@ -296,30 +308,35 @@ export default {
 }
 
 .header-row {
-  background: #e9ecf2;
-  border: 1px solid #e9ecf2;
+  width: 100%;
+
+  background: $default-badge-border;
+  border: 1px solid $default-border;
   border-radius: 16px;
   display: flex;
   align-items: center;
   overflow: hidden;
   min-height: 64px;
   padding: 0 20px;
-  font-family: $default_font;
+
+  font-family: 'Basis Grotesque Pro';
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 12px;
   line-height: 16px;
+  display: flex;
+  align-items: center;
   text-align: right;
   letter-spacing: 0.014em;
   font-feature-settings:
     'tnum' on,
     'lnum' on,
     'zero' on;
-  color: $primary-text;
+  color: $header-text-list;
 }
 
 .header-cell {
-  font-family: $default_font;
+  font-family: 'Basis Grotesque Pro';
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
@@ -349,8 +366,8 @@ export default {
 
 .single-component {
   visibility: inherit;
-  &.collapse {
-    visibility: hidden;
+  &.collapse-custom {
+    visibility: hidden !important;
   }
 }
 
@@ -365,9 +382,10 @@ export default {
   margin-top: 14px;
   transition: max-width 1s ease-in;
 
-  &.collapse {
+  &.collapse-custom {
     max-width: fit-content;
     opacity: 1;
+    // display: flex;
   }
 }
 
@@ -379,20 +397,25 @@ export default {
   border-radius: 16px;
   display: flex;
   justify-content: space-between;
+  //   align-items: center;
   margin-bottom: 8px;
   overflow: inherit;
+  max-height: 64px;
+  //   max-height: fit-content;
   padding: 20px;
 
-  font-family: $default_font;
+  font-family: 'Basis Grotesque Pro';
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
+  //   line-height: 24px;
+  //   text-align: right;
   font-feature-settings:
     'tnum' on,
     'lnum' on,
     'zero' on;
   color: $section-title;
-  &.collapse {
+  &.collapse-custom {
     max-height: fit-content;
   }
   &.pointer {
@@ -404,8 +427,9 @@ export default {
 }
 
 .cell {
-  font-family: $default_font;
+  font-family: 'Basis Grotesque Pro';
   display: flex;
+  //   align-items: center;
   text-align: left;
   color: black;
   position: relative;
@@ -445,7 +469,7 @@ export default {
   .row {
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-bottom: 10;
     padding: 0;
   }
 }

@@ -15,7 +15,7 @@
             class="item"
             v-for="(i, idx) in data.questions"
             :key="i"
-            :class="{ active: idx === 0 }"
+            :class="{ active: idx <= step }"
           ></div>
         </div>
       </div>
@@ -27,6 +27,11 @@ import defaultBg from '@/assets/images/default-avatar.png';
 import Talent from '@/components/Talent.vue';
 import Badge from '@/components/Badge.vue';
 import { formatDate } from '@/util/helpers';
+import { useCounterStore } from '@/store';
+import { computed } from 'vue';
+const counterStore = useCounterStore();
+
+const step = computed(() => counterStore.getStep);
 const props = defineProps({
   data: {
     type: Object,

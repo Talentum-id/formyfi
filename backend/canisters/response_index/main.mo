@@ -3,7 +3,10 @@ import Buffer "mo:base/Buffer";
 import Map "mo:base/HashMap";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
+import Error "mo:base/Error";
+import Time "mo:base/Time";
 import Types "/types";
+import QAIndex "canister:qa_index";
 
 actor ResponseIndex {
   type Answer = Types.Answer;
@@ -15,8 +18,14 @@ actor ResponseIndex {
   let responses = Map.fromIter<Text, [Response]>(responseEntries.vals(), 1000, Text.equal, Text.hash);
   let responseAuthors = Map.fromIter<Text, [Text]>(responseAuthorEntries.vals(), 1000, Text.equal, Text.hash);
 
-  public shared({caller}) func store(shareLink: Text, answer: Answer) : async() {
+  public shared({caller}) func store(shareLink: Text, answer: Answer, filled : ?Nat) : async() {
     let identity = Principal.toText(caller);
+    let qa = await QAIndex.show(shareLink);
+
+    let questionsSize = switch (qa) {
+      case null throw Error.reject("Q&A does not exist");
+      case (?qa) qa.questions.size();
+    };
 
     switch (responseAuthors.get(shareLink)) {
       case null {
@@ -56,7 +65,13 @@ actor ResponseIndex {
             let answers = Buffer.fromArray<Answer>(response.answers);
             answers.add(answer);
 
-            // This logic needs to be implemented
+            let qas = Array.map<Response, Response>(qaResponses, func qaResponse = {
+              questionLink = qaResponse.questionLink;
+              answers = Buffer.toArray(answers);
+              filled = if (questionsSize == answers.size()) filled else null; 
+            });
+
+            responses.put(identity, qas);
           };
         };
       };

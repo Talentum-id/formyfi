@@ -269,11 +269,12 @@ export default {
 <style scoped lang="scss">
 .arrow-icon {
   position: absolute;
-  right: 5px;
+  right: 20px;
+  top: 20px;
 }
 
 .table-text {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   color: $default;
 }
 .adjust {
@@ -290,7 +291,7 @@ export default {
   right: 20px;
 }
 .base-table {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-size: 14px;
   display: grid;
   grid-template-rows: auto 1fr;
@@ -308,35 +309,30 @@ export default {
 }
 
 .header-row {
-  width: 100%;
-
-  background: $default-badge-border;
-  border: 1px solid $default-border;
+  background: #e9ecf2;
+  border: 1px solid #e9ecf2;
   border-radius: 16px;
   display: flex;
   align-items: center;
   overflow: hidden;
   min-height: 64px;
   padding: 0 20px;
-
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 12px;
   line-height: 16px;
-  display: flex;
-  align-items: center;
   text-align: right;
   letter-spacing: 0.014em;
   font-feature-settings:
     'tnum' on,
     'lnum' on,
     'zero' on;
-  color: $header-text-list;
+  color: $primary-text;
 }
 
 .header-cell {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
@@ -367,7 +363,7 @@ export default {
 .single-component {
   visibility: inherit;
   &.collapse-custom {
-    visibility: hidden !important;
+    visibility: hidden;
   }
 }
 
@@ -385,7 +381,6 @@ export default {
   &.collapse-custom {
     max-width: fit-content;
     opacity: 1;
-    // display: flex;
   }
 }
 
@@ -397,19 +392,14 @@ export default {
   border-radius: 16px;
   display: flex;
   justify-content: space-between;
-  //   align-items: center;
   margin-bottom: 8px;
   overflow: inherit;
-  max-height: 64px;
-  //   max-height: fit-content;
   padding: 20px;
 
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
-  //   line-height: 24px;
-  //   text-align: right;
   font-feature-settings:
     'tnum' on,
     'lnum' on,
@@ -427,9 +417,8 @@ export default {
 }
 
 .cell {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   display: flex;
-  //   align-items: center;
   text-align: left;
   color: black;
   position: relative;
@@ -469,7 +458,7 @@ export default {
   .row {
     display: flex;
     flex-direction: column;
-    margin-bottom: 10;
+    margin-bottom: 10px;
     padding: 0;
   }
 }

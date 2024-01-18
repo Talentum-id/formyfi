@@ -50,7 +50,8 @@ const errors = ref({
 });
 
 onMounted(() => {
-  authStore.actor?.findUser().then((res) => {
+  authStore.actor?.findUser(authStore.principal.toText())
+  .then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
 

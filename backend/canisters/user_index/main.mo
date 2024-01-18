@@ -45,8 +45,8 @@ actor UserIndex {
         users.get(identity);
     };
 
-    public query({caller}) func findUser(): async ?UserData {
-        users.get(Principal.toText(caller));
+    public query func findUser(identity: Text): async ?UserData {
+        users.get(identity);
     };
 
     public query func findUsername(username: Text): async Bool {

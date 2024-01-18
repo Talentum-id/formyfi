@@ -8,10 +8,8 @@ import { useAssetsStore } from './assets';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 
-function createActorFromIdentity(identity) {
-  return createActor(process.env.USER_INDEX_CANISTER_ID, {
-    agent: new HttpAgent({ identity }),
-  });
+function createActorFromIdentity(agent) {
+  return createActor(process.env.USER_INDEX_CANISTER_ID, { agent });
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -23,6 +21,7 @@ export const useAuthStore = defineStore('auth', {
       isReady: false,
       isAuthenticated: false,
       identity: null,
+      principal: null,
       user: null,
     };
   },
@@ -38,11 +37,15 @@ export const useAuthStore = defineStore('auth', {
 
       this.isAuthenticated = await authClient.isAuthenticated();
       this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
-      this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
+    
+      const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
+      
+      this.actor = this.identity ? createActorFromIdentity(agent) : null;
+      this.principal = this.identity ? await agent.getPrincipal() : null;
 
       if (this.isAuthenticated) {
         await this.actor
-          .findUser()
+          .findUser(this.principal.toText())
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
@@ -72,7 +75,11 @@ export const useAuthStore = defineStore('auth', {
         onSuccess: async () => {
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
+
+          const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
+      
+          this.actor = this.identity ? createActorFromIdentity(agent) : null;
+          this.principal = this.identity ? await agent.getPrincipal() : null;
 
           await useQAStore().init();
           await useAssetsStore().init();

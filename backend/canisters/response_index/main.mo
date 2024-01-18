@@ -8,6 +8,7 @@ import Iter "mo:base/Iter";
 import Time "mo:base/Time";
 import Types "/types";
 import QAIndex "canister:qa_index";
+import UserIndex "canister:user_index";
 
 actor ResponseIndex {
   type Answer = Types.Answer;
@@ -93,8 +94,13 @@ actor ResponseIndex {
       case (?authors) {
         if (Array.find<Author>(authors, func author = author.identity == identity) == null) {
           let qaAuthors = Buffer.fromArray<Author>(authors);
+          let username = switch (await UserIndex.findUser(identity)) {
+            case null "Undefined";
+            case (?user) user.username; 
+          };
+
           qaAuthors.add({
-            identity;
+            identity = username;
             filled;
           });
 

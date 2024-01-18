@@ -54,14 +54,14 @@
 <script setup>
 import Default from '@/layouts/default.vue';
 import CollapseTable from '@/components/Table/CollapseTable.vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { Principal } from '@dfinity/principal';
 import Badge from '@/components/Badge.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Link from '@/components/Table/Link.vue';
 import Wallet from '@/components/Table/Wallet.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import Text from '@/components/Table/Text.vue';
-import Select from '@/components/Select.vue';
 import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
@@ -72,6 +72,7 @@ import Alert from '@/components/Alert.vue';
 import { formatDate } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
+
 const index = ref(null);
 
 const requestsColumns = computed(() => {
@@ -127,6 +128,7 @@ const loaded = computed(() => qaStore.getLoadingStatus);
 
 const params = computed(() => {
   return {
+    identity: qaStore.principal.toText(),
     search: search.value,
     page: parseInt(currentPage.value) || 1,
     pageSize: 10,

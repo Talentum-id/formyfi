@@ -27,6 +27,7 @@ module QATypes {
     };
 
     public type QAGetParams = {
+        identity: Text;
         search: Text;
         sortBy: {
             key: Text;

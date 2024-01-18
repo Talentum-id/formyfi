@@ -3,24 +3,28 @@ import { createActor } from '~/qa_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 
-function createActorFromIdentity(identity) {
-  return createActor(process.env.QA_INDEX_CANISTER_ID, {
-    agent: new HttpAgent({ identity }),
-  });
+function createActorFromIdentity(agent) {
+  return createActor(process.env.QA_INDEX_CANISTER_ID, { agent });
 }
 
 export const useQAStore = defineStore('qa', {
   id: 'qa',
   state: () => ({
     actor: null,
+    identity: null,
     qa: null,
     list: [],
     loaded: false,
+    principal: null,
   }),
   actions: {
     async init() {
       this.identity = useAuthStore().identity;
-      this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
+
+      const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
+      
+      this.actor = this.identity ? createActorFromIdentity(agent) : null;
+      this.principal = agent ? await agent.getPrincipal() : null;
     },
     async storeQA(params) {
       return await this.actor.store(params);

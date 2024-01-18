@@ -24,8 +24,12 @@ actor QAIndex {
     let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
     let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
 
-    public shared({caller}) func list(params: FetchParams): async List {
-        switch (QAs.get(Principal.toText(caller))) {
+    public query func list(params: FetchParams): async List {
+        if (params.identity == "") {
+            throw Error.reject("Identity is not specified");
+        };
+
+        switch (QAs.get(params.identity)) {
             case null {
                 {
                     pagination = {

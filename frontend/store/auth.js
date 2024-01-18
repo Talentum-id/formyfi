@@ -6,6 +6,7 @@ import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 import { useAssetsStore } from './assets';
 import { useQAStore } from './qa';
+import { useResponseStore } from '@/store/response';
 
 function createActorFromIdentity(identity) {
   return createActor(process.env.USER_INDEX_CANISTER_ID, {
@@ -49,6 +50,7 @@ export const useAuthStore = defineStore('auth', {
 
               await useQAStore().init();
               await useAssetsStore().init();
+              await useResponseStore().init();
             } else {
               sessionStorage.removeItem('isAuthenticated');
 
@@ -74,6 +76,7 @@ export const useAuthStore = defineStore('auth', {
 
           await useQAStore().init();
           await useAssetsStore().init();
+          await useResponseStore().init();
 
           sessionStorage.isAuthenticated = true;
 

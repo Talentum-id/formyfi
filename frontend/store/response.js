@@ -1,21 +1,18 @@
 import { defineStore } from 'pinia';
-import { createActor } from '~/qa_index';
+import { createActor } from '~/response_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 
 function createActorFromIdentity(agent) {
-  return createActor(process.env.QA_INDEX_CANISTER_ID, { agent });
+  return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, { agent });
 }
 
-export const useQAStore = defineStore('qa', {
+export const useResponseStore = defineStore('response', {
   id: 'qa',
   state: () => ({
     actor: null,
     identity: null,
-    qa: null,
-    list: [],
-    loaded: false,
-    principal: null,
+    response: null,
   }),
   actions: {
     async init() {
@@ -26,31 +23,18 @@ export const useQAStore = defineStore('qa', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
       this.principal = agent ? await agent.getPrincipal() : null;
     },
-    async storeQA(params) {
+    async storeResponse(params) {
       return await this.actor.store(params);
     },
 
-    async getQAs(params) {
+    async getResponse(shareLink) {
+      const identity = this.principal.toText();
       this.loaded = false;
 
       await this.actor
-        .list(params)
+        .show({ identity, shareLink })
         .then((res) => {
-          this.list = res;
-          this.loaded = true;
-        })
-        .catch((e) => {
-          console.error(e);
-          this.loaded = true;
-        });
-    },
-    async getQA(link) {
-      this.loaded = false;
-
-      await this.actor
-        .show(link)
-        .then((res) => {
-          this.qa = res;
+          this.response = res;
           this.loaded = true;
         })
         .catch((e) => {
@@ -60,8 +44,7 @@ export const useQAStore = defineStore('qa', {
     },
   },
   getters: {
-    getList: (state) => state.list,
-    getQA: (state) => state.qa,
+    getResponse: (state) => state.response,
     getLoadingStatus: (state) => state.loaded,
   },
 });

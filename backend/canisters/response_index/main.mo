@@ -22,7 +22,28 @@ actor ResponseIndex {
   let authorsViaQA = Map.fromIter<Text, [Author]>(authorsViaQAEntries.vals(), 1000, Text.equal, Text.hash);
   let responses = Map.fromIter<Text, [Answer]>(responseEntries.vals(), 1000, Text.equal, Text.hash);
 
-  public shared({caller}) func store(shareLink: Text, answer: Answer, filled : ?Nat) : async() {
+  public query func list(shareLink: Text) : async [Author] {
+    switch (authorsViaQA.get(shareLink)) {
+      case null [];
+      case (?authors) authors;
+    };
+  };
+
+  public query func show(params: ResponseParams) : async ResponseResult {
+    let {identity; shareLink} = params;
+    let responseIdentifier = identity # "-" # shareLink;
+
+    let response = switch (authorsViaQA.get(shareLink)) {
+        case null null;
+        case (?qaAuthors) Array.find<Author>(qaAuthors, func author = author.identity == identity);
+    };
+
+    {
+      general = response;
+      answers = responses.get(responseIdentifier);
+    }
+  };
+
   public shared({caller}) func store(data: Data) : async() {
     let identity = Principal.toText(caller);
     let {shareLink; answer; filled} = data;

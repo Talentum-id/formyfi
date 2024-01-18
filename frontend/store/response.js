@@ -22,7 +22,6 @@ export const useResponseStore = defineStore('response', {
       const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
 
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
-      this.principal = agent ? await agent.getPrincipal() : null;
     },
     async storeResponse(params) {
       return await this.actor.store(params);
@@ -34,7 +33,7 @@ export const useResponseStore = defineStore('response', {
         .catch((e) => console.log(e));
     },
     async fetchResponse(shareLink) {
-      const identity = this.principal.toText();
+      const identity = useAuthStore().principal.toText();
       this.loaded = false;
 
       await this.actor

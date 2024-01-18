@@ -16,7 +16,6 @@ export const useQAStore = defineStore('qa', {
     qa: null,
     list: [],
     loaded: false,
-    principal: null,
   }),
   actions: {
     async init() {
@@ -25,7 +24,6 @@ export const useQAStore = defineStore('qa', {
       const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
 
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
-      this.principal = agent ? await agent.getPrincipal() : null;
     },
     async storeQA(params) {
       return await this.actor.store(params);

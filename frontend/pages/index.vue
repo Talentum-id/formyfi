@@ -69,6 +69,7 @@ import Text from '@/components/Table/Text.vue';
 import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
+import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
 import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
@@ -95,6 +96,7 @@ const requestsColumns = computed(() => {
   ];
 });
 const route = useRoute();
+const authStore = useAuthStore();
 const qaStore = useQAStore();
 const responseStore = useResponseStore();
 
@@ -142,7 +144,7 @@ const loaded = computed(() => qaStore.getLoadingStatus);
 
 const params = computed(() => {
   return {
-    identity: qaStore.principal.toText(),
+    identity: authStore.principal.toText(),
     search: search.value,
     page: parseInt(currentPage.value) || 1,
     pageSize: 10,

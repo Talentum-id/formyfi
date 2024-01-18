@@ -5,10 +5,12 @@
       "type": "motoko"
     },
     "qa_index": {
+      "dependencies": ["user_index"],
       "main": "backend/canisters/qa_index/main.mo",
       "type": "motoko"
     },
     "response_index": {
+      "dependencies": ["user_index", "qa_index"],
       "main": "backend/canisters/response_index/main.mo",
       "type": "motoko"
     },

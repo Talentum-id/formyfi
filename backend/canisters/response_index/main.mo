@@ -103,7 +103,7 @@ actor ResponseIndex {
       };
     };
 
-    QAIndex.incrementParticipants(shareLink);
+    ignore QAIndex.incrementParticipants(shareLink);
   };
 
   public query func readAll(): async Text {

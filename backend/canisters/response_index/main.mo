@@ -62,7 +62,7 @@ actor ResponseIndex {
             responses.put(responseIdentifier, [answer]);
 
             if (questionsSize == 1) {
-              saveAuthorQA(identity, data);
+              ignore saveAuthorQA(identity, data);
             }
           };
           case (?answers) {
@@ -72,7 +72,7 @@ actor ResponseIndex {
             responses.put(responseIdentifier, Buffer.toArray(qaAnswers));
 
             if (questionsSize == qaAnswers.size()) {
-              saveAuthorQA(identity, data);
+              ignore saveAuthorQA(identity, data);
             }
           };
         };
@@ -80,7 +80,7 @@ actor ResponseIndex {
     };
   };
 
-  private func saveAuthorQA(identity: Text, data: Data) {
+  private func saveAuthorQA(identity: Text, data: Data): async() {
     let {shareLink; filled} = data; 
 
     switch (authorsViaQA.get(shareLink)) {
@@ -101,7 +101,9 @@ actor ResponseIndex {
           authorsViaQA.put(shareLink, Buffer.toArray(qaAuthors));
         }
       };
-    };  
+    };
+
+    QAIndex.incrementParticipants(shareLink);
   };
 
   public query func readAll(): async Text {

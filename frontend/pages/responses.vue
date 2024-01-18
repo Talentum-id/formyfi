@@ -1,6 +1,6 @@
 <template>
   <Default>
-    <p>test asddsa dasd sad sad asdsa d as</p>
+    <h2 class="text-center">No responses here yet</h2>
   </Default>
 </template>
 <script setup>

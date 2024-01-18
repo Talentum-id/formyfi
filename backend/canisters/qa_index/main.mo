@@ -90,6 +90,31 @@ actor QAIndex {
         shareLinks.put(data.shareLink, identity);
     };
 
+    public func incrementParticipants(shareLink: Text): async() {
+        switch (shareLinks.get(shareLink)) {
+            case null return;
+            case (?identity) {
+                switch (QAs.get(identity)) {
+                    case null return;
+                    case (?qas) {
+                        let userQAs = Array.map<QA, QA>(qas, func quest = {
+                            image = quest.image;
+                            title = quest.title;
+                            description = quest.description;
+                            shareLink = quest.shareLink;
+                            participants = if (quest.shareLink == shareLink) quest.participants + 1 else quest.participants;
+                            start = quest.start;
+                            end = quest.end;
+                            questions = quest.questions;
+                        });
+
+                        QAs.put(identity, userQAs);
+                    }
+                };
+            };
+        };
+    };
+
     public shared({caller}) func delete(shareLink: Text): async () {
         let identity = Principal.toText(caller);
 

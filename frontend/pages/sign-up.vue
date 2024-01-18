@@ -81,7 +81,7 @@ const createAccount = () => {
     .then((res) => {
       authStore.setUser(res[0]);
       router.push('/');
-      
+
       sessionStorage.isAuthenticated = true;
     })
     .catch((error) => console.log(error))

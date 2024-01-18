@@ -7,20 +7,24 @@ module ResponseTypes {
         isCorrect: Bool;
     };
 
-    public type Response = {
-        questionLink: Text;
-        answers: [Answer];        
+    public type QAAuthor = {
+        identity: Text;
         filled: ?Nat;
     };
 
-    public type ListResult = {
-        data: [{
-            qa: {
-                question: Text;
-                shareLink: Text;
-            };
-            answer: Answer;
-        }];
-        pagination: PaginationTypes.Pagination;
+    public type QAResponseParams = {
+        shareLink: Text;
+        identity: Text;
+    };
+
+    public type QAResponseResult = {
+        general: ?QAAuthor;
+        answers: ?[Answer];
+    };
+
+    public type ResponseParams = {
+        shareLink: Text;
+        answer: Answer;
+        filled: ?Nat;
     };
 };

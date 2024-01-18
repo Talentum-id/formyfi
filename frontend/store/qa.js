@@ -29,7 +29,6 @@ export const useQAStore = defineStore('qa', {
     async storeQA(params) {
       return await this.actor.store(params);
     },
-
     async getQAs(params) {
       this.loaded = false;
 

@@ -46,6 +46,7 @@
           pointer
           title="You have no Q&A"
           icon="icons8-futurama-bender"
+          @load-responses="loadResponses"
         />
         <Pagination
           v-if="requestsRows && requestsRows.length"
@@ -61,17 +62,15 @@
 import Default from '@/layouts/default.vue';
 import CollapseTable from '@/components/Table/CollapseTable.vue';
 import { computed, onMounted, ref } from 'vue';
-import { Principal } from '@dfinity/principal';
 import Badge from '@/components/Badge.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Link from '@/components/Table/Link.vue';
-import Wallet from '@/components/Table/Wallet.vue';
-import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import Text from '@/components/Table/Text.vue';
 import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
 import { useQAStore } from '@/store/qa';
+import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
@@ -97,6 +96,8 @@ const requestsColumns = computed(() => {
 });
 const route = useRoute();
 const qaStore = useQAStore();
+const responseStore = useResponseStore();
+
 let isMounted = false;
 const showAlert = ref(false);
 onMounted(async () => {
@@ -125,6 +126,13 @@ const pageScreenToPdf = () => {
     loading.value = false;
   });
 };
+
+const loadResponses = index => {
+  const question = requestsRows.value[index];
+
+  responseStore.getQAResponses(question.shareLink.props.text);
+};
+
 function nextPage(page) {
   currentPage.value = page;
   qaStore.getQAs(params.value);
@@ -191,33 +199,28 @@ const requestsRows = computed(
       return [];
     }
 
-    const wallets = originalArray.map((el, i) => {
-      return {
-        component: Wallet,
-        props: {
-          text: '0xf30c...de18',
-        },
-        id: i,
-      };
-    });
-    const numbers = originalArray.map((el, i) => {
-      return {
-        component: NumberOfEl,
-        props: {
-          text: i + 1,
-        },
-        id: i,
-      };
-    });
-    const dates = originalArray.map((el, i) => {
+    const qaResponse = responseStore.qaResponses;
+
+    const users = qaResponse.map((response, i) => {
       return {
         component: Badge,
         props: {
-          text: 'Jan 12, 2024 ',
+          text: response.identity,
         },
         id: i,
       };
     });
+
+    const dates = qaResponse.map((response, i) => {
+      return {
+        component: Badge,
+        props: {
+          text: formatDate(Number(response.filled[0]) * 1000),
+        },
+        id: i,
+      };
+    });
+
     return originalArray.map((item, i) => ({
       title: {
         component: Text,
@@ -242,17 +245,20 @@ const requestsRows = computed(
             big: false,
           },
         },
-        components: numbers,
+        components: users,
       },
       start: {
-        component: Badge,
-        props: {
-          text: formatDate(Number(item.start) * 1000),
-          value: '',
-          type: 'claim',
-          big: false,
-          transparent: true,
+        singleComponent: {
+          component: Badge,
+          props: {
+            text: formatDate(Number(item.start) * 1000),
+            value: '',
+            type: 'claim',
+            big: false,
+            transparent: true,
+          },
         },
+        components: dates,
       },
       end: {
         component: Badge,

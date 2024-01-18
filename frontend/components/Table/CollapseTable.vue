@@ -236,6 +236,8 @@ export default {
     toggleOpenHandler(rowId) {
       if (this.currentRowId !== rowId) {
         this.currentRowId = rowId;
+
+        this.$emit('load-responses', rowId);
       } else {
         this.currentRowId = null;
       }

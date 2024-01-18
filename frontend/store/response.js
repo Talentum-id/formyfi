@@ -13,6 +13,7 @@ export const useResponseStore = defineStore('response', {
     actor: null,
     identity: null,
     response: null,
+    qaResponses: [],
   }),
   actions: {
     async init() {
@@ -27,7 +28,9 @@ export const useResponseStore = defineStore('response', {
       return await this.actor.store(params);
     },
     async getQAResponses(shareLink) {
-
+      await this.actor.list(shareLink)
+        .then(res => this.qaResponses = res)
+        .catch(e => console.log(e));
     },
     async fetchResponse(shareLink) {
       const identity = this.principal.toText();

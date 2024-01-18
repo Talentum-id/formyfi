@@ -5,6 +5,7 @@ module ResponseTypes {
     public type Answer = {
         answer: Text;
         isCorrect: Bool;
+        file: Text;
     };
 
     public type QAAuthor = {

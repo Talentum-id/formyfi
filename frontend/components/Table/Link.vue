@@ -2,7 +2,7 @@
   <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
 
   <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
-    <span class="text">{{ text }}</span>
+    <span class="text">{{ `quest/${text}` }}</span>
     <Icon name="Link" class="icon" :size="16" />
   </div>
 </template>

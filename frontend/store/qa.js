@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { createActor } from '~/qa_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
+import { useResponseStore } from '@/store/response';
 
 function createActorFromIdentity(agent) {
   return createActor(process.env.QA_INDEX_CANISTER_ID, { agent });
@@ -45,11 +46,19 @@ export const useQAStore = defineStore('qa', {
     },
     async fetchQA(link) {
       this.loaded = false;
-
       await this.actor
         .show(link)
         .then((res) => {
-          this.qa = res;
+          const arr = res.map((item) => {
+            return {
+              ...item,
+              end: Number(item.end),
+              start: Number(item.start),
+              participants: Number(item.participants),
+            };
+          });
+          useResponseStore().fetchResponse(arr[0].shareLink);
+          this.qa = arr[0];
           this.loaded = true;
         })
         .catch((e) => {

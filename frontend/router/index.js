@@ -1,8 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import App from '@/pages/index.vue';
-import Responses from '@/pages/Responses.vue';
+import Responses from '@/pages/responses.vue';
 import login from '@/pages/login.vue';
 import signUp from '@/pages/sign-up.vue';
+import quest from '@/pages/quest.vue';
 import Preview from '@/pages/preview.vue';
 import { useAuthStore } from '@/store/auth';
 
@@ -13,6 +14,15 @@ const routes = [
     component: App,
     meta: {
       title: `Q&A List`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/quest/:id',
+    name: 'quest',
+    component: quest,
+    meta: {
+      title: `Quest`,
       requiresAuth: true,
     },
   },

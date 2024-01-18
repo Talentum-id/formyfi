@@ -66,17 +66,10 @@
               >Previous</BaseButton
             >
             <BaseButton
-              text="Next"
+              :text="currentIndex + 1 === items.length && !isPreview ? 'Send' : 'Next'"
               type="normal"
               @click="nextSlide"
               :disabled="!newArr[currentIndex].answer"
-              :class="{ invisible: !items[currentIndex + 1] }"
-            />
-            <BaseButton
-              text="Send"
-              type="normal"
-              @click="send"
-              v-if="currentIndex + 1 === items.length && !isPreview"
             />
           </div>
         </div>
@@ -95,9 +88,11 @@ import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
+import { useResponseStore } from '@/store/response';
 
 const route = useRoute();
 const counterStore = useCounterStore();
+const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
@@ -120,15 +115,29 @@ const prevSlide = () => {
     currentIndex.value--;
   }
 };
-
+const emit = defineEmits(['close']);
 const nextSlide = () => {
-  if (currentIndex.value < props.items.length - 1 && newArr.value[currentIndex.value].answer) {
-    currentIndex.value++;
-    counterStore.setValue(currentIndex.value);
+  if (newArr.value[currentIndex.value].answer) {
+    if (!isPreview.value) {
+      console.log(newArr.value[currentIndex.value].questionType);
+      if (newArr.value[currentIndex.value].questionType === 'open') {
+        console.log(true);
+      } else {
+        const isCorrect = newArr.value[currentIndex.value].answers.find(
+          (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
+        );
+        console.log(isCorrect);
+      }
+    }
+
+    if (currentIndex.value < props.items.length - 1) {
+      currentIndex.value++;
+      counterStore.setValue(currentIndex.value);
+    } else {
+      counterStore.setValue(props.items.length);
+      emit('close');
+    }
   }
-};
-const send = () => {
-  //sendToBE
 };
 </script>
 <style lang="scss">
@@ -140,6 +149,7 @@ const send = () => {
   width: 100vw;
   top: 0;
   left: 0;
+  z-index: 1000;
   overflow: hidden;
   .slider {
     margin: 0 auto;

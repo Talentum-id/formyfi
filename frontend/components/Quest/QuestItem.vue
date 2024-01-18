@@ -2,7 +2,7 @@
   <div
     class="item"
     :class="{ active: isActive, completed: isCompleted }"
-    @click="$emit('view', data)"
+    @click="showAnswer(isActive && !isCompleted)"
   >
     <div class="name">{{ data.question }}</div>
     <img v-if="isActive && !isCompleted" src="@/assets/icons/play.svg" alt="" />
@@ -11,7 +11,7 @@
   </div>
 </template>
 <script setup>
-defineProps({
+const props = defineProps({
   data: {
     type: Object,
     default: () => {},
@@ -25,6 +25,13 @@ defineProps({
     default: false,
   },
 });
+
+const emit = defineEmits(['view']);
+const showAnswer = (canShow) => {
+  if (canShow) {
+    emit('view', props.data);
+  }
+};
 </script>
 
 <style scoped lang="scss">

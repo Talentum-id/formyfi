@@ -28,9 +28,10 @@ export const useResponseStore = defineStore('response', {
       return await this.actor.store(params);
     },
     async getQAResponses(shareLink) {
-      await this.actor.list(shareLink)
-        .then(res => this.qaResponses = res)
-        .catch(e => console.log(e));
+      await this.actor
+        .list(shareLink)
+        .then((res) => (this.qaResponses = res))
+        .catch((e) => console.log(e));
     },
     async fetchResponse(shareLink) {
       const identity = this.principal.toText();
@@ -40,6 +41,7 @@ export const useResponseStore = defineStore('response', {
         .show({ identity, shareLink })
         .then((res) => {
           this.response = res;
+          console.log(res);
           this.loaded = true;
         })
         .catch((e) => {

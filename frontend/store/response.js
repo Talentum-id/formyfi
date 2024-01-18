@@ -8,7 +8,7 @@ function createActorFromIdentity(agent) {
 }
 
 export const useResponseStore = defineStore('response', {
-  id: 'qa',
+  id: 'response',
   state: () => ({
     actor: null,
     identity: null,
@@ -26,8 +26,10 @@ export const useResponseStore = defineStore('response', {
     async storeResponse(params) {
       return await this.actor.store(params);
     },
+    async getQAResponses(shareLink) {
 
-    async getResponse(shareLink) {
+    },
+    async fetchResponse(shareLink) {
       const identity = this.principal.toText();
       this.loaded = false;
 

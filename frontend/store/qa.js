@@ -44,7 +44,7 @@ export const useQAStore = defineStore('qa', {
           this.loaded = true;
         });
     },
-    async getQA(link) {
+    async fetchQA(link) {
       this.loaded = false;
 
       await this.actor

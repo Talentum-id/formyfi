@@ -3,13 +3,9 @@
 </template>
 <script setup>
 import { useAuthStore } from '@/store/auth';
-import { useAssetsStore } from '@/store/assets';
-import { useQAStore } from '@/store/qa';
 import { storeToRefs } from 'pinia';
 
 const authStore = useAuthStore();
-const assetsStore = useAssetsStore();
-const qaStore = useQAStore();
 
 const { isReady } = storeToRefs(authStore);
 

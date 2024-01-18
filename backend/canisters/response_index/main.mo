@@ -53,30 +53,25 @@ actor ResponseIndex {
     let questionsSize = switch (await QAIndex.show(shareLink)) {
       case null throw Error.reject("Q&A not found");
       case (?qa) qa.questions.size();
-    };  
+    };
 
     switch (responses.get(responseIdentifier)) {
-      case null responses.put(responseIdentifier, [answer]);
-      case (?qaAuthors) {
-        switch (responses.get(responseIdentifier)) {
-          case null {
-            responses.put(responseIdentifier, [answer]);
+      case null {
+        responses.put(responseIdentifier, [answer]);
 
-            if (questionsSize == 1) {
-              ignore saveAuthorQA(identity, data);
-            }
-          };
-          case (?answers) {
-            let qaAnswers = Buffer.fromArray<Answer>(answers);
-            qaAnswers.add(answer);
+        if (questionsSize == 1) {
+          ignore saveAuthorQA(identity, data);
+        }
+      };
+      case (?answers) {
+        let qaAnswers = Buffer.fromArray<Answer>(answers);
+        qaAnswers.add(answer);
 
-            responses.put(responseIdentifier, Buffer.toArray(qaAnswers));
+        responses.put(responseIdentifier, Buffer.toArray(qaAnswers));
 
-            if (questionsSize == qaAnswers.size()) {
-              ignore saveAuthorQA(identity, data);
-            }
-          };
-        };
+        if (questionsSize == qaAnswers.size()) {
+          ignore saveAuthorQA(identity, data);
+        }
       };
     };
   };

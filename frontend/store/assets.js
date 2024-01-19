@@ -24,6 +24,10 @@ export const useAssetsStore = defineStore('assets', {
       }
 
       this.assetManager = new AssetManager({ canisterId, agent });
+
+      const files = await this.assetManager.list();
+
+      console.log(files);
     },
   },
   getters: {

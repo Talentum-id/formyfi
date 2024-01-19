@@ -1,4 +1,4 @@
-import PaginationTypes "../types/Pagination";
+import PaginationTypes "../../types/Pagination";
 
 module QATypes {
     public type Answer = {
@@ -10,7 +10,7 @@ module QATypes {
         question: Text;
         questionType: Text;
         description: Text;
-        files: [Text];
+        file: Text;
         required: Bool;
         answers: [Answer];
     };

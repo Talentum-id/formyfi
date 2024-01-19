@@ -119,8 +119,8 @@
             <div>
               <div class="content-block">
                 <CustomUpload
-                  :imagesFiles="question.images"
-                  @images="question.images = $event"
+                  :imagesFiles="question.image"
+                  @images="question.image = $event"
                   @changeError="handleImageError"
                 />
                 <div class="check-btn_wrapper">
@@ -207,6 +207,7 @@ import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
+import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
 import { useAssetsStore } from '@/store/assets';
 import Alert from '@/components/Alert.vue';
@@ -227,6 +228,7 @@ const questsTypeItems = ref([
   { title: 'Quiz Question', id: 1, name: 'quiz' },
   // { title: 'Multiple Choice', id: 2, name: 'multiple' },
 ]);
+const authStore = useAuthStore();
 const qaStore = useQAStore();
 const assetsStore = useAssetsStore();
 
@@ -236,8 +238,8 @@ const countOfQuestions = ref([
     questionType: '',
     type: 0,
     description: '',
-    files: [],
-    images: [],
+    file: "",
+    image: [],
     required: false,
     answers: [{ answer: '', isCorrect: false }],
   },
@@ -264,7 +266,6 @@ const validationCheck = computed(() => {
     return true;
   }
 });
-const answers = ref([0]);
 const bannerImage = ref(null);
 const showError = ref(false);
 const questionName = ref('');
@@ -290,8 +291,8 @@ const addQuestion = () => {
       questionType: '',
       type: 0,
       description: '',
-      files: [],
-      images: [],
+      file: "",
+      image: [],
       required: false,
       answers: [{ answer: '', isCorrect: false }],
     });
@@ -360,19 +361,27 @@ function uuidv4() {
 const loadImages = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      let index = 0;
+      const realTime = Math.floor(new Date().getTime() / 1000);
+      const batch = assetsStore.assetManager.batch();
+
       if (typeof bannerImage.value !== 'string') {
-        bannerImage.value = await assetsStore.assetManager.store(bannerImage.value);
+        bannerImage.value = await batch.store(bannerImage.value, { path: `/assets/${realTime}/${index}` });
+
+        index++;
       }
 
-      await Promise.all(
-        countOfQuestions.value.map(async (item) => {
-          if (item.images.length) {
-            item.files = await Promise.all(
-              item.images.map(async (file) => await assetsStore.assetManager.store(file.raw)),
-            );
+      await Promise.all(countOfQuestions.value.map(async (item) => {
+          if (item.image.length) {
+            item.file = await batch.store(item.image[0].raw, { path: `/assets/${realTime}/${index}` });
+
+            index++;
           }
         }),
       );
+
+      await batch.commit();
+
       resolve();
     } catch (error) {
       reject(error);
@@ -380,7 +389,6 @@ const loadImages = () => {
   });
 };
 const convertImage = (file) => {
-  console.log(file);
   return new Promise((resolve) => {
     if (FileReader && file) {
       const fr = new FileReader();
@@ -407,7 +415,8 @@ const preview = async () => {
   const banner = await convertImage(bannerImage.value);
 
   const questionsPromises = countOfQuestions.value.map(async (item) => {
-    const file = await convertImage(item.images[0]?.raw);
+    const file = await convertImage(item.image[0]?.raw);
+
     return {
       ...item,
       questionType: item.type ? 'quiz' : 'open',
@@ -461,8 +470,8 @@ const resetFields = () => {
       questionType: '',
       type: 0,
       description: '',
-      files: [],
-      images: [],
+      file: "",
+      image: [],
       required: false,
       answers: [{ answer: '', isCorrect: false }],
     },
@@ -498,7 +507,7 @@ const check = async () => {
 
     emits('refresh');
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     errorMessage.value = 'Something went wrong';
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);

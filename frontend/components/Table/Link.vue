@@ -2,7 +2,7 @@
   <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
 
   <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
-    <span class="text">{{ `quest/${text}` }}</span>
+    <span class="text">{{ text }}</span>
     <Icon name="Link" class="icon" :size="16" />
   </div>
 </template>
@@ -36,13 +36,15 @@ export default {
   },
   methods: {
     async copyRefLink() {
-      if (window.isSecureContext && navigator.clipboard) {
-        await navigator.clipboard.writeText(this.text);
-        this.show = true;
-        setTimeout(() => (this.show = false), 2000);
-      } else {
-        this.unsecuredCopyToClipboard(this.text);
-      }
+      this.$router.push(`/quest/${this.text}`);
+
+      // if (window.isSecureContext && navigator.clipboard) {
+      //   await navigator.clipboard.writeText(this.text);
+      //   this.show = true;
+      //   setTimeout(() => (this.show = false), 2000);
+      // } else {
+      //   this.unsecuredCopyToClipboard(this.text);
+      // }
     },
 
     unsecuredCopyToClipboard(link) {

@@ -13,7 +13,7 @@
           {{ column.label }}
           <Sort
             v-if="column.label && isSorting"
-            :direction="sortColumn === modifyStringSpaces(column.label) ? sortDirection : 'none'"
+            :direction="sortColumn === modifyStringSpaces(column.prop) ? sortDirection : 'none'"
           />
         </div>
       </div>
@@ -180,8 +180,6 @@ export default {
       arrowRight,
       checkIsPropertyExist,
       modifyStringSpaces,
-      sortColumn: null,
-      sortDirection: 'none',
       currentRowId: null,
     };
   },
@@ -203,30 +201,35 @@ export default {
       type: String,
       default: '',
     },
-    pointer: { type: Boolean, defalut: false },
-    loading: { type: Boolean, defalut: false },
-    loaded: { type: Boolean, defalut: false },
+    pointer: { type: Boolean, default: false },
+    loading: { type: Boolean, default: false },
+    loaded: { type: Boolean, default: false },
     sortFunction: {
       type: Function,
       default: null,
     },
     isSorting: { type: Boolean, default: false },
     isCollapse: { type: Boolean, default: false },
-  },
-  mounted() {
-    // if (
-    //   this.sortFunction &&
-    //   this.isSorting &&
-    //   localStorage.sortDirection &&
-    //   localStorage.sortColumn
-    // ) {
-    //   this.sortFunction(this.sortByColumn(localStorage.sortColumn), localStorage.sortDirection);
-    // }
+    sortDirection: {
+      type: String,
+      default: '',
+    },
+    setSortDirection: {
+      type: Function,
+      default: null,
+    },
+    sortColumn: {
+      type: String,
+      default: '',
+    },
+    setSortColumn: {
+      type: Function,
+      default: null,
+    },
   },
   methods: {
     isRowCollapsed(rowId) {
-      if (this.currentRowId === rowId) return true;
-      else return false;
+      return this.currentRowId === rowId;
     },
     toHandler(row) {
       if (this.checkIsPropertyExist(row, 'to')) {
@@ -242,26 +245,23 @@ export default {
         this.currentRowId = null;
       }
     },
-    sortByColumn(column) {
+    sortByColumn(column, cantSort) {
       if (!this.isSorting) return;
       if (this.sortColumn === column) {
-        if (this.sortDirection === 'asc') {
-          this.sortDirection = 'desc';
-          localStorage.sortDirection = this.sortDirection;
+        if (this.sortDirection === '') {
+          this.setSortDirection('desc');
+          this.sortFunction(column, 'desc');
         } else if (this.sortDirection === 'desc') {
-          this.sortDirection = 'none';
-          localStorage.sortDirection = this.sortDirection;
+          this.setSortDirection('asc');
+          this.sortFunction(column, 'asc');
         } else {
-          this.sortDirection = 'asc';
-          localStorage.sortDirection = this.sortDirection;
+          this.setSortDirection('');
+          this.sortFunction(column, '');
         }
-        this.sortFunction(column, this.sortDirection);
       } else {
-        this.sortColumn = column;
-        localStorage.sortColumn = column;
-        this.sortDirection = 'asc';
-        localStorage.sortDirection = this.sortDirection;
-        this.sortFunction(column, this.sortDirection);
+        this.setSortColumn(column);
+        this.setSortDirection('desc');
+        this.sortFunction(column, 'desc');
       }
     },
   },
@@ -364,23 +364,20 @@ export default {
 
 .single-component {
   visibility: inherit;
-  &.collapse-custom {
-    visibility: hidden;
-  }
 }
 
 .multi-components {
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: flex-end;
   gap: 16px;
   max-width: 0px;
   opacity: 0;
-  // display: none;
   margin-top: 14px;
   transition: max-width 1s ease-in;
 
   &.collapse-custom {
+    display: flex;
     max-width: fit-content;
     opacity: 1;
   }

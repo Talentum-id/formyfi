@@ -98,6 +98,10 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  shareLink: {
+    type: String,
+    default: '',
+  },
   items: {
     type: Array,
     default: () => [],
@@ -105,7 +109,14 @@ const props = defineProps({
 });
 const isPreview = computed(() => route.name === 'preview');
 const currentIndex = ref(findCurrentItemIndex());
-const newArr = ref(props.items);
+const newArr = ref(
+  props.items.map((item) => {
+    return {
+      ...item,
+      files: [],
+    };
+  }),
+);
 function findCurrentItemIndex() {
   return props.items.findIndex((item) => item.question === props.currentItem.question);
 }
@@ -119,14 +130,24 @@ const emit = defineEmits(['close']);
 const nextSlide = () => {
   if (newArr.value[currentIndex.value].answer) {
     if (!isPreview.value) {
-      console.log(newArr.value[currentIndex.value].questionType);
+      console.log(newArr.value[currentIndex.value]);
       if (newArr.value[currentIndex.value].questionType === 'open') {
-        console.log(true);
+        responseStore.storeResponse({
+          isCorrect: true,
+          answer: newArr.value[currentIndex.value].answer,
+          shareLink: props.shareLink,
+          file: newArr.value[currentIndex.value].files[0],
+        });
       } else {
         const isCorrect = newArr.value[currentIndex.value].answers.find(
           (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
         );
-        console.log(isCorrect);
+        responseStore.storeResponse({
+          isCorrect: !!isCorrect,
+          answer: newArr.value[currentIndex.value].answer,
+          shareLink: props.shareLink,
+          file: '',
+        });
       }
     }
 

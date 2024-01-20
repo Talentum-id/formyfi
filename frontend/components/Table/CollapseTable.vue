@@ -13,7 +13,9 @@
           {{ column.label }}
           <Sort
             v-if="column.label && isSorting"
-            :direction="sortColumn === modifyStringSpaces(column.prop) ? sortDirection : 'none'"
+            :direction="
+              sortColumn.toLowerCase() === modifyStringSpaces(column.prop) ? sortDirection : 'none'
+            "
           />
         </div>
       </div>

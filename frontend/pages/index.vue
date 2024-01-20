@@ -63,6 +63,7 @@ import Default from '@/layouts/default.vue';
 import CollapseTable from '@/components/Table/CollapseTable.vue';
 import { computed, onMounted, ref } from 'vue';
 import Badge from '@/components/Badge.vue';
+import View from '@/components/View.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Link from '@/components/Table/Link.vue';
 import Text from '@/components/Table/Text.vue';
@@ -78,6 +79,7 @@ import Alert from '@/components/Alert.vue';
 import { formatDate } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
+import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 
 const index = ref(null);
 
@@ -129,7 +131,7 @@ const pageScreenToPdf = () => {
   });
 };
 
-const loadResponses = index => {
+const loadResponses = (index) => {
   const question = requestsRows.value[index];
 
   responseStore.getQAResponses(question.shareLink.props.text);
@@ -212,7 +214,15 @@ const requestsRows = computed(
         id: i,
       };
     });
-
+    const numbers = qaResponse.map((el, i) => {
+      return {
+        component: NumberOfEl,
+        props: {
+          text: i + 1,
+        },
+        id: i,
+      };
+    });
     const dates = qaResponse.map((response, i) => {
       return {
         component: Badge,
@@ -225,10 +235,13 @@ const requestsRows = computed(
 
     return originalArray.map((item, i) => ({
       title: {
-        component: Text,
-        props: {
-          text: item.title,
+        singleComponent: {
+          component: Text,
+          props: {
+            text: item.title,
+          },
         },
+        components: numbers,
       },
       shareLink: {
         component: Link,
@@ -258,6 +271,15 @@ const requestsRows = computed(
             type: 'claim',
             big: false,
             transparent: true,
+          },
+        },
+        components: dates,
+      },
+      btns: {
+        singleComponent: {
+          component: View,
+          props: {
+            value: item.shareLink,
           },
         },
         components: dates,

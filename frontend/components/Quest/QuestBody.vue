@@ -24,6 +24,7 @@
         @close="showQuestion = false"
         :current-item="currentItem"
         :items="data.questions"
+        :share-link="data.shareLink"
       ></VerticalCarousel>
     </div>
   </div>

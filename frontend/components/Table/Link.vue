@@ -36,15 +36,13 @@ export default {
   },
   methods: {
     async copyRefLink() {
-      this.$router.push(`/quest/${this.text}`);
-
-      // if (window.isSecureContext && navigator.clipboard) {
-      //   await navigator.clipboard.writeText(this.text);
-      //   this.show = true;
-      //   setTimeout(() => (this.show = false), 2000);
-      // } else {
-      //   this.unsecuredCopyToClipboard(this.text);
-      // }
+      if (window.isSecureContext && navigator.clipboard) {
+        await navigator.clipboard.writeText(this.text);
+        this.show = true;
+        setTimeout(() => (this.show = false), 2000);
+      } else {
+        this.unsecuredCopyToClipboard(this.text);
+      }
     },
 
     unsecuredCopyToClipboard(link) {

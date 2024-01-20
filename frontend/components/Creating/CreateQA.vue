@@ -238,7 +238,7 @@ const countOfQuestions = ref([
     questionType: '',
     type: 0,
     description: '',
-    file: "",
+    file: '',
     image: [],
     required: false,
     answers: [{ answer: '', isCorrect: false }],
@@ -291,7 +291,7 @@ const addQuestion = () => {
       questionType: '',
       type: 0,
       description: '',
-      file: "",
+      file: '',
       image: [],
       required: false,
       answers: [{ answer: '', isCorrect: false }],
@@ -366,14 +366,19 @@ const loadImages = () => {
       const batch = assetsStore.assetManager.batch();
 
       if (typeof bannerImage.value !== 'string') {
-        bannerImage.value = await batch.store(bannerImage.value, { path: `/assets/${realTime}/${index}` });
+        bannerImage.value = await batch.store(bannerImage.value, {
+          path: `/assets/${realTime}/${index}`,
+        });
 
         index++;
       }
 
-      await Promise.all(countOfQuestions.value.map(async (item) => {
+      await Promise.all(
+        countOfQuestions.value.map(async (item) => {
           if (item.image.length) {
-            item.file = await batch.store(item.image[0].raw, { path: `/assets/${realTime}/${index}` });
+            item.file = await batch.store(item.image[0].raw, {
+              path: `/assets/${realTime}/${index}`,
+            });
 
             index++;
           }
@@ -415,7 +420,7 @@ const preview = async () => {
   const banner = await convertImage(bannerImage.value);
 
   const questionsPromises = countOfQuestions.value.map(async (item) => {
-    const file = await convertImage(item.image[0]?.raw);
+    const file = item.image[0] ? await convertImage(item.image[0].raw) : null;
 
     return {
       ...item,
@@ -470,7 +475,7 @@ const resetFields = () => {
       questionType: '',
       type: 0,
       description: '',
-      file: "",
+      file: '',
       image: [],
       required: false,
       answers: [{ answer: '', isCorrect: false }],

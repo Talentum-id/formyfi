@@ -1,12 +1,23 @@
 <script setup>
 import QuestHead from '@/components/Quest/QuestHead.vue';
 import QuestBody from '@/components/Quest/QuestBody.vue';
-import { ref } from 'vue';
+import { useCounterStore } from '@/store';
+import { onMounted, onUnmounted } from 'vue';
+import { useResponseStore } from '@/store/response';
+
 const props = defineProps({
   data: {
     type: Object,
     default: () => {},
   },
+});
+
+onMounted(() => {
+  useResponseStore().fetchResponse(props.data.shareLink);
+});
+const counterStore = useCounterStore();
+onUnmounted(() => {
+  counterStore.setValue(0);
 });
 </script>
 

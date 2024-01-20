@@ -24,9 +24,12 @@ export const useResponseStore = defineStore('response', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
     },
     async storeResponse(params) {
-      return await this.actor.store(params);
+      console.log(params);
+      await this.actor.store(params);
+      this.fetchResponse(params.shareLink);
     },
     async getQAResponses(shareLink) {
+      console.log(shareLink);
       await this.actor
         .list(shareLink)
         .then((res) => (this.qaResponses = res))

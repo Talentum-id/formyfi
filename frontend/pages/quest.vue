@@ -1,9 +1,8 @@
 <script setup>
-import { computed, onActivated, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import Quest from '@/components/Quest/Quest.vue';
 import Default from '@/layouts/default.vue';
 import { useQAStore } from '@/store/qa';
-import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 

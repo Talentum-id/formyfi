@@ -89,6 +89,8 @@ import { ElRadioGroup, ElRadioButton } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
+import { useAssetsStore } from '@/store/assets';
+const assetsStore = useAssetsStore();
 
 const route = useRoute();
 const counterStore = useCounterStore();
@@ -126,13 +128,52 @@ const prevSlide = () => {
     currentIndex.value--;
   }
 };
+const loadImages = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let index = 0;
+      const realTime = Math.floor(new Date().getTime() / 1000);
+      const batch = assetsStore.assetManager.batch();
+
+      if (typeof newArr.value[currentIndex.value].files !== 'string') {
+        newArr.value[currentIndex.value].files = await batch.store(
+          newArr.value[currentIndex.value].files,
+          {
+            path: `/assets/${realTime}/${index}`,
+          },
+        );
+
+        index++;
+      }
+
+      await Promise.all(
+        newArr.value[currentIndex.value].files.map(async (item) => {
+          if (item.image.length) {
+            item.file = await batch.store(item.image[0].raw, {
+              path: `/assets/${realTime}/${index}`,
+            });
+
+            index++;
+          }
+        }),
+      );
+
+      await batch.commit();
+
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 const emit = defineEmits(['close']);
-const nextSlide = () => {
+const nextSlide = async () => {
   if (newArr.value[currentIndex.value].answer) {
     if (!isPreview.value) {
       console.log(newArr.value[currentIndex.value]);
       if (newArr.value[currentIndex.value].questionType === 'open') {
-        responseStore.storeResponse({
+        await loadImages();
+        await responseStore.storeResponse({
           isCorrect: true,
           answer: newArr.value[currentIndex.value].answer,
           shareLink: props.shareLink,

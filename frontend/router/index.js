@@ -41,7 +41,7 @@ const routes = [
     component: Preview,
     meta: {
       title: `Preview`,
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {

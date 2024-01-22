@@ -133,11 +133,10 @@ const loadImages = () => {
     try {
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
-      const batch = assetsStore.assetManager.batch();
-
-      if (typeof newArr.value[currentIndex.value].files !== 'string') {
-        newArr.value[currentIndex.value].files = await batch.store(
-          newArr.value[currentIndex.value].files,
+      console.log(newArr.value[currentIndex.value].files);
+      if (typeof newArr.value[currentIndex.value].files[0] !== 'string') {
+        newArr.value[currentIndex.value].files[0] = await assetsStore.assetManager.store(
+          newArr.value[currentIndex.value].files[0].raw,
           {
             path: `/assets/${realTime}/${index}`,
           },
@@ -145,20 +144,6 @@ const loadImages = () => {
 
         index++;
       }
-
-      await Promise.all(
-        newArr.value[currentIndex.value].files.map(async (item) => {
-          if (item.image.length) {
-            item.file = await batch.store(item.image[0].raw, {
-              path: `/assets/${realTime}/${index}`,
-            });
-
-            index++;
-          }
-        }),
-      );
-
-      await batch.commit();
 
       resolve();
     } catch (error) {
@@ -170,24 +155,31 @@ const emit = defineEmits(['close']);
 const nextSlide = async () => {
   if (newArr.value[currentIndex.value].answer) {
     if (!isPreview.value) {
-      console.log(newArr.value[currentIndex.value]);
       if (newArr.value[currentIndex.value].questionType === 'open') {
-        await loadImages();
+        if (newArr.value[currentIndex.value].files[0]) {
+          await loadImages();
+        }
         await responseStore.storeResponse({
-          isCorrect: true,
-          answer: newArr.value[currentIndex.value].answer,
+          answer: {
+            isCorrect: true,
+            answer: newArr.value[currentIndex.value].answer,
+            file: newArr.value[currentIndex.value].files[0] || '',
+          },
+          filled: Math.floor(Date.now() / 1000),
           shareLink: props.shareLink,
-          file: newArr.value[currentIndex.value].files[0],
         });
       } else {
         const isCorrect = newArr.value[currentIndex.value].answers.find(
           (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
         );
-        responseStore.storeResponse({
-          isCorrect: !!isCorrect,
-          answer: newArr.value[currentIndex.value].answer,
+        await responseStore.storeResponse({
+          answer: {
+            isCorrect: !!isCorrect,
+            answer: newArr.value[currentIndex.value].answer,
+            file: '',
+          },
           shareLink: props.shareLink,
-          file: '',
+          filled: Math.floor(Date.now() / 1000),
         });
       }
     }

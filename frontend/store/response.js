@@ -12,7 +12,7 @@ export const useResponseStore = defineStore('response', {
   state: () => ({
     actor: null,
     identity: null,
-    response: null,
+    response: [],
     qaResponses: [],
   }),
   actions: {
@@ -42,8 +42,7 @@ export const useResponseStore = defineStore('response', {
       await this.actor
         .show({ identity, shareLink })
         .then((res) => {
-          this.response = res;
-          console.log(res);
+          this.response = res.answers;
           this.loaded = true;
         })
         .catch((e) => {
@@ -53,7 +52,7 @@ export const useResponseStore = defineStore('response', {
     },
   },
   getters: {
-    getResponse: (state) => state.response,
+    getResponse: (state) => state.response.length,
     getLoadingStatus: (state) => state.loaded,
   },
 });

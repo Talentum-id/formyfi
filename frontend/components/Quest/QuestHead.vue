@@ -15,7 +15,7 @@
             class="item"
             v-for="(i, idx) in data.questions"
             :key="i"
-            :class="{ active: idx <= step }"
+            :class="{ active: idx <= answers }"
           ></div>
         </div>
       </div>
@@ -29,6 +29,7 @@ import Badge from '@/components/Badge.vue';
 import { formatDate } from '@/util/helpers';
 import { useCounterStore } from '@/store';
 import { computed } from 'vue';
+import { useResponseStore } from '@/store/response';
 const counterStore = useCounterStore();
 
 const step = computed(() => counterStore.getStep);
@@ -38,6 +39,7 @@ const props = defineProps({
     default: () => {},
   },
 });
+const answers = computed(() => useResponseStore().getResponse || step.value);
 </script>
 <style scoped lang="scss">
 .head-container {

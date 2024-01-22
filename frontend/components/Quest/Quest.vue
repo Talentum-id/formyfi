@@ -2,8 +2,7 @@
 import QuestHead from '@/components/Quest/QuestHead.vue';
 import QuestBody from '@/components/Quest/QuestBody.vue';
 import { useCounterStore } from '@/store';
-import { onMounted, onUnmounted } from 'vue';
-import { useResponseStore } from '@/store/response';
+import { onUnmounted } from 'vue';
 
 const props = defineProps({
   data: {
@@ -11,13 +10,9 @@ const props = defineProps({
     default: () => {},
   },
 });
-
-onMounted(() => {
-  useResponseStore().fetchResponse(props.data.shareLink);
-});
 const counterStore = useCounterStore();
 onUnmounted(() => {
-  counterStore.setValue(0);
+  counterStore.setValue(1);
 });
 </script>
 

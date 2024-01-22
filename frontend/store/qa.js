@@ -33,7 +33,7 @@ export const useQAStore = defineStore('qa', {
       console.log(params);
       await this.actor
         .list(params)
-        .then((res) => {
+        .then(async (res) => {
           this.list = res;
           this.loaded = true;
         })
@@ -46,7 +46,7 @@ export const useQAStore = defineStore('qa', {
       this.loaded = false;
       await this.actor
         .show(link)
-        .then((res) => {
+        .then(async (res) => {
           const arr = res.map((item) => {
             return {
               ...item,
@@ -55,7 +55,7 @@ export const useQAStore = defineStore('qa', {
               participants: Number(item.participants),
             };
           });
-          useResponseStore().fetchResponse(arr[0].shareLink);
+          await useResponseStore().fetchResponse(arr[0].shareLink);
           this.qa = arr[0];
           this.loaded = true;
         })

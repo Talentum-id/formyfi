@@ -5,10 +5,12 @@ import Default from '@/layouts/default.vue';
 import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
+import { useResponseStore } from '@/store/response';
 
 onMounted(() => {
   useQAStore().fetchQA(useRoute().params.id);
 });
+onMounted(() => {});
 const data = computed(() => useQAStore().getQA);
 const loaded = computed(() => useQAStore().getLoadingStatus);
 </script>

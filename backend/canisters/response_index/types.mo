@@ -10,7 +10,7 @@ module ResponseTypes {
 
   public type QAAuthor = {
     identity : Text;
-    filled : ?Nat;
+    filled : Nat;
   };
 
   public type QAResponseParams = {
@@ -26,6 +26,6 @@ module ResponseTypes {
   public type ResponseParams = {
     shareLink : Text;
     answer : Answer;
-    filled : ?Nat;
+    filled : Nat;
   };
 };

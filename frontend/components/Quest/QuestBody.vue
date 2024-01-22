@@ -11,8 +11,8 @@
           v-for="(item, idx) in data.questions"
           :key="item.id"
           :data="item"
-          :is-active="step === idx"
-          :is-completed="step > idx"
+          :is-active="answers === idx"
+          :is-completed="answers > idx"
           @view="
             showQuestion = true;
             currentItem = $event;
@@ -34,6 +34,7 @@ import QuestItem from '@/components/Quest/QuestItem.vue';
 import VerticalCarousel from '@/components/Details/VerticalCarousel.vue';
 import { computed, ref } from 'vue';
 import { useCounterStore } from '@/store';
+import { useResponseStore } from '@/store/response';
 const counterStore = useCounterStore();
 
 const step = computed(() => counterStore.getStep);
@@ -45,6 +46,7 @@ const props = defineProps({
 });
 const showQuestion = ref(false);
 const currentItem = ref(null);
+const answers = computed(() => useResponseStore().getResponse || step.value);
 </script>
 <style scoped lang="scss">
 .body-container {

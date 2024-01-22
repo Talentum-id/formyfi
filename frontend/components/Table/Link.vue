@@ -22,7 +22,6 @@ export default {
       type: String,
       default: '',
     },
-
     type: {
       type: String,
       default: '',
@@ -31,8 +30,10 @@ export default {
       type: Number,
       default: 6,
     },
-
-    icon: String,
+    value: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {

@@ -134,7 +134,7 @@ const pageScreenToPdf = () => {
 const loadResponses = (index) => {
   const question = requestsRows.value[index];
 
-  responseStore.getQAResponses(question.shareLink.props.text);
+  responseStore.getQAResponses(question.shareLink.props.value);
 };
 
 function nextPage(page) {
@@ -259,6 +259,7 @@ const requestsRows = computed(
         props: {
           text: `${window.location.href}quest/${item.shareLink}`,
           size: 12,
+          value: item.shareLink,
         },
       },
       participants: {

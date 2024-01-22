@@ -39,6 +39,7 @@
                 class="w-full"
               />
               <CustomUpload
+                v-if="!rerenderImages"
                 :imagesFiles="newArr[currentIndex].files"
                 @images="newArr[currentIndex].files = $event"
               ></CustomUpload>
@@ -82,7 +83,7 @@
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -123,6 +124,9 @@ const cacheAnswer = computed(() => {
   } else {
     return '';
   }
+});
+onMounted(() => {
+  newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
 });
 const newArr = ref(
   props.items.map((item) => {
@@ -206,8 +210,15 @@ const nextSlide = async () => {
     }
   }
 };
+const rerenderImages = ref(false);
+const rerender = async () => {
+  rerenderImages.value = true;
+  await nextTick();
+  rerenderImages.value = false;
+};
 watch(currentIndex, (value) => {
   newArr.value[value].answer = cacheAnswer.value ?? '';
+  rerender();
 });
 </script>
 <style lang="scss">

@@ -2,7 +2,7 @@
   <div
     class="item"
     :class="{ active: isActive, completed: isCompleted }"
-    @click="showAnswer(isActive && !isCompleted)"
+    @click="showAnswer(isActive || isCompleted)"
   >
     <div class="name">{{ data.question }}</div>
     <img v-if="isActive && !isCompleted" src="@/assets/icons/play.svg" alt="" />

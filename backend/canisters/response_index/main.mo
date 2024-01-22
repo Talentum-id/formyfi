@@ -50,27 +50,37 @@ actor ResponseIndex {
     let { shareLink; answer; filled } = data;
     let responseIdentifier = identity # "-" # shareLink;
 
-    let questionsSize = switch (await QAIndex.show(shareLink)) {
+    switch (await QAIndex.show(shareLink)) {
       case null throw Error.reject("Q&A not found");
-      case (?qa) qa.questions.size();
-    };
+      case (?qa) {
+        let questionsSize = qa.questions.size();
 
-    switch (responses.get(responseIdentifier)) {
-      case null {
-        responses.put(responseIdentifier, [answer]);
+        switch (responses.get(responseIdentifier)) {
+          case null {
+            if (qa.questions[0].required == true and answer.answer == "") {
+              throw Error.reject("Answer is required");
+            };
 
-        if (questionsSize == 1) {
-          ignore saveAuthorQA(identity, data);
-        };
-      };
-      case (?answers) {
-        let qaAnswers = Buffer.fromArray<Answer>(answers);
-        qaAnswers.add(answer);
+            responses.put(responseIdentifier, [answer]);
 
-        responses.put(responseIdentifier, Buffer.toArray(qaAnswers));
+            if (questionsSize == 1) {
+              ignore saveAuthorQA(identity, data);
+            };
+          };
+          case (?answers) {
+            if (qa.questions[answers.size()].required == true and answer.answer == "") {
+              throw Error.reject("Answer is required");
+            };
 
-        if (questionsSize == qaAnswers.size()) {
-          ignore saveAuthorQA(identity, data);
+            let qaAnswers = Buffer.fromArray<Answer>(answers);
+            qaAnswers.add(answer);
+
+            responses.put(responseIdentifier, Buffer.toArray(qaAnswers));
+
+            if (questionsSize == qaAnswers.size()) {
+              ignore saveAuthorQA(identity, data);
+            };
+          };
         };
       };
     };
@@ -85,10 +95,7 @@ actor ResponseIndex {
 
     switch (authorsViaQA.get(shareLink)) {
       case null {
-        authorsViaQA.put(shareLink, [{
-          identity = username;
-          filled 
-        }]);
+        authorsViaQA.put(shareLink, [{ identity = username; filled }]);
       };
       case (?authors) {
         if (Array.find<Author>(authors, func author = author.identity == identity) == null) {

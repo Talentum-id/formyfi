@@ -65,10 +65,6 @@ actor QAIndex {
       throw Error.reject("Please, fill required fields!");
     };
 
-    if (not (validateQuestions(data.questions))) {
-      throw Error.reject("Please, ensure you have a correct answer for quiz questions!");
-    };
-
     let shareLinkExists = await show(data.shareLink);
 
     if (shareLinkExists != null) {
@@ -237,17 +233,6 @@ actor QAIndex {
     };
 
     true;
-  };
-
-  func validateQuestions(questions : [Question]) : Bool {
-    Array.find<Question>(
-      questions,
-      func question = if (question.questionType == "quiz") {
-        Array.find<Answer>(question.answers, func answer = answer.isCorrect == true) == null;
-      } else {
-        false;
-      },
-    ) == null;
   };
 
   public query func readAll() : async Text {

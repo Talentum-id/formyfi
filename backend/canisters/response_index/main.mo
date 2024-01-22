@@ -23,31 +23,31 @@ actor ResponseIndex {
   let authorsViaQA = Map.fromIter<Text, [Author]>(authorsViaQAEntries.vals(), 1000, Text.equal, Text.hash);
   let responses = Map.fromIter<Text, [Answer]>(responseEntries.vals(), 1000, Text.equal, Text.hash);
 
-  public query func list(shareLink: Text) : async [Author] {
+  public query func list(shareLink : Text) : async [Author] {
     switch (authorsViaQA.get(shareLink)) {
       case null [];
       case (?authors) authors;
     };
   };
 
-  public query func show(params: ResponseParams) : async ResponseResult {
-    let {identity; shareLink} = params;
+  public query func show(params : ResponseParams) : async ResponseResult {
+    let { identity; shareLink } = params;
     let responseIdentifier = identity # "-" # shareLink;
 
     let response = switch (authorsViaQA.get(shareLink)) {
-        case null null;
-        case (?qaAuthors) Array.find<Author>(qaAuthors, func author = author.identity == identity);
+      case null null;
+      case (?qaAuthors) Array.find<Author>(qaAuthors, func author = author.identity == identity);
     };
 
     {
       general = response;
       answers = responses.get(responseIdentifier);
-    }
+    };
   };
 
-  public shared({caller}) func store(data: Data) : async() {
+  public shared ({ caller }) func store(data : Data) : async () {
     let identity = Principal.toText(caller);
-    let {shareLink; answer; filled} = data;
+    let { shareLink; answer; filled } = data;
     let responseIdentifier = identity # "-" # shareLink;
 
     let questionsSize = switch (await QAIndex.show(shareLink)) {
@@ -61,7 +61,7 @@ actor ResponseIndex {
 
         if (questionsSize == 1) {
           ignore saveAuthorQA(identity, data);
-        }
+        };
       };
       case (?answers) {
         let qaAnswers = Buffer.fromArray<Answer>(answers);
@@ -71,27 +71,24 @@ actor ResponseIndex {
 
         if (questionsSize == qaAnswers.size()) {
           ignore saveAuthorQA(identity, data);
-        }
+        };
       };
     };
   };
 
-  private func saveAuthorQA(identity: Text, data: Data): async() {
-    let {shareLink; filled} = data; 
+  private func saveAuthorQA(identity : Text, data : Data) : async () {
+    let { shareLink; filled } = data;
 
     switch (authorsViaQA.get(shareLink)) {
       case null {
-        authorsViaQA.put(shareLink, [{
-          identity;
-          filled;
-        }]);
+        authorsViaQA.put(shareLink, [{ identity; filled }]);
       };
       case (?authors) {
         if (Array.find<Author>(authors, func author = author.identity == identity) == null) {
           let qaAuthors = Buffer.fromArray<Author>(authors);
           let username = switch (await UserIndex.findUser(identity)) {
             case null "Undefined";
-            case (?user) user.username; 
+            case (?user) user.username;
           };
 
           qaAuthors.add({
@@ -100,44 +97,44 @@ actor ResponseIndex {
           });
 
           authorsViaQA.put(shareLink, Buffer.toArray(qaAuthors));
-        }
+        };
       };
     };
 
     ignore QAIndex.incrementParticipants(shareLink);
   };
 
-  public query func readAll(): async Text {
+  public query func readAll() : async Text {
     var pairs = "";
 
     for ((key, value) in authorsViaQA.entries()) {
-        pairs := "(" # key # ", " # debug_show(value) # ") " # pairs
+      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
     };
 
     for ((key, value) in responses.entries()) {
-        pairs := "(" # key # ", " # debug_show(value) # ") " # pairs
+      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
     };
 
     return pairs;
   };
 
-  public func reset(): async () {
-      for ((key, value) in authorsViaQA.entries()) {
-          authorsViaQA.delete(key);
-      };
+  public func reset() : async () {
+    for ((key, value) in authorsViaQA.entries()) {
+      authorsViaQA.delete(key);
+    };
 
-      for ((key, value) in responses.entries()) {
-          responses.delete(key);
-      };
+    for ((key, value) in responses.entries()) {
+      responses.delete(key);
+    };
   };
 
   system func preupgrade() {
-      authorsViaQAEntries := Iter.toArray(authorsViaQA.entries());
-      responseEntries := Iter.toArray(responses.entries());
+    authorsViaQAEntries := Iter.toArray(authorsViaQA.entries());
+    responseEntries := Iter.toArray(responses.entries());
   };
 
   system func postupgrade() {
-      authorsViaQAEntries := [];
-      responseEntries := [];
+    authorsViaQAEntries := [];
+    responseEntries := [];
   };
 };

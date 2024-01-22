@@ -76,7 +76,7 @@ import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
-import { formatDate } from '@/util/helpers';
+import { formatDate, shortenAddress } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
@@ -207,7 +207,7 @@ const requestsRows = computed(
 
     const users = qaResponse.map((response, i) => {
       return {
-        component: Badge,
+        component: Link,
         props: {
           text: response.identity,
         },
@@ -226,6 +226,17 @@ const requestsRows = computed(
     const dates = qaResponse.map((response, i) => {
       return {
         component: Badge,
+        props: {
+          text: formatDate(Number(response.filled) * 1000),
+          transparent: true,
+        },
+        id: i,
+      };
+    });
+
+    const views = qaResponse.map((response, i) => {
+      return {
+        component: View,
         props: {
           text: formatDate(Number(response.filled[0]) * 1000),
         },
@@ -282,15 +293,16 @@ const requestsRows = computed(
             value: item.shareLink,
           },
         },
-        components: dates,
+        components: views,
       },
       end: {
         component: Badge,
         props: {
           text: formatDate(Number(item.end) * 1000),
           value: '',
-          transparent: true,
+          type: 'claim',
           big: false,
+          transparent: true,
         },
       },
     }));

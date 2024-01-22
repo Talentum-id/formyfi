@@ -2,7 +2,7 @@
   <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
 
   <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
-    <span class="text">{{ text }}</span>
+    <span class="text">{{ shortenAddress(text, 6) }}</span>
     <Icon name="Link" class="icon" :size="16" />
   </div>
 </template>
@@ -12,6 +12,7 @@ import Icon from '@/components/Icons/Icon.vue';
 import Alert from '@/components/Alert.vue';
 import Tooltip from '@/components/Table/Tooltip.vue';
 import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
+import { shortenAddress } from '@/util/helpers';
 
 export default {
   name: 'Link',
@@ -35,6 +36,7 @@ export default {
     };
   },
   methods: {
+    shortenAddress,
     async copyRefLink() {
       if (window.isSecureContext && navigator.clipboard) {
         await navigator.clipboard.writeText(this.text);

@@ -23,7 +23,9 @@ export const getTaskStatus = (status) => {
       return '';
   }
 };
-
+export function shortenAddress(address, chars = 4) {
+  return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
+}
 export function isMoreThan3Days(now) {
   const nowDate = new Date(now);
 

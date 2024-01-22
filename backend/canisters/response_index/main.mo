@@ -78,18 +78,21 @@ actor ResponseIndex {
 
   private func saveAuthorQA(identity : Text, data : Data) : async () {
     let { shareLink; filled } = data;
+    let username = switch (await UserIndex.findUser(identity)) {
+      case null "Undefined";
+      case (?user) user.username;
+    };
 
     switch (authorsViaQA.get(shareLink)) {
       case null {
-        authorsViaQA.put(shareLink, [{ identity; filled }]);
+        authorsViaQA.put(shareLink, [{
+          identity = username;
+          filled 
+        }]);
       };
       case (?authors) {
         if (Array.find<Author>(authors, func author = author.identity == identity) == null) {
           let qaAuthors = Buffer.fromArray<Author>(authors);
-          let username = switch (await UserIndex.findUser(identity)) {
-            case null "Undefined";
-            case (?user) user.username;
-          };
 
           qaAuthors.add({
             identity = username;

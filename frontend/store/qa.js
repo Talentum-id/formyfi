@@ -3,7 +3,7 @@ import { createActor } from '~/qa_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
-
+import { useRouter } from 'vue-router';
 function createActorFromIdentity(agent) {
   return createActor(process.env.QA_INDEX_CANISTER_ID, { agent });
 }
@@ -27,6 +27,10 @@ export const useQAStore = defineStore('qa', {
     },
     async storeQA(params) {
       return await this.actor.store(params);
+    },
+    async removeQuest(link) {
+      console.log(link);
+      return await this.actor.delete(link);
     },
     async getQAs(params) {
       this.loaded = false;
@@ -55,8 +59,8 @@ export const useQAStore = defineStore('qa', {
               participants: Number(item.participants),
             };
           });
-          await useResponseStore().fetchResponse(arr[0].shareLink);
-          this.qa = arr[0];
+          await useResponseStore().fetchResponse(arr?.[0].shareLink);
+          this.qa = arr?.[0];
           this.loaded = true;
         })
         .catch((e) => {

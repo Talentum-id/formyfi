@@ -1,18 +1,27 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import Quest from '@/components/Quest/Quest.vue';
 import Default from '@/layouts/default.vue';
 import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+const route = useRoute();
 import Icon from '@/components/Icons/Icon.vue';
-import { useResponseStore } from '@/store/response';
 
 onMounted(() => {
-  useQAStore().fetchQA(useRoute().params.id);
+  useQAStore().fetchQA(route.params.id);
 });
-onMounted(() => {});
 const data = computed(() => useQAStore().getQA);
 const loaded = computed(() => useQAStore().getLoadingStatus);
+
+onUnmounted(() => {
+  useQAStore().qa = null;
+});
+async function deleteQuest() {
+  await useQAStore().removeQuest(route.params.id);
+  await router.push('/');
+}
 </script>
 
 <template>
@@ -22,9 +31,11 @@ const loaded = computed(() => useQAStore().getLoadingStatus);
         <div class="btn"><Icon name="Left-Arrow" :size="24"></Icon></div>
         Back to Q&A List
       </div>
-      <div class="btn"><Icon name="Delete-def" :size="24"></Icon></div>
+      <div class="btn" @click="deleteQuest">
+        <Icon name="Delete-def" :size="24"></Icon>
+      </div>
     </div>
-    <quest :data="data" v-if="loaded && data"></quest
+    <Quest :data="data" v-if="loaded && data"></Quest
   ></Default>
 </template>
 

@@ -2,7 +2,8 @@
 import QuestHead from '@/components/Quest/QuestHead.vue';
 import QuestBody from '@/components/Quest/QuestBody.vue';
 import { useCounterStore } from '@/store';
-import { onUnmounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
   data: {
@@ -13,6 +14,11 @@ const props = defineProps({
 const counterStore = useCounterStore();
 onUnmounted(() => {
   counterStore.setValue(0);
+});
+onMounted(() => {
+  if (!props.data) {
+    useRouter().push('/');
+  }
 });
 </script>
 

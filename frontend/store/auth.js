@@ -27,19 +27,17 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async init() {
-      const authClient = await AuthClient.create({
+      this.authClient = await AuthClient.create({
         idleOptions: {
           disableIdle: true,
         },
       });
 
-      this.authClient = authClient;
+      this.isAuthenticated = await this.authClient.isAuthenticated();
+      this.identity = this.isAuthenticated ? this.authClient.getIdentity() : null;
 
-      this.isAuthenticated = await authClient.isAuthenticated();
-      this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
-    
       const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
-      
+
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
       this.principal = this.identity ? await agent.getPrincipal() : null;
 
@@ -57,12 +55,12 @@ export const useAuthStore = defineStore('auth', {
             } else {
               sessionStorage.removeItem('isAuthenticated');
 
-              router.push('/login');
+              await router.push('/login');
             }
           })
           .catch(() => this.logout());
       } else {
-        router.push('/login');
+        await router.push('/login');
       }
 
       this.isReady = true;

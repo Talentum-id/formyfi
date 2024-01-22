@@ -26,7 +26,6 @@
 <script setup>
 import Auth from '@/layouts/auth.vue';
 import AuthButton from '@/components/Auth/AuthButton.vue';
-import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 
 const authStore = useAuthStore();

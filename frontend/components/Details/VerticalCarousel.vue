@@ -12,7 +12,7 @@
       >
         <div class="close" @click="$emit('close')"><Icon name="Cancel" :size="24"></Icon></div>
         <div class="current-item">
-          <div class="flex flex-col gap-y-[24px] w-full">
+          <div class="flex flex-col gap-y-[24px] w-full content">
             <div class="counter w-full">
               <div
                 class="count"
@@ -82,7 +82,7 @@
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -108,14 +108,28 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  answers: {
+    type: Array,
+    default: () => [],
+  },
 });
+const step = computed(() => counterStore.getStep);
+
 const isPreview = computed(() => route.name === 'preview');
 const currentIndex = ref(findCurrentItemIndex());
+const cacheAnswer = computed(() => {
+  if (props.answers.length && props.answers[currentIndex.value]) {
+    return props.answers[currentIndex.value].answer;
+  } else {
+    return '';
+  }
+});
 const newArr = ref(
   props.items.map((item) => {
     return {
       ...item,
       files: [],
+      answer: '',
     };
   }),
 );
@@ -133,7 +147,6 @@ const loadImages = () => {
     try {
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
-      console.log(newArr.value[currentIndex.value].files);
       if (typeof newArr.value[currentIndex.value].files[0] !== 'string') {
         newArr.value[currentIndex.value].files[0] = await assetsStore.assetManager.store(
           newArr.value[currentIndex.value].files[0].raw,
@@ -153,8 +166,9 @@ const loadImages = () => {
 };
 const emit = defineEmits(['close']);
 const nextSlide = async () => {
+  console.log(step.value, currentIndex.value);
   if (newArr.value[currentIndex.value].answer) {
-    if (!isPreview.value) {
+    if (!isPreview.value && step.value === currentIndex.value) {
       if (newArr.value[currentIndex.value].questionType === 'open') {
         if (newArr.value[currentIndex.value].files[0]) {
           await loadImages();
@@ -186,13 +200,15 @@ const nextSlide = async () => {
 
     if (currentIndex.value < props.items.length - 1) {
       currentIndex.value++;
-      counterStore.setValue(currentIndex.value);
     } else {
       counterStore.setValue(props.items.length);
       emit('close');
     }
   }
 };
+watch(currentIndex, (value) => {
+  newArr.value[value].answer = cacheAnswer.value ?? '';
+});
 </script>
 <style lang="scss">
 .layout {
@@ -252,7 +268,7 @@ const nextSlide = async () => {
       background: $default-border;
     }
     .main {
-      height: 100%;
+      height: calc(100% - 128px);
       position: relative;
 
       .close {
@@ -408,5 +424,9 @@ const nextSlide = async () => {
       border: none !important;
     }
   }
+}
+.content {
+  max-height: 90%;
+  overflow-y: scroll;
 }
 </style>

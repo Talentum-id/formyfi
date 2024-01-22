@@ -15,7 +15,7 @@
             class="item"
             v-for="(i, idx) in data.questions"
             :key="i"
-            :class="{ active: idx <= answers }"
+            :class="{ active: idx <= step }"
           ></div>
         </div>
       </div>
@@ -39,7 +39,7 @@ const props = defineProps({
     default: () => {},
   },
 });
-const answers = computed(() => useResponseStore().getResponse || step.value);
+const answers = computed(() => useResponseStore().getResponse);
 </script>
 <style scoped lang="scss">
 .head-container {

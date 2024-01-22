@@ -2,7 +2,7 @@
   <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
 
   <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
-    <span class="text">{{ shortenAddress(text, 6) }}</span>
+    <span class="text">{{ shortenAddress(text, size) }}</span>
     <Icon name="Link" class="icon" :size="16" />
   </div>
 </template>
@@ -26,6 +26,10 @@ export default {
     type: {
       type: String,
       default: '',
+    },
+    size: {
+      type: Number,
+      default: 6,
     },
 
     icon: String,
@@ -114,11 +118,9 @@ div {
   box-shadow: 0px 2px 8px rgba(26, 29, 41, 0.24);
   border-radius: 8px;
   padding: 4px 8px;
-  font-size: 12px;
   z-index: 9999999;
   transform: translateY(100%) translateX(-50%);
   margin-bottom: 5px;
-
   font-family: 'Basis Grotesque Pro';
   font-style: normal;
   font-weight: 500;
@@ -131,8 +133,8 @@ div {
     'zero' on;
   color: $white;
   text-align: left;
-  bottom: 54px;
-  left: 50%;
+  bottom: 65px;
+  left: 30%;
   &::after {
     content: '';
     position: absolute;

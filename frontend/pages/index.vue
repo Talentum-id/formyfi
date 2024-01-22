@@ -257,8 +257,8 @@ const requestsRows = computed(
       shareLink: {
         component: Link,
         props: {
-          text: item.shareLink,
-          value: '',
+          text: `${window.location.href}quest/${item.shareLink}`,
+          size: 12,
         },
       },
       participants: {

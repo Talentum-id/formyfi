@@ -11,8 +11,8 @@
           v-for="(item, idx) in data.questions"
           :key="item.id"
           :data="item"
-          :is-active="answers === idx"
-          :is-completed="answers > idx"
+          :is-active="step === idx"
+          :is-completed="step > idx"
           @view="
             showQuestion = true;
             currentItem = $event;
@@ -25,6 +25,7 @@
         :current-item="currentItem"
         :items="data.questions"
         :share-link="data.shareLink"
+        :answers="answers"
       ></VerticalCarousel>
     </div>
   </div>
@@ -46,7 +47,7 @@ const props = defineProps({
 });
 const showQuestion = ref(false);
 const currentItem = ref(null);
-const answers = computed(() => useResponseStore().getResponse || step.value);
+const answers = computed(() => useResponseStore().getResponse);
 </script>
 <style scoped lang="scss">
 .body-container {

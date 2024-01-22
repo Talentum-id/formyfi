@@ -142,6 +142,7 @@
                 <div class="answers">
                   <div class="answer" v-for="(answer, id) in question.answers" :key="id">
                     <div class="status">
+                      <div class="tooltip-checkbox">Mark this answer as correct.</div>
                       <Icon
                         name="Tik"
                         :class="{ isCorrect: answer.isCorrect }"
@@ -846,10 +847,53 @@ export default defineComponent({
   padding: 4px;
   align-items: center;
   border-radius: 8px;
-
+  position: relative;
   background: transparent;
+  .tooltip-checkbox {
+    display: none;
+  }
   &:hover {
     background: $default-border;
+    .tooltip-checkbox {
+      display: block;
+      position: absolute;
+      width: 125px;
+
+      background: $default;
+      box-shadow: 0px 2px 8px rgba(26, 29, 41, 0.24);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      z-index: 9999999;
+      transform: translateY(100%) translateX(-50%);
+      margin-bottom: 5px;
+
+      font-family: 'Basis Grotesque Pro';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 0.014em;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
+      color: $white;
+      text-align: left;
+      bottom: 76px;
+      left: 50%;
+      &::after {
+        content: '';
+        position: absolute;
+        width: 28px;
+        height: 18px;
+        background: $default;
+        transform: rotate(45deg) translateX(-50%);
+        z-index: -1;
+        top: 32px;
+        left: 44%;
+      }
+    }
   }
   .isCorrect {
     filter: invert(51%) sepia(11%) saturate(2579%) hue-rotate(70deg) brightness(102%) contrast(87%);

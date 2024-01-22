@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { createActor } from '~/response_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
+import { useCounterStore } from '@/store/index';
 
 function createActorFromIdentity(agent) {
   return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, { agent });
@@ -42,7 +43,8 @@ export const useResponseStore = defineStore('response', {
       await this.actor
         .show({ identity, shareLink })
         .then((res) => {
-          this.response = res.answers;
+          this.response = res.answers[0];
+          useCounterStore().setValue(this.response.length);
           this.loaded = true;
         })
         .catch((e) => {
@@ -52,7 +54,7 @@ export const useResponseStore = defineStore('response', {
     },
   },
   getters: {
-    getResponse: (state) => state.response.length,
+    getResponse: (state) => state.response,
     getLoadingStatus: (state) => state.loaded,
   },
 });

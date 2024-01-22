@@ -12,7 +12,7 @@ const props = defineProps({
 });
 const counterStore = useCounterStore();
 onUnmounted(() => {
-  counterStore.setValue(1);
+  counterStore.setValue(0);
 });
 </script>
 

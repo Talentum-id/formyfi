@@ -2,15 +2,15 @@
 import Icon from '@/components/Icons/Icon.vue';
 
 const props = defineProps({
-  value: {
-    type: String,
-    default: '',
+  fn: {
+    type: Function,
+    default: () => {},
   },
 });
 </script>
 
 <template>
-  <div @click="$router.push(`/quest/${value}`)"><Icon name="View" :size="24"></Icon></div>
+  <div @click="fn"><Icon name="View" :size="24"></Icon></div>
 </template>
 
 <style scoped lang="scss">

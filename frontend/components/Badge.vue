@@ -236,7 +236,6 @@ div {
     color: $white;
   }
 }
-
 .image {
   padding-left: 2px;
   border: 1px solid $default-border;

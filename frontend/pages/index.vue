@@ -56,6 +56,13 @@
         />
       </div>
     </div>
+    <ResultModal
+      v-if="show"
+      @close="show = false"
+      :data="currentItem"
+      @next="nextItem()"
+      @prev="prevItem()"
+    ></ResultModal>
   </Default>
 </template>
 <script setup>
@@ -76,11 +83,11 @@ import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
-import { formatDate, shortenAddress } from '@/util/helpers';
+import { formatDate } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
-
+import ResultModal from '@/components/Result/ResultModal.vue';
 const index = ref(null);
 
 const requestsColumns = computed(() => {
@@ -101,7 +108,28 @@ const route = useRoute();
 const authStore = useAuthStore();
 const qaStore = useQAStore();
 const responseStore = useResponseStore();
+const show = ref(false);
+const currentItem = ref(null);
+const currentIndex = ref(null);
+const allItems = ref(null);
 
+const nextItem = () => {
+  if (currentIndex.value < allItems.value?.length - 1) {
+    currentItem.value = allItems.value[++currentIndex.value];
+  }
+};
+
+const prevItem = () => {
+  if (currentIndex.value !== 0) {
+    currentItem.value = allItems.value[--currentIndex.value];
+  }
+};
+const showModal = (items, index) => {
+  currentIndex.value = index;
+  allItems.value = items.map((i) => Number(i.filled));
+  currentItem.value = allItems.value[currentIndex.value];
+  show.value = true;
+};
 let isMounted = false;
 const showAlert = ref(false);
 onMounted(async () => {
@@ -238,7 +266,7 @@ const requestsRows = computed(
       return {
         component: View,
         props: {
-          text: formatDate(Number(response.filled[0]) * 1000),
+          fn: () => showModal(qaResponse, i),
         },
         id: i,
       };
@@ -291,7 +319,7 @@ const requestsRows = computed(
         singleComponent: {
           component: View,
           props: {
-            value: item.shareLink,
+            fn: () => router.push(`quest/${item.shareLink}`),
           },
         },
         components: views,

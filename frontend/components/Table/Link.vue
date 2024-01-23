@@ -1,9 +1,11 @@
 <template>
-  <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
+  <div class="relative">
+    <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
 
-  <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
-    <span class="text">{{ shortenAddress(text, size) }}</span>
-    <Icon name="Link" class="icon" :size="16" />
+    <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
+      <span class="text">{{ shortenAddress(text, size) }}</span>
+      <Icon name="Link" class="icon" :size="16" />
+    </div>
   </div>
 </template>
 
@@ -76,7 +78,7 @@ export default {
   width: 8px;
   height: 8px;
 }
-div {
+.badge_wrapper {
   background: transparent;
   padding: 4px 8px;
   border-radius: 6px;
@@ -134,8 +136,8 @@ div {
     'zero' on;
   color: $white;
   text-align: left;
-  bottom: 65px;
-  left: 30%;
+  bottom: 60px;
+  left: 50%;
   &::after {
     content: '';
     position: absolute;

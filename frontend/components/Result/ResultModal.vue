@@ -4,11 +4,18 @@ import Icon from '@/components/Icons/Icon.vue';
 import Badge from '@/components/Badge.vue';
 import Variant from '@/components/Result/Variant.vue';
 import Link from '@/components/Table/Link.vue';
+import { computed } from 'vue';
+import { useQAStore } from '@/store/qa';
+import { useResponseStore } from '@/store/response';
+import { formatDate } from '@/util/helpers';
 
+const data = computed(() => useQAStore().getQA);
+const answers = computed(() => useResponseStore().getResponse);
+console.log(data.value);
 defineProps({
-  data: {
+  userInfo: {
     type: Object,
-    default: () => {},
+    default: null,
   },
 });
 </script>
@@ -28,7 +35,8 @@ defineProps({
     <div class="result-wrapper">
       <div class="header">
         <div class="head-title">
-          <span>Responses to Q&A for the ...</span>
+          <span>{{ data.title }}</span>
+
           <div class="controller">
             <div class="switch">
               <Icon name="Left" :size="24" @click="$emit('prev')"></Icon>
@@ -38,24 +46,32 @@ defineProps({
             </div>
           </div>
         </div>
-        <div class="title">Chronicles of the Astral Adventurers The Isle of the Eclipsed Sun</div>
+        <div class="title">{{ data.description.replace(/<[^>]*>/g, '') }}</div>
         <div class="data">
-          <div>From <Link text="teststata"></Link></div>
-          <div>Filled <Badge text="gacxzcxzcxy" type="claim"></Badge></div>
+          <div>From <Link :text="userInfo.identity"></Link></div>
+          <div>Filled <Badge :text="formatDate(userInfo.filled * 1000)" type="claim"></Badge></div>
         </div>
       </div>
       <div class="flex flex-col w-full gap-[16px] mt-[32px]">
-        <div class="card" v-for="i in 3" :key="i">
+        <div class="card" v-for="(question, idx) in data.questions" :key="idx">
           <div class="head">
-            <div class="step">{{ i }}/3</div>
-            <div class="required">Required</div>
+            <div class="step">{{ idx + 1 }}/{{ data.questions.length }}</div>
+            <div class="required" v-if="question.required">Required</div>
           </div>
           <div class="w-full flex justify-center">
-            <img src="" alt="image" />
+            <img :src="question.image" alt="image" />
           </div>
-          <span class="title">Which of the following actions can lead to an NFT hack?</span>
-          <div class="flex flex-col gap-[16px] w-full">
-            <Variant v-for="i in 4" :key="i" text="test" :is-correct="i === 1"></Variant>
+          <span class="title">{{ question.question }}</span>
+          <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
+            <Variant
+              v-for="i in question.answers"
+              :key="i"
+              :text="i.answer"
+              :is-correct="i.isCorrect"
+            ></Variant>
+          </div>
+          <div class="w-full" v-else>
+            <Variant :text="answers[idx].answer" is-correct></Variant>
           </div>
         </div>
       </div>

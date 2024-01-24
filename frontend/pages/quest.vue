@@ -17,7 +17,7 @@ onMounted(() => {
 });
 
 const data = computed(() => useQAStore().getQA);
-const loaded = computed(() => useQAStore().getLoadingStatus);
+const loaded = computed(() => useQAStore().getLoadingStatusQA);
 const identity = computed(() => authStore.principal.toText());
 
 onUnmounted(() => {

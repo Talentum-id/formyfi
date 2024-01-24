@@ -16,6 +16,7 @@ export const useQAStore = defineStore('qa', {
     qa: null,
     list: [],
     loaded: false,
+    loadedQA: false,
   }),
   actions: {
     async init() {
@@ -47,12 +48,12 @@ export const useQAStore = defineStore('qa', {
         });
     },
     async fetchQA(link) {
-      this.loaded = false;
+      this.loadedQA = false;
       await this.actor
         .show(link)
         .then(async (res) => {
           const arr = res.map((item) => {
-            const {quest} = item;
+            const { quest } = item;
             return {
               ...quest,
               end: Number(quest.end),
@@ -63,17 +64,18 @@ export const useQAStore = defineStore('qa', {
           });
           await useResponseStore().fetchResponse(arr?.[0].shareLink);
           this.qa = arr?.[0];
-          this.loaded = true;
+          this.loadedQA = true;
         })
         .catch((e) => {
           console.error(e);
-          this.loaded = true;
+          this.loadedQA = true;
         });
     },
   },
   getters: {
     getList: (state) => state.list,
     getQA: (state) => state.qa,
-    getLoadingStatus: (state) => state.loaded,
+    getLoadingStatusList: (state) => state.loaded,
+    getLoadingStatusQA: (state) => state.loadedQA,
   },
 });

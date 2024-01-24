@@ -3,7 +3,7 @@ import QuestHead from '@/components/Quest/QuestHead.vue';
 import QuestBody from '@/components/Quest/QuestBody.vue';
 import { useCounterStore } from '@/store';
 import { onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps({
   data: {

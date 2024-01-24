@@ -59,7 +59,7 @@
     <ResultModal
       v-if="show"
       @close="show = false"
-      :data="currentItem"
+      :userInfo="currentItem"
       @next="nextItem()"
       @prev="prevItem()"
     ></ResultModal>
@@ -126,7 +126,12 @@ const prevItem = () => {
 };
 const showModal = (items, index) => {
   currentIndex.value = index;
-  allItems.value = items.map((i) => Number(i.filled));
+  allItems.value = items.map((i) => {
+    return {
+      ...i,
+      filled: Number(i.filled),
+    };
+  });
   currentItem.value = allItems.value[currentIndex.value];
   show.value = true;
 };
@@ -159,10 +164,10 @@ const pageScreenToPdf = () => {
   });
 };
 
-const loadResponses = (index) => {
+const loadResponses = async (index) => {
   const question = requestsRows.value[index];
-
-  responseStore.getQAResponses(question.shareLink.props.value);
+  await responseStore.getQAResponses(question.shareLink.props.value);
+  await qaStore.fetchQA(question.shareLink.props.value);
 };
 
 function nextPage(page) {
@@ -170,7 +175,7 @@ function nextPage(page) {
   qaStore.getQAs(params.value);
 }
 const qaList = computed(() => qaStore.getList);
-const loaded = computed(() => qaStore.getLoadingStatus);
+const loaded = computed(() => qaStore.getLoadingStatusList);
 
 const params = computed(() => {
   return {

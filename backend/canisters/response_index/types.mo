@@ -18,11 +18,6 @@ module ResponseTypes {
     identity : Text;
   };
 
-  public type QAResponseResult = {
-    general : ?QAAuthor;
-    answers : ?[Answer];
-  };
-
   public type ResponseParams = {
     shareLink : Text;
     answer : Answer;

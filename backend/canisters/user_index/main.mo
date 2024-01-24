@@ -23,6 +23,10 @@ actor UserIndex {
       throw Error.reject("Username and Full name cannot be empty");
     };
 
+    if (username.size() < 4 or username.size() > 12) {
+      throw Error.reject("Username should have more than 4 characters and less than 12.");
+    };
+
     let identity = Principal.toText(caller);
 
     if (await findUsername(username)) {

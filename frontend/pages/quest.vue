@@ -2,18 +2,23 @@
 import { computed, onMounted, onUnmounted } from 'vue';
 import Quest from '@/components/Quest/Quest.vue';
 import Default from '@/layouts/default.vue';
+import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
+import Icon from '@/components/Icons/Icon.vue';
+
+const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
-import Icon from '@/components/Icons/Icon.vue';
 
 onMounted(() => {
   useQAStore().fetchQA(route.params.id);
 });
+
 const data = computed(() => useQAStore().getQA);
 const loaded = computed(() => useQAStore().getLoadingStatus);
+const identity = computed(() => authStore.principal.toText());
 
 onUnmounted(() => {
   useQAStore().qa = null;
@@ -31,7 +36,7 @@ async function deleteQuest() {
         <div class="btn"><Icon name="Left-Arrow" :size="24"></Icon></div>
         Back to Q&A List
       </div>
-      <div class="btn" @click="deleteQuest">
+      <div v-if="data && identity === data.owner" class="btn" @click="deleteQuest">
         <Icon name="Delete-def" :size="24"></Icon>
       </div>
     </div>

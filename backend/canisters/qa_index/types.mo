@@ -6,6 +6,11 @@ module QATypes {
     isCorrect : Bool;
   };
 
+  public type ListResult = {
+    data : [QA];
+    pagination : PaginationTypes.Pagination;
+  };
+
   public type Question = {
     question : Text;
     questionType : Text;
@@ -37,8 +42,8 @@ module QATypes {
     pageSize : Int;
   };
 
-  public type ListResult = {
-    data : [QA];
-    pagination : PaginationTypes.Pagination;
+  public type ShowQAResult = {
+    owner : Text;
+    quest : QA;
   };
 };

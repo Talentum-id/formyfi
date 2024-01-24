@@ -15,6 +15,7 @@ actor QAIndex {
   type QA = Types.QA;
   type FetchParams = Types.QAGetParams;
   type Answer = Types.Answer;
+  type QaResponse = Types.ShowQAResult;
   type Question = Types.Question;
   type List = Types.ListResult;
 
@@ -46,13 +47,23 @@ actor QAIndex {
     };
   };
 
-  public query func show(shareLink : Text) : async ?QA {
+  public query func show(shareLink : Text) : async ?QaResponse {
     switch (shareLinks.get(shareLink)) {
       case null null;
       case (?identity) {
         switch (QAs.get(identity)) {
           case null null;
-          case (?userQAs) Array.find<QA>(userQAs, func x = x.shareLink == shareLink);
+          case (?userQAs) {
+            switch (Array.find<QA>(userQAs, func x = x.shareLink == shareLink)) {
+              case null null;
+              case (?quest) {
+                ?{
+                  quest;
+                  owner = identity;
+                };
+              };
+            };
+          };
         };
       };
     };

@@ -15,7 +15,6 @@ actor ResponseIndex {
   type Author = Types.QAAuthor;
   type ResponseParams = Types.QAResponseParams;
   type Data = Types.ResponseParams;
-  type ResponseResult = Types.QAResponseResult;
 
   stable var authorsViaQAEntries : [(Text, [Author])] = [];
   stable var responseEntries : [(Text, [Answer])] = [];
@@ -30,7 +29,7 @@ actor ResponseIndex {
     };
   };
 
-  public query func show(params : ResponseParams) : async ResponseResult {
+  public query func show(params : ResponseParams) : async [Answer] {
     let { identity; shareLink } = params;
     let responseIdentifier = identity # "-" # shareLink;
 
@@ -39,10 +38,10 @@ actor ResponseIndex {
       case (?qaAuthors) Array.find<Author>(qaAuthors, func author = author.identity == identity);
     };
 
-    {
-      general = response;
-      answers = responses.get(responseIdentifier);
-    };
+    switch (responses.get(responseIdentifier)) {
+      case null [];
+      case (?answers) answers;
+    }
   };
 
   public shared ({ caller }) func store(data : Data) : async () {
@@ -53,11 +52,12 @@ actor ResponseIndex {
     switch (await QAIndex.show(shareLink)) {
       case null throw Error.reject("Q&A not found");
       case (?qa) {
-        let questionsSize = qa.questions.size();
+        let questions = qa.quest.questions;
+        let questionsSize = questions.size();
 
         switch (responses.get(responseIdentifier)) {
           case null {
-            if (qa.questions[0].required == true and answer.answer == "") {
+            if (questions[0].required == true and answer.answer == "") {
               throw Error.reject("Answer is required");
             };
 
@@ -68,7 +68,7 @@ actor ResponseIndex {
             };
           };
           case (?answers) {
-            if (qa.questions[answers.size()].required == true and answer.answer == "") {
+            if (questions[answers.size()].required == true and answer.answer == "") {
               throw Error.reject("Answer is required");
             };
 

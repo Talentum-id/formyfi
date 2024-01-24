@@ -52,11 +52,13 @@ export const useQAStore = defineStore('qa', {
         .show(link)
         .then(async (res) => {
           const arr = res.map((item) => {
+            const {quest} = item;
             return {
-              ...item,
-              end: Number(item.end),
-              start: Number(item.start),
-              participants: Number(item.participants),
+              ...quest,
+              end: Number(quest.end),
+              start: Number(quest.start),
+              participants: Number(quest.participants),
+              owner: item.owner,
             };
           });
           await useResponseStore().fetchResponse(arr?.[0].shareLink);

@@ -47,7 +47,7 @@
             <div v-else>
               <el-radio-group
                 v-model="newArr[currentIndex].answer"
-                class="flex flex-col gap-y-[8px] container-radio"
+                class="flex flex-col gap-y-[8px] items-center content-center container-radio"
                 :border="false"
               >
                 <el-radio-button
@@ -66,12 +66,7 @@
               :class="{ invisible: !items[currentIndex - 1] }"
               >Previous</BaseButton
             >
-            <BaseButton
-              :text="currentIndex + 1 === items.length && !isPreview ? 'Send' : 'Next'"
-              type="normal"
-              @click="nextSlide"
-              :disabled="!newArr[currentIndex].answer"
-            />
+            <BaseButton :text="btnStatus" type="normal" @click="nextSlide" :disabled="disableBtn" />
           </div>
         </div>
       </div>
@@ -83,7 +78,7 @@
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -115,9 +110,26 @@ const props = defineProps({
   },
 });
 const step = computed(() => counterStore.getStep);
-
+const btnStatus = computed(() => {
+  if (currentIndex.value + 1 === props.items.length && !isPreview.value && !loading.value) {
+    return 'Send';
+  } else if (loading.value) {
+    return 'Loading...';
+  } else {
+    return 'Next';
+  }
+});
+const disableBtn = computed(() => {
+  if (
+    !newArr.value[currentIndex.value].required &&
+    !newArr.value[currentIndex.value].answers.length
+  ) {
+    return false;
+  } else return !newArr.value[currentIndex.value].answer;
+});
 const isPreview = computed(() => route.name === 'preview');
 const currentIndex = ref(findCurrentItemIndex());
+const loading = ref(false);
 const cacheAnswer = computed(() => {
   if (props.answers.length && props.answers[currentIndex.value]) {
     return props.answers[currentIndex.value].answer;
@@ -127,6 +139,10 @@ const cacheAnswer = computed(() => {
 });
 onMounted(() => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
+  document.body.style.overflow = 'hidden';
+});
+onUnmounted(() => {
+  document.body.style.overflow = '';
 });
 const newArr = ref(
   props.items.map((item) => {
@@ -170,35 +186,43 @@ const loadImages = () => {
 };
 const emit = defineEmits(['close']);
 const nextSlide = async () => {
-  console.log(step.value, currentIndex.value);
-  if (newArr.value[currentIndex.value].answer) {
+  if (newArr.value[currentIndex.value].answer || !newArr.value[currentIndex.value].required) {
     if (!isPreview.value && step.value === currentIndex.value) {
+      loading.value = true;
       if (newArr.value[currentIndex.value].questionType === 'open') {
         if (newArr.value[currentIndex.value].files[0]) {
           await loadImages();
         }
-        await responseStore.storeResponse({
-          answer: {
-            isCorrect: true,
-            answer: newArr.value[currentIndex.value].answer,
-            file: newArr.value[currentIndex.value].files[0] || '',
-          },
-          filled: Math.floor(Date.now() / 1000),
-          shareLink: props.shareLink,
-        });
+        await responseStore
+          .storeResponse({
+            answer: {
+              isCorrect: true,
+              answer: newArr.value[currentIndex.value].answer || '',
+              file: newArr.value[currentIndex.value].files[0] || '',
+            },
+            filled: Math.floor(Date.now() / 1000),
+            shareLink: props.shareLink,
+          })
+          .then(() => {
+            loading.value = false;
+          });
       } else {
         const isCorrect = newArr.value[currentIndex.value].answers.find(
           (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
         );
-        await responseStore.storeResponse({
-          answer: {
-            isCorrect: !!isCorrect,
-            answer: newArr.value[currentIndex.value].answer,
-            file: '',
-          },
-          shareLink: props.shareLink,
-          filled: Math.floor(Date.now() / 1000),
-        });
+        await responseStore
+          .storeResponse({
+            answer: {
+              isCorrect: !!isCorrect,
+              answer: newArr.value[currentIndex.value].answer || '',
+              file: '',
+            },
+            shareLink: props.shareLink,
+            filled: Math.floor(Date.now() / 1000),
+          })
+          .then(() => {
+            loading.value = false;
+          });
       }
     }
 
@@ -397,7 +421,8 @@ watch(currentIndex, (value) => {
   .is-active {
     border-radius: 8px;
     background: #eaeafb !important;
-    border: none;
+    border: 1px solid #2637c0 !important;
+
     * {
       box-shadow: none !important;
       color: $section-title !important;
@@ -407,6 +432,7 @@ watch(currentIndex, (value) => {
       font-style: normal;
       font-weight: 500;
       line-height: 20px;
+      padding: 0 !important;
     }
   }
   .is-focus {
@@ -414,6 +440,7 @@ watch(currentIndex, (value) => {
     outline: none;
   }
   .radio {
+    width: 288px;
     cursor: pointer;
     display: flex;
     padding: 9px 16px 11px 16px;
@@ -433,6 +460,7 @@ watch(currentIndex, (value) => {
       font-weight: 500;
       line-height: 20px; /* 142.857% */
       border: none !important;
+      padding: 0 !important;
     }
   }
 }

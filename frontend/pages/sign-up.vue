@@ -50,8 +50,7 @@ const errors = ref({
 });
 
 onMounted(() => {
-  authStore.actor?.findUser(authStore.principal.toText())
-  .then((res) => {
+  authStore.actor?.findUser(authStore.principal.toText()).then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
 
@@ -83,7 +82,7 @@ const createAccount = () => {
       authStore.setUser(res[0]);
       router.push('/');
 
-      sessionStorage.isAuthenticated = true;
+      localStorage.isAuthenticated = true;
     })
     .catch((error) => console.log(error))
     .finally(() => (form.value.loading = false));

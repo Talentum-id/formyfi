@@ -47,13 +47,13 @@ export const useAuthStore = defineStore('auth', {
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
-              sessionStorage.isAuthenticated = true;
+              localStorage.isAuthenticated = true;
 
               await useQAStore().init();
               await useAssetsStore().init();
               await useResponseStore().init();
             } else {
-              sessionStorage.removeItem('isAuthenticated');
+              localStorage.removeItem('isAuthenticated');
 
               await router.push('/login');
             }
@@ -75,7 +75,7 @@ export const useAuthStore = defineStore('auth', {
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
           const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
-      
+
           this.actor = this.identity ? createActorFromIdentity(agent) : null;
           this.principal = this.identity ? await agent.getPrincipal() : null;
 
@@ -83,7 +83,7 @@ export const useAuthStore = defineStore('auth', {
           await useAssetsStore().init();
           await useResponseStore().init();
 
-          sessionStorage.isAuthenticated = true;
+          localStorage.isAuthenticated = true;
 
           await router.push('/sign-up');
         },
@@ -91,7 +91,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async logout() {
       await this.authClient.logout();
-      sessionStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('isAuthenticated');
 
       this.isAuthenticated = false;
       this.identity = this.actor = null;

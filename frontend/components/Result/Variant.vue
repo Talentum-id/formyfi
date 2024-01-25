@@ -6,7 +6,11 @@ const props = defineProps({
   },
   isCorrect: {
     type: Boolean,
-    default: true,
+    default: false,
+  },
+  isIncorrect: {
+    type: Boolean,
+    default: false,
   },
 });
 </script>
@@ -15,7 +19,7 @@ const props = defineProps({
   <div class="flex items-center gap-x-[8px]">
     <img v-if="isCorrect" src="@/assets/icons/completed.svg" alt="incorrect" />
     <img v-else src="@/assets/icons/incorrect.svg" alt="incorrect" />
-    <div class="item" :class="{ isCorrect }">{{ text }}</div>
+    <div class="item" :class="{ isCorrect, isIncorrect }">{{ text }}</div>
   </div>
 </template>
 
@@ -38,5 +42,8 @@ const props = defineProps({
 }
 .isCorrect {
   background: $success-bg;
+}
+.isIncorrect {
+  background: #fae5dc;
 }
 </style>

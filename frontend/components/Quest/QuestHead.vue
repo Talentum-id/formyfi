@@ -28,8 +28,9 @@ import Talent from '@/components/Talent.vue';
 import Badge from '@/components/Badge.vue';
 import { formatDate } from '@/util/helpers';
 import { useCounterStore } from '@/store';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useResponseStore } from '@/store/response';
+import { useRouter } from 'vue-router';
 const counterStore = useCounterStore();
 
 const step = computed(() => counterStore.getStep);
@@ -40,6 +41,11 @@ const props = defineProps({
   },
 });
 const answers = computed(() => useResponseStore().getResponse);
+// onMounted(() => {
+//   if (Date.now() < props.data.start * 1000) {
+//     useRouter().push('/');
+//   }
+// });
 </script>
 <style scoped lang="scss">
 .head-container {

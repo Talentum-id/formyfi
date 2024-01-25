@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" v-if="visible" @click.self="closeModal">
+  <div class="modal-overlay" v-if="visible">
     <div
       class="modal-container"
       :style="{

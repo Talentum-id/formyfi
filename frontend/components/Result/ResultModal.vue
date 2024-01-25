@@ -11,7 +11,6 @@ import { formatDate } from '@/util/helpers';
 
 const data = computed(() => useQAStore().getQA);
 const answers = computed(() => useResponseStore().getResponse);
-console.log(data.value);
 defineProps({
   userInfo: {
     type: Object,
@@ -67,11 +66,15 @@ defineProps({
               v-for="i in question.answers"
               :key="i"
               :text="i.answer"
-              :is-correct="i.isCorrect"
+              :is-correct="answers[idx].answer === i.answer && i.isCorrect"
+              :is-incorrect="answers[idx].answer === i.answer"
             ></Variant>
           </div>
           <div class="w-full" v-else>
-            <Variant :text="answers[idx].answer" is-correct></Variant>
+            <Variant
+              :text="answers[idx].answer || 'No Answer'"
+              :is-correct="!!answers[idx].answer"
+            ></Variant>
           </div>
         </div>
       </div>

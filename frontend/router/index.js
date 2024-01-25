@@ -41,7 +41,7 @@ const routes = [
     component: Preview,
     meta: {
       title: `Preview`,
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
   {
@@ -74,7 +74,7 @@ const router = createRouter({
 });
 
 const isAuthenticated = () => {
-  return sessionStorage.getItem('isAuthenticated');
+  return localStorage.getItem('isAuthenticated');
 };
 
 function setPageTitleMiddleware(to, from, next) {

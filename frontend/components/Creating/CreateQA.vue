@@ -115,59 +115,57 @@
             fixedWidth="100%"
             @select="question.type = $event.id"
           />
-          <div class="content">
-            <div>
-              <div class="content-block">
-                <CustomUpload
-                  :imagesFiles="question.image"
-                  @images="question.image = $event"
-                  @changeError="handleImageError"
-                />
-                <div class="check-btn_wrapper">
-                  <div class="check-btn_title">Required</div>
-                  <Switch :checkedProp="question.required" @checked="question.required = $event" />
-                </div>
+          <div class="body">
+            <div class="content-block">
+              <CustomUpload
+                :imagesFiles="question.image"
+                @images="question.image = $event"
+                @changeError="handleImageError"
+              />
+              <div class="check-btn_wrapper">
+                <div class="check-btn_title">Required</div>
+                <Switch :checkedProp="question.required" @checked="question.required = $event" />
               </div>
-              <div class="flex-custom flex-col">
-                <Input
-                  name=""
-                  placeholder="Question"
-                  v-model="question.question"
-                  :isError="!question.question && touched"
-                  errorText="Question is Required"
-                />
-                <TextArea placeholder="Description (optional)" v-model="question.description" />
-              </div>
-              <div v-if="question.type === 1">
-                <div class="answers">
-                  <div class="answer" v-for="(answer, id) in question.answers" :key="id">
-                    <div class="status">
-                      <div class="tooltip-checkbox">Mark this answer as correct.</div>
-                      <Icon
-                        name="Tik"
-                        :class="{ isCorrect: answer.isCorrect }"
-                        @click="
-                          setAllIncorrect(index);
-                          answer.isCorrect = !answer.isCorrect;
-                        "
-                        :size="24"
-                      ></Icon>
-                    </div>
-                    <Answer
-                      v-model="answer.answer"
-                      :isError="!answer.answer && touched"
-                      :isCorrect="answer.isCorrect"
-                      errorText="Answer is Required"
-                      :is-last="question.answers.length === 1"
-                      @remove="question.answers.splice(id, 1)"
-                    />
-                    <div
-                      class="add-answer"
-                      :class="{ hidden: question.answers.length - 1 !== id }"
-                      @click="addAnswers(question.answers)"
-                    >
-                      <img src="@/assets/icons/add.svg" alt="" />
-                    </div>
+            </div>
+            <div class="flex-custom flex-col">
+              <Input
+                name=""
+                placeholder="Question"
+                v-model="question.question"
+                :isError="!question.question && touched"
+                errorText="Question is Required"
+              />
+              <TextArea placeholder="Description (optional)" v-model="question.description" />
+            </div>
+            <div v-if="question.type === 1">
+              <div class="answers">
+                <div class="answer" v-for="(answer, id) in question.answers" :key="id">
+                  <div class="status">
+                    <div class="tooltip-checkbox">Mark this answer as correct.</div>
+                    <Icon
+                      name="Tik"
+                      :class="{ isCorrect: answer.isCorrect }"
+                      @click="
+                        setAllIncorrect(index);
+                        answer.isCorrect = !answer.isCorrect;
+                      "
+                      :size="24"
+                    ></Icon>
+                  </div>
+                  <Answer
+                    v-model="answer.answer"
+                    :isError="!answer.answer && touched"
+                    :isCorrect="answer.isCorrect"
+                    errorText="Answer is Required"
+                    :is-last="question.answers.length === 1"
+                    @remove="question.answers.splice(id, 1)"
+                  />
+                  <div
+                    class="add-answer"
+                    :class="{ hidden: question.answers.length - 1 !== id }"
+                    @click="addAnswers(question.answers)"
+                  >
+                    <img src="@/assets/icons/add.svg" alt="" />
                   </div>
                 </div>
               </div>
@@ -396,7 +394,7 @@ const loadImages = () => {
 };
 const convertImage = (file) => {
   return new Promise((resolve) => {
-    if (FileReader && file) {
+    if (file && FileReader) {
       const fr = new FileReader();
       fr.onload = function () {
         resolve(fr.result);
@@ -707,7 +705,7 @@ export default defineComponent({
     color: #667085;
   }
 
-  .content {
+  .body {
     margin-top: -4px;
 
     &-title {

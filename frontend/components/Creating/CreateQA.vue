@@ -507,8 +507,8 @@ const check = async () => {
 
     resetFields();
     touched.value = false;
-    emits('close');
     emits('refresh');
+    emits('close');
   } catch (err) {
     console.log(err.message);
     errorMessage.value = 'Something went wrong';

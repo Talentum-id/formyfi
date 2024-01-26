@@ -116,8 +116,8 @@ onMounted(async () => {
               v-for="i in question.answers"
               :key="i"
               :text="i.answer"
-              :is-correct="answers[idx].answer === i.answer && i.isCorrect"
-              :is-incorrect="answers[idx].answer === i.answer"
+              :is-correct="answers[idx].answer === i.answer && answers[idx].isCorrect"
+              :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
             ></Variant>
           </div>
           <div class="w-full" v-else>

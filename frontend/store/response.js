@@ -25,13 +25,14 @@ export const useResponseStore = defineStore('response', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
     },
     async storeResponse(params) {
+      console.log(params);
       await this.actor.store(params);
-      this.fetchResponse(params.shareLink);
+      await this.fetchResponse(params.shareLink);
     },
     async getQAResponses(shareLink) {
       await this.actor
         .list(shareLink)
-        .then((res) => this.qaResponses = res)
+        .then((res) => (this.qaResponses = res))
         .catch((e) => console.log(e));
     },
     async fetchResponse(shareLink, identity = null) {
@@ -50,7 +51,7 @@ export const useResponseStore = defineStore('response', {
         .catch((e) => {
           console.error(e);
         })
-        .finally(() => this.loaded = true);
+        .finally(() => (this.loaded = true));
     },
   },
   getters: {

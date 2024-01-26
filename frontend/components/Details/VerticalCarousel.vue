@@ -244,13 +244,17 @@ const nextSlide = async () => {
             loading.value = false;
           });
       } else {
+        const noCorrectAnswers = newArr.value[currentIndex.value].answers.every(
+          (el) => !el.isCorrect,
+        );
         const isCorrect = newArr.value[currentIndex.value].answers.find(
           (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
         );
+
         await responseStore
           .storeResponse({
             answer: {
-              isCorrect: !!isCorrect,
+              isCorrect: noCorrectAnswers ? true : !!isCorrect,
               answer: newArr.value[currentIndex.value].answer || '',
               file: '',
             },
@@ -261,7 +265,9 @@ const nextSlide = async () => {
             loading.value = false;
           });
       }
-      emit('success');
+      if (currentIndex.value === props.items.length - 1) {
+        emit('success');
+      }
     }
 
     if (currentIndex.value < props.items.length - 1) {

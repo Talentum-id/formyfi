@@ -145,10 +145,7 @@
                     <Icon
                       name="Tik"
                       :class="{ isCorrect: answer.isCorrect }"
-                      @click="
-                        setAllIncorrect(index);
-                        answer.isCorrect = !answer.isCorrect;
-                      "
+                      @click="setAllIncorrect(index, id)"
                       :size="24"
                     ></Icon>
                   </div>
@@ -275,8 +272,17 @@ const setDescription = (event) => {
 const setTaskBanner = (value) => {
   bannerImage.value = value;
 };
-const setAllIncorrect = (index) => {
-  countOfQuestions.value[index].answers.map((el) => (el.isCorrect = false));
+const setAllIncorrect = (index, item) => {
+  countOfQuestions.value[index].answers.map((el, id) => {
+    if (item === id) {
+      el.isCorrect = !el.isCorrect;
+    } else {
+      el.isCorrect = false;
+    }
+    return {
+      el,
+    };
+  });
 };
 
 const handleImageError = (event) => {

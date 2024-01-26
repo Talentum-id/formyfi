@@ -147,7 +147,7 @@ const cacheAnswer = computed(() => {
   if (props.answers.length && props.answers[currentIndex.value]) {
     return props.answers[currentIndex.value].answer;
   } else {
-    return '';
+    return null;
   }
 });
 

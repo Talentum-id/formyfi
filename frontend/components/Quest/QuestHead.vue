@@ -49,7 +49,9 @@ const image = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
 
 onMounted(async () => {
-  await assetsStore.getFile(props.data.image).then(res => image.value = res);
+  await assetsStore.getFile(props.data.image)
+    .then(res => image.value = res)
+    .catch(() => image.value = props.data.image);
 });
 </script>
 <style scoped lang="scss">

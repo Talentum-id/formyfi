@@ -152,7 +152,9 @@ onMounted(async () => {
     const index = newArr.value.indexOf(question);
 
     if (question.file) {
-      await assetsStore.getFile(question.file).then(res => questionFiles.value[index] = res);
+      await assetsStore.getFile(question.file)
+        .then(res => questionFiles.value[index] = res)
+        .catch(() => questionFiles.value[index] = question.file);
     } else {
       questionFiles.value[index] = null;
     }

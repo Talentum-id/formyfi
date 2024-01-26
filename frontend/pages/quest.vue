@@ -63,7 +63,11 @@ async function showModal() {
         <span>Are you sure you want to delete Q&A?</span>
         <div class="controllers">
           <BaseButton text="Cancel" @click="showModal()" type="primary"></BaseButton>
-          <BaseButton text="Delete" @click="deleteQuest()" type="normal" />
+          <BaseButton
+            :text="!deleting ? 'Delete' : 'Loading...'"
+            @click="deleteQuest()"
+            type="normal"
+          />
         </div>
       </div>
     </Modal>

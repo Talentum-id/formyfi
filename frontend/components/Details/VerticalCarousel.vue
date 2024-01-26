@@ -25,7 +25,7 @@
             </div>
             <div class="counter-title">Quiz {{ currentIndex + 1 }}/{{ items.length }}</div>
             <div v-if="questionFiles[currentIndex]" class="flex items-center justify-center">
-              <img :src="questionFiles[currentIndex]" alt="" width="160" height="160" />
+              <div class="banner" :style="`background:url(${questionFiles[currentIndex]})`"></div>
             </div>
             <div class="question-title">{{ newArr[currentIndex].question }}</div>
             <div class="question-description" v-if="newArr[currentIndex].description">
@@ -42,14 +42,14 @@
                 :disabled="cacheAnswer"
               />
               <img
-                v-if="newArr[currentIndex].file"
+                v-if="newArr[currentIndex].file && cacheAnswer"
                 :src="getImage(newArr[currentIndex].file)"
                 alt=""
                 width="160"
                 height="160"
               />
               <CustomUpload
-                v-else-if="!rerenderImages"
+                v-else-if="!rerenderImages && !cacheAnswer"
                 :imagesFiles="newArr[currentIndex].files"
                 @images="newArr[currentIndex].files = $event"
               ></CustomUpload>
@@ -97,6 +97,7 @@ import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
+import defaultBg from '@/assets/images/default-avatar.png';
 
 const assetsStore = useAssetsStore();
 
@@ -536,5 +537,16 @@ watch(currentIndex, (value) => {
 .content {
   max-height: 90%;
   overflow-y: scroll;
+}
+
+.banner {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: none;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
 }
 </style>

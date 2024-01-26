@@ -10,14 +10,15 @@ const props = defineProps({
 </script>
 
 <template>
-  <div @click="fn"><Icon name="View" :size="24"></Icon></div>
+  <div @click="fn"><Icon name="View" :size="18"></Icon></div>
 </template>
 
 <style scoped lang="scss">
 div {
   cursor: pointer;
   display: flex;
-  width: 32px;
+  width: 26px;
+  height: 26px;
   padding: 4px;
   justify-content: center;
   align-items: center;

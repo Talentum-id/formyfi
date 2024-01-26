@@ -1,7 +1,7 @@
 <template>
   <div :class="[type, { disabled }]" @click="$emit('clickFromComponent', id)">
     <img v-if="type === 'return'" src="@/assets/icons/return.svg" alt="" />
-    <span>{{ text }}</span>
+    <span v-if="text">{{ text }}</span>
     <img v-if="type === 'base'" src="@/assets/icons/plus.svg" alt="" />
     <Icon v-if="icon" :name="icon" :size="24"></Icon>
     <slot></slot>

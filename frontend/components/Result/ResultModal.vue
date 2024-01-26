@@ -106,10 +106,11 @@ onMounted(async () => {
           </div>
           <div v-if="questionFiles[idx]" class="w-full flex justify-center">
             <img :src="questionFiles[idx]" alt="image" />
+            <div class="banner" :style="`background:url(${questionFiles[idx]})`"></div>
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answerFiles[idx]">
-            <img :src="answerFiles[idx]" alt="image" />
+            <div class="banner" :style="`background:url(${answerFiles[idx]})`"></div>
           </div>
           <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
             <Variant
@@ -257,5 +258,15 @@ onMounted(async () => {
       border-radius: 8px;
     }
   }
+}
+.banner {
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: none;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
 }
 </style>

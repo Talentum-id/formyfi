@@ -126,7 +126,9 @@
                 :class="{ 'collapse-custom': isRowCollapsed(rowIndex) }"
               >
                 <template v-for="item in row[column.prop].components" :key="item.id">
-                  <component :is="item.component" :="item.props" />
+                  <div>
+                    <component :is="item.component" :="item.props" />
+                  </div>
                 </template>
               </div>
             </div>

@@ -506,9 +506,8 @@ const check = async () => {
     await saveQA();
 
     resetFields();
-    show.value = false;
     touched.value = false;
-
+    emits('close');
     emits('refresh');
   } catch (err) {
     console.log(err.message);

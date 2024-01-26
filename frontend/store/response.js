@@ -25,7 +25,6 @@ export const useResponseStore = defineStore('response', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
     },
     async storeResponse(params) {
-      console.log(params);
       await this.actor.store(params);
       await this.fetchResponse(params.shareLink);
     },

@@ -357,7 +357,7 @@ function uuidv4() {
   );
 }
 
-const loadImages = () => {
+const loadFiles = () => {
   return new Promise(async (resolve, reject) => {
     try {
       let index = 0;
@@ -499,8 +499,8 @@ const check = async () => {
   loading.value = true;
 
   try {
-    statusMessage.value = 'Loading images...';
-    await loadImages();
+    statusMessage.value = 'Loading files...';
+    await loadFiles();
 
     statusMessage.value = 'Loading data...';
     await saveQA();

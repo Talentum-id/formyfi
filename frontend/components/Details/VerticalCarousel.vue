@@ -10,7 +10,9 @@
           marginBottom: !items[currentIndex + 1],
         }"
       >
-        <div class="close" @click="$emit('close')"><Icon name="Cancel" :size="24"></Icon></div>
+        <div class="close" @click="$emit('close')">
+          <Icon name="Cancel" :size="24"></Icon>
+        </div>
         <div class="current-item">
           <div class="flex flex-col gap-y-[24px] w-full content">
             <div class="counter w-full">
@@ -22,8 +24,8 @@
               ></div>
             </div>
             <div class="counter-title">Quiz {{ currentIndex + 1 }}/{{ items.length }}</div>
-            <div v-if="newArr[currentIndex].file" class="flex items-center justify-center">
-              <img :src="newArr[currentIndex].file" alt="" width="160" height="160" />
+            <div v-if="questionFiles[currentIndex]" class="flex items-center justify-center">
+              <img :src="questionFiles[currentIndex]" alt="" width="160" height="160" />
             </div>
             <div class="question-title">{{ newArr[currentIndex].question }}</div>
             <div class="question-description" v-if="newArr[currentIndex].description">
@@ -64,7 +66,8 @@
               type="primary"
               @click="prevSlide"
               :class="{ invisible: !items[currentIndex - 1] }"
-              >Previous</BaseButton
+            >Previous
+            </BaseButton
             >
             <BaseButton :text="btnStatus" type="normal" @click="nextSlide" :disabled="disableBtn" />
           </div>
@@ -78,7 +81,7 @@
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -86,15 +89,18 @@ import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
+
 const assetsStore = useAssetsStore();
 
 const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
+const questionFiles = ref([]);
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
   shareLink: {
     type: String,
@@ -137,10 +143,24 @@ const cacheAnswer = computed(() => {
     return '';
   }
 });
-onMounted(() => {
+
+onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
   document.body.style.overflow = 'hidden';
+
+  for (const question of newArr.value) {
+    const index = newArr.value.indexOf(question);
+
+    if (question.file) {
+      await assetsStore.getFile(question.file)
+        .then(res => questionFiles.value[index] = res)
+        .catch(() => questionFiles.value[index] = question.file);
+    } else {
+      questionFiles.value[index] = null;
+    }
+  }
 });
+
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
@@ -153,6 +173,7 @@ const newArr = ref(
     };
   }),
 );
+
 function findCurrentItemIndex() {
   return props.items.findIndex((item) => item.question === props.currentItem.question);
 }
@@ -256,6 +277,7 @@ watch(currentIndex, (value) => {
   left: 0;
   z-index: 1000;
   overflow: hidden;
+
   .slider {
     margin: 0 auto;
     display: flex;
@@ -276,6 +298,7 @@ watch(currentIndex, (value) => {
       border-radius: 0 0 16px 16px;
       background: $default-border;
     }
+
     .last-empty {
       width: 696px;
       position: absolute;
@@ -284,6 +307,7 @@ watch(currentIndex, (value) => {
       border-radius: 16px 16px 0 0;
       background: $default-border;
     }
+
     .item {
       display: flex;
       width: 100%;
@@ -302,6 +326,7 @@ watch(currentIndex, (value) => {
       border-radius: 16px;
       background: $default-border;
     }
+
     .main {
       height: calc(100% - 128px);
       position: relative;
@@ -320,6 +345,7 @@ watch(currentIndex, (value) => {
         width: 40px;
         cursor: pointer;
       }
+
       .current-item {
         display: flex;
         width: 720px;
@@ -338,16 +364,19 @@ watch(currentIndex, (value) => {
           align-items: flex-start;
           gap: 2px;
           height: fit-content;
+
           .count {
             height: 4px;
             width: 100%;
             border-radius: 4px;
             background: $default-border;
           }
+
           .active {
             background: #344054;
           }
         }
+
         .counter-title {
           color: #a5acbb;
           text-align: center;
@@ -358,6 +387,7 @@ watch(currentIndex, (value) => {
           font-weight: 500;
           line-height: 24px; /* 150% */
         }
+
         .question-title {
           color: $primary-text;
           text-align: center;
@@ -368,19 +398,20 @@ watch(currentIndex, (value) => {
           font-weight: 500;
           line-height: 40px; /* 125% */
         }
+
         .question-description {
           color: $section-title;
           text-align: center;
           font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-          font-feature-settings:
-            'dlig' on,
-            'ss04' on;
+          font-feature-settings: 'dlig' on,
+          'ss04' on;
           font-family: $default_font;
           font-size: 20px;
           font-style: normal;
           font-weight: 500;
           line-height: 32px; /* 160% */
         }
+
         .answer-textarea {
           width: 100%;
           display: flex;
@@ -388,6 +419,7 @@ watch(currentIndex, (value) => {
           gap: 24px;
           align-items: flex-end;
         }
+
         .answers {
           min-height: 234px;
           display: flex;
@@ -395,28 +427,34 @@ watch(currentIndex, (value) => {
           flex-direction: column;
           align-items: center;
           gap: 8px;
+
           .answer {
           }
         }
+
         .controllers {
           display: flex;
           width: 100%;
           align-items: center;
           justify-content: space-between;
+
           div {
             width: 120px;
           }
         }
       }
     }
+
     .marginTop {
       margin-top: 64px;
     }
+
     .marginBottom {
       margin-bottom: 64px;
     }
   }
 }
+
 .container-radio {
   .is-active {
     border-radius: 8px;
@@ -435,10 +473,12 @@ watch(currentIndex, (value) => {
       padding: 0 !important;
     }
   }
+
   .is-focus {
     border: none;
     outline: none;
   }
+
   .radio {
     width: 288px;
     cursor: pointer;
@@ -450,6 +490,7 @@ watch(currentIndex, (value) => {
     border-radius: 8px;
     border: 1px solid #dad9f7;
     background: $default-bg;
+
     * {
       background: transparent !important;
       color: $default;
@@ -464,6 +505,7 @@ watch(currentIndex, (value) => {
     }
   }
 }
+
 .content {
   max-height: 90%;
   overflow-y: scroll;

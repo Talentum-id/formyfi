@@ -14,6 +14,8 @@ const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
+const deleting = ref(false);
+
 onMounted(() => {
   useQAStore().fetchQA(route.params.id);
 });
@@ -25,9 +27,18 @@ const identity = computed(() => authStore.principal.toText());
 onUnmounted(() => {
   useQAStore().qa = null;
 });
+
 async function deleteQuest() {
+  if (deleting.value) {
+    return;
+  }
+
+  deleting.value = true;
+
   await useQAStore().removeQuest(route.params.id);
   await router.push('/');
+
+  deleting.value = false;
 }
 async function showModal() {
   show.value = !show.value;
@@ -38,7 +49,9 @@ async function showModal() {
   <Default>
     <div class="header">
       <div class="back" @click="$router.push('/')">
-        <div class="btn"><Icon name="Left-Arrow" :size="24"></Icon></div>
+        <div class="btn">
+          <Icon name="Left-Arrow" :size="24"></Icon>
+        </div>
         Back to Q&A List
       </div>
       <div v-if="data && identity === data.owner" class="btn" @click="showModal">
@@ -65,6 +78,7 @@ async function showModal() {
   align-items: center;
   width: 1160px;
   margin: 0 auto 48px;
+
   .back {
     display: flex;
     align-items: center;
@@ -79,6 +93,7 @@ async function showModal() {
     line-height: 24px;
     cursor: pointer;
   }
+
   .btn {
     width: 40px;
     height: 40px;

@@ -66,6 +66,7 @@ async function showModal() {
           <BaseButton
             :text="!deleting ? 'Delete' : 'Loading...'"
             @click="deleteQuest()"
+            :disabled="deleting"
             type="normal"
           />
         </div>

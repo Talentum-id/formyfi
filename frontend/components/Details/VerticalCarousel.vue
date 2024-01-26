@@ -40,8 +40,15 @@
                 v-model="newArr[currentIndex].answer"
                 class="w-full"
               />
+              <img
+                v-if="newArr[currentIndex].file"
+                :src="getImage(newArr[currentIndex].file)"
+                alt=""
+                width="160"
+                height="160"
+              />
               <CustomUpload
-                v-if="!rerenderImages"
+                v-else-if="!rerenderImages"
                 :imagesFiles="newArr[currentIndex].files"
                 @images="newArr[currentIndex].files = $event"
               ></CustomUpload>
@@ -66,9 +73,8 @@
               type="primary"
               @click="prevSlide"
               :class="{ invisible: !items[currentIndex - 1] }"
-            >Previous
-            </BaseButton
-            >
+              >Previous
+            </BaseButton>
             <BaseButton :text="btnStatus" type="normal" @click="nextSlide" :disabled="disableBtn" />
           </div>
         </div>
@@ -99,8 +105,7 @@ const questionFiles = ref([]);
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
   shareLink: {
     type: String,
@@ -152,14 +157,23 @@ onMounted(async () => {
     const index = newArr.value.indexOf(question);
 
     if (question.file) {
-      await assetsStore.getFile(question.file)
-        .then(res => questionFiles.value[index] = res)
-        .catch(() => questionFiles.value[index] = question.file);
+      await assetsStore
+        .getFile(question.file)
+        .then((res) => (questionFiles.value[index] = res))
+        .catch(() => (questionFiles.value[index] = question.file));
     } else {
       questionFiles.value[index] = null;
     }
   }
 });
+
+const getImage = async (file) => {
+  if (file) {
+    await assetsStore.getFile(file).then((res) => {
+      return res;
+    });
+  }
+};
 
 onUnmounted(() => {
   document.body.style.overflow = '';
@@ -403,8 +417,9 @@ watch(currentIndex, (value) => {
           color: $section-title;
           text-align: center;
           font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-          font-feature-settings: 'dlig' on,
-          'ss04' on;
+          font-feature-settings:
+            'dlig' on,
+            'ss04' on;
           font-family: $default_font;
           font-size: 20px;
           font-style: normal;

@@ -245,6 +245,7 @@ const requestsRows = computed(
         component: Link,
         props: {
           text: response.username,
+          size: 0,
         },
         id: i,
       };

@@ -17,7 +17,7 @@ const props = defineProps({
 
 <template>
   <div class="flex items-center gap-x-[8px]">
-    <img v-if="isCorrect" src="@/assets/icons/completed.svg" alt="incorrect" />
+    <img v-if="isCorrect && !isIncorrect" src="@/assets/icons/completed.svg" alt="incorrect" />
     <img v-else src="@/assets/icons/incorrect.svg" alt="incorrect" />
     <div class="item" :class="{ isCorrect, isIncorrect }">{{ text }}</div>
   </div>

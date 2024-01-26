@@ -3,7 +3,7 @@
     <div class="tooltip-checkbox" v-if="show">Link copied to clipboard</div>
 
     <div v-if="text" class="badge_wrapper" :class="[type]" @click="copyRefLink()">
-      <span class="text">{{ shortenAddress(text, size) }}</span>
+      <span class="text">{{ size ? shortenAddress(text, size) : text }}</span>
       <Icon name="Link" class="icon" :size="16" />
     </div>
   </div>

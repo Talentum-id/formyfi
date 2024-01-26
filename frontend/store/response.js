@@ -31,11 +31,14 @@ export const useResponseStore = defineStore('response', {
     async getQAResponses(shareLink) {
       await this.actor
         .list(shareLink)
-        .then((res) => (this.qaResponses = res))
+        .then((res) => this.qaResponses = res)
         .catch((e) => console.log(e));
     },
-    async fetchResponse(shareLink) {
-      const identity = useAuthStore().principal.toText();
+    async fetchResponse(shareLink, identity = null) {
+      if (identity == null) {
+        identity = useAuthStore().principal.toText();
+      }
+
       this.loaded = false;
 
       await this.actor

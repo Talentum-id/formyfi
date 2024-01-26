@@ -13,10 +13,7 @@
           :data="item"
           :is-active="step === idx"
           :is-completed="step > idx"
-          @view="
-            showQuestion = true;
-            currentItem = $event;
-          "
+          @view="openQuestion($event)"
         ></QuestItem>
       </div>
       <VerticalCarousel
@@ -48,6 +45,12 @@ const props = defineProps({
 const showQuestion = ref(false);
 const currentItem = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
+const isAvailable = computed(() => Date.now() > Number(props.data.start) * 1000);
+const openQuestion = (item) => {
+  if (!isAvailable.value) return;
+  showQuestion.value = true;
+  currentItem.value = item;
+};
 </script>
 <style scoped lang="scss">
 .body-container {

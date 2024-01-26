@@ -105,13 +105,10 @@ onMounted(async () => {
             <div class="required" v-if="question.required">Required</div>
           </div>
           <div v-if="questionFiles[idx]" class="w-full flex justify-center">
-            <img :src="questionFiles[idx]" alt="image" />
             <div class="banner" :style="`background:url(${questionFiles[idx]})`"></div>
           </div>
           <span class="title">{{ question.question }}</span>
-          <div v-if="answerFiles[idx]">
-            <div class="banner" :style="`background:url(${answerFiles[idx]})`"></div>
-          </div>
+
           <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
             <Variant
               v-for="i in question.answers"
@@ -126,6 +123,9 @@ onMounted(async () => {
               :text="answers[idx].answer || 'No Answer'"
               :is-correct="!!answers[idx].answer"
             ></Variant>
+          </div>
+          <div v-if="answerFiles[idx]">
+            <div class="banner" :style="`background:url(${answerFiles[idx]})`"></div>
           </div>
         </div>
       </div>

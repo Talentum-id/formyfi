@@ -41,12 +41,16 @@
                 class="w-full"
                 :disabled="cacheAnswer"
               />
-              <img
-                v-if="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
-                :src="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
-                alt=""
-                width="160"
-              />
+
+              <div
+                v-if="
+                  answerFiles[currentIndex] || (newArr[currentIndex].uploadedFile && cacheAnswer)
+                "
+                class="banner"
+                :style="`background:url(${
+                  answerFiles[currentIndex] || newArr[currentIndex].uploadedFile
+                })`"
+              ></div>
               <CustomUpload
                 v-else-if="
                   !newArr[currentIndex].uploadedFile &&

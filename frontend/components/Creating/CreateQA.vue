@@ -1,14 +1,13 @@
 <template>
-  <base-button text="Create a Q&A" @click="showPreview()"></base-button>
   <BaseModal
     :width="600"
     :top="10"
     :rightCustom="10"
     :bottom="10"
     customHeight="auto"
-    :visible="show"
+    :visible="true"
     btnLeft
-    @close="showPreview"
+    @close="$emit('close')"
   >
     <div class="create-task_wrapper">
       <div class="title_wrapper">
@@ -212,7 +211,6 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const emits = defineEmits('refresh');
 
-const show = ref(false);
 const loading = ref(false);
 const isImagesError = ref(false);
 const todayDate = new Date();
@@ -310,10 +308,6 @@ const addAnswers = (arr) => {
     answer: '',
     isCorrect: false,
   });
-};
-
-const showPreview = () => {
-  show.value = !show.value;
 };
 
 const shiftQuestionForward = (index) => {

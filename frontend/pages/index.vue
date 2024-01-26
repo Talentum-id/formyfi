@@ -10,7 +10,7 @@
             v-model="search"
             :intervalFunc="searchInList"
           />
-          <CreateQA @refresh="refreshList()"></CreateQA>
+          <base-button text="Create a Q&A" @click="showPreview()"></base-button>
         </div>
       </div>
       <div class="actions">
@@ -63,6 +63,7 @@
       @next="nextItem()"
       @prev="prevItem()"
     ></ResultModal>
+    <CreateQA @refresh="refreshList()" @close="showPreview" v-if="showCreation"></CreateQA>
   </Default>
 </template>
 <script setup>
@@ -88,9 +89,13 @@ import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import ResultModal from '@/components/Result/ResultModal.vue';
+import BaseButton from '@/components/BaseButton.vue';
 
 const index = ref(null);
-
+const showCreation = ref(false);
+const showPreview = () => {
+  showCreation.value = !showCreation.value;
+};
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '100%' },

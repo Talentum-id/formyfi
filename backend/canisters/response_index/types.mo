@@ -10,6 +10,7 @@ module ResponseTypes {
 
   public type QAAuthor = {
     identity : Text;
+    username: Text;
     filled : Nat;
   };
 

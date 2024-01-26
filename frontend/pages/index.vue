@@ -88,6 +88,7 @@ import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import ResultModal from '@/components/Result/ResultModal.vue';
+
 const index = ref(null);
 
 const requestsColumns = computed(() => {
@@ -174,6 +175,7 @@ function nextPage(page) {
   currentPage.value = page;
   qaStore.getQAs(params.value);
 }
+
 const qaList = computed(() => qaStore.getList);
 const loaded = computed(() => qaStore.getLoadingStatusList);
 
@@ -242,7 +244,7 @@ const requestsRows = computed(
       return {
         component: Link,
         props: {
-          text: response.identity,
+          text: response.username,
         },
         id: i,
       };
@@ -344,6 +346,7 @@ const requestsRows = computed(
   { deep: true },
 );
 const searchInterval = ref(null);
+
 function searchInList() {
   clearTimeout(searchInterval.value);
   searchInterval.value = setTimeout(() => {
@@ -360,6 +363,7 @@ function searchInList() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .title {
     color: $primary-text;
     font-variant-numeric: slashed-zero;
@@ -369,22 +373,26 @@ function searchInList() {
     font-weight: 500;
     line-height: 72px; /* 128.571% */
   }
+
   .contollers {
     display: flex;
     align-items: center;
     gap: 24px;
   }
 }
+
 .actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   margin-bottom: 28px;
   gap: 8px;
+
   .sort {
     display: flex;
     align-items: center;
     gap: 8px;
+
     span {
       color: #667085;
       font-variant-numeric: slashed-zero;
@@ -394,6 +402,7 @@ function searchInList() {
       font-weight: 500;
       line-height: 20px; /* 142.857% */
     }
+
     .select {
       width: 130px;
     }
@@ -410,6 +419,7 @@ function searchInList() {
     border: none;
     width: fit-content;
     background: transparent;
+
     span {
       color: $default;
       font-variant-numeric: slashed-zero;
@@ -419,6 +429,7 @@ function searchInList() {
       font-weight: 500;
       line-height: 20px;
     }
+
     &:hover {
       border-radius: 8px;
       background: $default-badge-border;
@@ -433,6 +444,7 @@ function searchInList() {
   position: relative;
   animation: rotate 1s linear infinite;
 }
+
 .loader::before {
   content: '';
   box-sizing: border-box;

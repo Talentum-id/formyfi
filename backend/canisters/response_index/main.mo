@@ -41,7 +41,7 @@ actor ResponseIndex {
     switch (responses.get(responseIdentifier)) {
       case null [];
       case (?answers) answers;
-    }
+    };
   };
 
   public shared ({ caller }) func store(data : Data) : async () {
@@ -95,14 +95,15 @@ actor ResponseIndex {
 
     switch (authorsViaQA.get(shareLink)) {
       case null {
-        authorsViaQA.put(shareLink, [{ identity = username; filled }]);
+        authorsViaQA.put(shareLink, [{ username; identity; filled }]);
       };
       case (?authors) {
         if (Array.find<Author>(authors, func author = author.identity == identity) == null) {
           let qaAuthors = Buffer.fromArray<Author>(authors);
 
           qaAuthors.add({
-            identity = username;
+            username;
+            identity;
             filled;
           });
 

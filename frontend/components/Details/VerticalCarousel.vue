@@ -42,14 +42,13 @@
                 :disabled="cacheAnswer"
               />
               <img
-                v-if="newArr[currentIndex].file"
-                :src="getImage(newArr[currentIndex].file)"
+                v-if="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
+                :src="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
                 alt=""
                 width="160"
-                height="160"
               />
               <CustomUpload
-                v-else-if="!rerenderImages"
+                v-else-if="!newArr[currentIndex].uploadedFile && !answerFiles[currentIndex] && !rerenderImages"
                 :imagesFiles="newArr[currentIndex].files"
                 @images="newArr[currentIndex].files = $event"
               ></CustomUpload>
@@ -75,7 +74,7 @@
               type="primary"
               @click="prevSlide"
               :class="{ invisible: !items[currentIndex - 1] }"
-              >Previous
+            >Previous
             </BaseButton>
             <BaseButton :text="btnStatus" type="normal" @click="nextSlide" :disabled="disableBtn" />
           </div>
@@ -104,10 +103,13 @@ const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
 const questionFiles = ref([]);
+const answerFiles = ref([]);
+
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
   shareLink: {
     type: String,
@@ -167,15 +169,20 @@ onMounted(async () => {
       questionFiles.value[index] = null;
     }
   }
-});
 
-const getImage = async (file) => {
-  if (file) {
-    await assetsStore.getFile(file).then((res) => {
-      return res;
-    });
+  for (const answer of props.answers) {
+    const index = props.answers.indexOf(answer);
+
+    if (answer.file) {
+      await assetsStore
+        .getFile(answer.file)
+        .then(res => answerFiles.value[index] = res)
+        .catch(() => answerFiles.value[index] = answer.file);
+    } else {
+      answerFiles.value[index] = null;
+    }
   }
-};
+});
 
 onUnmounted(() => {
   document.body.style.overflow = '';
@@ -186,6 +193,8 @@ const newArr = ref(
       ...item,
       files: [],
       answer: '',
+      uploadedFile: '',
+      answerFile: '',
     };
   }),
 );
@@ -205,12 +214,15 @@ const loadImages = () => {
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
       if (typeof newArr.value[currentIndex.value].files[0] !== 'string') {
-        newArr.value[currentIndex.value].files[0] = await assetsStore.assetManager.store(
+        newArr.value[currentIndex.value].answerFile = await assetsStore.assetManager.store(
           newArr.value[currentIndex.value].files[0].raw,
           {
             path: `/assets/${realTime}/${index}`,
           },
         );
+
+        await assetsStore.getFile(newArr.value[currentIndex.value].answerFile)
+          .then(res => newArr.value[currentIndex.value].uploadedFile = res);
 
         index++;
       }
@@ -235,7 +247,7 @@ const nextSlide = async () => {
             answer: {
               isCorrect: true,
               answer: newArr.value[currentIndex.value].answer || '',
-              file: newArr.value[currentIndex.value].files[0] || '',
+              file: newArr.value[currentIndex.value].answerFile || '',
             },
             filled: Math.floor(Date.now() / 1000),
             shareLink: props.shareLink,
@@ -425,9 +437,8 @@ watch(currentIndex, (value) => {
           color: $section-title;
           text-align: center;
           font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-          font-feature-settings:
-            'dlig' on,
-            'ss04' on;
+          font-feature-settings: 'dlig' on,
+          'ss04' on;
           font-family: $default_font;
           font-size: 20px;
           font-style: normal;
@@ -516,6 +527,7 @@ watch(currentIndex, (value) => {
     border: 1px solid #dad9f7;
     background: $default-bg;
     width: 300px;
+
     * {
       background: transparent !important;
       color: $default;

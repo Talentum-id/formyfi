@@ -70,6 +70,7 @@ export const useAuthStore = defineStore('auth', {
 
       await authClient.login({
         identityProvider: process.env.II_URI,
+        maxTimeToLive: 10 * 24 * 3600000000000,
         onSuccess: async () => {
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;

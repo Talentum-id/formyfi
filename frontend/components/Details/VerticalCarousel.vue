@@ -331,6 +331,8 @@ watch(currentIndex, (value) => {
       color: #667085;
       font-variant-numeric: lining-nums tabular-nums slashed-zero;
       text-overflow: ellipsis;
+      display: block;
+      overflow: clip;
       white-space: nowrap;
       font-family: $default_font;
       font-size: 16px;

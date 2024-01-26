@@ -30,7 +30,6 @@ export const useQAStore = defineStore('qa', {
       return await this.actor.store(params);
     },
     async removeQuest(link) {
-      console.log(link);
       return await this.actor.delete(link);
     },
     async getQAs(params) {

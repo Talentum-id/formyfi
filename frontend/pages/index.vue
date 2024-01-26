@@ -83,7 +83,7 @@ import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
-import { formatDate } from '@/util/helpers';
+import { formatDate, reduceStringLength } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
@@ -285,7 +285,7 @@ const requestsRows = computed(
         singleComponent: {
           component: Text,
           props: {
-            text: item.title,
+            text: reduceStringLength(item.title, 24),
           },
         },
         components: numbers,

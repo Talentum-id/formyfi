@@ -6,6 +6,7 @@
       :value="modelValue"
       @input="updateValue"
       :placeholder="placeholder"
+      :disabled="disabled"
     />
   </div>
 </template>
@@ -25,6 +26,10 @@ export default {
     rule: {
       type: Boolean,
       default: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -87,7 +92,7 @@ export default {
       color: $colabs-bg;
     }
     &:focus {
-      box-shadow: 0 0 0 3px $default-border;
+      box-shadow: 3px $default-border;
     }
   }
 }

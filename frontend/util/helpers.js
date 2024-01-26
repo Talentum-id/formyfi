@@ -478,7 +478,7 @@ export function formatDateCurrent(date) {
   return new Date(Number(date)).toLocaleDateString('en-US', options);
 }
 
-export const generateUint8Array = str => {
+export const generateUint8Array = (str) => {
   const encoder = new TextEncoder('utf-8');
   const encodedString = encoder.encode(str);
 

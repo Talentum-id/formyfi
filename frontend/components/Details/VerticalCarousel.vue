@@ -39,6 +39,7 @@
                 placeholder="Your Answer"
                 v-model="newArr[currentIndex].answer"
                 class="w-full"
+                :disabled="cacheAnswer"
               />
               <img
                 v-if="newArr[currentIndex].file"
@@ -64,6 +65,7 @@
                   :label="answer.answer"
                   :aria-selected="items[currentIndex].answer === answer.answer"
                   v-for="answer in items[currentIndex].answers"
+                  :disabled="cacheAnswer"
                 />
               </el-radio-group>
             </div>
@@ -219,7 +221,7 @@ const loadImages = () => {
     }
   });
 };
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'success']);
 const nextSlide = async () => {
   if (newArr.value[currentIndex.value].answer || !newArr.value[currentIndex.value].required) {
     if (!isPreview.value && step.value === currentIndex.value) {
@@ -259,6 +261,7 @@ const nextSlide = async () => {
             loading.value = false;
           });
       }
+      emit('success');
     }
 
     if (currentIndex.value < props.items.length - 1) {

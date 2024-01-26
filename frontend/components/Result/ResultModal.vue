@@ -28,14 +28,14 @@ const answers = computed(() => responseStore.getResponse);
 
 watch(
   () => props.userInfo.identity,
-  async value => {
+  async (value) => {
     await responseStore.fetchResponse(data.value.shareLink, value);
 
     for (const answer of answers.value) {
       const index = answers.value.indexOf(answer);
 
       if (answer.file) {
-        await assetsStore.getFile(answer.file).then(res => answerFiles.value[index] = res);
+        await assetsStore.getFile(answer.file).then((res) => (answerFiles.value[index] = res));
       } else {
         answerFiles.value[index] = null;
       }
@@ -52,7 +52,7 @@ onMounted(async () => {
     const index = data.value.questions.indexOf(question);
 
     if (question.file) {
-      await assetsStore.getFile(question.file).then(res => questionFiles.value[index] = res);
+      await assetsStore.getFile(question.file).then((res) => (questionFiles.value[index] = res));
     } else {
       questionFiles.value[index] = null;
     }
@@ -88,10 +88,12 @@ onMounted(async () => {
         </div>
         <div class="title">{{ data.description.replace(/<[^>]*>/g, '') }}</div>
         <div class="data">
-          <div>From
+          <div>
+            From
             <Link :text="userInfo.username"></Link>
           </div>
-          <div>Filled
+          <div>
+            Filled
             <Badge :text="formatDate(userInfo.filled * 1000)" type="claim"></Badge>
           </div>
         </div>
@@ -142,7 +144,7 @@ onMounted(async () => {
 
     .head-title {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
 
       span {

@@ -85,7 +85,7 @@ const emitSearchValue = (value) => {
     }
 
     &:focus {
-      box-shadow: 0 0 0 3px $default-border;
+      box-shadow: 2px $default-border;
     }
   }
 

@@ -4,18 +4,59 @@ import Icon from '@/components/Icons/Icon.vue';
 import Badge from '@/components/Badge.vue';
 import Variant from '@/components/Result/Variant.vue';
 import Link from '@/components/Table/Link.vue';
-import { computed } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useQAStore } from '@/store/qa';
 import { useResponseStore } from '@/store/response';
 import { formatDate } from '@/util/helpers';
+import { useAssetsStore } from '@/store/assets';
 
-const data = computed(() => useQAStore().getQA);
-const answers = computed(() => useResponseStore().getResponse);
-defineProps({
+const assetsStore = useAssetsStore();
+const responseStore = useResponseStore();
+
+const questionFiles = ref([]);
+const answerFiles = ref([]);
+
+const props = defineProps({
   userInfo: {
     type: Object,
     default: null,
   },
+});
+
+const data = computed(() => useQAStore().getQA);
+const answers = computed(() => responseStore.getResponse);
+
+watch(
+  () => props.userInfo.identity,
+  async value => {
+    await responseStore.fetchResponse(data.value.shareLink, value);
+
+    for (const answer of answers.value) {
+      const index = answers.value.indexOf(answer);
+
+      if (answer.file) {
+        await assetsStore.getFile(answer.file).then(res => answerFiles.value[index] = res);
+      } else {
+        answerFiles.value[index] = null;
+      }
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+);
+
+onMounted(async () => {
+  for (const question of data.value.questions) {
+    const index = data.value.questions.indexOf(question);
+
+    if (question.file) {
+      await assetsStore.getFile(question.file).then(res => questionFiles.value[index] = res);
+    } else {
+      questionFiles.value[index] = null;
+    }
+  }
 });
 </script>
 
@@ -47,8 +88,12 @@ defineProps({
         </div>
         <div class="title">{{ data.description.replace(/<[^>]*>/g, '') }}</div>
         <div class="data">
-          <div>From <Link :text="userInfo.identity"></Link></div>
-          <div>Filled <Badge :text="formatDate(userInfo.filled * 1000)" type="claim"></Badge></div>
+          <div>From
+            <Link :text="userInfo.username"></Link>
+          </div>
+          <div>Filled
+            <Badge :text="formatDate(userInfo.filled * 1000)" type="claim"></Badge>
+          </div>
         </div>
       </div>
       <div class="flex flex-col w-full gap-[16px] mt-[32px]">
@@ -57,10 +102,13 @@ defineProps({
             <div class="step">{{ idx + 1 }}/{{ data.questions.length }}</div>
             <div class="required" v-if="question.required">Required</div>
           </div>
-          <div class="w-full flex justify-center">
-            <img :src="question.image" alt="image" />
+          <div v-if="questionFiles[idx]" class="w-full flex justify-center">
+            <img :src="questionFiles[idx]" alt="image" />
           </div>
           <span class="title">{{ question.question }}</span>
+          <div v-if="answerFiles[idx]">
+            <img :src="answerFiles[idx]" alt="image" />
+          </div>
           <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
             <Variant
               v-for="i in question.answers"
@@ -86,14 +134,17 @@ defineProps({
 .result-wrapper {
   font-family: $default_font;
   padding: 40px;
+
   .header {
     display: flex;
     flex-direction: column;
     gap: 16px;
+
     .head-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       span {
         color: $default;
         font-variant-numeric: slashed-zero;
@@ -102,10 +153,12 @@ defineProps({
         font-weight: 500;
         line-height: 40px; /* 125% */
       }
+
       .controller {
         display: flex;
         gap: 8px;
         align-items: center;
+
         .switch {
           display: flex;
           width: 32px;
@@ -119,6 +172,7 @@ defineProps({
         }
       }
     }
+
     .title {
       color: $blue;
       font-variant-numeric: lining-nums tabular-nums slashed-zero;
@@ -127,10 +181,12 @@ defineProps({
       font-weight: 500;
       line-height: 24px;
     }
+
     .data {
       display: flex;
       align-items: center;
       gap: 24px;
+
       div {
         display: flex;
         align-items: center;
@@ -145,6 +201,7 @@ defineProps({
       }
     }
   }
+
   .card {
     border-radius: 16px;
     width: 100%;
@@ -156,11 +213,13 @@ defineProps({
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
+
     .head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
+
       .step {
         color: #a5acbb;
         font-variant-numeric: lining-nums tabular-nums slashed-zero;
@@ -169,6 +228,7 @@ defineProps({
         font-weight: 500;
         line-height: 24px;
       }
+
       .required {
         color: $error-border;
         font-variant-numeric: lining-nums tabular-nums slashed-zero;
@@ -179,6 +239,7 @@ defineProps({
         letter-spacing: 0.168px;
       }
     }
+
     .title {
       color: $primary-text;
       font-variant-numeric: slashed-zero;
@@ -187,10 +248,10 @@ defineProps({
       font-weight: 500;
       line-height: 24px;
     }
+
     img {
       text-align: center;
       width: 120px;
-      height: 120px;
       border-radius: 8px;
     }
   }

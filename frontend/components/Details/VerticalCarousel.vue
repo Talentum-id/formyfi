@@ -323,11 +323,8 @@ watch(currentIndex, (value) => {
     }
 
     .item {
-      display: flex;
       width: 100%;
       padding: 16px 24px;
-      align-items: center;
-      gap: 24px;
       color: #667085;
       font-variant-numeric: lining-nums tabular-nums slashed-zero;
       text-overflow: ellipsis;

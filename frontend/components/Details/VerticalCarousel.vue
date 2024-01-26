@@ -486,6 +486,8 @@ watch(currentIndex, (value) => {
       font-weight: 500;
       line-height: 20px;
       padding: 0 !important;
+      white-space: pre-wrap;
+      text-align: left;
     }
   }
 
@@ -495,7 +497,7 @@ watch(currentIndex, (value) => {
   }
 
   .radio {
-    width: 288px;
+    width: auto;
     cursor: pointer;
     display: flex;
     padding: 9px 16px 11px 16px;
@@ -505,7 +507,7 @@ watch(currentIndex, (value) => {
     border-radius: 8px;
     border: 1px solid #dad9f7;
     background: $default-bg;
-
+    width: 300px;
     * {
       background: transparent !important;
       color: $default;
@@ -517,6 +519,8 @@ watch(currentIndex, (value) => {
       line-height: 20px; /* 142.857% */
       border: none !important;
       padding: 0 !important;
+      white-space: pre-wrap;
+      text-align: left;
     }
   }
 }

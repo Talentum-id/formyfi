@@ -24,7 +24,7 @@ actor UserIndex {
     };
 
     if (username.size() < 4 or username.size() > 24) {
-      throw Error.reject("Username should have more than 4 characters and less than 12.");
+      throw Error.reject("Username should have from 4 to 12 characters.");
     };
 
     let identity = Principal.toText(caller);

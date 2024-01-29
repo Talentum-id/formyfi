@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Quest from '@/components/Quest/Quest.vue';
 import Default from '@/layouts/default.vue';
 import { useAuthStore } from '@/store/auth';
+import { useAssetsStore } from '@/store/assets';
 import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
@@ -11,6 +12,7 @@ import Modal from '@/components/Quest/Modal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 
 const authStore = useAuthStore();
+const assetsStore = useAssetsStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -36,6 +38,19 @@ async function deleteQuest() {
   deleting.value = true;
 
   await useQAStore().removeQuest(route.params.id);
+  const batch = assetsStore.assetManager.batch();
+
+  await batch.delete(data.value.image)
+
+  await Promise.all(
+    data.value.questions.map(async (question) => {
+      if (question.file) {
+        await batch.delete(question.file);
+      }
+    })
+  );
+
+  await batch.commit();
   await router.push('/');
 
   deleting.value = false;
@@ -64,7 +79,7 @@ async function showModal() {
         <div class="controllers">
           <BaseButton text="Cancel" @click="showModal()" type="primary"></BaseButton>
           <BaseButton
-            :text="!deleting ? 'Delete' : 'Loading...'"
+            :text="!deleting ? 'Delete' : 'Deleting...'"
             @click="deleteQuest()"
             :disabled="deleting"
             type="normal"

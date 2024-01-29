@@ -60,7 +60,13 @@ onMounted(() => {
 });
 
 const validationError = computed(() => {
-  if (form.value.fullName.trim() === '' || form.value.username.trim() === '') {
+  const username = form.value.username.trim();
+
+  if (form.value.fullName.trim() === '' || username === '') {
+    return true;
+  }
+
+  if (username.length < 4 || username.length > 24) {
     return true;
   }
 
@@ -91,6 +97,12 @@ const createAccount = () => {
 const validateUsername = () => {
   form.value.username = form.value.username.trim().toLowerCase();
   const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
+
+  if (form.value.username.length < 4 || form.value.username.lengt < 24) {
+    errors.value.username = 'Username should have from 4 to 12 characters';
+
+    return;
+  }
 
   if (!alphaNumericWithDot.test(form.value.username)) {
     errors.value.username = 'Username can only consist of alphanumeric characters and dot';

@@ -99,7 +99,6 @@ const checkImageSize = () => {
   } else {
     for (const file of fileList.value) {
       if (file && file.size) {
-        console.log(file);
         if ((file && file.raw.size / 1000 < 10) || (file && file.size / 1000 < 10)) {
           isShowFileError.isError = true;
           isShowFileError.message = "The file can't be less than 10 kB";

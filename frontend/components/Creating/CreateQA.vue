@@ -510,7 +510,6 @@ const check = async () => {
     emits('refresh');
     emits('close');
   } catch (err) {
-    console.log(err.message);
     errorMessage.value = 'Something went wrong';
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);

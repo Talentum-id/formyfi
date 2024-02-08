@@ -18,6 +18,7 @@ module QATypes {
     file : Text;
     required : Bool;
     answers : [Answer];
+    fileAllowed : Bool;
     openAnswerAllowed : Bool;
   };
 

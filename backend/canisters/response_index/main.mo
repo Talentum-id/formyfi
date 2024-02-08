@@ -53,33 +53,29 @@ actor ResponseIndex {
       case null throw Error.reject("Q&A not found");
       case (?qa) {
         let questions = qa.quest.questions;
-        let questionsSize = questions.size();
 
         switch (responses.get(responseIdentifier)) {
           case null {
-            if (questions[0].required == true and answer.answer == "") {
-              throw Error.reject("Answer is required");
+            var index = 0;
+
+            if (answers.size() != questions.size()) {
+              throw Error.reject("The answers don't match the questions");
             };
 
-            responses.put(responseIdentifier, [answer]);
+            for (answer in answers.vals()) {
+              if (answer.answer == "" and questions[index].required == true) {
+                throw Error.reject("Required questions should be answered");
+              };
 
-            if (questionsSize == 1) {
-              ignore saveAuthorQA(identity, data);
+              index += 1;
             };
+
+            responses.put(responseIdentifier, answers);
+
+            ignore saveAuthorQA(identity, data);
           };
           case (?answers) {
-            if (questions[answers.size()].required == true and answer.answer == "") {
-              throw Error.reject("Answer is required");
-            };
-
-            let qaAnswers = Buffer.fromArray<Answer>(answers);
-            qaAnswers.add(answer);
-
-            responses.put(responseIdentifier, Buffer.toArray(qaAnswers));
-
-            if (questionsSize == qaAnswers.size()) {
-              ignore saveAuthorQA(identity, data);
-            };
+            throw Error.reject("The user already completed this Q&A");
           };
         };
       };

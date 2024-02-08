@@ -46,7 +46,7 @@ actor ResponseIndex {
 
   public shared ({ caller }) func store(data : Data) : async () {
     let identity = Principal.toText(caller);
-    let { shareLink; answer; filled } = data;
+    let { shareLink; answers; filled } = data;
     let responseIdentifier = identity # "-" # shareLink;
 
     switch (await QAIndex.show(shareLink)) {

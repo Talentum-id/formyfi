@@ -6,11 +6,12 @@ module ResponseTypes {
     answer : Text;
     isCorrect : Bool;
     file : Text;
+    isOpen : Bool;
   };
 
   public type QAAuthor = {
     identity : Text;
-    username: Text;
+    username : Text;
     filled : Nat;
   };
 
@@ -21,7 +22,7 @@ module ResponseTypes {
 
   public type ResponseParams = {
     shareLink : Text;
-    answer : Answer;
+    answers : [Answer];
     filled : Nat;
   };
 };

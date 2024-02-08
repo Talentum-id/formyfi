@@ -3,6 +3,7 @@ import { createActor } from '~/qa_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
+import { useAssetsStore } from '@/store/assets';
 import router from '@/router';
 
 function createActorFromIdentity(agent) {
@@ -30,8 +31,24 @@ export const useQAStore = defineStore('qa', {
     async storeQA(params) {
       return await this.actor.store(params);
     },
-    async removeQuest(link) {
-      return await this.actor.delete(link);
+    async removeQuest({ image, shareLink, questions }) {
+      await this.actor.delete(shareLink)
+        .then(async () => {
+          const batch = useAssetsStore().assetManager.batch();
+
+          await batch.delete(image);
+          await batch.delete(`/assets/${shareLink}`);
+
+          await Promise.all(
+            questions.map(async (question) => {
+              if (question.file) {
+                await batch.delete(question.file);
+              }
+            }),
+          );
+
+          await batch.commit();
+        });
     },
     async getQAs(params) {
       this.loaded = false;

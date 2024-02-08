@@ -37,24 +37,13 @@ async function deleteQuest() {
 
   deleting.value = true;
 
-  await useQAStore().removeQuest(route.params.id);
-  const batch = assetsStore.assetManager.batch();
+  await useQAStore().removeQuest(data.value);
 
-  await batch.delete(data.value.image)
-
-  await Promise.all(
-    data.value.questions.map(async (question) => {
-      if (question.file) {
-        await batch.delete(question.file);
-      }
-    })
-  );
-
-  await batch.commit();
   await router.push('/');
 
   deleting.value = false;
 }
+
 async function showModal() {
   show.value = !show.value;
 }
@@ -87,8 +76,8 @@ async function showModal() {
         </div>
       </div>
     </Modal>
-    <Quest :data="data" v-if="loaded && data"></Quest
-  ></Default>
+    <Quest :data="data" v-if="loaded && data" />
+  </Default>
 </template>
 
 <style scoped lang="scss">
@@ -127,11 +116,13 @@ async function showModal() {
     cursor: pointer;
   }
 }
+
 .modal-container {
   display: flex;
   flex-direction: column;
   gap: 48px;
   padding: 32px;
+
   span {
     color: $section-title;
     text-align: center;
@@ -142,11 +133,13 @@ async function showModal() {
     font-weight: 500;
     line-height: 40px;
   }
+
   .controllers {
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
+
     div {
       width: 184px;
     }

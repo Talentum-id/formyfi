@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
 import { createActor } from '~/user_index';
-import router from '../router';
+import router from '@/router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 import { useAssetsStore } from './assets';

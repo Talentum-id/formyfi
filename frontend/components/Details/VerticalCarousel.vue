@@ -82,7 +82,8 @@
               type="primary"
               @click="prevSlide"
               :class="{ invisible: !items[currentIndex - 1] }"
-              >Previous
+            >
+              Previous
             </BaseButton>
             <BaseButton :text="btnStatus" type="normal" @click="nextSlide" :disabled="disableBtn" />
           </div>
@@ -117,7 +118,8 @@ const answerFiles = ref([]);
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
   shareLink: {
     type: String,
@@ -225,7 +227,7 @@ const loadImages = () => {
         newArr.value[currentIndex.value].answerFile = await assetsStore.assetManager.store(
           newArr.value[currentIndex.value].files[0].raw,
           {
-            path: `/assets/${realTime}/${index}`,
+            path: `/assets/${props.shareLink}/${realTime}/${index}`,
           },
         );
 
@@ -446,9 +448,8 @@ watch(currentIndex, (value) => {
           color: $section-title;
           text-align: center;
           font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-          font-feature-settings:
-            'dlig' on,
-            'ss04' on;
+          font-feature-settings: 'dlig' on,
+          'ss04' on;
           font-family: $default_font;
           font-size: 20px;
           font-style: normal;

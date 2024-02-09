@@ -151,7 +151,7 @@ actor ResponseIndex {
         data,
         func(x : Author, y : Author) {
           let (key1 : Text, key2 : Text) = switch (sortBy.key) {
-            case "participant" (x.identity, y.identity);
+            case "participant" (x.username, y.username);
             case "filled" (Nat.toText(x.filled), Nat.toText(y.filled));
             case _ (Nat.toText(x.filled), Nat.toText(y.filled));
           };

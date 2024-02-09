@@ -1,10 +1,13 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
+import Error "mo:base/Error";
+import Float "mo:base/Float";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 import Map "mo:base/HashMap";
+import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
-import Error "mo:base/Error";
-import Iter "mo:base/Iter";
 import Time "mo:base/Time";
 import Types "/types";
 import QAIndex "canister:qa_index";
@@ -13,8 +16,10 @@ import UserIndex "canister:user_index";
 actor ResponseIndex {
   type Answer = Types.Answer;
   type Author = Types.QAAuthor;
-  type ResponseParams = Types.QAResponseParams;
   type Data = Types.ResponseParams;
+  type FetchParams = Types.FetchParams;
+  type List = Types.ListResult;
+  type ResponseParams = Types.QAResponseParams;
 
   stable var authorsViaQAEntries : [(Text, [Author])] = [];
   stable var responseEntries : [(Text, [Answer])] = [];
@@ -22,10 +27,21 @@ actor ResponseIndex {
   let authorsViaQA = Map.fromIter<Text, [Author]>(authorsViaQAEntries.vals(), 1000, Text.equal, Text.hash);
   let responses = Map.fromIter<Text, [Answer]>(responseEntries.vals(), 1000, Text.equal, Text.hash);
 
-  public query func list(shareLink : Text) : async [Author] {
+  public query func list(shareLink : Text, params : FetchParams) : async List {
     switch (authorsViaQA.get(shareLink)) {
-      case null [];
-      case (?authors) authors;
+      case null {
+        {
+          pagination = {
+            total = 0;
+            count = 0;
+            per_page = 10;
+            current_page = 1;
+            total_pages = 1;
+          };
+          data = [];
+        };
+      };
+      case (?authors) filter(authors, params);
     };
   };
 
@@ -109,6 +125,77 @@ actor ResponseIndex {
     };
 
     ignore QAIndex.incrementParticipants(shareLink);
+  };
+
+  func filter(authors : [Author], params : FetchParams) : List {
+    var data = authors;
+    let { page; pageSize; sortBy } = params;
+
+    if (data.size() < 1) {
+      return {
+        pagination = {
+          total = 0;
+          count = 0;
+          per_page = 10;
+          current_page = 1;
+          total_pages = 1;
+        };
+        data = [];
+      };
+    };
+
+    if (sortBy.key != "") {
+      let order = if (sortBy.value == "asc") "asc" else "desc";
+
+      data := Array.sort<Author>(
+        data,
+        func(x : Author, y : Author) {
+          let (key1 : Text, key2 : Text) = switch (sortBy.key) {
+            case "participant" (x.identity, y.identity);
+            case "filled" (Nat.toText(x.filled), Nat.toText(y.filled));
+            case _ (Nat.toText(x.filled), Nat.toText(y.filled));
+          };
+
+          switch (order) {
+            case "asc" {
+              if (key1 > key2) #greater else if (key1 < key2) #less else #equal;
+            };
+            case _ {
+              if (key1 > key2) #less else if (key1 < key2) #greater else #equal;
+            };
+          };
+        },
+      );
+    };
+
+    let pagination = {
+      total = data.size();
+      count = params.pageSize;
+      per_page = params.pageSize;
+      current_page = params.page;
+      total_pages = Float.ceil(Float.fromInt(data.size()) / Float.fromInt(params.pageSize));
+    };
+
+    if (page != 0 and pageSize != 0) {
+      var offset : Int = page - 1;
+      offset := offset * pageSize;
+
+      var limit : Int = if (data.size() < offset + pageSize) data.size() else offset + pageSize;
+      var AuthorIter = Array.slice<Author>(data, Int.abs(offset), Int.abs(limit));
+
+      data := Iter.toArray(AuthorIter);
+    };
+
+    data := Array.map<Author, Author>(
+      data,
+      func x = {
+        username = x.username;
+        identity = x.identity;
+        filled = x.filled;
+      },
+    );
+
+    { data; pagination };
   };
 
   public query func readAll() : async Text {

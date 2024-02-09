@@ -9,6 +9,20 @@ module ResponseTypes {
     isOpen : Bool;
   };
 
+  public type FetchParams = {
+    sortBy : {
+      key : Text;
+      value : Text;
+    };
+    page : Int;
+    pageSize : Int;
+  };
+
+  public type ListResult = {
+    data : [QAAuthor];
+    pagination : PaginationTypes.Pagination;
+  };
+
   public type QAAuthor = {
     identity : Text;
     username : Text;

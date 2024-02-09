@@ -215,8 +215,6 @@ export default {
       }
     },
     sortByColumn(column, cantSort) {
-      console.log('column', column);
-      console.log('modifyStringSpaces(column.label)', modifyStringSpaces('USDT Payed'));
       if (!this.isSorting || cantSort) return;
       if (this.sortColumn === column) {
         if (this.sortDirection === '') {

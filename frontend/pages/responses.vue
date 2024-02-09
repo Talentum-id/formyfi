@@ -4,26 +4,24 @@
       <div class="header">
         <div class="flex justify-between">
           <BackToList />
-          <div class="contollers">
-            <InputWithSearch
-              placeholder="Find a Form..."
-              :iconSize="24"
-              v-model="search"
-              :intervalFunc="searchInList"
-            />
-            <base-button text="Create a Q&A" @click="showPreview()"></base-button>
-          </div>
+          <base-button text="Create a Q&A" @click="showPreview()"></base-button>
         </div>
         <h1 class="title">Form responses list</h1>
+        <div class="actions">
+          <div class="title" v-if="qa">
+            For the form
+            <router-link :to="`quest/${qa.shareLink}`" class="link"
+              >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
+            /></router-link>
+          </div>
+          <button class="export-btn" @click="pageScreenToPdf">
+            <span>Export </span>
+            <img v-if="!loading" :src="downloadIcon" alt="" @click.stop="pageScreenToPdf" />
+            <span v-else class="loader"></span>
+          </button>
+        </div>
       </div>
 
-      <div class="actions">
-        <button class="export-btn" @click="pageScreenToPdf">
-          <span>Export </span>
-          <img v-if="!loading" :src="downloadIcon" alt="" @click.stop="pageScreenToPdf" />
-          <span v-else class="loader"></span>
-        </button>
-      </div>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
@@ -63,19 +61,14 @@ import Default from '@/layouts/default.vue';
 import { computed, onMounted, ref } from 'vue';
 import Badge from '@/components/Badge.vue';
 import View from '@/components/View.vue';
-import InputWithSearch from '@/components/Table/InputWithSearch.vue';
-import Link from '@/components/Table/Link.vue';
-import Text from '@/components/Table/Text.vue';
 import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
-import { useAuthStore } from '@/store/auth';
-import { useQAStore } from '@/store/qa';
 import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
-import { formatDate, reduceStringLength } from '@/util/helpers';
+import { formatDate } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
@@ -83,12 +76,25 @@ import ResultModal from '@/components/Result/ResultModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
+import { useQAStore } from '@/store/qa';
 
+const route = useRoute();
+const responseStore = useResponseStore();
+let isMounted = false;
+
+const show = ref(false);
+const currentItem = ref(null);
+const currentIndex = ref(null);
+const allItems = ref(null);
 const index = ref(null);
 const showCreation = ref(false);
-const showPreview = () => {
-  showCreation.value = !showCreation.value;
-};
+const showAlert = ref(false);
+const loading = ref(false);
+const sort = ref({});
+const currentPage = ref(route.query ? route.query.page : 1);
+const sortDirection = ref('');
+const sortColumn = ref('');
+
 const requestsColumns = computed(() => {
   return [
     { prop: 'index', label: '#', width: '200%' },
@@ -102,27 +108,84 @@ const requestsColumns = computed(() => {
     { prop: 'open', label: '', width: '20%' },
   ];
 });
-const route = useRoute();
-const authStore = useAuthStore();
-const qaStore = useQAStore();
-const responseStore = useResponseStore();
-const show = ref(false);
-const currentItem = ref(null);
-const currentIndex = ref(null);
-const allItems = ref(null);
+const qaResponses = computed(() => responseStore.qaResponses);
+const loaded = computed(() => responseStore.getLoadingStatus);
+const pagination = computed(() => qaResponses.value.pagination);
+const requestsRows = computed(
+  () => {
+    const originalArray = qaResponses.value.data;
+    if (!originalArray || !originalArray?.length) {
+      return [];
+    }
+    return originalArray.map((item, i) => ({
+      index: {
+        component: NumberOfEl,
+        props: {
+          text: i + 1,
+        },
+      },
+      participants: {
+        component: Badge,
+        props: {
+          text: item.username,
+          transparent: true,
+        },
+      },
+      filled: {
+        component: Badge,
+        props: {
+          text: formatDate(Number(item.filled) * 1000),
+          transparent: true,
+        },
+      },
+      view: {
+        component: View,
+        props: {
+          fn: () => showModal(originalArray, i),
+        },
+        id: i,
+      },
+    }));
+  },
+  { deep: true },
+);
+const params = computed(() => {
+  return {
+    page: parseInt(currentPage.value) || 1,
+    pageSize: 10,
+    sortBy: {
+      key: sort.value.sortKey || '',
+      value: sort.value.sortType || '',
+    },
+  };
+});
+const qa = computed(() => useQAStore().getQA);
+
+onMounted(async () => {
+  if (route.query && route.query.page) {
+    await nextPage(route.query.page);
+  } else {
+    await responseStore.getQAResponses(route.params.id, params.value);
+  }
+  await useQAStore().fetchQA(route.params.id);
+
+  isMounted = true;
+});
 
 const nextItem = () => {
   if (currentIndex.value < allItems.value?.length - 1) {
     currentItem.value = allItems.value[++currentIndex.value];
   }
 };
-
+const showPreview = () => {
+  showCreation.value = !showCreation.value;
+};
 const prevItem = () => {
   if (currentIndex.value !== 0) {
     currentItem.value = allItems.value[--currentIndex.value];
   }
 };
-const showModal = (items, index) => {
+const showModal = async (items, index) => {
   currentIndex.value = index;
   allItems.value = items.map((i) => {
     return {
@@ -133,17 +196,6 @@ const showModal = (items, index) => {
   currentItem.value = allItems.value[currentIndex.value];
   show.value = true;
 };
-let isMounted = false;
-const showAlert = ref(false);
-onMounted(async () => {
-  if (route.query && route.query.page) {
-    await nextPage(route.query.page);
-  } else {
-    await responseStore.getQAResponses(route.params.id);
-  }
-  isMounted = true;
-});
-const loading = ref(false);
 const pageScreenToPdf = () => {
   loading.value = true;
   const style = document.createElement('style');
@@ -161,88 +213,36 @@ const pageScreenToPdf = () => {
     loading.value = false;
   });
 };
-
 function nextPage(page) {
   currentPage.value = page;
-  responseStore.getQAResponses(params.value);
+  responseStore.getQAResponses(route.params.id, params.value);
 }
-
-const qaList = computed(() => responseStore.qaResponses);
-const loaded = computed(() => qaStore.getLoadingStatusList);
-
-const params = computed(() => {
-  return {
-    identity: authStore.principal.toText(),
-    search: search.value,
-    page: parseInt(currentPage.value) || 1,
-    pageSize: 10,
-    sortBy: {
-      key: sort.value.sortKey || '',
-      value: sort.value.sortType || '',
-    },
-  };
-});
-const sort = ref({});
-const currentPage = ref(route.query ? route.query.page : 1);
-
 const sortTasks = async (prop, direction) => {
   if (!isMounted && !loaded) return;
   await router.push({ query: Object.assign({}, route.query, { page: 1 }) });
   currentPage.value = 1;
   await sortHandle(prop, direction);
 };
-const sortDirection = ref('');
-const sortColumn = ref('');
 const setSortDirection = (value) => {
   sortDirection.value = value;
 };
 const setSortColumn = (value) => {
   sortColumn.value = value;
 };
-const search = ref('');
-
 const refreshList = () => {
-  responseStore.getQAResponses(params.value);
-
+  responseStore.getQAResponses(route.params.id, params.value);
   showAlert.value = true;
-
   setTimeout(() => (showAlert.value = false), 2000);
 };
-
 const sortHandle = async (name, type) => {
   const paramsSort = {};
   if (type) {
     sortColumn.value = paramsSort.sortKey = name;
     sortDirection.value = paramsSort.sortType = type;
   }
-
   sort.value = paramsSort;
-
-  await responseStore.getQAResponses(params.value);
+  await responseStore.getQAResponses(route.params.id, params.value);
 };
-const pagination = computed(() => qaList.value.pagination);
-
-const requestsRows = computed(
-  () => {
-    const originalArray = qaList.value.data;
-    if (!originalArray || !originalArray?.length) {
-      return [];
-    }
-  },
-  { deep: true },
-);
-const searchInterval = ref(null);
-
-function searchInList() {
-  clearTimeout(searchInterval.value);
-  searchInterval.value = setTimeout(() => {
-    router.push({
-      query: Object.assign({}, route.query, { page: 1 }),
-    });
-
-    responseStore.getQAResponses(params.value);
-  }, 500);
-}
 </script>
 <style scoped lang="scss">
 .header {
@@ -270,27 +270,37 @@ function searchInList() {
 .actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 28px;
   gap: 8px;
 
-  .sort {
+  .title {
+    color: #667085;
+    font-variant-numeric: slashed-zero;
+    font-family: $default_font;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px; /* 142.857% */
     display: flex;
     align-items: center;
     gap: 8px;
-
-    span {
-      color: #667085;
-      font-variant-numeric: slashed-zero;
-      font-family: Basis Grotesque Pro;
-      font-size: 14px;
+    .link {
+      display: flex;
+      width: fit-content;
+      padding: 4px 8px;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px;
+      background: #e9ecf2;
+      color: $blue;
+      font-variant-numeric: lining-nums tabular-nums slashed-zero;
+      font-size: 16px;
       font-style: normal;
       font-weight: 500;
-      line-height: 20px; /* 142.857% */
-    }
-
-    .select {
-      width: 130px;
+      line-height: 24px;
+      cursor: pointer;
     }
   }
 

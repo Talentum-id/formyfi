@@ -35,7 +35,6 @@
               class="answer-textarea"
               v-if="!newArr[currentIndex].answers || !newArr[currentIndex].answers.length"
             >
-              {{}}
               <TextArea
                 placeholder="Your Answer"
                 v-model="newArr[currentIndex].answer"
@@ -54,7 +53,7 @@
               ></div>
               <CustomUpload
                 v-else-if="
-                  newArr[currentIndex].openAnswerAllowed &&
+                  newArr[currentIndex].fileAllowed &&
                   !newArr[currentIndex].uploadedFile &&
                   !answerFiles[currentIndex] &&
                   !rerenderImages
@@ -75,10 +74,16 @@
                   :aria-selected="items[currentIndex].answer === answer.answer"
                   v-for="answer in items[currentIndex].answers"
                   :disabled="cacheAnswer"
+                /><input
+                  class="allowed-input"
+                  type="text"
+                  v-model="newArr[currentIndex].myAnswer"
+                  v-if="newArr[currentIndex].openAnswerAllowed"
+                  @input="newArr[currentIndex].answer = ''"
+                  :placeholder="cacheAnswer || 'Your answer...'"
+                  :disabled="cacheAnswer"
                 />
               </el-radio-group>
-
-              {{ newArr[currentIndex].openAnswerAllowed }}
             </div>
           </div>
           <div class="controllers">
@@ -109,16 +114,11 @@ import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
-import defaultBg from '@/assets/images/default-avatar.png';
 
 const assetsStore = useAssetsStore();
-
 const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
-const questionFiles = ref([]);
-const answerFiles = ref([]);
-
 const props = defineProps({
   currentItem: {
     type: Object,
@@ -137,6 +137,33 @@ const props = defineProps({
     default: () => [],
   },
 });
+const emit = defineEmits(['close', 'success']);
+
+const currentIndex = ref(findCurrentItemIndex());
+const loading = ref(false);
+const newArr = ref(
+  props.items.map((item) => {
+    return {
+      ...item,
+      files: [],
+      answer: '',
+      uploadedFile: '',
+      answerFile: '',
+    };
+  }),
+);
+const questionFiles = ref([]);
+const answerFiles = ref([]);
+const rerenderImages = ref(false);
+const result = ref([]);
+
+const cacheAnswer = computed(() => {
+  if (props.answers.length && props.answers[currentIndex.value]) {
+    return props.answers[currentIndex.value].answer;
+  } else {
+    return null;
+  }
+});
 const step = computed(() => counterStore.getStep);
 const btnStatus = computed(() => {
   if (currentIndex.value + 1 === props.items.length && !isPreview.value && !loading.value) {
@@ -153,18 +180,10 @@ const disableBtn = computed(() => {
     !newArr.value[currentIndex.value].answers.length
   ) {
     return false;
-  } else return !newArr.value[currentIndex.value].answer;
+  } else
+    return !newArr.value[currentIndex.value].answer && !newArr.value[currentIndex.value].myAnswer;
 });
 const isPreview = computed(() => route.name === 'preview');
-const currentIndex = ref(findCurrentItemIndex());
-const loading = ref(false);
-const cacheAnswer = computed(() => {
-  if (props.answers.length && props.answers[currentIndex.value]) {
-    return props.answers[currentIndex.value].answer;
-  } else {
-    return null;
-  }
-});
 
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
@@ -196,26 +215,13 @@ onMounted(async () => {
     }
   }
 });
-
 onUnmounted(() => {
   document.body.style.overflow = '';
 });
-const newArr = ref(
-  props.items.map((item) => {
-    return {
-      ...item,
-      files: [],
-      answer: '',
-      uploadedFile: '',
-      answerFile: '',
-    };
-  }),
-);
 
 function findCurrentItemIndex() {
   return props.items.findIndex((item) => item.question === props.currentItem.question);
 }
-
 const prevSlide = () => {
   if (currentIndex.value > 0) {
     currentIndex.value--;
@@ -247,28 +253,17 @@ const loadImages = () => {
     }
   });
 };
-const emit = defineEmits(['close', 'success']);
 const nextSlide = async () => {
   if (newArr.value[currentIndex.value].answer || !newArr.value[currentIndex.value].required) {
+    await counterStore.setValue(currentIndex.value);
     if (!isPreview.value && step.value === currentIndex.value) {
-      loading.value = true;
       if (newArr.value[currentIndex.value].questionType === 'open') {
-        if (newArr.value[currentIndex.value].files[0]) {
-          await loadImages();
-        }
-        await responseStore
-          .storeResponse({
-            answer: {
-              isCorrect: true,
-              answer: newArr.value[currentIndex.value].answer || '',
-              file: newArr.value[currentIndex.value].answerFile || '',
-            },
-            filled: Math.floor(Date.now() / 1000),
-            shareLink: props.shareLink,
-          })
-          .then(() => {
-            loading.value = false;
-          });
+        result.value.push({
+          isCorrect: true,
+          answer: newArr.value[currentIndex.value].answer || '',
+          file: newArr.value[currentIndex.value].answerFile || '',
+          isOpen: true,
+        });
       } else {
         const noCorrectAnswers = newArr.value[currentIndex.value].answers.every(
           (el) => !el.isCorrect,
@@ -276,20 +271,13 @@ const nextSlide = async () => {
         const isCorrect = newArr.value[currentIndex.value].answers.find(
           (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
         );
-
-        await responseStore
-          .storeResponse({
-            answer: {
-              isCorrect: noCorrectAnswers ? true : !!isCorrect,
-              answer: newArr.value[currentIndex.value].answer || '',
-              file: '',
-            },
-            shareLink: props.shareLink,
-            filled: Math.floor(Date.now() / 1000),
-          })
-          .then(() => {
-            loading.value = false;
-          });
+        result.value.push({
+          isCorrect: noCorrectAnswers ? true : !!isCorrect,
+          answer:
+            newArr.value[currentIndex.value].answer || newArr.value[currentIndex.value].myAnswer,
+          file: '',
+          isOpen: !!newArr.value[currentIndex.value].myAnswer,
+        });
       }
       if (currentIndex.value === props.items.length - 1) {
         emit('success');
@@ -299,12 +287,22 @@ const nextSlide = async () => {
     if (currentIndex.value < props.items.length - 1) {
       currentIndex.value++;
     } else {
-      counterStore.setValue(props.items.length);
-      emit('close');
+      loading.value = true;
+      for (let i of result.value) {
+        if (i.file) {
+          await loadImages(i.file);
+        }
+      }
+      await responseStore.storeResponse({
+        filled: Math.floor(Date.now() / 1000),
+        shareLink: props.shareLink,
+        answers: result.value,
+      });
+      await counterStore.setValue(props.items.length);
+      await emit('close');
     }
   }
 };
-const rerenderImages = ref(false);
 const rerender = async () => {
   rerenderImages.value = true;
   await nextTick();
@@ -489,6 +487,33 @@ watch(currentIndex, (value) => {
 
           div {
             width: 120px;
+          }
+        }
+        .allowed-input {
+          display: flex;
+          padding: 9px 16px 11px 16px;
+          align-items: center;
+          gap: 24px;
+          align-self: stretch;
+          border-radius: 8px;
+          border: 1px solid $default-border;
+          background: #f5f7fa;
+          color: #344054;
+          font-variant-numeric: slashed-zero;
+          font-family: $default_font;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 20px;
+          outline: none;
+          &::placeholder {
+            color: #344054;
+            font-variant-numeric: slashed-zero;
+            font-family: $default_font;
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 20px;
           }
         }
       }

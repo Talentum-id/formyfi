@@ -16,7 +16,7 @@
       <div class="actions">
         <button class="export-btn" @click="pageScreenToPdf">
           <span>Export</span>
-          <img v-if="!loading" :src="downloadIcon" alt="" @click.stop="pageScreenToPdf" />
+          <img v-if="!loading" :src="downloadIcon" alt="" />
           <span v-else class="loader"></span>
         </button>
       </div>
@@ -59,6 +59,7 @@ import Default from '@/layouts/default.vue';
 import { computed, onMounted, ref } from 'vue';
 import Badge from '@/components/Badge.vue';
 import View from '@/components/View.vue';
+import Show from '@/components/Show.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Link from '@/components/Table/Link.vue';
 import Text from '@/components/Table/Text.vue';
@@ -67,23 +68,36 @@ import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
 import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
-import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
 import { formatDate, reduceStringLength } from '@/util/helpers';
 import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
-import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import ResultModal from '@/components/Result/ResultModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 
+const route = useRoute();
+const authStore = useAuthStore();
+const qaStore = useQAStore();
+let isMounted = false;
+
+const show = ref(false);
+const currentItem = ref(null);
+const currentIndex = ref(null);
+const allItems = ref(null);
 const index = ref(null);
 const showCreation = ref(false);
-const showPreview = () => {
-  showCreation.value = !showCreation.value;
-};
+const showAlert = ref(false);
+const loading = ref(false);
+const sort = ref({});
+const currentPage = ref(route.query ? route.query.page : 1);
+const sortDirection = ref('');
+const sortColumn = ref('');
+const search = ref('');
+const searchInterval = ref(null);
+
 const requestsColumns = computed(() => {
   return [
     { prop: 'title', label: 'Title', width: '200%' },
@@ -99,80 +113,8 @@ const requestsColumns = computed(() => {
     { prop: 'open', label: '', width: '20%' },
   ];
 });
-const route = useRoute();
-const authStore = useAuthStore();
-const qaStore = useQAStore();
-const responseStore = useResponseStore();
-const show = ref(false);
-const currentItem = ref(null);
-const currentIndex = ref(null);
-const allItems = ref(null);
-
-const nextItem = () => {
-  if (currentIndex.value < allItems.value?.length - 1) {
-    currentItem.value = allItems.value[++currentIndex.value];
-  }
-};
-
-const prevItem = () => {
-  if (currentIndex.value !== 0) {
-    currentItem.value = allItems.value[--currentIndex.value];
-  }
-};
-const showModal = (items, index) => {
-  currentIndex.value = index;
-  allItems.value = items.map((i) => {
-    return {
-      ...i,
-      filled: Number(i.filled),
-    };
-  });
-  currentItem.value = allItems.value[currentIndex.value];
-  show.value = true;
-};
-let isMounted = false;
-const showAlert = ref(false);
-onMounted(async () => {
-  if (route.query && route.query.page) {
-    await nextPage(route.query.page);
-  } else {
-    await qaStore.getQAs(params.value);
-  }
-  isMounted = true;
-});
-const loading = ref(false);
-const pageScreenToPdf = () => {
-  loading.value = true;
-  const style = document.createElement('style');
-  document.head.appendChild(style);
-  style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
-  html2pdf(index.value, {
-    filename: 'dashboard.pdf',
-    image: { type: 'png', quality: 1 },
-    enableLinks: false,
-    pagebreak: { mode: 'css' },
-    html2canvas: { dpi: 96, letterRendering: false, scale: 2, allowTaint: false, useCORS: true },
-    jsPDF: { format: 'a2', orientation: 'p', unit: 'mm' },
-  }).then(() => {
-    style.remove();
-    loading.value = false;
-  });
-};
-
-const loadResponses = async (index) => {
-  const question = requestsRows.value[index];
-  await responseStore.getQAResponses(question.shareLink.props.value);
-  await qaStore.fetchQA(question.shareLink.props.value);
-};
-
-function nextPage(page) {
-  currentPage.value = page;
-  qaStore.getQAs(params.value);
-}
-
 const qaList = computed(() => qaStore.getList);
 const loaded = computed(() => qaStore.getLoadingStatusList);
-
 const params = computed(() => {
   return {
     identity: authStore.principal.toText(),
@@ -185,96 +127,14 @@ const params = computed(() => {
     },
   };
 });
-const sort = ref({});
-const currentPage = ref(route.query ? route.query.page : 1);
-
-const sortTasks = async (prop, direction) => {
-  if (!isMounted && !loaded) return;
-  await router.push({ query: Object.assign({}, route.query, { page: 1 }) });
-  currentPage.value = 1;
-  await sortHandle(prop, direction);
-};
-const sortDirection = ref('');
-const sortColumn = ref('');
-const setSortDirection = (value) => {
-  sortDirection.value = value;
-};
-const setSortColumn = (value) => {
-  sortColumn.value = value;
-};
-const search = ref('');
-
-const refreshList = () => {
-  qaStore.getQAs(params.value);
-
-  showAlert.value = true;
-
-  setTimeout(() => (showAlert.value = false), 2000);
-};
-
-const sortHandle = async (name, type) => {
-  const paramsSort = {};
-  if (type) {
-    sortColumn.value = paramsSort.sortKey = name;
-    sortDirection.value = paramsSort.sortType = type;
-  }
-
-  sort.value = paramsSort;
-
-  await qaStore.getQAs(params.value);
-};
 const pagination = computed(() => qaList.value.pagination);
-
 const requestsRows = computed(
   () => {
     const originalArray = qaList.value.data;
     if (!originalArray || !originalArray?.length) {
       return [];
     }
-
-    const qaResponse = responseStore.qaResponses;
-
-    const users = qaResponse.map((response, i) => {
-      return {
-        component: Link,
-        props: {
-          text: response.username,
-          size: 0,
-        },
-        id: i,
-      };
-    });
-    const numbers = qaResponse.map((el, i) => {
-      return {
-        component: NumberOfEl,
-        props: {
-          text: i + 1,
-        },
-        id: i,
-      };
-    });
-    const dates = qaResponse.map((response, i) => {
-      return {
-        component: Badge,
-        props: {
-          text: formatDate(Number(response.filled) * 1000),
-          transparent: true,
-        },
-        id: i,
-      };
-    });
-
-    const views = qaResponse.map((response, i) => {
-      return {
-        component: View,
-        props: {
-          fn: () => showModal(qaResponse, i),
-        },
-        id: i,
-      };
-    });
-
-    return originalArray.map((item, i) => ({
+    return originalArray.map((item) => ({
       title: {
         component: Text,
         props: {
@@ -315,7 +175,7 @@ const requestsRows = computed(
         },
       },
       open: {
-        component: View,
+        component: Show,
         props: {
           fn: () => router.push(`responses/${item.shareLink}`),
         },
@@ -334,8 +194,79 @@ const requestsRows = computed(
   },
   { deep: true },
 );
-const searchInterval = ref(null);
 
+onMounted(async () => {
+  if (route.query && route.query.page) {
+    await nextPage(route.query.page);
+  } else {
+    await qaStore.getQAs(params.value);
+  }
+  isMounted = true;
+});
+const showPreview = () => {
+  showCreation.value = !showCreation.value;
+};
+const nextItem = () => {
+  if (currentIndex.value < allItems.value?.length - 1) {
+    currentItem.value = allItems.value[++currentIndex.value];
+  }
+};
+const prevItem = () => {
+  if (currentIndex.value !== 0) {
+    currentItem.value = allItems.value[--currentIndex.value];
+  }
+};
+const pageScreenToPdf = () => {
+  loading.value = true;
+  const style = document.createElement('style');
+  document.head.appendChild(style);
+  style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
+  html2pdf(index.value, {
+    filename: 'dashboard.pdf',
+    image: { type: 'png', quality: 1 },
+    enableLinks: false,
+    pagebreak: { mode: 'css' },
+    html2canvas: { dpi: 96, letterRendering: false, scale: 2, allowTaint: false, useCORS: true },
+    jsPDF: { format: 'a2', orientation: 'p', unit: 'mm' },
+  }).then(() => {
+    style.remove();
+    loading.value = false;
+  });
+};
+function nextPage(page) {
+  currentPage.value = page;
+  qaStore.getQAs(params.value);
+}
+const sortTasks = async (prop, direction) => {
+  if (!isMounted && !loaded) return;
+  await router.push({ query: Object.assign({}, route.query, { page: 1 }) });
+  currentPage.value = 1;
+  await sortHandle(prop, direction);
+};
+const setSortDirection = (value) => {
+  sortDirection.value = value;
+};
+const setSortColumn = (value) => {
+  sortColumn.value = value;
+};
+const refreshList = () => {
+  qaStore.getQAs(params.value);
+
+  showAlert.value = true;
+
+  setTimeout(() => (showAlert.value = false), 2000);
+};
+const sortHandle = async (name, type) => {
+  const paramsSort = {};
+  if (type) {
+    sortColumn.value = paramsSort.sortKey = name;
+    sortDirection.value = paramsSort.sortType = type;
+  }
+
+  sort.value = paramsSort;
+
+  await qaStore.getQAs(params.value);
+};
 function searchInList() {
   clearTimeout(searchInterval.value);
   searchInterval.value = setTimeout(() => {
@@ -385,7 +316,7 @@ function searchInList() {
     span {
       color: #667085;
       font-variant-numeric: slashed-zero;
-      font-family: Basis Grotesque Pro;
+      font-family: $default_font;
       font-size: 14px;
       font-style: normal;
       font-weight: 500;

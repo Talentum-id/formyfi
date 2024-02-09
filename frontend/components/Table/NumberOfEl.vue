@@ -14,7 +14,7 @@ export default {
 </script>
 <style scoped lang="scss">
 div {
-  color: #a5acbb;
+  color: #344054;
   font-variant-numeric: lining-nums tabular-nums slashed-zero;
   font-family: $default_font;
   font-size: 16px;

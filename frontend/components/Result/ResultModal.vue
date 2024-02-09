@@ -48,6 +48,8 @@ watch(
 );
 
 onMounted(async () => {
+  await responseStore.fetchResponse(data.value.shareLink, props.userInfo.identity);
+  console.log(data.value.shareLink, props.userInfo.identity);
   for (const question of data.value.questions) {
     const index = data.value.questions.indexOf(question);
 

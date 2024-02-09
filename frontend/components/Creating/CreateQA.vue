@@ -135,6 +135,13 @@
                 errorText="Question is Required"
               />
               <TextArea placeholder="Description (optional)" v-model="question.description" />
+              <div class="flex items-center gap-x-[8px]" v-if="question.type === 0">
+                <Checkbox
+                  label="Allow respondent to add file"
+                  @check="question.fileAllowed = $event"
+                ></Checkbox
+                ><TooltipIcon tooltipText="tooltipText" />
+              </div>
             </div>
             <div v-if="question.type === 1">
               <div class="answers">
@@ -163,6 +170,13 @@
                   >
                     <img src="@/assets/icons/add.svg" alt="" />
                   </div>
+                </div>
+                <div class="flex items-center gap-x-[8px] ml-[40px]">
+                  <Checkbox
+                    label="Allow own answer"
+                    @check="question.openAnswerAllowed = $event"
+                  ></Checkbox
+                  ><TooltipIcon tooltipText="tooltipText" />
                 </div>
               </div>
             </div>
@@ -207,6 +221,7 @@ import { useQAStore } from '@/store/qa';
 import { useAssetsStore } from '@/store/assets';
 import Alert from '@/components/Alert.vue';
 import { useRouter } from 'vue-router';
+import Checkbox from '@/components/Creating/Checkbox.vue';
 
 const router = useRouter();
 const emits = defineEmits('refresh');
@@ -230,6 +245,8 @@ const countOfQuestions = ref([
   {
     question: '',
     questionType: '',
+    fileAllowed: false,
+    openAnswerAllowed: false,
     type: 0,
     description: '',
     file: '',
@@ -292,6 +309,8 @@ const addQuestion = () => {
     countOfQuestions.value.push({
       question: '',
       questionType: '',
+      fileAllowed: false,
+      openAnswerAllowed: false,
       type: 0,
       description: '',
       file: '',
@@ -477,6 +496,8 @@ const resetFields = () => {
       file: '',
       image: [],
       required: false,
+      fileAllowed: false,
+      openAnswerAllowed: false,
       answers: [{ answer: '', isCorrect: false }],
     },
   ];
@@ -510,6 +531,7 @@ const check = async () => {
     emits('refresh');
     emits('close');
   } catch (err) {
+    console.error(err);
     errorMessage.value = 'Something went wrong';
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);

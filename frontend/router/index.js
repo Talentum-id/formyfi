@@ -27,7 +27,7 @@ const routes = [
     },
   },
   {
-    path: '/responses',
+    path: '/responses/:id',
     name: 'responses',
     component: Responses,
     meta: {

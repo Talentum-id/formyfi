@@ -14,18 +14,8 @@
         </div>
       </div>
       <div class="actions">
-        <!--        <div class="sort">-->
-        <!--          <span>Sort by:</span>-->
-        <!--          <Select-->
-        <!--            :options="sortOptions"-->
-        <!--            scrollHorizontalHidden-->
-        <!--            class="select"-->
-        <!--            :stringLengthSelected="16"-->
-        <!--            :string-length="14"-->
-        <!--          ></Select>-->
-        <!--        </div>-->
         <button class="export-btn" @click="pageScreenToPdf">
-          <span>Export as pdf</span>
+          <span>Export</span>
           <img v-if="!loading" :src="downloadIcon" alt="" @click.stop="pageScreenToPdf" />
           <span v-else class="loader"></span>
         </button>
@@ -33,7 +23,7 @@
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
-        <CollapseTable
+        <BaseTable
           v-else
           :columns="requestsColumns"
           :rows="requestsRows"
@@ -43,10 +33,8 @@
           :setSortDirection="setSortDirection"
           :setSortColumn="setSortColumn"
           :sortColumn="sortColumn"
-          pointer
           title="You have no Q&A"
           icon="icons8-futurama-bender"
-          @load-responses="loadResponses"
         />
         <Pagination
           v-if="requestsRows && requestsRows.length"
@@ -68,7 +56,6 @@
 </template>
 <script setup>
 import Default from '@/layouts/default.vue';
-import CollapseTable from '@/components/Table/CollapseTable.vue';
 import { computed, onMounted, ref } from 'vue';
 import Badge from '@/components/Badge.vue';
 import View from '@/components/View.vue';
@@ -90,6 +77,7 @@ import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import ResultModal from '@/components/Result/ResultModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import BaseTable from '@/components/Table/BaseTable.vue';
 
 const index = ref(null);
 const showCreation = ref(false);
@@ -98,8 +86,8 @@ const showPreview = () => {
 };
 const requestsColumns = computed(() => {
   return [
-    { prop: 'title', label: 'Title', width: '100%' },
-    { prop: 'shareLink', label: 'Share Link', width: '130%' },
+    { prop: 'title', label: 'Title', width: '200%' },
+    { prop: 'shareLink', label: 'Share Link', width: '100%' },
     {
       prop: 'participants',
       label: 'Participants',
@@ -107,7 +95,8 @@ const requestsColumns = computed(() => {
     },
     { prop: 'start', label: 'Started/Filled', width: '70%' },
     { prop: 'end', label: 'End', width: '70%' },
-    { prop: 'btns', label: '', width: '30%' },
+    { prop: 'view', label: '', width: '20%' },
+    { prop: 'open', label: '', width: '20%' },
   ];
 });
 const route = useRoute();
@@ -287,13 +276,10 @@ const requestsRows = computed(
 
     return originalArray.map((item, i) => ({
       title: {
-        singleComponent: {
-          component: Text,
-          props: {
-            text: reduceStringLength(item.title, 24),
-          },
+        component: Text,
+        props: {
+          text: reduceStringLength(item.title, 24),
         },
-        components: numbers,
       },
       shareLink: {
         component: Link,
@@ -304,38 +290,35 @@ const requestsRows = computed(
         },
       },
       participants: {
-        singleComponent: {
-          component: Badge,
-          props: {
-            text: `${item.participants} users `,
-            value: '',
-            transparent: true,
-            big: false,
-          },
+        component: Badge,
+        props: {
+          text: `${item.participants} users `,
+          value: '',
+          transparent: true,
+          big: false,
         },
-        components: users,
       },
       start: {
-        singleComponent: {
-          component: Badge,
-          props: {
-            text: formatDate(Number(item.start) * 1000),
-            value: '',
-            type: 'claim',
-            big: false,
-            transparent: true,
-          },
+        component: Badge,
+        props: {
+          text: formatDate(Number(item.start) * 1000),
+          value: '',
+          type: 'claim',
+          big: false,
+          transparent: true,
         },
-        components: dates,
       },
-      btns: {
-        singleComponent: {
-          component: View,
-          props: {
-            fn: () => router.push(`quest/${item.shareLink}`),
-          },
+      view: {
+        component: View,
+        props: {
+          fn: () => router.push(`quest/${item.shareLink}`),
         },
-        components: views,
+      },
+      open: {
+        component: View,
+        props: {
+          fn: () => router.push(`responses/${item.shareLink}`),
+        },
       },
       end: {
         component: Badge,

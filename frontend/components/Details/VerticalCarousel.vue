@@ -35,6 +35,7 @@
               class="answer-textarea"
               v-if="!newArr[currentIndex].answers || !newArr[currentIndex].answers.length"
             >
+              {{}}
               <TextArea
                 placeholder="Your Answer"
                 v-model="newArr[currentIndex].answer"
@@ -53,6 +54,7 @@
               ></div>
               <CustomUpload
                 v-else-if="
+                  newArr[currentIndex].openAnswerAllowed &&
                   !newArr[currentIndex].uploadedFile &&
                   !answerFiles[currentIndex] &&
                   !rerenderImages
@@ -75,6 +77,8 @@
                   :disabled="cacheAnswer"
                 />
               </el-radio-group>
+
+              {{ newArr[currentIndex].openAnswerAllowed }}
             </div>
           </div>
           <div class="controllers">
@@ -118,8 +122,7 @@ const answerFiles = ref([]);
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
   shareLink: {
     type: String,
@@ -448,8 +451,9 @@ watch(currentIndex, (value) => {
           color: $section-title;
           text-align: center;
           font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-          font-feature-settings: 'dlig' on,
-          'ss04' on;
+          font-feature-settings:
+            'dlig' on,
+            'ss04' on;
           font-family: $default_font;
           font-size: 20px;
           font-style: normal;

@@ -29,26 +29,26 @@ export const useQAStore = defineStore('qa', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
     },
     async storeQA(params) {
+      console.log(params);
       return await this.actor.store(params);
     },
     async removeQuest({ image, shareLink, questions }) {
-      await this.actor.delete(shareLink)
-        .then(async () => {
-          const batch = useAssetsStore().assetManager.batch();
+      await this.actor.delete(shareLink).then(async () => {
+        const batch = useAssetsStore().assetManager.batch();
 
-          await batch.delete(image);
-          await batch.delete(`/assets/${shareLink}`);
+        await batch.delete(image);
+        await batch.delete(`/assets/${shareLink}`);
 
-          await Promise.all(
-            questions.map(async (question) => {
-              if (question.file) {
-                await batch.delete(question.file);
-              }
-            }),
-          );
+        await Promise.all(
+          questions.map(async (question) => {
+            if (question.file) {
+              await batch.delete(question.file);
+            }
+          }),
+        );
 
-          await batch.commit();
-        });
+        await batch.commit();
+      });
     },
     async getQAs(params) {
       this.loaded = false;
@@ -93,7 +93,7 @@ export const useQAStore = defineStore('qa', {
 
           router.push('/');
         })
-        .finally(() => this.loadedQA = true);
+        .finally(() => (this.loadedQA = true));
     },
   },
   getters: {

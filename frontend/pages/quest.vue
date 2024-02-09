@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 import Modal from '@/components/Quest/Modal.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import BackToList from '@/components/BackToList.vue';
 
 const authStore = useAuthStore();
 const assetsStore = useAssetsStore();
@@ -52,12 +53,7 @@ async function showModal() {
 <template>
   <Default>
     <div class="header">
-      <div class="back" @click="$router.push('/')">
-        <div class="btn">
-          <Icon name="Left-Arrow" :size="24"></Icon>
-        </div>
-        Back to Q&A List
-      </div>
+      <BackToList />
       <div v-if="data && identity === data.owner" class="btn" @click="showModal">
         <Icon name="Delete-def" :size="24"></Icon>
       </div>
@@ -87,21 +83,6 @@ async function showModal() {
   align-items: center;
   width: 1160px;
   margin: 0 auto 48px;
-
-  .back {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #667085;
-    font-variant-numeric: lining-nums tabular-nums slashed-zero;
-    font-family: $default_font;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 24px;
-    cursor: pointer;
-  }
 
   .btn {
     width: 40px;

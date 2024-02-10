@@ -4,13 +4,13 @@
       <div class="header">
         <div class="flex justify-between">
           <BackToList />
-          <base-button text="Create a Q&A" @click="showPreview()"></base-button>
+          <base-button text="Create a Q&A" @click="showErrorModal()"></base-button>
         </div>
         <h1 class="title">Form responses list</h1>
         <div class="actions">
           <div class="title" v-if="qa">
             For the form
-            <router-link :to="`quest/${qa.shareLink}`" class="link"
+            <router-link :to="`/quest/${qa.shareLink}`" class="link"
               >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>
@@ -77,6 +77,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
 import { useQAStore } from '@/store/qa';
+import { modal } from '@/mixins/modal'; // Путь к вашей глобальной шине событий
 
 const route = useRoute();
 const responseStore = useResponseStore();
@@ -179,6 +180,16 @@ const nextItem = () => {
 };
 const showPreview = () => {
   showCreation.value = !showCreation.value;
+};
+
+const showErrorModal = () => {
+  modal.emit('openModal', {
+    title: 'Error Message',
+    message: 'Something went wrong!',
+    type: 'success',
+    actionText: 'Back',
+    fn: () => {},
+  });
 };
 const prevItem = () => {
   if (currentIndex.value !== 0) {

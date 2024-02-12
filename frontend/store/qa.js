@@ -64,6 +64,17 @@ export const useQAStore = defineStore('qa', {
           this.loaded = true;
         });
     },
+    async getFullQAs(params) {
+      return await this.actor
+        .list(params)
+        .then(async (res) => {
+          return res;
+        })
+        .catch((e) => {
+          console.error(e);
+          throw e;
+        });
+    },
     async fetchQA(link) {
       this.loadedQA = false;
       await this.actor

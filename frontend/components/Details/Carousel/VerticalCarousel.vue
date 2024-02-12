@@ -66,10 +66,14 @@
                 class="allowed-input"
                 type="text"
                 v-model="newArr[currentIndex].myAnswer"
-                v-if="newArr[currentIndex].openAnswerAllowed"
-                @input="newArr[currentIndex].answer = ''"
+                v-if="newArr[currentIndex].openAnswerAllowed && isAdditionalAnswer"
+                @focus="newArr[currentIndex].answer = ''"
                 :placeholder="cacheAnswer || 'Your answer...'"
                 :disabled="cacheAnswer"
+                :class="{
+                  selected:
+                    cacheAnswer || (!newArr[currentIndex].answer && newArr[currentIndex].myAnswer),
+                }"
               />
             </el-radio-group>
             <div
@@ -172,6 +176,11 @@ const cacheAnswer = computed(() => {
   }
 });
 const step = computed(() => counterStore.getStep);
+const isAdditionalAnswer = computed(() => {
+  return !props.items[currentIndex.value].answers.find((item) => {
+    return item.answer === cacheAnswer.value;
+  });
+});
 const btnStatus = computed(() => {
   if (currentIndex.value + 1 === props.items.length && !isPreview.value && !loading.value) {
     return 'Send';
@@ -322,7 +331,6 @@ const nextSlide = async () => {
     if (currentIndex.value < props.items.length - 1) {
       currentIndex.value++;
     } else {
-      handleSuccessModal();
       emit('close');
     }
     return;
@@ -470,6 +478,15 @@ watch(currentIndex, (value) => {
         font-weight: 500;
         line-height: 20px;
       }
+      &:focus {
+        border-radius: 8px;
+        background: #eaeafb;
+        border: 1px solid #2637c0;
+      }
+    }
+    .selected {
+      background: #eaeafb !important;
+      border: 1px solid #2637c0 !important;
     }
 
     .marginTop {
@@ -518,7 +535,6 @@ watch(currentIndex, (value) => {
     align-self: stretch;
     border-radius: 8px;
     border: 1px solid #dad9f7;
-    background: $default-bg;
     width: 300px;
 
     * {

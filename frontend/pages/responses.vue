@@ -14,7 +14,7 @@
               >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>
-          <ExportTable :data="qaResponses.data" name="responses"></ExportTable>
+          <ExportTable name="responses" @click="fetchFullList" :data="fullList"></ExportTable>
         </div>
       </div>
 
@@ -72,6 +72,8 @@ import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
 import { useQAStore } from '@/store/qa';
 import ExportTable from '@/components/Table/ExportTable.vue';
+import { useAuthStore } from '@/store/auth';
+import { modal } from '@/mixins/modal';
 
 const route = useRoute();
 const responseStore = useResponseStore();
@@ -85,6 +87,7 @@ const index = ref(null);
 const showCreation = ref(false);
 const showAlert = ref(false);
 const loading = ref(false);
+const fullList = ref([]);
 const sort = ref({});
 const currentPage = ref(route.query ? route.query.page : 1);
 const sortDirection = ref('');
@@ -166,7 +169,32 @@ onMounted(async () => {
 
   isMounted = true;
 });
-
+const fetchFullList = async () => {
+  if (pagination.value) {
+    await responseStore
+      .getFullQAResponses(route.params.id, {
+        page: 1,
+        search: '',
+        pageSize: pagination.value.total,
+        sortBy: {
+          key: '',
+          value: '',
+        },
+      })
+      .then((res) => {
+        fullList.value = res?.data;
+      })
+      .catch(() => {
+        modal.emit('openModal', {
+          title: 'Error Message',
+          message: 'Something went wrong!',
+          type: 'error',
+          actionText: 'Try again',
+          fn: fetchFullList,
+        });
+      });
+  }
+};
 const nextItem = () => {
   if (currentIndex.value < allItems.value?.length - 1) {
     currentItem.value = allItems.value[++currentIndex.value];

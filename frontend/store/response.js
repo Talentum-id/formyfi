@@ -55,6 +55,17 @@ export const useResponseStore = defineStore('response', {
         })
         .finally(() => (this.loaded = true));
     },
+    async getFullQAResponses(shareLink, params) {
+      return await this.actor
+        .list(shareLink, params)
+        .then((res) => {
+          return res;
+        })
+        .catch((e) => {
+          console.error(e);
+          throw e;
+        });
+    },
   },
   getters: {
     getResponse: (state) => state.response,

@@ -9,6 +9,7 @@ import { useQAStore } from '@/store/qa';
 import { useResponseStore } from '@/store/response';
 import { formatDate } from '@/util/helpers';
 import { useAssetsStore } from '@/store/assets';
+import ResultCard from '@/components/Result/ResultCard.vue';
 
 const assetsStore = useAssetsStore();
 const responseStore = useResponseStore();
@@ -101,7 +102,7 @@ onMounted(async () => {
         </div>
       </div>
       <div class="flex flex-col w-full gap-[16px] mt-[32px]">
-        <div class="card" v-for="(question, idx) in data.questions" :key="idx">
+        <ResultCard v-for="(question, idx) in data.questions" :key="idx">
           <div class="head">
             <div class="step">{{ idx + 1 }}/{{ data.questions.length }}</div>
             <div class="required" v-if="question.required">Required</div>
@@ -110,7 +111,6 @@ onMounted(async () => {
             <div class="banner" :style="`background:url(${questionFiles[idx]})`"></div>
           </div>
           <span class="title">{{ question.question }}</span>
-
           <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
             <Variant
               v-for="i in question.answers"
@@ -130,7 +130,7 @@ onMounted(async () => {
           <div v-if="answerFiles[idx]">
             <div class="banner" :style="`background:url(${answerFiles[idx]})`"></div>
           </div>
-        </div>
+        </ResultCard>
       </div>
     </div>
   </BaseModal>
@@ -205,60 +205,6 @@ onMounted(async () => {
         line-height: 16px;
         letter-spacing: 0.168px;
       }
-    }
-  }
-
-  .card {
-    border-radius: 16px;
-    width: 100%;
-    height: 100%;
-    border: 1px solid $default-border;
-    background: $white;
-    display: flex;
-    padding: 16px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
-
-    .head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-
-      .step {
-        color: #a5acbb;
-        font-variant-numeric: lining-nums tabular-nums slashed-zero;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 24px;
-      }
-
-      .required {
-        color: $error-border;
-        font-variant-numeric: lining-nums tabular-nums slashed-zero;
-        font-size: 12px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 16px;
-        letter-spacing: 0.168px;
-      }
-    }
-
-    .title {
-      color: $primary-text;
-      font-variant-numeric: slashed-zero;
-      font-size: 18px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 24px;
-    }
-
-    img {
-      text-align: center;
-      width: 120px;
-      border-radius: 8px;
     }
   }
 }

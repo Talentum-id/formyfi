@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="actions">
-        <ExportTable :data="qaList.data" name="forms"></ExportTable>
+        <ExportTable name="forms" @click="fetchFullList" :data="fullList"></ExportTable>
       </div>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
       <div ref="index">
@@ -59,7 +59,6 @@ import Show from '@/components/Show.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Link from '@/components/Table/Link.vue';
 import Text from '@/components/Table/Text.vue';
-import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
 import { useAuthStore } from '@/store/auth';
@@ -68,12 +67,12 @@ import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
 import { formatDate, reduceStringLength } from '@/util/helpers';
-import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import ResultModal from '@/components/Result/ResultModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import ExportTable from '@/components/Table/ExportTable.vue';
+import { modal } from '@/mixins/modal';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -81,6 +80,7 @@ const qaStore = useQAStore();
 let isMounted = false;
 
 const show = ref(false);
+const fullList = ref([]);
 const currentItem = ref(null);
 const currentIndex = ref(null);
 const allItems = ref(null);
@@ -131,6 +131,7 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length) {
       return [];
     }
+    console.log(pagination.value);
     return originalArray.map((item) => ({
       title: {
         component: Text,
@@ -203,6 +204,33 @@ onMounted(async () => {
 const showPreview = () => {
   showCreation.value = !showCreation.value;
 };
+const fetchFullList = async () => {
+  if (pagination.value) {
+    await qaStore
+      .getFullQAs({
+        identity: authStore.principal.toText(),
+        page: 1,
+        search: '',
+        pageSize: pagination.value.total,
+        sortBy: {
+          key: '',
+          value: '',
+        },
+      })
+      .then((res) => {
+        fullList.value = res.data;
+      })
+      .catch(() => {
+        modal.emit('openModal', {
+          title: 'Error Message',
+          message: 'Something went wrong!',
+          type: 'error',
+          actionText: 'Try again',
+          fn: fetchFullList,
+        });
+      });
+  }
+};
 const nextItem = () => {
   if (currentIndex.value < allItems.value?.length - 1) {
     currentItem.value = allItems.value[++currentIndex.value];
@@ -212,23 +240,6 @@ const prevItem = () => {
   if (currentIndex.value !== 0) {
     currentItem.value = allItems.value[--currentIndex.value];
   }
-};
-const pageScreenToPdf = () => {
-  loading.value = true;
-  const style = document.createElement('style');
-  document.head.appendChild(style);
-  style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
-  html2pdf(index.value, {
-    filename: 'dashboard.pdf',
-    image: { type: 'png', quality: 1 },
-    enableLinks: false,
-    pagebreak: { mode: 'css' },
-    html2canvas: { dpi: 96, letterRendering: false, scale: 2, allowTaint: false, useCORS: true },
-    jsPDF: { format: 'a2', orientation: 'p', unit: 'mm' },
-  }).then(() => {
-    style.remove();
-    loading.value = false;
-  });
 };
 function nextPage(page) {
   currentPage.value = page;

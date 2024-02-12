@@ -29,7 +29,7 @@
 </template>
 <script setup>
 import QuestItem from '@/components/Quest/QuestItem.vue';
-import VerticalCarousel from '@/components/Details/VerticalCarousel.vue';
+import VerticalCarousel from '@/components/Details/Carousel/VerticalCarousel.vue';
 import { computed, ref } from 'vue';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';

@@ -92,7 +92,7 @@ onMounted(async () => {
         <div class="data">
           <div>
             From
-            <Link :text="userInfo.username"></Link>
+            <Link :text="userInfo.username" :size="0"></Link>
           </div>
           <div>
             Filled
@@ -119,6 +119,7 @@ onMounted(async () => {
               :is-correct="answers[idx].answer === i.answer && answers[idx].isCorrect"
               :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
             ></Variant>
+            <Variant v-if="question.openAnswerAllowed" is-correct></Variant>
           </div>
           <div class="w-full" v-else>
             <Variant

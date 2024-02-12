@@ -9,16 +9,9 @@
         <Badge :text="formatDate(Number(data.end) * 1000)" transparent></Badge>
       </div>
       <div class="title">{{ data.title }}</div>
-      <div class="counter w-full">
+      <div class="counter-info w-full">
         <div>{{ data.questions.length }} steps</div>
-        <div class="items">
-          <div
-            class="item"
-            v-for="(i, idx) in data.questions"
-            :key="i"
-            :class="{ active: idx <= step }"
-          ></div>
-        </div>
+        <QuizProgress :length="data.questions.length" :current-index="step"></QuizProgress>
       </div>
     </div>
   </div>
@@ -32,6 +25,7 @@ import { useCounterStore } from '@/store';
 import { computed, onMounted, ref } from 'vue';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
+import QuizProgress from '@/components/Details/QuizProgress.vue';
 
 const assetsStore = useAssetsStore();
 const counterStore = useCounterStore();
@@ -40,8 +34,7 @@ const step = computed(() => counterStore.getStep);
 const props = defineProps({
   data: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
 });
 
@@ -49,9 +42,10 @@ const image = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
 
 onMounted(async () => {
-  await assetsStore.getFile(props.data.image)
-    .then(res => image.value = res)
-    .catch(() => image.value = props.data.image);
+  await assetsStore
+    .getFile(props.data.image)
+    .then((res) => (image.value = res))
+    .catch(() => (image.value = props.data.image));
 });
 </script>
 <style scoped lang="scss">
@@ -95,29 +89,10 @@ onMounted(async () => {
       max-width: 800px;
     }
 
-    .counter {
+    .counter-info {
       display: flex;
       gap: 16px;
       align-items: center;
-
-      .items {
-        display: flex;
-        padding-top: 4px;
-        align-items: flex-start;
-        gap: 2px;
-        flex: 1 0 0;
-
-        .item {
-          height: 4px;
-          width: 100%;
-          border-radius: 4px;
-          background: $default-border;
-        }
-
-        .active {
-          background: #344054;
-        }
-      }
     }
   }
 }

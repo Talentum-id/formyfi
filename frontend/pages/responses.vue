@@ -77,7 +77,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
 import { useQAStore } from '@/store/qa';
-import { modal } from '@/mixins/modal'; // Путь к вашей глобальной шине событий
+import { modal } from '@/mixins/modal';
 
 const route = useRoute();
 const responseStore = useResponseStore();

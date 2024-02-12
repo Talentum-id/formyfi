@@ -222,6 +222,7 @@ import { useAssetsStore } from '@/store/assets';
 import Alert from '@/components/Alert.vue';
 import { useRouter } from 'vue-router';
 import Checkbox from '@/components/Creating/Checkbox.vue';
+import { modal } from '@/mixins/modal';
 
 const router = useRouter();
 const emits = defineEmits('refresh');
@@ -505,36 +506,39 @@ const resetFields = () => {
 
 const check = async () => {
   touched.value = true;
-
   if (!validationCheck.value) {
     showError.value = true;
     setTimeout(() => (showError.value = false), 2000);
-
-    return;
-  }
-
-  if (loading.value) {
     return;
   }
 
   loading.value = true;
-
   try {
-    statusMessage.value = 'Loading files...';
+    await modal.emit('openModal', {
+      title: 'Loading files...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
     await loadFiles();
-
-    statusMessage.value = 'Loading data...';
+    await modal.emit('openModal', {
+      title: 'Loading data...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
     await saveQA();
-
-    resetFields();
+    await resetFields();
     touched.value = false;
+    await modal.emit('closeModal', {});
     emits('refresh');
     emits('close');
   } catch (err) {
-    console.error(err);
-    errorMessage.value = 'Something went wrong';
-    showError.value = true;
-    setTimeout(() => (showError.value = false), 2000);
+    modal.emit('openModal', {
+      title: 'Error Message',
+      message: 'Something went wrong!',
+      type: 'error',
+      actionText: 'Try again',
+      fn: check,
+    });
   } finally {
     statusMessage.value = 'Publish Quest';
     loading.value = false;

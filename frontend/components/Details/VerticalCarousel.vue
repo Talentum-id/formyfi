@@ -61,6 +61,11 @@
                 :imagesFiles="newArr[currentIndex].files"
                 @images="newArr[currentIndex].files = $event"
               ></CustomUpload>
+              <div class="w-full text-center mt-[20px]">
+                <span class="is-correct" v-if="newArr[currentIndex].answer"
+                  >Well done 🥳 Go ahead!</span
+                >
+              </div>
             </div>
             <div v-else>
               <el-radio-group
@@ -84,6 +89,20 @@
                   :disabled="cacheAnswer"
                 />
               </el-radio-group>
+              <div
+                class="w-full text-center mt-[20px]"
+                v-if="newArr[currentIndex].myAnswer || newArr[currentIndex].answer"
+              >
+                <span class="is-correct" v-if="isCorrect || newArr[currentIndex].openAnswerAllowed"
+                  >Well done 🥳 Go ahead!</span
+                >
+                <span
+                  class="is-incorrect"
+                  v-if="!newArr[currentIndex].openAnswerAllowed && !isCorrect"
+                  >Oops 🙄 incorrect answer! <br />
+                  The correct answer is: {{ correctItem.answer }}
+                </span>
+              </div>
             </div>
           </div>
           <div class="controllers">
@@ -114,6 +133,7 @@ import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
+import { modal } from '@/mixins/modal';
 
 const assetsStore = useAssetsStore();
 const route = useRoute();
@@ -184,6 +204,17 @@ const disableBtn = computed(() => {
     return !newArr.value[currentIndex.value].answer && !newArr.value[currentIndex.value].myAnswer;
 });
 const isPreview = computed(() => route.name === 'preview');
+const noCorrectAnswers = computed(() => {
+  return newArr.value[currentIndex.value].answers.every((el) => !el.isCorrect);
+});
+const isCorrect = computed(() => {
+  return newArr.value[currentIndex.value].answers.find(
+    (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
+  );
+});
+const correctItem = computed(() => {
+  return newArr.value[currentIndex.value].answers.find((item) => item.isCorrect);
+});
 
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
@@ -246,41 +277,87 @@ const loadImages = () => {
 
         index++;
       }
-
       resolve();
     } catch (error) {
       reject(error);
+      modal.emit('openModal', {
+        title: 'Error Message',
+        message: 'Something went wrong!',
+        type: 'error',
+        actionText: 'Try again',
+        fn: () => nextSlide(),
+      });
     }
   });
 };
+const handleSuccessModal = () => {
+  modal.emit('openModal', {
+    title: 'Q&A Form Submitted',
+    message: 'Your request sent successfully',
+    type: 'success',
+    actionText: 'Great!',
+    fn: () => modal.emit('closeModal', {}),
+  });
+};
+
+const handleErrorModal = () => {
+  modal.emit('openModal', {
+    title: 'Error Message',
+    message: 'Something went wrong!',
+    type: 'error',
+    actionText: 'Try again',
+    fn: nextSlide,
+  });
+};
+
+const processImages = async () => {
+  for (let i of result.value) {
+    if (i.file) {
+      await loadImages(i.file);
+    }
+  }
+};
+
+const storeResponseAndClose = async () => {
+  await responseStore.storeResponse({
+    filled: Math.floor(Date.now() / 1000),
+    shareLink: props.shareLink,
+    answers: result.value,
+  });
+  await counterStore.setValue(props.items.length);
+  await emit('close');
+  handleSuccessModal();
+};
+
 const nextSlide = async () => {
-  if (newArr.value[currentIndex.value].answer || !newArr.value[currentIndex.value].required) {
+  if (cacheAnswer.value) {
+    if (currentIndex.value < props.items.length - 1) {
+      currentIndex.value++;
+    } else {
+      emit('close');
+    }
+    return;
+  }
+
+  const currentQuestion = newArr.value[currentIndex.value];
+
+  if (currentQuestion.answer || !currentQuestion.required) {
     await counterStore.setValue(currentIndex.value);
+
     if (!isPreview.value && step.value === currentIndex.value) {
-      if (newArr.value[currentIndex.value].questionType === 'open') {
-        result.value.push({
-          isCorrect: true,
-          answer: newArr.value[currentIndex.value].answer || '',
-          file: newArr.value[currentIndex.value].answerFile || '',
-          isOpen: true,
-        });
-      } else {
-        const noCorrectAnswers = newArr.value[currentIndex.value].answers.every(
-          (el) => !el.isCorrect,
-        );
-        const isCorrect = newArr.value[currentIndex.value].answers.find(
-          (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
-        );
-        result.value.push({
-          isCorrect: noCorrectAnswers ? true : !!isCorrect,
-          answer:
-            newArr.value[currentIndex.value].answer || newArr.value[currentIndex.value].myAnswer,
-          file: '',
-          isOpen: !!newArr.value[currentIndex.value].myAnswer,
-        });
-      }
+      const questionType = currentQuestion.questionType;
+      const isQuestionOpen = questionType === 'open';
+      const answerValue = currentQuestion.answer || currentQuestion.myAnswer;
+
+      result.value.push({
+        isCorrect: isQuestionOpen ? true : noCorrectAnswers.value ? true : !!isCorrect.value,
+        answer: answerValue,
+        file: isQuestionOpen ? currentQuestion.answerFile || '' : '',
+        isOpen: isQuestionOpen || !!currentQuestion.myAnswer,
+      });
+
       if (currentIndex.value === props.items.length - 1) {
-        emit('success');
+        handleSuccessModal();
       }
     }
 
@@ -288,18 +365,19 @@ const nextSlide = async () => {
       currentIndex.value++;
     } else {
       loading.value = true;
-      for (let i of result.value) {
-        if (i.file) {
-          await loadImages(i.file);
-        }
-      }
-      await responseStore.storeResponse({
-        filled: Math.floor(Date.now() / 1000),
-        shareLink: props.shareLink,
-        answers: result.value,
+      modal.emit('openModal', {
+        title: 'Processing...',
+        message: 'Please wait for a while',
+        type: 'loading',
       });
-      await counterStore.setValue(props.items.length);
-      await emit('close');
+
+      try {
+        await processImages();
+        await storeResponseAndClose();
+      } catch (e) {
+        loading.value = false;
+        handleErrorModal();
+      }
     }
   }
 };
@@ -599,5 +677,27 @@ watch(currentIndex, (value) => {
   background-size: cover !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
+}
+.is-correct {
+  color: $success-text;
+  font-variant-numeric: lining-nums tabular-nums slashed-zero;
+  text-align: center;
+  font-family: $default_font;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 133.333% */
+  letter-spacing: 0.168px;
+}
+.is-incorrect {
+  color: $error-border;
+  text-align: center;
+  font-variant-numeric: lining-nums tabular-nums slashed-zero;
+  font-family: $default_font;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 133.333% */
+  letter-spacing: 0.168px;
 }
 </style>

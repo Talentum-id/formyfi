@@ -23,9 +23,7 @@
         :items="data.questions"
         :share-link="data.shareLink"
         :answers="answers"
-        @success="showSuccess"
       ></VerticalCarousel>
-      <Alert message="Success" type="success" v-if="showAlert"></Alert>
     </div>
   </div>
 </template>
@@ -35,7 +33,6 @@ import VerticalCarousel from '@/components/Details/VerticalCarousel.vue';
 import { computed, ref } from 'vue';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
-import Alert from '@/components/Alert.vue';
 const counterStore = useCounterStore();
 
 const step = computed(() => counterStore.getStep);
@@ -46,16 +43,10 @@ const props = defineProps({
   },
 });
 const showQuestion = ref(false);
-const showAlert = ref(false);
 const currentItem = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
 const isAvailable = computed(() => Date.now() > Number(props.data.start) * 1000);
-const showSuccess = () => {
-  showAlert.value = true;
-  setTimeout(() => {
-    showAlert.value = false;
-  }, 2000);
-};
+
 const openQuestion = (item) => {
   if (!isAvailable.value) return;
   showQuestion.value = true;

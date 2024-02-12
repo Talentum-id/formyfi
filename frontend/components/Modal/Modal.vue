@@ -70,6 +70,7 @@ const showActionBtn = computed(() => {
   return !isLoading.value && action;
 });
 modal.on('openModal', openModal);
+modal.on('closeModal', closeModal);
 </script>
 <style scoped lang="scss">
 .modal-container {

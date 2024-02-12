@@ -11,6 +11,7 @@ import Icon from '@/components/Icons/Icon.vue';
 import Modal from '@/components/Quest/Modal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BackToList from '@/components/BackToList.vue';
+import { modal } from '@/mixins/modal';
 
 const authStore = useAuthStore();
 const assetsStore = useAssetsStore();
@@ -35,14 +36,16 @@ async function deleteQuest() {
   if (deleting.value) {
     return;
   }
-
   deleting.value = true;
-
+  await modal.emit('openModal', {
+    title: 'Processing...',
+    message: 'Please wait for a while',
+    type: 'loading',
+  });
   await useQAStore().removeQuest(data.value);
-
-  await router.push('/');
-
+  await modal.emit('closeModal', {});
   deleting.value = false;
+  await router.push('/');
 }
 
 async function showModal() {

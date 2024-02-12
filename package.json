@@ -26,6 +26,7 @@
     "vue": "^3.2.37",
     "vue-draggable-next": "^2.2.1",
     "vue-icomoon": "^0.6.1",
+    "vue-json-excel3": "^1.0.19",
     "vue-router": "^4.0.13",
     "vuedraggable": "^2.24.3",
     "web3": "^4.3.0"

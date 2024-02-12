@@ -14,11 +14,7 @@
               >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>
-          <button class="export-btn" @click="pageScreenToPdf">
-            <span>Export </span>
-            <img v-if="!loading" :src="downloadIcon" alt="" @click.stop="pageScreenToPdf" />
-            <span v-else class="loader"></span>
-          </button>
+          <ExportTable :data="qaResponses.data" name="responses"></ExportTable>
         </div>
       </div>
 
@@ -61,7 +57,6 @@ import Default from '@/layouts/default.vue';
 import { computed, onMounted, ref } from 'vue';
 import Badge from '@/components/Badge.vue';
 import View from '@/components/View.vue';
-import downloadIcon from '@/assets/icons/Download.svg';
 import Pagination from '@/components/Table/Pagination.vue';
 import CreateQA from '@/components/Creating/CreateQA.vue';
 import { useResponseStore } from '@/store/response';
@@ -69,7 +64,6 @@ import { useRoute } from 'vue-router';
 import router from '@/router';
 import Alert from '@/components/Alert.vue';
 import { formatDate } from '@/util/helpers';
-import html2pdf from 'html2pdf.js';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import NumberOfEl from '@/components/Table/NumberOfEl.vue';
 import ResultModal from '@/components/Result/ResultModal.vue';
@@ -77,7 +71,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
 import { useQAStore } from '@/store/qa';
-import { modal } from '@/mixins/modal'; // Путь к вашей глобальной шине событий
+import ExportTable from '@/components/Table/ExportTable.vue';
 
 const route = useRoute();
 const responseStore = useResponseStore();
@@ -198,23 +192,6 @@ const showModal = async (items, index) => {
   currentItem.value = allItems.value[currentIndex.value];
   show.value = true;
 };
-const pageScreenToPdf = () => {
-  loading.value = true;
-  const style = document.createElement('style');
-  document.head.appendChild(style);
-  style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
-  html2pdf(index.value, {
-    filename: 'dashboard.pdf',
-    image: { type: 'png', quality: 1 },
-    enableLinks: false,
-    pagebreak: { mode: 'css' },
-    html2canvas: { dpi: 96, letterRendering: false, scale: 2, allowTaint: false, useCORS: true },
-    jsPDF: { format: 'a2', orientation: 'p', unit: 'mm' },
-  }).then(() => {
-    style.remove();
-    loading.value = false;
-  });
-};
 function nextPage(page) {
   currentPage.value = page;
   responseStore.getQAResponses(route.params.id, params.value);
@@ -304,76 +281,6 @@ const sortHandle = async (name, type) => {
       line-height: 24px;
       cursor: pointer;
     }
-  }
-
-  .export-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    padding: 4px 8px;
-    height: fit-content;
-    border: none;
-    width: fit-content;
-    background: transparent;
-
-    span {
-      color: $default;
-      font-variant-numeric: slashed-zero;
-      font-family: $default_font;
-      font-size: 14px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: 20px;
-    }
-
-    &:hover {
-      border-radius: 8px;
-      background: $default-badge-border;
-    }
-  }
-}
-
-.loader {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  position: relative;
-  animation: rotate 1s linear infinite;
-}
-
-.loader::before {
-  content: '';
-  box-sizing: border-box;
-  position: absolute;
-  inset: 0px;
-  border-radius: 50%;
-  border: 2px solid $default;
-  animation: prixClipFix 2s linear infinite;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes prixClipFix {
-  0% {
-    clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0);
-  }
-  25% {
-    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0, 100% 0);
-  }
-  50% {
-    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
-  }
-  75% {
-    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%);
-  }
-  100% {
-    clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0);
   }
 }
 </style>

@@ -9,9 +9,11 @@ import { modal } from '@/mixins/modal';
 import Modal from '@/components/Modal/Modal.vue';
 
 const app = createApp(App);
+import JsonExcel from 'vue-json-excel3';
 app.use(router);
 app.use(pinia);
 
 app.mount('#app');
 app.component('Modal', Modal);
+app.component('downloadExcel', JsonExcel);
 app.use(modal);

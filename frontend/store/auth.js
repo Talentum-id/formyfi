@@ -16,7 +16,7 @@ const defaultOptions = {
   },
   loginOptions: {
     identityProvider: process.env.II_URI,
-    maxTimeToLive: 10 * 24 * 3600000000000,
+    maxTimeToLive: process.env.II_LIFETIME,
   },
 };
 

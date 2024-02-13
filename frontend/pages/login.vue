@@ -17,7 +17,7 @@
         </AuthButton>
         <AuthButton @click="nfidConnect">
           <div class="container">
-            <GoogleLogin :callback="callback" prompt>
+            <GoogleLogin :callback="callback" prompt auto-login>
               <button>Login Using Google</button>
             </GoogleLogin>
           </div>
@@ -34,12 +34,11 @@
 import Auth from '@/layouts/auth.vue';
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useAuthStore } from '@/store/auth';
-import { googleOneTap } from 'vue3-google-login';
-
-const callback = (response) => {
-  // This callback will be triggered when the user selects or login to
-  // his Google account from the popup
-  console.log('Handle the response', response);
+import { decodeCredential } from 'vue3-google-login';
+const callback = async (response) => {
+  console.log(response);
+  const userData = await decodeCredential(response.credential);
+  console.log('Handle the userData', userData);
 };
 const authStore = useAuthStore();
 

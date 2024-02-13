@@ -24,7 +24,6 @@ export const useAssetsStore = defineStore('assets', {
       }
 
       this.assetManager = new AssetManager({ canisterId, agent });
-      await this.assetManager.list().then((res) => console.log(res));
     },
     async getFile(link) {
       const asset = await this.assetManager.get(link);

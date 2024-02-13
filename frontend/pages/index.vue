@@ -131,7 +131,6 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length) {
       return [];
     }
-    console.log(pagination.value);
     return originalArray.map((item) => ({
       title: {
         component: Text,

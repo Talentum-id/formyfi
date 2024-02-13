@@ -30,7 +30,6 @@ const answers = computed(() => responseStore.getResponse);
 watch(
   () => props.userInfo.identity,
   async (value) => {
-    console.log(value);
     await responseStore.fetchResponse(data.value.shareLink, value);
 
     for (const answer of answers.value) {
@@ -51,7 +50,6 @@ watch(
 
 onMounted(async () => {
   await responseStore.fetchResponse(data.value.shareLink, props.userInfo.identity);
-  console.log(data.value.shareLink, props.userInfo.identity);
   for (const question of data.value.questions) {
     const index = data.value.questions.indexOf(question);
 

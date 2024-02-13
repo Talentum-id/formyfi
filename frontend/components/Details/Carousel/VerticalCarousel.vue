@@ -220,10 +220,11 @@ const isOpenQuestion = computed(() => {
     !newArr.value[currentIndex.value].answers || !newArr.value[currentIndex.value].answers.length
   );
 });
+const step = computed(() => counterStore.getStep);
 
 onMounted(async () => {
+  newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
   document.body.style.overflow = 'hidden';
-  setCachedAnswer();
   for (const question of newArr.value) {
     const index = newArr.value.indexOf(question);
 
@@ -323,7 +324,7 @@ const storeResponseAndClose = async () => {
 };
 
 const nextSlide = async () => {
-  if (cacheAnswer.value || isPreview.value || disableUploader.value) {
+  if (cacheAnswer.value || isPreview.value || step.value > props.items.length - 1) {
     if (currentIndex.value < props.items.length - 1) {
       currentIndex.value++;
     } else {

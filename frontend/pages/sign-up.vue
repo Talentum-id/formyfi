@@ -36,6 +36,7 @@ import VButton from '@/components/Button.vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { computed, onMounted, ref } from 'vue';
+import { modal } from '@/mixins/modal';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -51,7 +52,6 @@ const errors = ref({
 
 onMounted(() => {
   const user = authStore.principal?.toText() ?? authStore.email;
-  console.log(user);
   authStore.actor?.findUser(user).then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
@@ -77,7 +77,7 @@ const validationError = computed(() => {
 
 const createAccount = () => {
   form.value.loading = true;
-
+  handleLoadingModal();
   if (validationError.value) {
     form.value.loading = false;
 
@@ -89,11 +89,17 @@ const createAccount = () => {
     .then((res) => {
       authStore.setUser(res[0]);
       router.push('/');
-
       localStorage.isAuthenticated = true;
+      modal.emit('closeModal', {});
     })
-    .catch((error) => console.log(error))
-    .finally(() => (form.value.loading = false));
+    .catch((error) => {
+      modal.emit('closeModal', {});
+      handleErrorModal();
+      console.error(error);
+    })
+    .finally(() => {
+      form.value.loading = false;
+    });
 };
 
 const validateUsername = () => {
@@ -118,8 +124,24 @@ const validateUsername = () => {
           errors.value.username = '';
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error(err));
   }
+};
+const handleLoadingModal = () => {
+  modal.emit('openModal', {
+    title: 'Creating user...',
+    message: 'Please wait for a while',
+    type: 'loading',
+  });
+};
+const handleErrorModal = () => {
+  modal.emit('openModal', {
+    title: 'Error Message',
+    message: 'Something went wrong!',
+    type: 'error',
+    actionText: 'Try again',
+    fn: createAccount,
+  });
 };
 </script>
 

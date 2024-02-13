@@ -29,7 +29,6 @@ export const useQAStore = defineStore('qa', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
     },
     async storeQA(params) {
-      console.log(params);
       return await this.actor.store(params);
     },
     async removeQuest({ image, shareLink, questions }) {

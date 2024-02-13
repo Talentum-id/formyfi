@@ -532,6 +532,7 @@ const check = async () => {
     emits('refresh');
     emits('close');
   } catch (err) {
+    console.error(err);
     modal.emit('openModal', {
       title: 'Error Message',
       message: 'Something went wrong!',

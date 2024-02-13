@@ -340,7 +340,7 @@ const nextSlide = async () => {
     result.value = newArr.value.map((item) => {
       return {
         isCorrect: isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value,
-        answer: item.answer || item.myAnswer,
+        answer: item.answer || item.myAnswer || '',
         file: item.answerFile.length ? item.answerFile : '',
         isOpen: isOpenQuestion.value || !!item.myAnswer,
       };

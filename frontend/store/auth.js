@@ -7,6 +7,7 @@ import { HttpAgent } from '@dfinity/agent';
 import { useAssetsStore } from './assets';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
+import { decodeCredential } from 'vue3-google-login';
 
 const defaultOptions = {
   createOptions: {
@@ -39,10 +40,21 @@ export const useAuthStore = defineStore('auth', {
       identity: null,
       principal: null,
       user: null,
+      email: null,
     };
   },
   actions: {
     async init() {
+      switch (localStorage.authenticationProvider) {
+        case 'google':
+          await this.loginByGoogle();
+          break;
+        default:
+          await this.IIAuthentication();
+      }
+      this.isReady = true;
+    },
+    async IIAuthentication() {
       const authClient = await AuthClient.create(defaultOptions.createOptions);
       this.authClient = authClient;
 
@@ -78,8 +90,6 @@ export const useAuthStore = defineStore('auth', {
       } else {
         await router.push('/login');
       }
-
-      this.isReady = true;
     },
     async loginWithII() {
       const authClient = toRaw(this.authClient);
@@ -100,10 +110,22 @@ export const useAuthStore = defineStore('auth', {
           await useResponseStore().init();
 
           localStorage.isAuthenticated = true;
+          localStorage.authenticationProvider = 'II';
 
           await router.push('/sign-up');
         },
       });
+    },
+    async loginByGoogle() {
+      const userData = await decodeCredential(localStorage.credential);
+
+      this.email = userData.email;
+      this.isAuthenticated = true;
+
+      localStorage.isAuthenticated = true;
+      localStorage.authenticationProvider = 'google';
+
+      await router.push('/sign-up');
     },
     async logout() {
       const authClient = toRaw(this.authClient);

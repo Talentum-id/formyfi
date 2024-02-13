@@ -50,7 +50,9 @@ const errors = ref({
 });
 
 onMounted(() => {
-  authStore.actor?.findUser(authStore.principal.toText()).then((res) => {
+  const user = authStore.principal?.toText() ?? authStore.email;
+  console.log(user);
+  authStore.actor?.findUser(user).then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
 

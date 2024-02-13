@@ -45,7 +45,7 @@
             ></CustomUpload>
             <div
               class="w-full text-center mt-[20px]"
-              v-if="newArr[currentIndex].answer || newArr[currentIndex].files.length"
+              v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
             >
               <IsCorrectMessage></IsCorrectMessage>
             </div>
@@ -59,8 +59,8 @@
               <el-radio-button
                 class="radio"
                 :label="answer.answer"
-                :aria-selected="items[currentIndex].answer === answer.answer"
-                v-for="answer in items[currentIndex].answers"
+                :aria-selected="newArr[currentIndex].answer === answer.answer"
+                v-for="answer in newArr[currentIndex].answers"
                 :disabled="cacheAnswer"
               /><input
                 class="allowed-input"
@@ -156,7 +156,6 @@ const newArr = ref(
   props.items.map((item) => {
     return {
       ...item,
-      files: [],
       answer: '',
       uploadedFile: '',
       answerFile: [],
@@ -191,13 +190,10 @@ const btnStatus = computed(() => {
   }
 });
 const disableBtn = computed(() => {
-  if (
-    !newArr.value[currentIndex.value].required &&
-    !newArr.value[currentIndex.value].answers.length
-  ) {
-    return false;
-  } else
-    return !newArr.value[currentIndex.value].answer && !newArr.value[currentIndex.value].myAnswer;
+  const answer = newArr.value[currentIndex.value].answer;
+  const additional = newArr.value[currentIndex.value].myAnswer;
+  const files = newArr.value[currentIndex.value].answerFile.length;
+  return !(!newArr.value[currentIndex.value].required || answer || additional || files);
 });
 const isPreview = computed(() => route.name === 'preview');
 const noCorrectAnswers = computed(() => {
@@ -272,14 +268,16 @@ const loadImages = () => {
   return new Promise(async (resolve, reject) => {
     try {
       let index = currentIndex.value;
-      result.value.map(async (item) => {
-        if (item.file) {
-          item.file = await assetsStore.assetManager.store(item.file?.[0].raw, {
-            path: `/assets/${props.shareLink}/${realTime.value}/${index}`,
-          });
-          index++;
-        }
-      });
+      await Promise.all(
+        result.value.map(async (item) => {
+          if (item.file) {
+            item.file = await assetsStore.assetManager.store(item.file?.[0].raw, {
+              path: `/assets/${props.shareLink}/${realTime.value}/${index}`,
+            });
+            index++;
+          }
+        }),
+      );
       resolve();
     } catch (error) {
       handleErrorModal();
@@ -335,31 +333,25 @@ const nextSlide = async () => {
     }
     return;
   }
-
-  const currentQuestion = newArr.value[currentIndex.value];
-
-  if (currentQuestion.answer || !currentQuestion.required) {
-    await counterStore.setValue(currentIndex.value);
-    if (step.value === currentIndex.value) {
-      const answerValue = currentQuestion.answer || currentQuestion.myAnswer;
-      result.value.push({
+  await counterStore.setValue(currentIndex.value);
+  if (currentIndex.value < props.items.length - 1) {
+    currentIndex.value++;
+  } else {
+    result.value = newArr.value.map((item) => {
+      return {
         isCorrect: isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value,
-        answer: answerValue,
-        file: currentQuestion.answerFile.length ? currentQuestion.answerFile : '',
-        isOpen: isOpenQuestion.value || !!currentQuestion.myAnswer,
-      });
-    }
-    if (currentIndex.value < props.items.length - 1) {
-      currentIndex.value++;
-    } else {
-      try {
-        await loadImages();
-        await storeResponseAndClose();
-      } catch (e) {
-        console.error(e);
-        loading.value = false;
-        handleErrorModal();
-      }
+        answer: item.answer || item.myAnswer,
+        file: item.answerFile.length ? item.answerFile : '',
+        isOpen: isOpenQuestion.value || !!item.myAnswer,
+      };
+    });
+    try {
+      await loadImages();
+      await storeResponseAndClose();
+    } catch (e) {
+      loading.value = false;
+      handleErrorModal();
+      console.error(e);
     }
   }
 };
@@ -368,8 +360,15 @@ const rerender = async () => {
   await nextTick();
   rerenderImages.value = false;
 };
+
+const setCachedAnswer = (index) => {
+  if (cacheAnswer.value) {
+    newArr.value[index].answer = cacheAnswer.value;
+  }
+};
 watch(currentIndex, (value) => {
-  newArr.value[value].answer = cacheAnswer.value ?? '';
+  setCachedAnswer(value);
+  console.log(newArr.value[value]);
   rerender();
 });
 </script>
@@ -437,9 +436,6 @@ watch(currentIndex, (value) => {
       flex-direction: column;
       align-items: center;
       gap: 8px;
-
-      .answer {
-      }
     }
 
     .controllers {
@@ -539,7 +535,7 @@ watch(currentIndex, (value) => {
 
     * {
       background: transparent !important;
-      color: $default;
+      color: $default !important;
       font-variant-numeric: slashed-zero;
       font-family: $default_font;
       font-size: 14px;

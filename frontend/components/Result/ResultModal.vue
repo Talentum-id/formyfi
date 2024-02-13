@@ -30,6 +30,7 @@ const answers = computed(() => responseStore.getResponse);
 watch(
   () => props.userInfo.identity,
   async (value) => {
+    console.log(value);
     await responseStore.fetchResponse(data.value.shareLink, value);
 
     for (const answer of answers.value) {
@@ -119,7 +120,11 @@ onMounted(async () => {
               :is-correct="answers[idx].answer === i.answer && answers[idx].isCorrect"
               :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
             ></Variant>
-            <Variant v-if="question.openAnswerAllowed" is-correct></Variant>
+            <Variant
+              v-if="question.openAnswerAllowed"
+              :text="answers[idx].answer"
+              is-correct
+            ></Variant>
           </div>
           <div class="w-full" v-else>
             <Variant

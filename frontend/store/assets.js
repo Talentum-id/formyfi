@@ -13,7 +13,9 @@ export const useAssetsStore = defineStore('assets', {
   },
   actions: {
     async init() {
-      const identity = Ed25519KeyIdentity.generate(generateUint8Array(process.env.DFX_ASSET_PRINCIPAL));
+      const identity = Ed25519KeyIdentity.generate(
+        generateUint8Array(process.env.DFX_ASSET_PRINCIPAL),
+      );
       const canisterId = process.env.STORAGE_CANISTER_ID;
       const agent = new HttpAgent({ identity });
 
@@ -22,6 +24,7 @@ export const useAssetsStore = defineStore('assets', {
       }
 
       this.assetManager = new AssetManager({ canisterId, agent });
+      await this.assetManager.list().then((res) => console.log(res));
     },
     async getFile(link) {
       const asset = await this.assetManager.get(link);

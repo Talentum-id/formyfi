@@ -41,13 +41,13 @@ export const useResponseStore = defineStore('response', {
       if (identity == null) {
         identity = useAuthStore().principal.toText();
       }
-
       this.loaded = false;
 
       await this.actor
         .show({ identity, shareLink })
         .then((res) => {
           this.response = res;
+          console.log(res);
           useCounterStore().setValue(this.response.length);
         })
         .catch((e) => {

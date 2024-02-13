@@ -14,7 +14,9 @@ import JsonExcel from 'vue-json-excel3';
 app.use(router);
 app.use(pinia);
 app.use(vue3GoogleLogin, {
-  clientId: '442748426844-mr0jd52vjd36u0m6472d19sfvo7i9l6d.apps.googleusercontent.com',
+  clientId: '793662654024-4q1v47avmo9ssaro3g24nsd4637ron5g.apps.googleusercontent.com',
+  clientSecret: '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',
+  redirectUri: 'https://developers.google.com',
 });
 app.mount('#app');
 app.component('Modal', Modal);

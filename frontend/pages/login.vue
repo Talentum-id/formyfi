@@ -17,7 +17,9 @@
         </AuthButton>
         <AuthButton @click="nfidConnect">
           <div class="container">
-            <GoogleLogin :callback="callback" />
+            <GoogleLogin :callback="callback" prompt>
+              <button>Login Using Google</button>
+            </GoogleLogin>
           </div>
         </AuthButton>
         <div class="agreement">

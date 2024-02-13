@@ -8,8 +8,24 @@ import { useAssetsStore } from './assets';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 
-function createActorFromIdentity(agent) {
-  return createActor(process.env.USER_INDEX_CANISTER_ID, { agent });
+const defaultOptions = {
+  createOptions: {
+    idleOptions: {
+      disableIdle: true,
+    },
+  },
+  loginOptions: {
+    identityProvider: process.env.II_URI,
+    maxTimeToLive: 10 * 24 * 3600000000000,
+  },
+};
+
+function createActorFromIdentity(identity) {
+  return createActor(process.env.USER_INDEX_CANISTER_ID, {
+    agentOptions: {
+      identity,
+    },
+  });
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -27,23 +43,23 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async init() {
-      this.authClient = await AuthClient.create({
-        idleOptions: {
-          disableIdle: false,
-        },
-      });
+      const authClient = await AuthClient.create(defaultOptions.createOptions);
+      this.authClient = authClient;
 
-      this.isAuthenticated = await this.authClient.isAuthenticated();
-      this.identity = this.isAuthenticated ? this.authClient.getIdentity() : null;
+      const isAuthenticated = await authClient.isAuthenticated();
+      const identity = isAuthenticated ? authClient.getIdentity() : null;
+      const agent = identity ? new HttpAgent({ identity }) : null;
+      const actor = identity ? createActorFromIdentity(identity) : null;
+      const principal = identity ? await agent.getPrincipal() : null;
 
-      const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
+      this.isAuthenticated = isAuthenticated;
+      this.identity = identity;
+      this.actor = actor;
+      this.principal = principal;
 
-      this.actor = this.identity ? createActorFromIdentity(agent) : null;
-      this.principal = this.identity ? await agent.getPrincipal() : null;
-
-      if (this.isAuthenticated) {
-        await this.actor
-          .findUser(this.principal.toText())
+      if (isAuthenticated) {
+        await actor
+          .findUser(principal.toText())
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
@@ -69,15 +85,14 @@ export const useAuthStore = defineStore('auth', {
       const authClient = toRaw(this.authClient);
 
       await authClient.login({
-        identityProvider: process.env.II_URI,
-        maxTimeToLive: 10 * 24 * 3600000000000,
+        ...defaultOptions.loginOptions,
         onSuccess: async () => {
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
           const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
 
-          this.actor = this.identity ? createActorFromIdentity(agent) : null;
+          this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
           this.principal = this.identity ? await agent.getPrincipal() : null;
 
           await useQAStore().init();
@@ -91,11 +106,14 @@ export const useAuthStore = defineStore('auth', {
       });
     },
     async logout() {
-      await this.authClient.logout();
+      const authClient = toRaw(this.authClient);
+
+      await authClient?.logout();
+
       localStorage.removeItem('isAuthenticated');
 
       this.isAuthenticated = false;
-      this.identity = this.actor = null;
+      this.identity = this.actor = this.principal = null;
 
       this.setUser();
 

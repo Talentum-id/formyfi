@@ -11,12 +11,18 @@ const network = process.env['DFX_NETWORK'];
 const isDev = network === 'local';
 const isPlayground = network === 'playground';
 
-const DFX_PORT = isDev ? dfxJson.networks.local?.bind.split(':')[1] || process.env['DFX_PORT'] : process.env['DFX_PORT'];
+const DFX_PORT = isDev
+  ? dfxJson.networks.local?.bind.split(':')[1] || process.env['DFX_PORT']
+  : process.env['DFX_PORT'];
 
 let canisterIds;
 try {
   canisterIds = JSON.parse(
-    fs.readFileSync(isDev || isPlayground ? `.dfx/${network}/canister_ids.json` : './canister_ids.json').toString(),
+    fs
+      .readFileSync(
+        isDev || isPlayground ? `.dfx/${network}/canister_ids.json` : './canister_ids.json',
+      )
+      .toString(),
   );
 } catch (e) {
   console.error('\n⚠️  Before starting the dev server run: dfx deploy\n\n');
@@ -34,9 +40,8 @@ const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name, _value]) =
 const canisterDefinitions = Object.entries(canisterIds).reduce(
   (acc, [key, val]) => ({
     ...acc,
-    [`process.env.${key.toUpperCase()}_CANISTER_ID`]: isDev || isPlayground
-      ? JSON.stringify(val[network])
-      : JSON.stringify(val.ic),
+    [`process.env.${key.toUpperCase()}_CANISTER_ID`]:
+      isDev || isPlayground ? JSON.stringify(val[network]) : JSON.stringify(val.ic),
   }),
   {},
 );
@@ -82,6 +87,7 @@ export default defineConfig({
     'process.env.II_URI': JSON.stringify(internetIdentityUri),
     'process.env.II_LIFETIME': JSON.stringify(process.env.II_LIFETIME),
     'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production'),
+    'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
     'process.env.DFX_ASSET_PRINCIPAL': JSON.stringify(process.env.DFX_ASSET_PRINCIPAL),
   },
 });

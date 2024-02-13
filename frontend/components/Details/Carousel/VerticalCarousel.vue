@@ -174,7 +174,6 @@ const cacheAnswer = computed(() => {
     return null;
   }
 });
-const step = computed(() => counterStore.getStep);
 const isAdditionalAnswer = computed(() => {
   return !props.items[currentIndex.value].answers.find((item) => {
     return item.answer === cacheAnswer.value;
@@ -223,9 +222,8 @@ const isOpenQuestion = computed(() => {
 });
 
 onMounted(async () => {
-  newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
   document.body.style.overflow = 'hidden';
-
+  setCachedAnswer();
   for (const question of newArr.value) {
     const index = newArr.value.indexOf(question);
 
@@ -325,7 +323,7 @@ const storeResponseAndClose = async () => {
 };
 
 const nextSlide = async () => {
-  if (cacheAnswer.value || isPreview.value) {
+  if (cacheAnswer.value || isPreview.value || disableUploader.value) {
     if (currentIndex.value < props.items.length - 1) {
       currentIndex.value++;
     } else {
@@ -333,6 +331,7 @@ const nextSlide = async () => {
     }
     return;
   }
+
   await counterStore.setValue(currentIndex.value);
   if (currentIndex.value < props.items.length - 1) {
     currentIndex.value++;
@@ -368,7 +367,6 @@ const setCachedAnswer = (index) => {
 };
 watch(currentIndex, (value) => {
   setCachedAnswer(value);
-  console.log(newArr.value[value]);
   rerender();
 });
 </script>

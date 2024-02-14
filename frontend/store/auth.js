@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
-import { createActor } from '~/user_index';
+import { user_index } from '~/user_index';
 import router from '@/router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
@@ -40,21 +40,10 @@ export const useAuthStore = defineStore('auth', {
       identity: null,
       principal: null,
       user: null,
-      email: null,
     };
   },
   actions: {
     async init() {
-      switch (localStorage.authenticationProvider) {
-        case 'google':
-          await this.loginByGoogle();
-          break;
-        default:
-          await this.IIAuthentication();
-      }
-      this.isReady = true;
-    },
-    async IIAuthentication() {
       const authClient = await AuthClient.create(defaultOptions.createOptions);
       this.authClient = authClient;
 
@@ -71,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
 
       if (isAuthenticated) {
         await actor
-          .findUser(principal.toText())
+          .findUser(localStorage.extraCharacter || principal.toText())
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
@@ -81,8 +70,6 @@ export const useAuthStore = defineStore('auth', {
               await useAssetsStore().init();
               await useResponseStore().init();
             } else {
-              localStorage.removeItem('isAuthenticated');
-
               await router.push('/login');
             }
           })
@@ -90,6 +77,13 @@ export const useAuthStore = defineStore('auth', {
       } else {
         await router.push('/login');
       }
+
+      this.isReady = true;
+    },
+    async initStores() {
+      await useQAStore().init();
+      await useAssetsStore().init();
+      await useResponseStore().init();
     },
     async loginWithII() {
       const authClient = toRaw(this.authClient);
@@ -105,25 +99,24 @@ export const useAuthStore = defineStore('auth', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
           this.principal = this.identity ? await agent.getPrincipal() : null;
 
-          await useQAStore().init();
-          await useAssetsStore().init();
-          await useResponseStore().init();
-
+          localStorage.extraCharacter = '';
           localStorage.isAuthenticated = true;
-          localStorage.authenticationProvider = 'II';
+
+          await this.initStores();
 
           await router.push('/sign-up');
         },
       });
     },
-    async loginByGoogle() {
-      const userData = await decodeCredential(localStorage.credential);
+    async loginWithGoogle(credential) {
+      const { email } = decodeCredential(credential);
 
-      this.email = userData.email;
-      this.isAuthenticated = true;
+      this.actor = user_index;
 
-      localStorage.isAuthenticated = true;
-      localStorage.authenticationProvider = 'google';
+      localStorage.extraCharacter = email;
+      this.isAuthenticated = localStorage.isAuthenticated = true;
+
+      await this.initStores();
 
       await router.push('/sign-up');
     },
@@ -132,6 +125,7 @@ export const useAuthStore = defineStore('auth', {
 
       await authClient?.logout();
 
+      localStorage.removeItem('extraCharacter');
       localStorage.removeItem('isAuthenticated');
 
       this.isAuthenticated = false;
@@ -140,6 +134,9 @@ export const useAuthStore = defineStore('auth', {
       this.setUser();
 
       await router.push('/login');
+    },
+    register({ username, fullName }) {
+      return this.actor.register({ username, fullName }, localStorage.extraCharacter);
     },
     setUser(user = null) {
       if (user == null) {
@@ -152,7 +149,8 @@ export const useAuthStore = defineStore('auth', {
     },
   },
   getters: {
-    getUser: ({ user }) => user,
     getIdentity: ({ identity }) => identity,
+    getPrincipal: ({ principal }) => localStorage.extraCharacter || principal.toText(),
+    getUser: ({ user }) => user,
   },
 });

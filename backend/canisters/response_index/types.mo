@@ -1,5 +1,5 @@
 import QATypes "../qa_index/types";
-import PaginationTypes "../../types/Pagination";
+import PaginationTypes "../../types/pagination";
 
 module ResponseTypes {
   public type Answer = {

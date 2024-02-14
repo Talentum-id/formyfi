@@ -26,7 +26,7 @@ onMounted(() => {
 const show = ref(false);
 const data = computed(() => useQAStore().getQA);
 const loaded = computed(() => useQAStore().getLoadingStatusQA);
-const identity = computed(() => authStore.principal.toText());
+const identity = computed(() => authStore.getPrincipal);
 
 onUnmounted(() => {
   useQAStore().qa = null;

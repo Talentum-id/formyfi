@@ -51,7 +51,8 @@ const errors = ref({
 });
 
 onMounted(() => {
-  const user = authStore.principal?.toText() ?? authStore.email;
+  const user = localStorage.extraCharacter || authStore.principal?.toText();
+
   authStore.actor?.findUser(user).then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
@@ -84,8 +85,7 @@ const createAccount = () => {
     return;
   }
 
-  authStore.actor
-    ?.register(form.value.username, form.value.fullName)
+  authStore.register(form.value)
     .then((res) => {
       authStore.setUser(res[0]);
       router.push('/');
@@ -106,8 +106,8 @@ const validateUsername = () => {
   form.value.username = form.value.username.trim().toLowerCase();
   const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
 
-  if (form.value.username.length < 4 || form.value.username.lengt < 24) {
-    errors.value.username = 'Username should have from 4 to 12 characters';
+  if (form.value.username.length < 4 || form.value.username.length > 18) {
+    errors.value.username = 'Username should have from 4 to 18 characters';
 
     return;
   }

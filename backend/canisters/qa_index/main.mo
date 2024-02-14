@@ -1,15 +1,16 @@
-import Map "mo:base/HashMap";
-import Principal "mo:base/Principal";
-import Float "mo:base/Float";
-import Iter "mo:base/Iter";
 import Array "mo:base/Array";
-import Text "mo:base/Text";
-import Nat "mo:base/Nat";
-import Int "mo:base/Int";
-import Error "mo:base/Error";
 import Buffer "mo:base/Buffer";
+import Error "mo:base/Error";
+import Float "mo:base/Float";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
+import Map "mo:base/HashMap";
+import Nat "mo:base/Nat";
 import Order "mo:base/Order";
+import Principal "mo:base/Principal";
+import Text "mo:base/Text";
 import Types "types";
+import Utils "../user_index/utils";
 
 actor QAIndex {
   type QA = Types.QA;
@@ -69,8 +70,8 @@ actor QAIndex {
     };
   };
 
-  public shared ({ caller }) func store(data : QA) : async () {
-    let identity = Principal.toText(caller);
+  public shared ({ caller }) func store(data : QA, character : Text) : async () {
+    let identity = await Utils.authenticate(caller, true, character);
 
     if (not (validate(data))) {
       throw Error.reject("Please, fill required fields!");
@@ -125,8 +126,8 @@ actor QAIndex {
     };
   };
 
-  public shared ({ caller }) func delete(shareLink : Text) : async () {
-    let identity = Principal.toText(caller);
+  public shared ({ caller }) func delete(shareLink : Text, character : Text) : async () {
+    let identity = await Utils.authenticate(caller, true, character);
 
     switch (QAs.get(identity)) {
       case null return;

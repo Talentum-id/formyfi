@@ -114,7 +114,7 @@ const qaList = computed(() => qaStore.getList);
 const loaded = computed(() => qaStore.getLoadingStatusList);
 const params = computed(() => {
   return {
-    identity: authStore.principal.toText(),
+    identity: authStore.getPrincipal,
     search: search.value,
     page: parseInt(currentPage.value) || 1,
     pageSize: 10,
@@ -207,7 +207,7 @@ const fetchFullList = async () => {
   if (pagination.value) {
     await qaStore
       .getFullQAs({
-        identity: authStore.principal.toText(),
+        identity: authStore.getPrincipal,
         page: 1,
         search: '',
         pageSize: pagination.value.total,

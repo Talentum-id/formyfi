@@ -29,10 +29,10 @@ export const useQAStore = defineStore('qa', {
       this.actor = this.identity ? createActorFromIdentity(agent) : null;
     },
     async storeQA(params) {
-      return await this.actor.store(params);
+      return await this.actor.store(params, localStorage.extraCharacter);
     },
     async removeQuest({ image, shareLink, questions }) {
-      await this.actor.delete(shareLink).then(async () => {
+      await this.actor.delete(shareLink, localStorage.extraCharacter).then(async () => {
         const batch = useAssetsStore().assetManager.batch();
 
         await batch.delete(image);

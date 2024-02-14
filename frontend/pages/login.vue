@@ -37,9 +37,8 @@
 import Auth from '@/layouts/auth.vue';
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useAuthStore } from '@/store/auth';
-const callback = async (response) => {
-  localStorage.credential = response.credential;
-  await useAuthStore().loginByGoogle();
+const callback = async response => {
+  await useAuthStore().loginWithGoogle(response.credential);
 };
 const authStore = useAuthStore();
 

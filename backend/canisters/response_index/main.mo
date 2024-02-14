@@ -11,6 +11,7 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Types "/types";
 import QAIndex "canister:qa_index";
+import Utils "../user_index/utils";
 import UserIndex "canister:user_index";
 
 actor ResponseIndex {
@@ -60,8 +61,8 @@ actor ResponseIndex {
     };
   };
 
-  public shared ({ caller }) func store(data : Data) : async () {
-    let identity = Principal.toText(caller);
+  public shared ({ caller }) func store(data : Data, character: Text) : async () {
+    let identity = await Utils.authenticate(caller, true, character);
     let { shareLink; answers; filled } = data;
     let responseIdentifier = identity # "-" # shareLink;
 

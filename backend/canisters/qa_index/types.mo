@@ -1,4 +1,4 @@
-import PaginationTypes "../../types/Pagination";
+import PaginationTypes "../../types/pagination";
 
 module QATypes {
   public type Answer = {

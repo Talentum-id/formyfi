@@ -76,14 +76,14 @@ const validationError = computed(() => {
 
 const createAccount = () => {
   form.value.loading = true;
-  handleLoadingModal();
   if (validationError.value) {
     form.value.loading = false;
-
     return;
   }
+  handleLoadingModal();
 
-  authStore.register(form.value)
+  authStore
+    .register(form.value)
     .then((res) => {
       authStore.setUser(res[0]);
       router.push('/');

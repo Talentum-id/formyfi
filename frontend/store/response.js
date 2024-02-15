@@ -14,6 +14,7 @@ export const useResponseStore = defineStore('response', {
     actor: null,
     identity: null,
     response: [],
+    loadedList: false,
     qaResponses: [],
   }),
   actions: {
@@ -35,13 +36,12 @@ export const useResponseStore = defineStore('response', {
       await this.fetchResponse(params.shareLink);
     },
     async getQAResponses(shareLink, params) {
-      this.loaded = false;
-
+      this.loadedList = false;
       await this.actor
         .list(shareLink, params)
         .then((res) => (this.qaResponses = res))
         .catch((e) => console.error(e))
-        .finally(() => (this.loaded = true));
+        .finally(() => (this.loadedList = true));
     },
     async fetchResponse(shareLink, identity = null) {
       if (identity == null) {
@@ -75,6 +75,6 @@ export const useResponseStore = defineStore('response', {
   },
   getters: {
     getResponse: (state) => state.response,
-    getLoadingStatus: (state) => state.loaded,
+    getLoadingStatus: (state) => state.loadedList,
   },
 });

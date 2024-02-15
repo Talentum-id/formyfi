@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
 
       if (this.isAuthenticated) {
         await this.actor
-          .findUser(this.principal)
+          .findUser(this.getPrincipal)
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
@@ -84,7 +84,6 @@ export const useAuthStore = defineStore('auth', {
     },
     async initII() {
       const authClient = await AuthClient.create(defaultOptions.createOptions);
-
       this.authClient = authClient;
 
       const isAuthenticated = await authClient.isAuthenticated();
@@ -92,8 +91,8 @@ export const useAuthStore = defineStore('auth', {
       const agent = identity ? new HttpAgent({ identity }) : null;
       const actor = identity ? createActorFromIdentity(identity) : null;
       const principal = identity ? await agent.getPrincipal() : null;
-      this.isAuthenticated = isAuthenticated;
 
+      this.isAuthenticated = isAuthenticated;
       this.identity = identity;
       this.actor = actor;
       this.principal = principal;

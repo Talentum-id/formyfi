@@ -14,7 +14,12 @@
               >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>
-          <ExportTable name="responses" @click="fetchFullList" :data="fullList"></ExportTable>
+          <ExportTable
+            name="responses"
+            @click="fetchFullList"
+            type="xlsx"
+            :data="fullList"
+          ></ExportTable>
         </div>
       </div>
 
@@ -181,7 +186,12 @@ const fetchFullList = async () => {
         },
       })
       .then((res) => {
-        fullList.value = res?.data;
+        fullList.value = res?.data.map((item) => {
+          return {
+            ...item,
+            filled: formatDate(Number(item.filled) * 1000),
+          };
+        });
       })
       .catch(() => {
         modal.emit('openModal', {

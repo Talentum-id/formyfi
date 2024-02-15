@@ -4,11 +4,6 @@ const MENU_LINKS = [
     img: 'Tasks',
     to: '/',
   },
-  {
-    name: 'Responses',
-    img: 'Talents',
-    to: '/responses',
-  },
 ];
 
 export default MENU_LINKS;

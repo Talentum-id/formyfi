@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="actions">
-        <ExportTable name="forms" @click="fetchFullList" :data="fullList"></ExportTable>
+        <ExportTable name="forms" @click="fetchFullList" type="xlsx" :data="fullList"></ExportTable>
       </div>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
       <div ref="index">
@@ -217,7 +217,13 @@ const fetchFullList = async () => {
         },
       })
       .then((res) => {
-        fullList.value = res.data;
+        fullList.value = res.data.map((item) => {
+          return {
+            ...item,
+            start: formatDate(Number(item.start) * 1000),
+            end: formatDate(Number(item.end) * 1000),
+          };
+        });
       })
       .catch(() => {
         modal.emit('openModal', {

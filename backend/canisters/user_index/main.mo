@@ -19,8 +19,8 @@ actor UserIndex {
   let users = Map.fromIter<Text, UserData>(userEntries.vals(), 1000, Text.equal, Text.hash);
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
 
-  public shared ({ caller }) func register(data : UserData, character: Text) : async ?UserData {
-    let { username; fullName; } = data;
+  public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
+    let { username; fullName } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0 or fullName.size() == 0) {

@@ -70,7 +70,7 @@ actor QAIndex {
     };
   };
 
-  public shared ({ caller }) func store(data : QA, character : Text) : async () {
+  public shared ({ caller }) func store(data : QA, character : Utils.Character) : async () {
     let identity = await Utils.authenticate(caller, true, character);
 
     if (not (validate(data))) {
@@ -126,7 +126,7 @@ actor QAIndex {
     };
   };
 
-  public shared ({ caller }) func delete(shareLink : Text, character : Text) : async () {
+  public shared ({ caller }) func delete(shareLink : Text, character : Utils.Character) : async () {
     let identity = await Utils.authenticate(caller, true, character);
 
     switch (QAs.get(identity)) {

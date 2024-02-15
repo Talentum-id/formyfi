@@ -84,8 +84,8 @@
                 v-if="isCorrect || newArr[currentIndex].openAnswerAllowed"
               ></IsCorrectMessage>
               <IsIncorrectMessage
+                v-if="!newArr[currentIndex].openAnswerAllowed && !isCorrect && correctItem"
                 :correct-answer="correctItem.answer"
-                v-if="!newArr[currentIndex].openAnswerAllowed && !isCorrect"
               ></IsIncorrectMessage>
             </div>
           </div>
@@ -266,6 +266,7 @@ const prevSlide = () => {
 const loadImages = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      await handleLoadingFilesModal();
       let index = currentIndex.value;
       await Promise.all(
         result.value.map(async (item) => {
@@ -306,6 +307,14 @@ const handleErrorModal = () => {
 const handleLoadingModal = () => {
   modal.emit('openModal', {
     title: 'Uploading answers...',
+    message: 'Please wait for a while',
+    type: 'loading',
+  });
+};
+
+const handleLoadingFilesModal = () => {
+  modal.emit('openModal', {
+    title: 'Uploading files...',
     message: 'Please wait for a while',
     type: 'loading',
   });

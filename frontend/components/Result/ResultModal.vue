@@ -61,6 +61,9 @@ onMounted(async () => {
     }
   }
 });
+const isAdditionalAnswer = (answer, variants) => {
+  return !variants.find((variant) => variant.answer === answer);
+};
 </script>
 
 <template>
@@ -121,7 +124,10 @@ onMounted(async () => {
                 :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
               ></Variant>
               <Variant
-                v-if="question.openAnswerAllowed"
+                v-if="
+                  question.openAnswerAllowed &&
+                  isAdditionalAnswer(answers[idx].answer, question.answers)
+                "
                 :text="answers[idx].answer"
                 is-correct
               ></Variant>

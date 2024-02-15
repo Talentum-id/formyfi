@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async init() {
-      if (localStorage.extraCharacter !== '' && localStorage.extraCharacter !== undefined) {
+      if (localStorage.authenticationProvider !== '' && localStorage.authenticationProvider !== undefined) {
         await this.initWeb2Auth();
       } else {
         await this.initII();
@@ -62,8 +62,7 @@ export const useAuthStore = defineStore('auth', {
             } else {
               this.isAuthenticated = false;
 
-              localStorage.removeItem('extraCharacter');
-              localStorage.removeItem('isAuthenticated');
+              this.setAuthenticationStorage(false);
 
               await router.push('/login');
             }
@@ -87,7 +86,6 @@ export const useAuthStore = defineStore('auth', {
       const authClient = await AuthClient.create(defaultOptions.createOptions);
 
       this.authClient = authClient;
-      localStorage.extraCharacter = '';
 
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
@@ -123,8 +121,7 @@ export const useAuthStore = defineStore('auth', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
           this.principal = this.identity ? await agent.getPrincipal() : null;
 
-          localStorage.extraCharacter = '';
-          localStorage.isAuthenticated = true;
+          this.setAuthenticationStorage(this.isAuthenticated);
 
           await this.initStores();
 
@@ -137,7 +134,9 @@ export const useAuthStore = defineStore('auth', {
 
       this.actor = user_index;
 
-      this.principal = localStorage.extraCharacter = email;
+      this.setAuthenticationStorage(true, 'google', email);
+
+      this.principal = localStorage.extraCharacter;
       this.isAuthenticated = localStorage.isAuthenticated = true;
 
       await this.initStores();
@@ -150,6 +149,7 @@ export const useAuthStore = defineStore('auth', {
       await authClient?.logout();
 
       localStorage.removeItem('extraCharacter');
+      localStorage.removeItem('authenticationProvider');
       localStorage.removeItem('isAuthenticated');
 
       this.isAuthenticated = false;
@@ -160,18 +160,31 @@ export const useAuthStore = defineStore('auth', {
       await router.push('/login');
     },
     register({ username, fullName }) {
-      return this.actor.register({ username, fullName }, {
-        identity: process.env.DFX_ASSET_PRINCIPAL,
+      const provider = localStorage.authenticationProvider;
+
+      return this.actor.register({ username, fullName, provider }, {
         character: localStorage.extraCharacter,
+        identity: process.env.DFX_ASSET_PRINCIPAL,
       });
+    },
+    setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
+      if (isAuthenticated) {
+        localStorage.isAuthenticated = isAuthenticated;
+        localStorage.extraCharacter = character;
+        localStorage.authenticationProvider = provider;
+      } else {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('extraCharacter');
+        localStorage.removeItem('authenticationProvider');
+      }
     },
     setUser(user = null) {
       if (user == null) {
         this.user = null;
       } else {
-        const { username, fullName } = user;
+        const { fullName, provider, username } = user;
 
-        this.user = { username, fullName };
+        this.user = { fullName, provider, username };
       }
     },
   },

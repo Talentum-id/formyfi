@@ -9,8 +9,9 @@ import Utils "utils";
 
 actor UserIndex {
   type UserData = {
-    username : Text;
+    provider : Text;
     fullName : Text;
+    username : Text;
   };
 
   stable var userEntries : [(Text, UserData)] = [];
@@ -20,7 +21,7 @@ actor UserIndex {
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
-    let { username; fullName } = data;
+    let { provider; fullName; username } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0 or fullName.size() == 0) {
@@ -39,8 +40,9 @@ actor UserIndex {
           users.put(
             identity,
             {
-              username;
+              provider;
               fullName;
+              username;
             },
           );
           usernames.put(username, identity);

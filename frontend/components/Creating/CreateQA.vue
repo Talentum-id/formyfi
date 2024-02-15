@@ -380,6 +380,11 @@ function uuidv4() {
 const loadFiles = () => {
   return new Promise(async (resolve, reject) => {
     try {
+      await modal.emit('openModal', {
+        title: 'Loading files...',
+        message: 'Please wait for a while',
+        type: 'loading',
+      });
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
       const batch = assetsStore.assetManager.batch();
@@ -514,11 +519,6 @@ const check = async () => {
 
   loading.value = true;
   try {
-    await modal.emit('openModal', {
-      title: 'Loading files...',
-      message: 'Please wait for a while',
-      type: 'loading',
-    });
     await loadFiles();
     await modal.emit('openModal', {
       title: 'Loading data...',

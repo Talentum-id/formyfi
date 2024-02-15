@@ -111,25 +111,27 @@ onMounted(async () => {
             <div class="banner" :style="`background:url(${questionFiles[idx]})`"></div>
           </div>
           <span class="title">{{ question.question }}</span>
-          <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
-            <Variant
-              v-for="i in question.answers"
-              :key="i"
-              :text="i.answer"
-              :is-correct="answers[idx].answer === i.answer && answers[idx].isCorrect"
-              :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
-            ></Variant>
-            <Variant
-              v-if="question.openAnswerAllowed"
-              :text="answers[idx].answer"
-              is-correct
-            ></Variant>
-          </div>
-          <div class="w-full" v-else>
-            <Variant
-              :text="answers[idx] ? answers[idx].answer : 'No Answer'"
-              :is-correct="answers[idx] ? !!answers[idx].answer : false"
-            ></Variant>
+          <div v-if="answers[idx]">
+            <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
+              <Variant
+                v-for="i in question.answers"
+                :key="i"
+                :text="i.answer"
+                :is-correct="answers[idx].answer === i.answer && answers[idx].isCorrect"
+                :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
+              ></Variant>
+              <Variant
+                v-if="question.openAnswerAllowed"
+                :text="answers[idx].answer"
+                is-correct
+              ></Variant>
+            </div>
+            <div class="w-full" v-else>
+              <Variant
+                :text="answers[idx].answer ?? 'No Answer'"
+                :is-correct="!!answers[idx].answer"
+              ></Variant>
+            </div>
           </div>
           <div v-if="answerFiles[idx]">
             <div class="banner" :style="`background:url(${answerFiles[idx]})`"></div>

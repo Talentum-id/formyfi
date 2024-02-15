@@ -15,16 +15,16 @@
             <div class="name-social">NFID</div>
           </div>
         </AuthButton>
-        <GoogleLogin :callback="callback" prompt>
-          <AuthButton>
-            <div class="container">
-              <div class="container">
-                <img src="@/assets/images/google.svg" alt="Google" />
-                <div class="name-social">Authorize with Google</div>
-              </div>
-            </div>
-          </AuthButton>
-        </GoogleLogin>
+        <GoogleLogin
+          style="margin-top: -4px"
+          :callback="callback"
+          :buttonConfig="{
+            logo_alignment: 'center',
+            width: '392px',
+            shape: 'pill',
+            text: 'signin_with',
+          }"
+        />
         <div class="agreement">
           By proceeding, you agree to <span> Terms of Service</span> & <span>Privacy Policy</span>.
         </div>
@@ -37,7 +37,13 @@
 import Auth from '@/layouts/auth.vue';
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useAuthStore } from '@/store/auth';
-const callback = async response => {
+import { googleLogout } from 'vue3-google-login';
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  googleLogout();
+});
+const callback = async (response) => {
   await useAuthStore().loginWithGoogle(response.credential);
 };
 const authStore = useAuthStore();

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createActor } from '~/qa_index';
+import { createActor, qa_index } from '~/qa_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
@@ -24,30 +24,39 @@ export const useQAStore = defineStore('qa', {
     async init() {
       this.identity = useAuthStore().identity;
 
-      const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
-
-      this.actor = this.identity ? createActorFromIdentity(agent) : null;
+      if (this.identity) {
+        this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
+      } else {
+        this.actor = qa_index;
+      }
     },
     async storeQA(params) {
-      return await this.actor.store(params, localStorage.extraCharacter);
+      return await this.actor.store(params, {
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      });
     },
     async removeQuest({ image, shareLink, questions }) {
-      await this.actor.delete(shareLink, localStorage.extraCharacter).then(async () => {
-        const batch = useAssetsStore().assetManager.batch();
+      await this.actor.delete(shareLink, {
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      })
+        .then(async () => {
+          const batch = useAssetsStore().assetManager.batch();
 
-        await batch.delete(image);
-        await batch.delete(`/assets/${shareLink}`);
+          await batch.delete(image);
+          await batch.delete(`/assets/${shareLink}`);
 
-        await Promise.all(
-          questions.map(async (question) => {
-            if (question.file) {
-              await batch.delete(question.file);
-            }
-          }),
-        );
+          await Promise.all(
+            questions.map(async (question) => {
+              if (question.file) {
+                await batch.delete(question.file);
+              }
+            }),
+          );
 
-        await batch.commit();
-      });
+          await batch.commit();
+        });
     },
     async getQAs(params) {
       this.loaded = false;

@@ -51,9 +51,7 @@ const errors = ref({
 });
 
 onMounted(() => {
-  const user = localStorage.extraCharacter || authStore.principal?.toText();
-
-  authStore.actor?.findUser(user).then((res) => {
+  authStore.actor?.findUser(authStore.getPrincipal).then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
 

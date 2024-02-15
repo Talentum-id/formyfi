@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
-import { user_index } from '~/user_index';
+import { createActor, user_index } from '~/user_index';
 import router from '@/router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
@@ -44,32 +44,27 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async init() {
-      const authClient = await AuthClient.create(defaultOptions.createOptions);
-      this.authClient = authClient;
+      if (localStorage.extraCharacter !== '' && localStorage.extraCharacter !== undefined) {
+        await this.initWeb2Auth();
+      } else {
+        await this.initII();
+      }
 
-      const isAuthenticated = await authClient.isAuthenticated();
-      const identity = isAuthenticated ? authClient.getIdentity() : null;
-      const agent = identity ? new HttpAgent({ identity }) : null;
-      const actor = identity ? createActorFromIdentity(identity) : null;
-      const principal = identity ? await agent.getPrincipal() : null;
-
-      this.isAuthenticated = isAuthenticated;
-      this.identity = identity;
-      this.actor = actor;
-      this.principal = principal;
-
-      if (isAuthenticated) {
-        await actor
-          .findUser(localStorage.extraCharacter || principal.toText())
+      if (this.isAuthenticated) {
+        await this.actor
+          .findUser(this.principal)
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
               localStorage.isAuthenticated = true;
 
-              await useQAStore().init();
-              await useAssetsStore().init();
-              await useResponseStore().init();
+              await this.initStores();
             } else {
+              this.isAuthenticated = false;
+
+              localStorage.removeItem('extraCharacter');
+              localStorage.removeItem('isAuthenticated');
+
               await router.push('/login');
             }
           })
@@ -80,12 +75,41 @@ export const useAuthStore = defineStore('auth', {
 
       this.isReady = true;
     },
+    async initWeb2Auth() {
+      this.actor = user_index;
+
+      this.isAuthenticated = true;
+      this.principal = localStorage.extraCharacter;
+
+      await this.initStores();
+    },
+    async initII() {
+      const authClient = await AuthClient.create(defaultOptions.createOptions);
+
+      this.authClient = authClient;
+      localStorage.extraCharacter = '';
+
+      const isAuthenticated = await authClient.isAuthenticated();
+      const identity = isAuthenticated ? authClient.getIdentity() : null;
+      const agent = identity ? new HttpAgent({ identity }) : null;
+      const actor = identity ? createActorFromIdentity(identity) : null;
+      const principal = identity ? await agent.getPrincipal() : null;
+      this.isAuthenticated = isAuthenticated;
+
+      this.identity = identity;
+      this.actor = actor;
+      this.principal = principal;
+    },
     async initStores() {
       await useQAStore().init();
       await useAssetsStore().init();
       await useResponseStore().init();
     },
     async loginWithII() {
+      if (this.authClient === null) {
+        await this.initII();
+      }
+
       const authClient = toRaw(this.authClient);
 
       await authClient.login({
@@ -113,7 +137,7 @@ export const useAuthStore = defineStore('auth', {
 
       this.actor = user_index;
 
-      localStorage.extraCharacter = email;
+      this.principal = localStorage.extraCharacter = email;
       this.isAuthenticated = localStorage.isAuthenticated = true;
 
       await this.initStores();
@@ -136,7 +160,10 @@ export const useAuthStore = defineStore('auth', {
       await router.push('/login');
     },
     register({ username, fullName }) {
-      return this.actor.register({ username, fullName }, localStorage.extraCharacter);
+      return this.actor.register({ username, fullName }, {
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      });
     },
     setUser(user = null) {
       if (user == null) {
@@ -150,7 +177,7 @@ export const useAuthStore = defineStore('auth', {
   },
   getters: {
     getIdentity: ({ identity }) => identity,
-    getPrincipal: ({ principal }) => localStorage.extraCharacter || principal.toText(),
+    getPrincipal: ({ principal }) => localStorage.extraCharacter || principal?.toText() || null,
     getUser: ({ user }) => user,
   },
 });

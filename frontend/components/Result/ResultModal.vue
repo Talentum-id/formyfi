@@ -50,6 +50,7 @@ watch(
 
 onMounted(async () => {
   await responseStore.fetchResponse(data.value.shareLink, props.userInfo.identity);
+
   for (const question of data.value.questions) {
     const index = data.value.questions.indexOf(question);
 
@@ -211,6 +212,7 @@ onMounted(async () => {
     }
   }
 }
+
 .banner {
   width: 160px;
   height: 160px;

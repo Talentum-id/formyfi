@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createActor } from '~/response_index';
+import { createActor, response_index } from '~/response_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
@@ -20,17 +20,23 @@ export const useResponseStore = defineStore('response', {
     async init() {
       this.identity = useAuthStore().identity;
 
-      const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
-
-      this.actor = this.identity ? createActorFromIdentity(agent) : null;
+      if (this.identity) {
+        this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
+      } else {
+        this.actor = response_index;
+      }
     },
     async storeResponse(params) {
-      await this.actor.store(params, localStorage.extraCharacter);
+      await this.actor.store(params, {
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      });
 
       await this.fetchResponse(params.shareLink);
     },
     async getQAResponses(shareLink, params) {
       this.loaded = false;
+
       await this.actor
         .list(shareLink, params)
         .then((res) => (this.qaResponses = res))
@@ -41,6 +47,7 @@ export const useResponseStore = defineStore('response', {
       if (identity == null) {
         identity = useAuthStore().getPrincipal;
       }
+
       this.loaded = false;
 
       await this.actor

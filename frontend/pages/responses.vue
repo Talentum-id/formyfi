@@ -43,7 +43,7 @@
       </div>
     </div>
     <ResultModal
-      v-if="show"
+      v-if="show && currentItem"
       @close="show = false"
       :userInfo="currentItem"
       @next="nextItem()"
@@ -141,7 +141,6 @@ const requestsRows = computed(
         props: {
           fn: () => showModal(originalArray, i),
         },
-        id: i,
       },
     }));
   },
@@ -217,7 +216,7 @@ const showModal = async (items, index) => {
       filled: Number(i.filled),
     };
   });
-  currentItem.value = allItems.value[currentIndex.value];
+  currentItem.value = allItems.value?.[currentIndex.value];
   show.value = true;
 };
 function nextPage(page) {

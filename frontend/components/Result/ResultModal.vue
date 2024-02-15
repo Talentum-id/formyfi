@@ -127,8 +127,8 @@ onMounted(async () => {
           </div>
           <div class="w-full" v-else>
             <Variant
-              :text="answers[idx].answer || 'No Answer'"
-              :is-correct="!!answers[idx].answer"
+              :text="answers[idx] ? answers[idx].answer : 'No Answer'"
+              :is-correct="answers[idx] ? !!answers[idx].answer : false"
             ></Variant>
           </div>
           <div v-if="answerFiles[idx]">

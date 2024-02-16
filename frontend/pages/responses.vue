@@ -7,15 +7,15 @@
           <base-button text="Create a Q&A" @click="showPreview()"></base-button>
         </div>
         <h1 class="title">Form responses list</h1>
-        <div class="actions">
-          <div class="title" v-if="qa">
+        <div class="actions" v-if="qa">
+          <div class="title">
             For the form
             <router-link :to="`/quest/${qa.shareLink}`" class="link"
               >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>
           <ExportTable
-            :name="qa.title"
+            :name="`Responses + QA ${qa.title}`"
             @click="fetchFullList"
             type="xlsx"
             :data="fullList"
@@ -186,10 +186,12 @@ const fetchFullList = async () => {
         },
       })
       .then((res) => {
+        console.log(res);
         fullList.value = res?.data.map((item) => {
           return {
             ...item,
-            filled: formatDate(Number(item.filled) * 1000),
+            Start: formatDate(Number(item.filled) * 1000),
+            Identity: item.identity,
           };
         });
       })

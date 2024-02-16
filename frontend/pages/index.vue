@@ -104,7 +104,7 @@ const requestsColumns = computed(() => {
       label: 'Participants',
       width: '50%',
     },
-    { prop: 'start', label: 'Filled', width: '70%' },
+    { prop: 'start', label: 'Start', width: '70%' },
     { prop: 'end', label: 'End', width: '70%' },
     { prop: 'view', label: '', width: '20%' },
     { prop: 'open', label: '', width: '20%' },
@@ -223,7 +223,7 @@ const fetchFullList = async () => {
             Description: item.description.replace(/<[^>]*>/g, ''),
             'Share Link': `${window.location.href}quest/${item.shareLink}`,
             Participants: Number(item.participants),
-            Filled: formatDate(Number(item.start) * 1000),
+            Start: formatDate(Number(item.start) * 1000),
             End: formatDate(Number(item.end) * 1000),
           };
         });

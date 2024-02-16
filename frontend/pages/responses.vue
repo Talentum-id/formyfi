@@ -15,7 +15,7 @@
             /></router-link>
           </div>
           <ExportTable
-            name="responses"
+            :name="qa.title"
             @click="fetchFullList"
             type="xlsx"
             :data="fullList"

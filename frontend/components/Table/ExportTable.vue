@@ -1,8 +1,9 @@
 <script setup>
-import downloadExcel from 'vue-json-excel3';
+import { ref, watch } from 'vue';
+import { utils, writeFileXLSX } from 'xlsx';
 import downloadIcon from '@/assets/icons/Download.svg';
-import { ref } from 'vue';
-defineProps({
+
+const props = defineProps({
   data: {
     type: Array,
     default: [],
@@ -19,20 +20,45 @@ function startDownload() {
 function finishDownload() {
   loading.value = false;
 }
+async function check(data) {
+  await startDownload();
+  const ws = await utils.json_to_sheet(data);
+  const wb = await utils.book_new();
+  utils.book_append_sheet(wb, ws, 'Data');
+  ws['!cols'] = formatExcelCols(data);
+  await writeFileXLSX(wb, `${props.name}.xlsx`);
+  await finishDownload();
+}
+function formatExcelCols(json) {
+  let widthArr = Object.keys(json[0]).map((key) => {
+    return { width: key.length + 2 }; // plus 2 to account for short object keys
+  });
+  for (let i = 0; i < json.length; i++) {
+    let value = Object.values(json[i]);
+    for (let j = 0; j < value.length; j++) {
+      if (value[j] !== null && value[j].length > widthArr[j].width) {
+        widthArr[j].width = value[j].length;
+      }
+    }
+  }
+  return widthArr;
+}
+watch(
+  () => props.data,
+  (data) => {
+    if (data.length) {
+      check(data);
+    }
+  },
+);
 </script>
 
 <template>
-  <downloadExcel
-    class="export-btn"
-    :data="data"
-    :name="name + '.xls'"
-    :before-generate="startDownload"
-    :before-finish="finishDownload"
-  >
+  <div class="export-btn">
     <span>Export </span>
     <img v-if="!loading" :src="downloadIcon" alt="" />
     <span v-else class="loader"></span>
-  </downloadExcel>
+  </div>
 </template>
 
 <style scoped lang="scss">

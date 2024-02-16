@@ -219,11 +219,15 @@ const fetchFullList = async () => {
       .then((res) => {
         fullList.value = res.data.map((item) => {
           return {
-            ...item,
-            start: formatDate(Number(item.start) * 1000),
-            end: formatDate(Number(item.end) * 1000),
+            Title: item.title,
+            Description: item.description.replace(/<[^>]*>/g, ''),
+            'Share Link': `${window.location.href}quest/${item.shareLink}`,
+            Participants: Number(item.participants),
+            Filled: formatDate(Number(item.start) * 1000),
+            End: formatDate(Number(item.end) * 1000),
           };
         });
+        console.log(fullList.value);
       })
       .catch(() => {
         modal.emit('openModal', {

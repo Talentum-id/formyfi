@@ -10,7 +10,6 @@ import Modal from '@/components/Modal/Modal.vue';
 import vue3GoogleLogin from 'vue3-google-login';
 
 const app = createApp(App);
-import JsonExcel from 'vue-json-excel3';
 app.use(router);
 app.use(pinia);
 app.use(vue3GoogleLogin, {

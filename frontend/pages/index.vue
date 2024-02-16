@@ -104,7 +104,7 @@ const requestsColumns = computed(() => {
       label: 'Participants',
       width: '50%',
     },
-    { prop: 'start', label: 'Started/Filled', width: '70%' },
+    { prop: 'start', label: 'Filled', width: '70%' },
     { prop: 'end', label: 'End', width: '70%' },
     { prop: 'view', label: '', width: '20%' },
     { prop: 'open', label: '', width: '20%' },

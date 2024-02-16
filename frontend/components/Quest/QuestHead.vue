@@ -1,6 +1,16 @@
 <template>
   <div class="head-container">
-    <div class="banner" :style="`background:url(${image || defaultBg})`"></div>
+    <el-image
+      loading="eager"
+      lazy
+      class="banner"
+      :src="image || defaultBg"
+      :zoom-rate="1.2"
+      :max-scale="7"
+      :min-scale="0.2"
+      :initial-index="0"
+      :preview-src-list="[image || defaultBg]"
+    />
     <div class="info w-full">
       <Talent text="Portal" class="ml-[-16px]" :img="image || defaultBg" square />
       <div class="flex items-center gap-x-[8px]">
@@ -26,6 +36,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
+import { ElImage } from 'element-plus';
 
 const assetsStore = useAssetsStore();
 const counterStore = useCounterStore();

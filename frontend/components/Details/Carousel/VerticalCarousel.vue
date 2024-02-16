@@ -16,8 +16,19 @@
             :size="items.length"
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
+
           <div v-if="questionFiles[currentIndex]" class="flex items-center justify-center">
-            <div class="banner" :style="`background:url(${questionFiles[currentIndex]})`"></div>
+            <el-image
+              loading="eager"
+              lazy
+              class="banner"
+              :src="questionFiles[currentIndex]"
+              :zoom-rate="1.2"
+              :max-scale="7"
+              :min-scale="0.2"
+              :initial-index="0"
+              :preview-src-list="[questionFiles[currentIndex]]"
+            />
           </div>
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
           <div class="question-description" v-if="newArr[currentIndex].description">
@@ -33,11 +44,19 @@
 
             <div
               v-if="answerFiles[currentIndex] || (newArr[currentIndex].uploadedFile && cacheAnswer)"
-              class="banner"
-              :style="`background:url(${
-                answerFiles[currentIndex] || newArr[currentIndex].uploadedFile
-              })`"
-            ></div>
+            >
+              <el-image
+                loading="eager"
+                lazy
+                class="banner"
+                :src="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
+                :zoom-rate="1.2"
+                :max-scale="7"
+                :min-scale="0.2"
+                :initial-index="0"
+                :preview-src-list="[answerFiles[currentIndex] || newArr[currentIndex].uploadedFile]"
+              />
+            </div>
             <CustomUpload
               v-else-if="disableUploader"
               :imagesFiles="newArr[currentIndex].answerFile"
@@ -111,7 +130,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
-import { ElRadioGroup, ElRadioButton } from 'element-plus';
+import { ElRadioGroup, ElRadioButton, ElImage } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
@@ -572,5 +591,15 @@ watch(currentIndex, (value) => {
   background-size: cover !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
+}
+.demo-image__error .image-slot {
+  font-size: 30px;
+}
+.demo-image__error .image-slot .el-icon {
+  font-size: 30px;
+}
+.demo-image__error .el-image {
+  width: 100%;
+  height: 200px;
 }
 </style>

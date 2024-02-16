@@ -10,6 +10,8 @@ import { useResponseStore } from '@/store/response';
 import { formatDate } from '@/util/helpers';
 import { useAssetsStore } from '@/store/assets';
 import ResultCard from '@/components/Result/ResultCard.vue';
+import defaultBg from '@/assets/images/default-avatar.png';
+import { ElImage } from 'element-plus';
 
 const assetsStore = useAssetsStore();
 const responseStore = useResponseStore();
@@ -111,7 +113,17 @@ const isAdditionalAnswer = (answer, variants) => {
             <div class="required" v-if="question.required">Required</div>
           </div>
           <div v-if="questionFiles[idx]" class="w-full flex justify-center">
-            <div class="banner" :style="`background:url(${questionFiles[idx]})`"></div>
+            <el-image
+              loading="eager"
+              lazy
+              class="banner"
+              :src="questionFiles[idx]"
+              :zoom-rate="1.2"
+              :max-scale="7"
+              :min-scale="0.2"
+              :initial-index="0"
+              :preview-src-list="[questionFiles[idx]]"
+            />
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answers[idx]">
@@ -134,13 +146,23 @@ const isAdditionalAnswer = (answer, variants) => {
             </div>
             <div class="w-full" v-else>
               <Variant
-                :text="answers[idx].answer ?? 'No Answer'"
+                :text="answers[idx].answer || 'No Answer'"
                 :is-correct="!!answers[idx].answer"
               ></Variant>
             </div>
           </div>
           <div v-if="answerFiles[idx]">
-            <div class="banner" :style="`background:url(${answerFiles[idx]})`"></div>
+            <el-image
+              loading="eager"
+              lazy
+              class="banner"
+              :src="answerFiles[idx]"
+              :zoom-rate="1.2"
+              :max-scale="7"
+              :min-scale="0.2"
+              :initial-index="0"
+              :preview-src-list="[answerFiles[idx]]"
+            />
           </div>
         </ResultCard>
       </div>

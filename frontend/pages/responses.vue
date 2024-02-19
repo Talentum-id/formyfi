@@ -77,7 +77,6 @@ import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
 import { useQAStore } from '@/store/qa';
 import ExportTable from '@/components/Table/ExportTable.vue';
-import { useAuthStore } from '@/store/auth';
 import { modal } from '@/mixins/modal';
 
 const route = useRoute();
@@ -174,37 +173,34 @@ onMounted(async () => {
   isMounted = true;
 });
 const fetchFullList = async () => {
-  if (pagination.value) {
-    await responseStore
-      .getFullQAResponses(route.params.id, {
-        page: 1,
-        search: '',
-        pageSize: pagination.value.total,
-        sortBy: {
-          key: '',
-          value: '',
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        fullList.value = res?.data.map((item) => {
-          return {
-            ...item,
-            Start: formatDate(Number(item.filled) * 1000),
-            Identity: item.identity,
-          };
-        });
-      })
-      .catch(() => {
-        modal.emit('openModal', {
-          title: 'Error Message',
-          message: 'Something went wrong!',
-          type: 'error',
-          actionText: 'Try again',
-          fn: fetchFullList,
-        });
+  await responseStore
+    .getExportResponses(route.params.id)
+    .then((res) => {
+      fullList.value = res?.answers.map((item) => {
+        let answersObject = item.answers.reduce((acc, el, index) => {
+          acc[`Question ${index + 1} : ${res.quest.questions[index].question}`] =
+            el.answer.toString() ?? '';
+          return acc;
+        }, {});
+
+        return {
+          Username: item.author.username,
+          Start: formatDate(Number(item.author.filled) * 1000),
+          Identity: item.author.identity,
+          ...answersObject,
+        };
       });
-  }
+    })
+    .catch((e) => {
+      console.log(e);
+      modal.emit('openModal', {
+        title: 'Error Message',
+        message: 'Something went wrong!',
+        type: 'error',
+        actionText: 'Try again',
+        fn: fetchFullList,
+      });
+    });
 };
 const nextItem = () => {
   if (currentIndex.value < allItems.value?.length - 1) {

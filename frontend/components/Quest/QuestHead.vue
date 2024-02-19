@@ -1,6 +1,6 @@
 <template>
   <div class="head-container">
-    <CustomImage :image="image" width="240" heigth="240"></CustomImage>
+    <CustomImage :image="image || defaultBg" width="240" heigth="240"></CustomImage>
     <div class="info w-full">
       <Talent text="Portal" class="ml-[-16px]" :img="image || defaultBg" square />
       <div class="flex items-center gap-x-[8px]">

@@ -16,7 +16,10 @@
             :size="items.length"
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
-          <div class="flex items-center justify-center" v-if="newArr[currentIndex].file">
+          <div
+            class="flex items-center justify-center"
+            v-if="newArr[currentIndex].file || questionFiles[currentIndex]"
+          >
             <CustomImage
               :image="questionFiles[currentIndex]"
               heigth="160"
@@ -36,7 +39,7 @@
               :disabled="cacheAnswer"
             />
             <CustomImage
-              v-if="answers[currentIndex].file"
+              v-if="answers[currentIndex] && answers[currentIndex].file"
               class="banner"
               heigth="160"
               width="160"

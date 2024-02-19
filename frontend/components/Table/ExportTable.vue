@@ -22,6 +22,7 @@ function finishDownload() {
 }
 async function check(data) {
   await startDownload();
+  console.log(data);
   const ws = await utils.json_to_sheet(data);
   const wb = await utils.book_new();
   utils.book_append_sheet(wb, ws, 'Data');
@@ -47,6 +48,7 @@ watch(
   () => props.data,
   (data) => {
     if (data.length) {
+      console.log(props.data);
       check(data);
     }
   },

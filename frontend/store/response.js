@@ -61,10 +61,14 @@ export const useResponseStore = defineStore('response', {
         })
         .finally(() => (this.loaded = true));
     },
-    async getFullQAResponses(shareLink, params) {
+    async getExportResponses(shareLink) {
       return await this.actor
-        .list(shareLink, params)
+        .export(shareLink, {
+          identity: process.env.DFX_ASSET_PRINCIPAL,
+          character: localStorage.extraCharacter,
+        })
         .then((res) => {
+          console.log(res);
           return res;
         })
         .catch((e) => {

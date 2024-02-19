@@ -26,6 +26,7 @@
     "vue": "^3.2.37",
     "vue-draggable-next": "^2.2.1",
     "vue-icomoon": "^0.6.1",
+    "vue-load-image": "^1.1.0",
     "vue-router": "^4.0.13",
     "vue3-google-login": "^2.0.25",
     "vuedraggable": "^2.24.3",

@@ -15,6 +15,8 @@
 <script setup></script>
 <style scoped lang="scss">
 div {
+  width: 80px;
+  height: 80px;
   animation: rotateAnimation 2s linear infinite;
 }
 

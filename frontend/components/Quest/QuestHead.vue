@@ -1,16 +1,6 @@
 <template>
   <div class="head-container">
-    <el-image
-      loading="eager"
-      lazy
-      class="banner"
-      :src="image || defaultBg"
-      :zoom-rate="1.2"
-      :max-scale="7"
-      :min-scale="0.2"
-      :initial-index="0"
-      :preview-src-list="[image || defaultBg]"
-    />
+    <CustomImage :image="image" width="240" heigth="240"></CustomImage>
     <div class="info w-full">
       <Talent text="Portal" class="ml-[-16px]" :img="image || defaultBg" square />
       <div class="flex items-center gap-x-[8px]">
@@ -37,6 +27,7 @@ import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
 import { ElImage } from 'element-plus';
+import CustomImage from '@/components/CustomImage.vue';
 
 const assetsStore = useAssetsStore();
 const counterStore = useCounterStore();
@@ -70,17 +61,6 @@ onMounted(async () => {
   border-radius: 16px;
   border: 1px solid $default-border;
   background: $white;
-
-  .banner {
-    width: 240px;
-    height: 240px;
-    border-radius: 8px;
-    overflow: hidden;
-    background: none;
-    background-size: cover !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-  }
 
   .info {
     display: flex;

@@ -10,8 +10,7 @@ import { useResponseStore } from '@/store/response';
 import { formatDate } from '@/util/helpers';
 import { useAssetsStore } from '@/store/assets';
 import ResultCard from '@/components/Result/ResultCard.vue';
-import defaultBg from '@/assets/images/default-avatar.png';
-import { ElImage } from 'element-plus';
+import CustomImage from '@/components/CustomImage.vue';
 
 const assetsStore = useAssetsStore();
 const responseStore = useResponseStore();
@@ -112,18 +111,8 @@ const isAdditionalAnswer = (answer, variants) => {
             <div class="step">{{ idx + 1 }}/{{ data.questions.length }}</div>
             <div class="required" v-if="question.required">Required</div>
           </div>
-          <div v-if="questionFiles[idx]" class="w-full flex justify-center">
-            <el-image
-              loading="eager"
-              lazy
-              class="banner"
-              :src="questionFiles[idx]"
-              :zoom-rate="1.2"
-              :max-scale="7"
-              :min-scale="0.2"
-              :initial-index="0"
-              :preview-src-list="[questionFiles[idx]]"
-            />
+          <div v-if="question.file" class="w-full flex justify-center">
+            <CustomImage :image="questionFiles[idx]" width="160" heigth="160"></CustomImage>
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answers[idx]">
@@ -151,18 +140,8 @@ const isAdditionalAnswer = (answer, variants) => {
               ></Variant>
             </div>
           </div>
-          <div v-if="answerFiles[idx]">
-            <el-image
-              loading="eager"
-              lazy
-              class="banner"
-              :src="answerFiles[idx]"
-              :zoom-rate="1.2"
-              :max-scale="7"
-              :min-scale="0.2"
-              :initial-index="0"
-              :preview-src-list="[answerFiles[idx]]"
-            />
+          <div v-if="answers[idx].file">
+            <CustomImage :image="answerFiles[idx]" width="160" heigth="160"></CustomImage>
           </div>
         </ResultCard>
       </div>
@@ -241,16 +220,5 @@ const isAdditionalAnswer = (answer, variants) => {
       }
     }
   }
-}
-
-.banner {
-  width: 160px;
-  height: 160px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: none;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
 }
 </style>

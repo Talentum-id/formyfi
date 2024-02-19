@@ -16,20 +16,14 @@
             :size="items.length"
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
-
-          <div v-if="questionFiles[currentIndex]" class="flex items-center justify-center">
-            <el-image
-              loading="eager"
-              lazy
-              class="banner"
-              :src="questionFiles[currentIndex]"
-              :zoom-rate="1.2"
-              :max-scale="7"
-              :min-scale="0.2"
-              :initial-index="0"
-              :preview-src-list="[questionFiles[currentIndex]]"
-            />
+          <div class="flex items-center justify-center" v-if="newArr[currentIndex].file">
+            <CustomImage
+              :image="questionFiles[currentIndex]"
+              heigth="160"
+              width="160"
+            ></CustomImage>
           </div>
+
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
           <div class="question-description" v-if="newArr[currentIndex].description">
             {{ newArr[currentIndex].description }}
@@ -41,24 +35,16 @@
               class="w-full"
               :disabled="cacheAnswer"
             />
+            <CustomImage
+              v-if="answers[currentIndex].file"
+              class="banner"
+              heigth="160"
+              width="160"
+              :image="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
+            ></CustomImage>
 
-            <div
-              v-if="answerFiles[currentIndex] || (newArr[currentIndex].uploadedFile && cacheAnswer)"
-            >
-              <el-image
-                loading="eager"
-                lazy
-                class="banner"
-                :src="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
-                :zoom-rate="1.2"
-                :max-scale="7"
-                :min-scale="0.2"
-                :initial-index="0"
-                :preview-src-list="[answerFiles[currentIndex] || newArr[currentIndex].uploadedFile]"
-              />
-            </div>
             <CustomUpload
-              v-else-if="disableUploader"
+              v-if="disableUploader"
               :imagesFiles="newArr[currentIndex].answerFile"
               @images="newArr[currentIndex].answerFile = $event"
             ></CustomUpload>
@@ -144,7 +130,7 @@ import QuizProgress from '@/components/Details/QuizProgress.vue';
 import IsCorrectMessage from '@/components/Details/IsCorrectMessage.vue';
 import IsIncorrectMessage from '@/components/Details/IsIncorrectMessage.vue';
 import QuizProgressTitle from '@/components/Details/QuizProgressTitle.vue';
-
+import CustomImage from '@/components/CustomImage.vue';
 const assetsStore = useAssetsStore();
 const route = useRoute();
 const counterStore = useCounterStore();
@@ -580,26 +566,5 @@ watch(currentIndex, (value) => {
 .content {
   max-height: 90%;
   overflow-y: scroll;
-}
-
-.banner {
-  width: 160px;
-  height: 160px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: none;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-}
-.demo-image__error .image-slot {
-  font-size: 30px;
-}
-.demo-image__error .image-slot .el-icon {
-  font-size: 30px;
-}
-.demo-image__error .el-image {
-  width: 100%;
-  height: 200px;
 }
 </style>

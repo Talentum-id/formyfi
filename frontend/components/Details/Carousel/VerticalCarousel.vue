@@ -55,7 +55,7 @@
               class="w-full text-center mt-[20px]"
               v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
             >
-              <IsCorrectMessage></IsCorrectMessage>
+              <!--              <IsCorrectMessage></IsCorrectMessage>-->
             </div>
           </div>
           <div v-else>
@@ -84,18 +84,18 @@
                 }"
               />
             </el-radio-group>
-            <div
-              class="w-full text-center mt-[20px]"
-              v-if="newArr[currentIndex].myAnswer || newArr[currentIndex].answer"
-            >
-              <IsCorrectMessage
-                v-if="isCorrect || newArr[currentIndex].openAnswerAllowed"
-              ></IsCorrectMessage>
-              <IsIncorrectMessage
-                v-if="!newArr[currentIndex].openAnswerAllowed && !isCorrect && correctItem"
-                :correct-answer="correctItem.answer"
-              ></IsIncorrectMessage>
-            </div>
+            <!--            <div-->
+            <!--              class="w-full text-center mt-[20px]"-->
+            <!--              v-if="newArr[currentIndex].myAnswer || newArr[currentIndex].answer"-->
+            <!--            >-->
+            <!--              <IsCorrectMessage-->
+            <!--                v-if="isCorrect || newArr[currentIndex].openAnswerAllowed"-->
+            <!--              ></IsCorrectMessage>-->
+            <!--              <IsIncorrectMessage-->
+            <!--                v-if="!newArr[currentIndex].openAnswerAllowed && !isCorrect && correctItem"-->
+            <!--                :correct-answer="correctItem.answer"-->
+            <!--              ></IsIncorrectMessage>-->
+            <!--            </div>-->
           </div>
         </div>
         <div class="controllers">

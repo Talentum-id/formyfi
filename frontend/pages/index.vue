@@ -14,7 +14,13 @@
         </div>
       </div>
       <div class="actions">
-        <ExportTable name="forms" @click="fetchFullList" type="xlsx" :data="fullList"></ExportTable>
+        <ExportTable
+          name="forms"
+          @click="fetchFullList"
+          type="xlsx"
+          :data="fullList"
+          :loading="loading"
+        ></ExportTable>
       </div>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
       <div ref="index">
@@ -205,6 +211,7 @@ const showPreview = () => {
 };
 const fetchFullList = async () => {
   if (pagination.value) {
+    loading.value = true;
     await qaStore
       .getFullQAs({
         identity: authStore.getPrincipal,
@@ -227,9 +234,10 @@ const fetchFullList = async () => {
             End: formatDate(Number(item.end) * 1000),
           };
         });
-        console.log(fullList.value);
+        loading.value = false;
       })
       .catch(() => {
+        loading.value = false;
         modal.emit('openModal', {
           title: 'Error Message',
           message: 'Something went wrong!',

@@ -12,23 +12,18 @@ const props = defineProps({
     type: String,
     default: 'default',
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
-const loading = ref(false);
-function startDownload() {
-  loading.value = true;
-}
-function finishDownload() {
-  loading.value = false;
-}
+
 async function check(data) {
-  await startDownload();
-  console.log(data);
   const ws = await utils.json_to_sheet(data);
   const wb = await utils.book_new();
   utils.book_append_sheet(wb, ws, 'Data');
   ws['!cols'] = formatExcelCols(data);
   await writeFileXLSX(wb, `${props.name}.xlsx`);
-  await finishDownload();
 }
 function formatExcelCols(json) {
   let widthArr = Object.keys(json[0]).map((key) => {
@@ -48,7 +43,6 @@ watch(
   () => props.data,
   (data) => {
     if (data.length) {
-      console.log(props.data);
       check(data);
     }
   },

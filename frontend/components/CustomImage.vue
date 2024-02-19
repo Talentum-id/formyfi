@@ -32,6 +32,7 @@ defineProps({
       loading="eager"
       class="banner"
       lazy
+      fit="cover"
       :src="image"
       :zoom-rate="1.2"
       :max-scale="7"

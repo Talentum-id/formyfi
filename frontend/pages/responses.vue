@@ -19,6 +19,7 @@
             @click="fetchFullList"
             type="xlsx"
             :data="fullList"
+            :loading="loading"
           ></ExportTable>
         </div>
       </div>
@@ -173,6 +174,7 @@ onMounted(async () => {
   isMounted = true;
 });
 const fetchFullList = async () => {
+  loading.value = true;
   await responseStore
     .getExportResponses(route.params.id)
     .then((res) => {
@@ -190,8 +192,10 @@ const fetchFullList = async () => {
           ...answersObject,
         };
       });
+      loading.value = false;
     })
     .catch((e) => {
+      loading.value = false;
       console.log(e);
       modal.emit('openModal', {
         title: 'Error Message',

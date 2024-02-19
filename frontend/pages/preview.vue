@@ -1,17 +1,16 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onBeforeMount, onMounted, ref } from 'vue';
 import Quest from '@/components/Quest/Quest.vue';
 import BaseButton from '@/components/BaseButton.vue';
-const data = computed(() => JSON.parse(localStorage.previewData));
+import localforage from 'localforage';
+const data = ref(null);
 
+localforage.getItem('previewData', function (err, value) {
+  data.value = JSON.parse(value);
+});
 const closeTab = () => {
   window.close();
 };
-onMounted(() => {
-  if (!data.value) {
-    closeTab();
-  }
-});
 </script>
 
 <template>

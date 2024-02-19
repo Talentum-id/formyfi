@@ -223,6 +223,7 @@ import Alert from '@/components/Alert.vue';
 import { useRouter } from 'vue-router';
 import Checkbox from '@/components/Creating/Checkbox.vue';
 import { modal } from '@/mixins/modal';
+import localForage from 'localforage';
 
 const router = useRouter();
 const emits = defineEmits('refresh');
@@ -469,6 +470,7 @@ const preview = async () => {
   };
 
   localStorage.previewData = JSON.stringify(obj);
+  localForage.setItem('previewData', JSON.stringify(obj), () => {});
   await window.open('#/preview', '_blank');
 };
 const saveQA = async () => {

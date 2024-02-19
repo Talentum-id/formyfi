@@ -9,6 +9,16 @@ module ResponseTypes {
     isOpen : Bool;
   };
 
+  public type ExportAnswer = {
+    author : QAAuthor;
+    answers : [Answer];
+  };
+
+  public type ExportResponse = {
+    quest : QATypes.QA;
+    answers : [ExportAnswer];
+  };
+
   public type FetchParams = {
     sortBy : {
       key : Text;

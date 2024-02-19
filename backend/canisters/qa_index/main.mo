@@ -13,9 +13,9 @@ import Types "types";
 import Utils "../user_index/utils";
 
 actor QAIndex {
-  type QA = Types.QA;
-  type FetchParams = Types.QAGetParams;
   type Answer = Types.Answer;
+  type FetchParams = Types.QAGetParams;
+  type QA = Types.QA;
   type QaResponse = Types.ShowQAResult;
   type Question = Types.Question;
   type List = Types.ListResult;

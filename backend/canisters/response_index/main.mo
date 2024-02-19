@@ -18,6 +18,8 @@ actor ResponseIndex {
   type Answer = Types.Answer;
   type Author = Types.QAAuthor;
   type Data = Types.ResponseParams;
+  type ExportAnswer = Types.ExportAnswer;
+  type ExportResponse = Types.ExportResponse;
   type FetchParams = Types.FetchParams;
   type List = Types.ListResult;
   type ResponseParams = Types.QAResponseParams;
@@ -94,6 +96,56 @@ actor ResponseIndex {
           case (?answers) {
             throw Error.reject("The user already completed this Q&A");
           };
+        };
+      };
+    };
+  };
+
+  public shared ({ caller }) func export(shareLink : Text, character : Utils.Character) : async ExportResponse {
+    let identity = await Utils.authenticate(caller, true, character);
+
+    switch (await QAIndex.show(shareLink)) {
+      case null throw Error.reject("Q&A does not exist");
+      case (?qa) {
+        let { quest; owner } = qa;
+
+        if (identity != owner) {
+          throw Error.reject("Only Q&A owner can export it");
+        };
+
+        let params = {
+          sortBy = {
+            key = "";
+            value = "";
+          };
+          page = 0;
+          pageSize = 0;
+        };
+
+        let { data } = await list(shareLink, params);
+
+        if (data.size() == 0) {
+          return {
+            quest;
+            answers = [];
+          };
+        };
+
+        let answers = Buffer.fromArray<ExportAnswer>([]);
+
+        for (author in data.vals()) {
+          answers.add({
+            author;
+            answers = await show({
+              shareLink;
+              identity = author.identity;
+            });
+          });
+        };
+
+        return {
+          quest;
+          answers = Buffer.toArray(answers);
         };
       };
     };

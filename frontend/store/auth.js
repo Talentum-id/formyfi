@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
 
       if (this.isAuthenticated) {
         await this.actor
-          .findUser(this.getPrincipal)
+          ?.findUser(this.getPrincipal)
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);

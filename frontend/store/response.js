@@ -28,7 +28,7 @@ export const useResponseStore = defineStore('response', {
       }
     },
     async storeResponse(params) {
-      await this.actor.store(params, {
+      await this.actor?.store(params, {
         identity: process.env.DFX_ASSET_PRINCIPAL,
         character: localStorage.extraCharacter,
       });
@@ -38,7 +38,7 @@ export const useResponseStore = defineStore('response', {
     async getQAResponses(shareLink, params) {
       this.loadedList = false;
       await this.actor
-        .list(shareLink, params)
+        ?.list(shareLink, params)
         .then((res) => (this.qaResponses = res))
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));
@@ -51,7 +51,7 @@ export const useResponseStore = defineStore('response', {
       this.loaded = false;
 
       await this.actor
-        .show({ identity, shareLink })
+        ?.show({ identity, shareLink })
         .then((res) => {
           this.response = res;
           useCounterStore().setValue(this.response.length);
@@ -63,7 +63,7 @@ export const useResponseStore = defineStore('response', {
     },
     async getExportResponses(shareLink) {
       return await this.actor
-        .export(shareLink, {
+        ?.export(shareLink, {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })

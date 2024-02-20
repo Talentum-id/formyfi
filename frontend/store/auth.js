@@ -66,7 +66,10 @@ export const useAuthStore = defineStore('auth', {
               await router.push('/login');
             }
           })
-          .catch(() => this.logout());
+          .catch(error => {
+            console.log(error)
+            this.logout()
+          });
       } else {
         await router.push('/login');
       }
@@ -146,9 +149,7 @@ export const useAuthStore = defineStore('auth', {
 
       await authClient?.logout();
 
-      localStorage.removeItem('extraCharacter');
-      localStorage.removeItem('authenticationProvider');
-      localStorage.removeItem('isAuthenticated');
+      this.setAuthenticationStorage(false);
 
       this.isAuthenticated = false;
       this.identity = this.actor = this.principal = null;
@@ -160,7 +161,7 @@ export const useAuthStore = defineStore('auth', {
     register({ username, fullName }) {
       const provider = localStorage.authenticationProvider;
 
-      return this.actor.register({ username, fullName, provider }, {
+      return this.actor?.register({ username, fullName, provider }, {
         character: localStorage.extraCharacter,
         identity: process.env.DFX_ASSET_PRINCIPAL,
       });

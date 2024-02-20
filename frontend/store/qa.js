@@ -31,13 +31,13 @@ export const useQAStore = defineStore('qa', {
       }
     },
     async storeQA(params) {
-      return await this.actor.store(params, {
+      return await this.actor?.store(params, {
         identity: process.env.DFX_ASSET_PRINCIPAL,
         character: localStorage.extraCharacter,
       });
     },
     async removeQuest({ image, shareLink, questions }) {
-      await this.actor.delete(shareLink, {
+      await this.actor?.delete(shareLink, {
         identity: process.env.DFX_ASSET_PRINCIPAL,
         character: localStorage.extraCharacter,
       })
@@ -62,7 +62,7 @@ export const useQAStore = defineStore('qa', {
       this.loaded = false;
 
       await this.actor
-        .list(params)
+        ?.list(params)
         .then(async (res) => {
           this.list = res;
           this.loaded = true;
@@ -74,7 +74,7 @@ export const useQAStore = defineStore('qa', {
     },
     async getFullQAs(params) {
       return await this.actor
-        .list(params)
+        ?.list(params)
         .then(async (res) => {
           return res;
         })
@@ -86,7 +86,7 @@ export const useQAStore = defineStore('qa', {
     async fetchQA(link) {
       this.loadedQA = false;
       await this.actor
-        .show(link)
+        ?.show(link)
         .then(async (res) => {
           const arr = res.map((item) => {
             const { quest } = item;

@@ -76,12 +76,15 @@ import ResultModal from '@/components/Result/ResultModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import BackToList from '@/components/BackToList.vue';
+import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
 import ExportTable from '@/components/Table/ExportTable.vue';
 import { modal } from '@/mixins/modal';
 
 const route = useRoute();
 const responseStore = useResponseStore();
+const useStore = useAuthStore();
+
 let isMounted = false;
 
 const show = ref(false);
@@ -169,7 +172,12 @@ onMounted(async () => {
   } else {
     await responseStore.getQAResponses(route.params.id, params.value);
   }
+
   await useQAStore().fetchQA(route.params.id);
+
+  if (qa.value.owner !== useStore.getPrincipal) {
+    await router.push('/');
+  }
 
   isMounted = true;
 });

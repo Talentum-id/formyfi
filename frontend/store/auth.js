@@ -56,7 +56,6 @@ export const useAuthStore = defineStore('auth', {
           .then(async (res) => {
             if (res.length) {
               this.setUser(res[0]);
-              localStorage.isAuthenticated = true;
 
               await this.initStores();
             } else {

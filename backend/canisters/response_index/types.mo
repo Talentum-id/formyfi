@@ -33,10 +33,21 @@ module ResponseTypes {
     pagination : PaginationTypes.Pagination;
   };
 
+  public type QA = {
+    filled : Nat;
+    shareLink : Text;
+    title : Text;
+  };
+
   public type QAAuthor = {
     identity : Text;
     username : Text;
     filled : Nat;
+  };
+
+  public type QAListResult = {
+    data : [QA];
+    pagination : PaginationTypes.Pagination;
   };
 
   public type QAResponseParams = {

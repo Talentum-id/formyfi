@@ -74,11 +74,11 @@ watch(data, (newData) => {
 .editor-projects p {
   font-size: 20px !important;
   line-height: 32px !important;
-  color: #1a1d29 !important;
+  color: $section-title !important;
 }
 .editor-error {
   color: $error-text;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 400;
   font-size: 12px;

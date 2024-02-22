@@ -44,7 +44,10 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async init() {
-      if (localStorage.authenticationProvider !== '' && localStorage.authenticationProvider !== undefined) {
+      if (
+        localStorage.authenticationProvider !== '' &&
+        localStorage.authenticationProvider !== undefined
+      ) {
         await this.initWeb2Auth();
       } else {
         await this.initII();
@@ -66,9 +69,9 @@ export const useAuthStore = defineStore('auth', {
               await router.push('/login');
             }
           })
-          .catch(error => {
-            console.log(error)
-            this.logout()
+          .catch((error) => {
+            console.error(error);
+            this.logout();
           });
       } else {
         await router.push('/login');
@@ -161,10 +164,13 @@ export const useAuthStore = defineStore('auth', {
     register({ username, fullName }) {
       const provider = localStorage.authenticationProvider;
 
-      return this.actor?.register({ username, fullName, provider }, {
-        character: localStorage.extraCharacter,
-        identity: process.env.DFX_ASSET_PRINCIPAL,
-      });
+      return this.actor?.register(
+        { username, fullName, provider },
+        {
+          character: localStorage.extraCharacter,
+          identity: process.env.DFX_ASSET_PRINCIPAL,
+        },
+      );
     },
     setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
       if (isAuthenticated) {

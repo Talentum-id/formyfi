@@ -40,13 +40,13 @@ export default {
   padding: 10px; // До
 
   .alert {
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-style: normal;
     font-weight: 500;
     font-size: 14px;
     line-height: 20px;
     font-feature-settings: 'zero' on;
-    color: #1a1d29;
+    color: $section-title;
     border-radius: 8px;
     padding: 11px 16px;
     min-width: 236px;

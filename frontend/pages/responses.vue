@@ -204,7 +204,6 @@ const fetchFullList = async () => {
     })
     .catch((e) => {
       loading.value = false;
-      console.log(e);
       modal.emit('openModal', {
         title: 'Error Message',
         message: 'Something went wrong!',

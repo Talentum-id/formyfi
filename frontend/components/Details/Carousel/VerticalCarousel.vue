@@ -349,6 +349,9 @@ const nextSlide = async () => {
     }
     return;
   }
+  if (disableBtn.value) {
+    return;
+  }
 
   await counterStore.setValue(currentIndex.value);
   if (currentIndex.value < props.items.length - 1) {

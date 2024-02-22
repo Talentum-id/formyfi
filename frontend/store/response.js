@@ -68,7 +68,6 @@ export const useResponseStore = defineStore('response', {
           character: localStorage.extraCharacter,
         })
         .then((res) => {
-          console.log(res);
           return res;
         })
         .catch((e) => {

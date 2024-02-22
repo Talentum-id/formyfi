@@ -44,7 +44,7 @@
         <Editor
           :description="description"
           @update="setDescription"
-          :isError="!bannerImage && touched"
+          :isError="!description.replace(/<[^>]*>/g, '') && touched"
           errorText="Description is Required"
         />
       </div>
@@ -625,7 +625,7 @@ export default defineComponent({
         font-style: normal;
         font-weight: 500;
         line-height: 142.857%;
-        color: #1a1d29;
+        color: $section-title;
       }
 
       .blockchain-select {

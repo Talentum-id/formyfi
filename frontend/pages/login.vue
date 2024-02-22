@@ -1,7 +1,7 @@
 <template>
   <Auth>
     <div class="main">
-      <span class="title">Welcome to Formify!</span>
+      <span class="title">Welcome to Formyfi!</span>
       <div class="form-block">
         <AuthButton @click="authStore.loginWithII()">
           <div class="container">

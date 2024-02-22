@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="footer">
-        <div>Copyright © Formify 2024</div>
+        <div>Copyright © Formyfi 2024</div>
       </div>
     </div>
   </div>

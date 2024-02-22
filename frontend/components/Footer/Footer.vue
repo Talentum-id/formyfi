@@ -1,6 +1,6 @@
 <template>
   <footer class="footer" :class="{ mobile: isMobile() }">
-    <div class="title">Formify {{ new Date().getFullYear() }}</div>
+    <div class="title">Formyfi {{ new Date().getFullYear() }}</div>
     <div class="info">
       <span> Follow us</span>
       <div class="socials cursor-pointer">

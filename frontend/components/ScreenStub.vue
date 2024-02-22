@@ -7,7 +7,7 @@
         under development
       </span>
       <span class="message"
-        >Please rotate your tablet to landscape orientation to view Formify</span
+        >Please rotate your tablet to landscape orientation to view Formyfi</span
       >
       <div class="view-desktop-btn" @click="setDesktop">View Desktop Version</div>
     </div>

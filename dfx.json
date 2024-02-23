@@ -19,7 +19,7 @@
       "frontend": {
         "entrypoint": "dist/index.html"
       },
-      "source": ["frontend/assets", "dist/"],
+      "source": ["dist/", "frontend/assets"],
       "type": "assets"
     },
     "storage": {

@@ -364,38 +364,6 @@ actor ResponseIndex {
     { data; pagination };
   };
 
-  public query func readAll() : async Text {
-    var pairs = "";
-
-    for ((key, value) in authorsViaQA.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
-    };
-
-    for ((key, value) in qasViaAuthor.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
-    };
-
-    for ((key, value) in responses.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
-    };
-
-    return pairs;
-  };
-
-  public func reset() : async () {
-    for ((key, value) in authorsViaQA.entries()) {
-      authorsViaQA.delete(key);
-    };
-
-    for ((key, value) in qasViaAuthor.entries()) {
-      qasViaAuthor.delete(key);
-    };
-
-    for ((key, value) in responses.entries()) {
-      responses.delete(key);
-    };
-  };
-
   system func preupgrade() {
     authorsViaQAEntries := Iter.toArray(authorsViaQA.entries());
     qasViaAuthorEntries := Iter.toArray(qasViaAuthor.entries());

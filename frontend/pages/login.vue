@@ -42,7 +42,8 @@ import { onMounted } from 'vue';
 
 onMounted(() => {
   googleLogout();
-  localStorage.removeItem('isAuthenticated');
+
+  useAuthStore().setAuthenticationStorage(false)
 });
 const callback = async (response) => {
   await useAuthStore().loginWithGoogle(response.credential);

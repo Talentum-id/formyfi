@@ -69,10 +69,7 @@ export const useAuthStore = defineStore('auth', {
               await router.push('/login');
             }
           })
-          .catch((error) => {
-            console.error(error);
-            this.logout();
-          });
+          .catch(async () => await this.logout());
       } else {
         await router.push('/login');
       }
@@ -159,7 +156,7 @@ export const useAuthStore = defineStore('auth', {
 
       this.setUser();
 
-      await router.push('/login');
+      window.location.reload();
     },
     register({ username, fullName }) {
       const provider = localStorage.authenticationProvider;

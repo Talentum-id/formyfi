@@ -21,6 +21,9 @@ const route = useRoute();
 const deleting = ref(false);
 
 onMounted(() => {
+  if (!useAuthStore().isAuthenticated) {
+    useAuthStore().initStores();
+  }
   useQAStore().fetchQA(route.params.id);
 });
 const show = ref(false);

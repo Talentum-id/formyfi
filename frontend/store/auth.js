@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
 import { createActor, user_index } from '~/user_index';
 import router from '@/router';
+
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 import { useAssetsStore } from './assets';
@@ -40,6 +41,7 @@ export const useAuthStore = defineStore('auth', {
       identity: null,
       principal: null,
       user: null,
+      isQuest: false,
     };
   },
   actions: {
@@ -66,12 +68,16 @@ export const useAuthStore = defineStore('auth', {
 
               this.setAuthenticationStorage(false);
 
-              await router.push('/login');
+              if (!this.isQuest) {
+                await router.push('/sign-up');
+              }
             }
           })
           .catch(async () => await this.logout());
       } else {
-        await router.push('/login');
+        if (!this.isQuest) {
+          await router.push('/sign-up');
+        }
       }
 
       this.isReady = true;
@@ -125,8 +131,9 @@ export const useAuthStore = defineStore('auth', {
           this.setAuthenticationStorage(this.isAuthenticated);
 
           await this.initStores();
-
-          await router.push('/sign-up');
+          if (!this.isQuest) {
+            await router.push('/sign-up');
+          }
         },
       });
     },
@@ -142,7 +149,9 @@ export const useAuthStore = defineStore('auth', {
 
       await this.initStores();
 
-      await router.push('/sign-up');
+      if (!this.isQuest) {
+        await router.push('/sign-up');
+      }
     },
     async logout() {
       const authClient = toRaw(this.authClient);
@@ -155,7 +164,7 @@ export const useAuthStore = defineStore('auth', {
       this.identity = this.actor = this.principal = null;
 
       this.setUser();
-
+      router.push('/login');
       window.location.reload();
     },
     register({ username, fullName }) {

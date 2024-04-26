@@ -6,11 +6,11 @@
       <div class="socials cursor-pointer">
         <!--        <Icon name="Telegram-Default" :size="26" @click="goToCosial('')" />-->
         <Icon name="Twitter-Default" :size="26" />
-<!--        <Icon-->
-<!--          name="Discord-Default"-->
-<!--          :size="26"-->
-<!--          @click="goToSocial('https://discord.com/invite/kb83BGcDJP')"-->
-<!--        />-->
+        <!--        <Icon-->
+        <!--          name="Discord-Default"-->
+        <!--          :size="26"-->
+        <!--          @click="goToSocial('https://discord.com/invite/kb83BGcDJP')"-->
+        <!--        />-->
       </div>
     </div>
   </footer>

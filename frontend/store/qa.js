@@ -23,7 +23,6 @@ export const useQAStore = defineStore('qa', {
   actions: {
     async init() {
       this.identity = useAuthStore().identity;
-
       if (this.identity) {
         this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
       } else {
@@ -37,10 +36,11 @@ export const useQAStore = defineStore('qa', {
       });
     },
     async removeQuest({ image, shareLink, questions }) {
-      await this.actor?.delete(shareLink, {
-        identity: process.env.DFX_ASSET_PRINCIPAL,
-        character: localStorage.extraCharacter,
-      })
+      await this.actor
+        ?.delete(shareLink, {
+          identity: process.env.DFX_ASSET_PRINCIPAL,
+          character: localStorage.extraCharacter,
+        })
         .then(async () => {
           const batch = useAssetsStore().assetManager.batch();
 
@@ -98,7 +98,6 @@ export const useQAStore = defineStore('qa', {
               owner: item.owner,
             };
           });
-
           if (!arr.length) {
             router.push('/');
           } else {

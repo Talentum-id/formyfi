@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import {computed, ref, toRef, watch} from 'vue';
+import { computed, ref, toRef, watch } from 'vue';
 import * as mobiscroll from '@mobiscroll/javascript';
 import '@mobiscroll/javascript/dist/css/mobiscroll.min.css';
 import { formatDate, formatDateCurrent, transformDate } from '@/util/helpers';

@@ -78,7 +78,9 @@ import ResultModal from '@/components/Result/ResultModal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import ExportTable from '@/components/Table/ExportTable.vue';
-import { modal } from '@/mixins/modal';
+
+import Login from '@/components/Auth/Login.vue';
+import BaseModal from '@/components/BaseModal.vue';
 
 const route = useRoute();
 const authStore = useAuthStore();

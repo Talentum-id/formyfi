@@ -3,7 +3,7 @@
     <div
       class="modal-container"
       :style="{
-        width: width + 'px',
+        width: width ? width + 'px' : 'fit-content',
         height: customHeight,
         top: top + 'px',
         right: rightCustom || rightCustom === 0 ? rightCustom + 'px' : right + 'px',
@@ -40,7 +40,7 @@ import Icon from '@/components/Icons/Icon.vue';
 const props = defineProps({
   visible: { type: Boolean, default: false },
   title: { type: String, default: '' },
-  width: { type: Number, default: 400 },
+  width: { type: Number, default: '' },
   top: { type: Number, default: window.innerHeight / 2 - 200 },
   customHeight: { type: Number, default: 'fit-content' },
   maxHeight: { type: Number, default: 'auto' },

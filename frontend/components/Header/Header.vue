@@ -3,7 +3,7 @@
     <div class="title">
       <img src="@/assets/images/logo-ligth.svg" @click="goHome" alt="" class="cursor-pointer" />
     </div>
-    <div class="info relative" ref="notificationContainer">
+    <div class="info relative" ref="notificationContainer" v-if="user">
       <div class="avatar" @click="showTooltips = !showTooltips" ref="menu">
         <div
           :style="{ background: `url(${avatar})` }"

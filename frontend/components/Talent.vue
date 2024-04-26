@@ -32,7 +32,7 @@ export default {
     isText: { type: Boolean, default: true },
     big: { type: Boolean, default: false },
     reduceLength: { type: Number, default: 20 },
-    status: { type: String, default: '' }
+    status: { type: String, default: '' },
   },
 };
 </script>
@@ -70,13 +70,13 @@ export default {
     border-radius: 50%;
   }
   .in_progress {
-    background-color: #396ACC;
+    background-color: #396acc;
   }
   .done {
-     background-color: #1D8F1D;
+    background-color: #1d8f1d;
   }
   .overdue {
-     background-color: #E04F31;
+    background-color: #e04f31;
   }
   span {
     font-family: $default_font;
@@ -85,7 +85,10 @@ export default {
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.014em;
-    font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $default;
     margin-right: 4px;
   }

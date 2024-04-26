@@ -23,7 +23,7 @@ const routes = [
     component: quest,
     meta: {
       title: `Quest`,
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -73,7 +73,7 @@ const router = createRouter({
   routes,
 });
 
-const isAuthenticated = () => {
+export const isAuthenticated = () => {
   return localStorage.getItem('isAuthenticated');
 };
 
@@ -85,6 +85,8 @@ function setPageTitleMiddleware(to, from, next) {
 }
 
 router.beforeEach(async (to, from, next) => {
+  useAuthStore().isQuest = to.name === 'quest';
+
   if (to.matched.some((record) => record.meta.requiresAuth) && !isAuthenticated()) {
     next('/login');
   } else {

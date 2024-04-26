@@ -48,7 +48,10 @@ const props = defineProps({
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $white;
   text-align: left;
 

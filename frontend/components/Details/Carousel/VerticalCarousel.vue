@@ -113,6 +113,14 @@
       <LastEmptyItem v-if="items[currentIndex + 2]"></LastEmptyItem>
     </div>
   </div>
+  <TemplatePromise v-slot="{ resolve, reject }">
+    <BaseModal :visible="show" width="500" @close="onClose">
+      <div class="p-12">
+        <Login @success="showSignUp = true" @reject="reject()" v-if="!showSignUp"></Login>
+        <SignUp v-else @success="resolve(true)" @reject="reject()"></SignUp>
+      </div>
+    </BaseModal>
+  </TemplatePromise>
 </template>
 <script setup>
 import BaseButton from '@/components/BaseButton.vue';
@@ -122,6 +130,7 @@ import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton, ElImage } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
+import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
 import { useAssetsStore } from '@/store/assets';
 import { modal } from '@/mixins/modal';
@@ -134,6 +143,12 @@ import IsCorrectMessage from '@/components/Details/IsCorrectMessage.vue';
 import IsIncorrectMessage from '@/components/Details/IsIncorrectMessage.vue';
 import QuizProgressTitle from '@/components/Details/QuizProgressTitle.vue';
 import CustomImage from '@/components/CustomImage.vue';
+import BaseModal from '@/components/BaseModal.vue';
+import Login from '@/components/Auth/Login.vue';
+import { createTemplatePromise } from '@vueuse/core';
+import SignUp from '@/components/Auth/SignUp.vue';
+const TemplatePromise = createTemplatePromise();
+const showSignUp = ref(false);
 const assetsStore = useAssetsStore();
 const route = useRoute();
 const counterStore = useCounterStore();
@@ -157,7 +172,7 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(['close', 'success']);
-
+const show = ref(false);
 const currentIndex = ref(findCurrentItemIndex());
 const loading = ref(false);
 const newArr = ref(
@@ -339,7 +354,11 @@ const storeResponseAndClose = async () => {
   await emit('close');
   await handleSuccessModal();
 };
-
+const checkUserIdentity = async () => {
+  show.value = true;
+  await TemplatePromise.start();
+  show.value = false;
+};
 const nextSlide = async () => {
   if (cacheAnswer.value || isPreview.value || step.value > props.items.length - 1) {
     if (currentIndex.value < props.items.length - 1) {
@@ -366,6 +385,9 @@ const nextSlide = async () => {
       };
     });
     try {
+      if (!useAuthStore().isAuthenticated) {
+        await checkUserIdentity();
+      }
       await loadImages();
       await storeResponseAndClose();
     } catch (e) {
@@ -375,6 +397,7 @@ const nextSlide = async () => {
     }
   }
 };
+
 const rerender = async () => {
   rerenderImages.value = true;
   await nextTick();
@@ -386,6 +409,11 @@ const setCachedAnswer = (index) => {
     newArr.value[index].answer = cacheAnswer.value;
   }
 };
+
+function onClose() {
+  show.value = false;
+}
+
 watch(currentIndex, (value) => {
   setCachedAnswer(value);
   rerender();

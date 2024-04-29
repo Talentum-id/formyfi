@@ -2,11 +2,12 @@
   <div class="main-wrapper" v-if="!loading && isDesktop">
     <Header :open="toggleSidebar" />
     <div class="main-content" :class="{ open: sidebarOpen, mobile: isMobile() }">
-      <Sidebar :open="toggleSidebar" :isOpen="sidebarOpen" />
+      <Sidebar v-if="useAuthStore().isAuthenticated" :open="toggleSidebar" :isOpen="sidebarOpen" />
       <div class="children-content" :class="{ open: sidebarOpen }">
         <slot></slot>
       </div>
     </div>
+
     <div class="footer_wrapper">
       <Footer />
     </div>
@@ -19,7 +20,7 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue';
 import Footer from '@/components/Footer/Footer.vue';
 import Header from '@/components/Header/Header.vue';
 import { computed } from 'vue';
-
+import { useAuthStore } from '../store/auth';
 const isDesktop = computed(
   () => window.innerWidth > 1330 || (localStorage.scale != 'false' && localStorage.scale),
 );

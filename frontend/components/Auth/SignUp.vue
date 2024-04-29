@@ -25,10 +25,10 @@ onMounted(() => {
   authStore.actor?.findUser(authStore.getPrincipal).then((res) => {
     if (res.length) {
       authStore.setUser(res[0]);
-      emit('success');
       if (!useAuthStore().isQuest) {
         router.push('/');
       }
+      emit('success');
     }
   });
 });
@@ -59,13 +59,13 @@ const createAccount = () => {
     .register(form.value)
     .then((res) => {
       authStore.setUser(res[0]);
-      emit('success');
 
       if (!useAuthStore().isQuest) {
         router.push('/');
         modal.emit('closeModal', {});
       }
       localStorage.isAuthenticated = true;
+      emit('success');
     })
     .catch((error) => {
       modal.emit('closeModal', {});

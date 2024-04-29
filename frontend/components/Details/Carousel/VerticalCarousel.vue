@@ -116,8 +116,8 @@
   <TemplatePromise v-slot="{ resolve, reject }">
     <BaseModal :visible="show" width="500" @close="onClose">
       <div class="p-12">
-        <Login @success="showSignUp = true" @reject="reject()" v-if="!showSignUp"></Login>
-        <SignUp v-else @success="resolve(true)" @reject="reject()"></SignUp>
+        <Login @success="showSignUp = true" @reject="reject(null)" v-if="!showSignUp"></Login>
+        <SignUp v-else @success="resolve(true)" @reject="reject(null)"></SignUp>
       </div>
     </BaseModal>
   </TemplatePromise>
@@ -357,6 +357,7 @@ const storeResponseAndClose = async () => {
 const checkUserIdentity = async () => {
   show.value = true;
   await TemplatePromise.start();
+  showSignUp.value = false;
   show.value = false;
 };
 const nextSlide = async () => {

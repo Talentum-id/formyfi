@@ -131,6 +131,7 @@ export const useAuthStore = defineStore('auth', {
           this.setAuthenticationStorage(this.isAuthenticated);
 
           await this.initStores();
+
           if (!this.isQuest) {
             await router.push('/sign-up');
           }
@@ -164,7 +165,7 @@ export const useAuthStore = defineStore('auth', {
       this.identity = this.actor = this.principal = null;
 
       this.setUser();
-      router.push('/login');
+      await router.push('/login');
       window.location.reload();
     },
     register({ username, fullName }) {

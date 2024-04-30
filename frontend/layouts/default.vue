@@ -5,10 +5,7 @@
       <Sidebar v-if="useAuthStore().isAuthenticated" :open="toggleSidebar" :isOpen="sidebarOpen" />
       <div
         class="children-content"
-        :class="
-          ({ open: sidebarOpen && useAuthStore().isAuthenticated },
-          { 'p-10': !useAuthStore().isAuthenticated })
-        "
+        :class="{ open: sidebarOpen && useAuthStore().isAuthenticated }"
       >
         <slot></slot>
       </div>

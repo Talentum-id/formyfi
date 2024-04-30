@@ -413,6 +413,7 @@ const setCachedAnswer = (index) => {
 
 function onClose() {
   show.value = false;
+  showSignUp.value = false;
 }
 
 watch(currentIndex, (value) => {

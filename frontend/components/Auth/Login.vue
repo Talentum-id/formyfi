@@ -12,7 +12,7 @@ onMounted(() => {
 const callback = async (response) => {
   try {
     await useAuthStore().loginWithGoogle(response.credential);
-    emit('success');
+    await emit('success');
   } catch (e) {
     console.log(e);
     emit('reject');

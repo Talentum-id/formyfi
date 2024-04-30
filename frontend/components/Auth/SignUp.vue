@@ -1,9 +1,7 @@
 <script setup>
-import Auth from '@/layouts/auth.vue';
 import Input from '@/components/Input.vue';
 import VButton from '@/components/Button.vue';
 import { useRouter } from 'vue-router';
-import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { computed, onMounted, ref } from 'vue';
 import { modal } from '@/mixins/modal';
@@ -77,7 +75,6 @@ const createAccount = () => {
       form.value.loading = false;
     });
 };
-
 const validateUsername = () => {
   form.value.username = form.value.username.trim().toLowerCase();
   const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;

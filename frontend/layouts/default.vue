@@ -3,7 +3,13 @@
     <Header :open="toggleSidebar" />
     <div class="main-content" :class="{ open: sidebarOpen, mobile: isMobile() }">
       <Sidebar v-if="useAuthStore().isAuthenticated" :open="toggleSidebar" :isOpen="sidebarOpen" />
-      <div class="children-content" :class="{ open: sidebarOpen }">
+      <div
+        class="children-content"
+        :class="
+          ({ open: sidebarOpen && useAuthStore().isAuthenticated },
+          { 'p-10': !useAuthStore().isAuthenticated })
+        "
+      >
         <slot></slot>
       </div>
     </div>
@@ -87,5 +93,9 @@ export default {
 
 .main-content.mobile {
   grid-template-columns: 1fr;
+}
+
+.p-10 {
+  padding: 40px;
 }
 </style>

@@ -59,7 +59,7 @@ async function showModal() {
 <template>
   <Default>
     <div class="header">
-      <BackToList />
+      <BackToList v-if="useAuthStore().isAuthenticated" />
       <div v-if="data && identity === data.owner" class="btn" @click="showModal">
         <Icon name="Delete-def" :size="24"></Icon>
       </div>

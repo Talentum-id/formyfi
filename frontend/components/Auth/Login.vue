@@ -2,7 +2,7 @@
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useAuthStore } from '@/store/auth';
 import { googleLogout } from 'vue3-google-login';
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 
 onMounted(() => {
   googleLogout();
@@ -11,8 +11,11 @@ onMounted(() => {
 });
 const callback = async (response) => {
   try {
-    await useAuthStore().loginWithGoogle(response.credential);
-    await emit('success');
+    await useAuthStore()
+      .loginWithGoogle(response.credential)
+      .then((e) => {
+        emit('success');
+      });
   } catch (e) {
     console.log(e);
     emit('reject');
@@ -26,11 +29,17 @@ const nfidConnect = async () => {};
 const connect = async () => {
   try {
     await authStore.loginWithII();
-    await emit('success');
   } catch (e) {
     emit('reject');
   }
 };
+
+watch(
+  () => authStore.isAuthenticated,
+  () => {
+    emit('success');
+  },
+);
 </script>
 
 <template>

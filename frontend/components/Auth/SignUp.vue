@@ -19,16 +19,20 @@ const errors = ref({
   username: '',
 });
 
-onMounted(() => {
-  authStore.actor?.findUser(authStore.getPrincipal).then((res) => {
-    if (res.length) {
-      authStore.setUser(res[0]);
-      if (!useAuthStore().isQuest) {
-        router.push('/');
+onMounted(async () => {
+  try {
+    await authStore.actor?.findUser(authStore.getPrincipal).then((res) => {
+      if (res.length) {
+        authStore.setUser(res[0]);
+        if (!useAuthStore().isQuest) {
+          router.push('/');
+        }
+        emit('success');
       }
-      emit('success');
-    }
-  });
+    });
+  } catch (e) {
+    emit('reject');
+  }
 });
 
 const validationError = computed(() => {

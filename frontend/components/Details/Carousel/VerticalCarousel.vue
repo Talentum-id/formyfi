@@ -116,7 +116,11 @@
   <TemplatePromise v-slot="{ resolve, reject }">
     <BaseModal :visible="show" width="500" @close="onClose">
       <div class="p-12">
-        <Login @success="showSignUp = true" @reject="reject(null)" v-if="!showSignUp"></Login>
+        <Login
+          @success="showSignUp = useAuthStore().isAuthenticated"
+          @reject="reject(null)"
+          v-if="!showSignUp"
+        ></Login>
         <SignUp v-else @success="resolve(true)" @reject="reject(null)"></SignUp>
       </div>
     </BaseModal>

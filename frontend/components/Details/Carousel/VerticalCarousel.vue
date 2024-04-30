@@ -117,7 +117,7 @@
     <BaseModal :visible="show" width="500" @close="onClose">
       <div class="p-12">
         <Login
-          @success="showSignUp = useAuthStore().isAuthenticated"
+          @success="useAuthStore().isAuthenticated ? resolve(true) : (showSignUp = true)"
           @reject="reject(null)"
           v-if="!showSignUp"
         ></Login>

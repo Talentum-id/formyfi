@@ -62,6 +62,15 @@ actor UserIndex {
     usernames.get(username) != null;
   };
 
+  public shared ({ caller }) func me(character : Utils.Character) : async UserData {
+    let identity = await Utils.authenticate(caller, false, character);
+
+    switch (users.get(identity)) {
+      case null throw Error.reject(Utils.DEFAULT_ERROR);
+      case (?user) user;
+    };
+  };
+
   system func preupgrade() {
     userEntries := Iter.toArray(users.entries());
     usernameEntries := Iter.toArray(usernames.entries());

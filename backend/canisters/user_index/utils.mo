@@ -12,7 +12,7 @@ module {
   public let DEFAULT_ERROR = "You are not authenticated";
 
   public func authenticate(caller : Principal, anonymous : Bool, identificator : Character) : async Text {
-    let { character; identity } = identificator;
+    let { character } = identificator;
 
     if (not (Principal.isAnonymous(caller))) {
       return Principal.toText(caller);

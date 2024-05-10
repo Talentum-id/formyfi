@@ -90,8 +90,11 @@ actor UserIndex {
         users.put(identity, data);
 
         if (user.username != data.username) {
-          usernames.delete(user.username);
+          let existingUsername = await findUsername(data.username);
 
+          if (existingUsername) throw Error.reject("This username already exists");
+
+          usernames.delete(user.username);
           usernames.put(data.username, identity);
         };
 

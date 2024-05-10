@@ -9,6 +9,7 @@ import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Types "/types";
 import QAIndex "canister:qa_index";
+import StatsIndex "canister:stats_index";
 import Utils "../user_index/utils";
 import UserIndex "canister:user_index";
 
@@ -80,7 +81,7 @@ actor ResponseIndex {
 
   public shared ({ caller }) func store(data : Data, character : Utils.Character) : async () {
     let identity = await Utils.authenticate(caller, true, character);
-    let { shareLink; answers; } = data;
+    let { shareLink; answers } = data;
     let responseIdentifier = identity # "-" # shareLink;
 
     switch (await QAIndex.show(shareLink)) {
@@ -105,6 +106,8 @@ actor ResponseIndex {
             };
 
             responses.put(responseIdentifier, answers);
+
+            StatsIndex.incrementFormCompleted(identity, questions.size());
 
             ignore saveAuthorQA(identity, data, qa.quest.title);
           };

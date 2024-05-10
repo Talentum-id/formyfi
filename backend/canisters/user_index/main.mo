@@ -2,9 +2,16 @@ import Text "mo:base/Text";
 import Map "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Error "mo:base/Error";
+import Types "../stats_index/types";
+import StatsIndex "canister:stats_index";
 import Utils "utils";
 
 actor UserIndex {
+  type ProfileData = {
+    user : UserData;
+    stats : ?Types.Data;
+  };
+
   type UserData = {
     provider : Text;
     fullName : Text;
@@ -19,7 +26,7 @@ actor UserIndex {
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
-    let { provider; fullName; username; avatar; } = data;
+    let { provider; fullName; username; avatar } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0 or fullName.size() == 0) {
@@ -61,12 +68,16 @@ actor UserIndex {
     usernames.get(username) != null;
   };
 
-  public shared ({ caller }) func me(character : Utils.Character) : async UserData {
+  public shared ({ caller }) func me(character : Utils.Character) : async ProfileData {
     let identity = await Utils.authenticate(caller, false, character);
 
     switch (users.get(identity)) {
       case null throw Error.reject(Utils.DEFAULT_ERROR);
-      case (?user) user;
+      case (?user) {
+        let stats = await StatsIndex.findStats(identity);
+
+        { user; stats };
+      };
     };
   };
 

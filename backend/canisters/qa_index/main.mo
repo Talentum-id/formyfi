@@ -6,6 +6,7 @@ import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Map "mo:base/HashMap";
 import Nat "mo:base/Nat";
+import StatsIndex "canister:stats_index";
 import Text "mo:base/Text";
 import Types "types";
 import Utils "../user_index/utils";
@@ -84,12 +85,16 @@ actor QAIndex {
     switch (QAs.get(identity)) {
       case null {
         QAs.put(identity, [data]);
+
+        StatsIndex.incrementFormCreated(identity);
       };
       case (?userQA) {
         let qas = Buffer.fromArray<QA>(userQA);
         qas.add(data);
 
         QAs.put(identity, Buffer.toArray(qas));
+
+        StatsIndex.incrementFormCreated(identity);
       };
     };
 

@@ -6,9 +6,7 @@ import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Map "mo:base/HashMap";
 import Nat "mo:base/Nat";
-import Principal "mo:base/Principal";
 import Text "mo:base/Text";
-import Time "mo:base/Time";
 import Types "/types";
 import QAIndex "canister:qa_index";
 import Utils "../user_index/utils";
@@ -74,11 +72,6 @@ actor ResponseIndex {
     let { identity; shareLink } = params;
     let responseIdentifier = identity # "-" # shareLink;
 
-    let response = switch (authorsViaQA.get(shareLink)) {
-      case null null;
-      case (?qaAuthors) Array.find<Author>(qaAuthors, func author = author.identity == identity);
-    };
-
     switch (responses.get(responseIdentifier)) {
       case null [];
       case (?answers) answers;
@@ -87,7 +80,7 @@ actor ResponseIndex {
 
   public shared ({ caller }) func store(data : Data, character : Utils.Character) : async () {
     let identity = await Utils.authenticate(caller, true, character);
-    let { shareLink; answers; filled } = data;
+    let { shareLink; answers; } = data;
     let responseIdentifier = identity # "-" # shareLink;
 
     switch (await QAIndex.show(shareLink)) {

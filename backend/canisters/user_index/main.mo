@@ -1,8 +1,5 @@
 import Text "mo:base/Text";
-import RBTree "mo:base/RBTree";
 import Map "mo:base/HashMap";
-import Principal "mo:base/Principal";
-import Buffer "mo:base/Buffer";
 import Iter "mo:base/Iter";
 import Error "mo:base/Error";
 import Utils "utils";
@@ -12,6 +9,7 @@ actor UserIndex {
     provider : Text;
     fullName : Text;
     username : Text;
+    avatar : ?Text;
   };
 
   stable var userEntries : [(Text, UserData)] = [];
@@ -21,7 +19,7 @@ actor UserIndex {
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
-    let { provider; fullName; username } = data;
+    let { provider; fullName; username; avatar; } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0 or fullName.size() == 0) {
@@ -43,6 +41,7 @@ actor UserIndex {
               provider;
               fullName;
               username;
+              avatar;
             },
           );
           usernames.put(username, identity);
@@ -68,6 +67,25 @@ actor UserIndex {
     switch (users.get(identity)) {
       case null throw Error.reject(Utils.DEFAULT_ERROR);
       case (?user) user;
+    };
+  };
+
+  public shared ({ caller }) func updateMe(character : Utils.Character, data : UserData) : async ?UserData {
+    let identity = await Utils.authenticate(caller, false, character);
+
+    switch (users.get(identity)) {
+      case null throw Error.reject(Utils.DEFAULT_ERROR);
+      case (?user) {
+        users.put(identity, data);
+
+        if (user.username != data.username) {
+          usernames.delete(user.username);
+
+          usernames.put(data.username, identity);
+        };
+
+        users.get(identity);
+      };
     };
   };
 

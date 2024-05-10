@@ -6,8 +6,6 @@ import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Map "mo:base/HashMap";
 import Nat "mo:base/Nat";
-import Order "mo:base/Order";
-import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Types "types";
 import Utils "../user_index/utils";

@@ -12,13 +12,13 @@ module {
   public let DEFAULT_ERROR = "You are not authenticated";
 
   public func authenticate(caller : Principal, anonymous : Bool, identificator : Character) : async Text {
-    let { character } = identificator;
+    let { character; identity } = identificator;
 
     if (not (Principal.isAnonymous(caller))) {
       return Principal.toText(caller);
     };
 
-    if (not (anonymous) and character != DEFAULT_PRINCIPAL) {
+    if (not (anonymous) and identity != DEFAULT_PRINCIPAL) {
       throw Error.reject(DEFAULT_ERROR);
     };
 

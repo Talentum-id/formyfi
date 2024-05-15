@@ -5,6 +5,8 @@ import login from '@/pages/login.vue';
 import signUp from '@/pages/sign-up.vue';
 import quest from '@/pages/quest.vue';
 import Preview from '@/pages/preview.vue';
+import Profile from '@/pages/profile.vue';
+import Leaderboard from '@/pages/leaderboard.vue';
 import { useAuthStore } from '@/store/auth';
 
 const routes = [
@@ -32,6 +34,24 @@ const routes = [
     component: Responses,
     meta: {
       title: `Responses`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: Profile,
+    meta: {
+      title: `Profile`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/leaderboard',
+    name: 'leaderboard',
+    component: Leaderboard,
+    meta: {
+      title: `Leaderboard`,
       requiresAuth: true,
     },
   },

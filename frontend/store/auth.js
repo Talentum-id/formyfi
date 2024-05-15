@@ -9,6 +9,7 @@ import { useAssetsStore } from './assets';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
+import { useStatsStore } from '@/store/stats';
 
 const defaultOptions = {
   createOptions: {
@@ -42,6 +43,7 @@ export const useAuthStore = defineStore('auth', {
       principal: null,
       user: null,
       isQuest: false,
+      profile: null,
     };
   },
   actions: {
@@ -109,6 +111,7 @@ export const useAuthStore = defineStore('auth', {
       await useQAStore().init();
       await useAssetsStore().init();
       await useResponseStore().init();
+      await useStatsStore().init();
     },
     async loginWithII() {
       if (this.authClient === null) {
@@ -172,7 +175,7 @@ export const useAuthStore = defineStore('auth', {
       const provider = localStorage.authenticationProvider;
 
       return this.actor?.register(
-        { username, fullName, provider },
+        { username, fullName, provider, avatar: [] },
         {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,
@@ -195,14 +198,57 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
       } else {
         const { fullName, provider, username } = user;
-
+        this.getProfile();
         this.user = { fullName, provider, username };
       }
+    },
+    async getProfile() {
+      return await this.actor
+        ?.me({
+          identity: process.env.DFX_ASSET_PRINCIPAL,
+          character: localStorage.extraCharacter,
+        })
+        .then((e) => {
+          this.profile = {
+            ...e.user,
+            stats: {
+              forms_completed: Number(e.stats?.[0]?.forms_completed ?? 0),
+              forms_created: Number(e.stats?.[0]?.forms_created ?? 0),
+              points: Number(e.stats?.[0]?.points ?? 0),
+            },
+          };
+        });
+    },
+    async saveProfile(data) {
+      return await this.actor
+        ?.updateMe(
+          {
+            identity: process.env.DFX_ASSET_PRINCIPAL,
+            character: localStorage.extraCharacter,
+          },
+          {
+            provider: localStorage.authenticationProvider,
+            fullName: data.fullName,
+            username: data.username,
+            avatar: data.avatar,
+          },
+        )
+        .then((e) => {
+          this.profile = {
+            ...e.user,
+            stats: {
+              forms_completed: Number(e.stats?.[0]?.forms_completed ?? 0),
+              forms_created: Number(e.stats?.[0]?.forms_created ?? 0),
+              points: Number(e.stats?.[0]?.points ?? 0),
+            },
+          };
+        });
     },
   },
   getters: {
     getIdentity: ({ identity }) => identity,
     getPrincipal: ({ principal }) => localStorage.extraCharacter || principal?.toText() || null,
     getUser: ({ user }) => user,
+    getProfileData: ({ profile }) => profile,
   },
 });

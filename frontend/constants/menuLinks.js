@@ -6,8 +6,13 @@ const MENU_LINKS = [
   },
   {
     name: 'Responses',
-    img: 'Talents',
+    img: 'Request',
     to: '/responses',
+  },
+  {
+    name: 'Leaderboard',
+    img: 'Talents',
+    to: '/leaderboard',
   },
 ];
 

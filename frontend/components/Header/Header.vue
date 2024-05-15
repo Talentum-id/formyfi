@@ -20,6 +20,8 @@
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>
           <div class="menu">
+            <router-link to="/profile" class="logout"> Profile </router-link>
+            <hr />
             <span class="logout" @click="authStore.logout()">
               Logout
               <Icon icon="Kick-out" :size="24"></Icon>
@@ -33,10 +35,11 @@
 <script>
 import windowSizeMixin from '@/mixins/windowSizeMixin';
 import defaultAvatar from '@/assets/images/User.png';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 import { useAuthStore } from '@/store/auth';
+import { useAssetsStore } from '@/store/assets';
 
 export default {
   name: 'Header',
@@ -47,11 +50,13 @@ export default {
     };
   },
   setup() {
-    const avatar = computed(() => {});
+    const avatar = ref(null);
     const showTooltips = ref(false);
     const router = useRouter();
     const authStore = useAuthStore();
-    const user = computed(() => authStore.getUser);
+    const user = computed(() => authStore.getProfileData);
+    const assetsStore = useAssetsStore();
+
     const menu = ref(null);
     const goHome = () => {
       router.push('/');
@@ -63,10 +68,26 @@ export default {
       }
     };
 
-    onMounted(() => {
+    onMounted(async () => {
       document.addEventListener('click', handleClickOutside);
+      await assetsStore
+        .getFile(user.value?.avatar?.[0])
+        .then((res) => {
+          avatar.value = res;
+        })
+        .catch(() => (avatar.value = user.value?.avatar?.[0]));
     });
-
+    watch(
+      () => user.value,
+      () => {
+        assetsStore
+          .getFile(user.value?.avatar?.[0])
+          .then((res) => {
+            avatar.value = res;
+          })
+          .catch(() => (avatar.value = user.value?.avatar?.[0]));
+      },
+    );
     return {
       avatar,
       menu,

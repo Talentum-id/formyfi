@@ -1,6 +1,7 @@
 {
   "canisters": {
     "user_index": {
+      "dependencies": ["internet_identity"],
       "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
     },

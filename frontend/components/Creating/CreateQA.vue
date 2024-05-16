@@ -74,7 +74,7 @@
           <TooltipIcon tooltipText="tooltipText" />
         </div>
         <div class="section_wrapper-subtitle">
-          Create up to 8 quiz questions. <br />
+          Create up to 30 questions. <br />
           Enter a question and up to 5 answer options, mark the correct answer.
         </div>
         <div
@@ -342,7 +342,7 @@ const handleImageError = (event) => {
 };
 
 const addQuestion = () => {
-  if (countOfQuestions.value.length < 8) {
+  if (countOfQuestions.value.length < 30) {
     countOfQuestions.value.push({
       question: '',
       questionType: '',

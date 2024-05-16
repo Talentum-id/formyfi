@@ -92,14 +92,21 @@ actor ResponseIndex {
         switch (responses.get(responseIdentifier)) {
           case null {
             var index = 0;
+            var answersCount = 0;
 
             if (answers.size() != questions.size()) {
               throw Error.reject("The answers don't match the questions");
             };
 
             for (answer in answers.vals()) {
-              if (answer.answer == "" and questions[index].required == true) {
+              let sanitizedAnswer = Text.trim(answer.answer, #char ' ');
+
+              if (sanitizedAnswer == "" and questions[index].required == true) {
                 throw Error.reject("Required questions should be answered");
+              };
+
+              if (sanitizedAnswer != "") {
+                answersCount += 1;
               };
 
               index += 1;
@@ -107,7 +114,7 @@ actor ResponseIndex {
 
             responses.put(responseIdentifier, answers);
 
-            StatsIndex.incrementFormCompleted(identity, questions.size());
+            StatsIndex.incrementFormCompleted(identity, answersCount);
 
             ignore saveAuthorQA(identity, data, qa.quest.title);
           };

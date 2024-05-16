@@ -108,15 +108,15 @@
           <div class="section_wrapper-subtitle">
             Determine if the talent must meet certain conditions in order to validate the task
           </div>
-          <FilterToggle
-            :buttons="questsTypeItems"
-            :id="question.type"
-            fixedWidth="100%"
-            @select="question.type = $event.id"
-          />
+          <Select :options="questsTypeItems" @input="question.type = $event"></Select>
           <div class="body">
+            <span class="section_wrapper-subtitle">{{ question.type?.info?.description }}</span>
             <div class="content-block">
+              <div v-if="question.type?.info" class="flex-col">
+                <SocialConnect :data="question.type?.info"></SocialConnect>
+              </div>
               <CustomUpload
+                v-else
                 :imagesFiles="question.image"
                 @images="question.image = $event"
                 @changeError="handleImageError"
@@ -135,7 +135,7 @@
                 errorText="Question is Required"
               />
               <TextArea placeholder="Description (optional)" v-model="question.description" />
-              <div class="flex items-center gap-x-[8px]" v-if="question.type === 0">
+              <div class="flex items-center gap-x-[8px]" v-if="question.type?.id === 0">
                 <Checkbox
                   label="Allow respondent to add file"
                   @check="question.fileAllowed = $event"
@@ -143,7 +143,7 @@
                 ><TooltipIcon tooltipText="tooltipText" />
               </div>
             </div>
-            <div v-if="question.type === 1">
+            <div v-if="question.type?.id === 1">
               <div class="answers">
                 <div class="answer" v-for="(answer, id) in question.answers" :key="id">
                   <div class="status">
@@ -203,6 +203,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import BaseModal from '@/components/BaseModal.vue';
+import Select from '@/components/Select.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
 import Editor from '@/components/Creating/Editor.vue';
@@ -224,6 +225,7 @@ import { useRouter } from 'vue-router';
 import Checkbox from '@/components/Creating/Checkbox.vue';
 import { modal } from '@/mixins/modal';
 import localForage from 'localforage';
+import SocialConnect from '@/components/Creating/SocialConnect.vue';
 
 const router = useRouter();
 const emits = defineEmits('refresh');
@@ -235,10 +237,43 @@ const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
 const questsTypeItems = ref([
-  { title: 'Open Question', id: 0, name: 'question' },
-  { title: 'Quiz Question', id: 1, name: 'quiz' },
-  // { title: 'Multiple Choice', id: 2, name: 'multiple' },
+  { name: 'Open Question', id: 0, type: 'open' },
+  { name: 'Quiz Question', id: 1, type: 'quiz' },
+  // { name: 'Multiple Choice', id: 2 },
+  {
+    name: 'Twitter Connect',
+    id: 3,
+    type: 'twitter',
+    info: {
+      icon: 'Twitter-Default',
+      title: 'Connect Twitter',
+      description:
+        'Users will be asked to connect their Twitter Account by clicking the button bellow.',
+    },
+  },
+  {
+    name: 'Discord Connect',
+    id: 4,
+    type: 'discord',
+    info: {
+      icon: 'Discord-Default',
+      title: 'Connect Discord',
+      description:
+        'Users will be asked to connect their Discord Account by clicking the button bellow.',
+    },
+  },
+  {
+    name: 'Wallet Connect',
+    id: 5,
+    type: 'wallet',
+    info: {
+      icon: 'Wallet-Default',
+      title: 'Connect Wallet',
+      description: 'Users will be asked to connect their wallet by clicking the button bellow.',
+    },
+  },
 ]);
+
 const authStore = useAuthStore();
 const qaStore = useQAStore();
 const assetsStore = useAssetsStore();
@@ -249,7 +284,7 @@ const countOfQuestions = ref([
     questionType: '',
     fileAllowed: false,
     openAnswerAllowed: false,
-    type: 0,
+    type: null,
     description: '',
     file: '',
     image: [],
@@ -261,7 +296,7 @@ const errorMessage = ref('Error');
 const validationCheck = computed(() => {
   const questionTitleIsEmpty = countOfQuestions.value.find((item) => !item.question);
   const questionAnswerIsEmpty = countOfQuestions.value.find(
-    (item) => item.type && item.answers.find((el) => !el.answer),
+    (item) => item.type?.id && item.answers.find((el) => !el.answer),
   );
 
   if (
@@ -449,8 +484,8 @@ const preview = async () => {
 
     return {
       ...item,
-      questionType: item.type ? 'quiz' : 'open',
-      answers: item.type ? item.answers : [],
+      questionType: item.type.type,
+      answers: item.type?.id === 1 ? item.answers : [],
       file: file,
       answer: null,
     };
@@ -485,8 +520,8 @@ const saveQA = async () => {
     questions: countOfQuestions.value.map((item) => {
       return {
         ...item,
-        questionType: item.type ? 'quiz' : 'open',
-        answers: item.type ? item.answers : [],
+        questionType: item.type.type,
+        answers: item.type?.id === 1 ? item.answers : [],
       };
     }),
   });
@@ -499,7 +534,7 @@ const resetFields = () => {
     {
       question: '',
       questionType: '',
-      type: 0,
+      type: null,
       description: '',
       file: '',
       image: [],

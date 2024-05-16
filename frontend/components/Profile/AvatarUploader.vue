@@ -8,8 +8,6 @@
       accept="image/*"
     />
     <div class="default-avatar" v-if="!avatar && !newAvatar" @click="uploadAvatar">
-      {{ avatar }}
-
       <Icon class="controller" icon="Create" :size="24"></Icon>
     </div>
     <div class="avatar" v-else :style="{ backgroundImage: `url(${newAvatar || avatar})` }">

@@ -1,7 +1,7 @@
 <template>
   <Default>
     <div class="profile" v-if="user">
-      <BannerUploader :banner="user.banner"></BannerUploader>
+      <BannerUploader :banner="banner"></BannerUploader>
       <div class="naming w-full">
         <AvatarUploader :avatar="avatar"></AvatarUploader>
         <div class="info">
@@ -54,31 +54,35 @@ import { useAssetsStore } from '@/store/assets';
 
 const authStore = useAuthStore();
 const avatar = ref(null);
+const banner = ref(null);
 const user = computed(() => authStore.getProfileData);
 const assetsStore = useAssetsStore();
 
 onMounted(async () => {
   await authStore.getProfile();
-  await assetsStore
-    .getFile(user.value?.avatar?.[0])
-    .then((res) => {
-      avatar.value = res;
-    })
-    .catch(() => (avatar.value = user.value.avatar?.[0]));
+  await initImages();
 });
 
 watch(
   () => user.value,
   () => {
-    assetsStore
-      .getFile(user.value?.avatar?.[0])
-      .then((res) => {
-        avatar.value = res;
-        console.log(res);
-      })
-      .catch(() => (avatar.value = user.value?.avatar?.[0]));
+    initImages();
   },
 );
+function initImages() {
+  assetsStore
+    .getFile(user.value?.avatar?.[0])
+    .then((res) => {
+      avatar.value = res;
+    })
+    .catch(() => (avatar.value = user.value?.avatar?.[0]));
+  assetsStore
+    .getFile(user.value?.banner?.[0])
+    .then((res) => {
+      banner.value = res;
+    })
+    .catch(() => (banner.value = user.value?.banner?.[0]));
+}
 let name = ref('');
 const setName = useDebounceFn(
   async () => {
@@ -86,6 +90,7 @@ const setName = useDebounceFn(
       fullName: user.value.fullName,
       username: name.value,
       avatar: user.value.avatar,
+      banner: user.value.banner,
     });
     await authStore.getProfile();
   },

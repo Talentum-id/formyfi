@@ -8,7 +8,7 @@
       accept="image/*"
     />
     <div v-if="!banner && !image" class="default-block">
-      <!--      <div class="add-image"><Icon icon="Create" :size="24" @click="uploadImage" /></div>-->
+      <div class="add-image"><Icon icon="Create" :size="24" @click="uploadImage" /></div>
     </div>
     <div v-else class="background-block" :style="{ backgroundImage: `url(${image || banner})` }">
       <div class="controllers">
@@ -21,6 +21,9 @@
 
 <script>
 import Icon from '@/components/Icons/Icon.vue';
+import { modal } from '@/mixins/modal';
+import { useAssetsStore } from '@/store/assets';
+import { useAuthStore } from '@/store/auth';
 
 export default {
   name: 'BannerUploader',
@@ -30,6 +33,7 @@ export default {
       hover: false,
       noImage: true,
       image: null,
+      file: null,
     };
   },
   props: {
@@ -39,6 +43,40 @@ export default {
     },
   },
   methods: {
+    loadFiles() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          await modal.emit('openModal', {
+            title: 'Loading files...',
+            message: 'Please wait for a while',
+            type: 'loading',
+          });
+          let index = 0;
+          const realTime = Math.floor(new Date().getTime() / 1000);
+          const batch = useAssetsStore().assetManager.batch();
+          let banner;
+          if (typeof this.file !== 'string') {
+            banner = await batch.store(this.file, {
+              path: `/assets/${realTime}/${index}`,
+            });
+          }
+
+          await batch.commit();
+          await useAuthStore().saveProfile({
+            fullName: useAuthStore().getProfileData.fullName,
+            username: useAuthStore().getProfileData.username,
+            avatar: useAuthStore().getProfileData.avatar,
+            banner: [banner],
+          });
+          await useAuthStore().getProfile();
+          await modal.emit('closeModal', {});
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+
     handleFileUpload() {
       const file = this.$refs.fileInput.files[0];
       const maxSizeInMB = 10;
@@ -51,7 +89,10 @@ export default {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
+          this.file = file;
           this.image = e.target.result;
+          this.loadFiles();
+
           this.noImage = false;
         };
         reader.readAsDataURL(file);
@@ -63,6 +104,12 @@ export default {
     removeImage() {
       this.image = null;
       this.noImage = true;
+      useAuthStore().saveProfile({
+        fullName: useAuthStore().getProfileData.fullName,
+        username: useAuthStore().getProfileData.username,
+        avatar: useAuthStore().getProfileData.avatar,
+        banner: [],
+      });
     },
   },
 };

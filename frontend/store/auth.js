@@ -180,7 +180,7 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,
         },
-      );
+    );
     },
     setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
       if (isAuthenticated) {

@@ -1,9 +1,10 @@
-import Text "mo:base/Text";
+import Buffer "mo:base/Buffer";
 import Map "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Error "mo:base/Error";
 import StatsTypes "../stats_index/types";
 import StatsIndex "canister:stats_index";
+import Text "mo:base/Text";
 import Types "./types";
 import Utils "utils";
 
@@ -58,6 +59,16 @@ actor UserIndex {
 
   public query func findUser(identity : Text) : async ?UserData {
     users.get(identity);
+  };
+
+  public query func getUsers(identities : [Text]) : async [?UserData] {
+    let data = Buffer.fromArray<?UserData>([]);
+
+    for (identity in identities.vals()) {
+      data.add(users.get(identity));
+    };
+
+    Buffer.toArray(data);
   };
 
   public query func findUsername(username : Text) : async Bool {

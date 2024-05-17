@@ -114,7 +114,7 @@ actor ResponseIndex {
 
             responses.put(responseIdentifier, answers);
 
-            StatsIndex.incrementFormCompleted(identity, answersCount);
+            StatsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
 
             ignore saveAuthorQA(identity, data, qa.quest.title);
           };

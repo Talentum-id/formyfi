@@ -23,4 +23,14 @@ module StatsTypes {
     data : [GeneralData];
     pagination : PaginationTypes.Pagination;
   };
+
+  public type ProjectData = {
+    identity : Text;
+    points : Nat;
+  };
+
+  public type ListResultPerProject = {
+    data : [ProjectData];
+    pagination : PaginationTypes.Pagination;
+  };
 };

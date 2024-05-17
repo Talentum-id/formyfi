@@ -12,12 +12,16 @@ actor StatsIndex {
   type GeneralStatsData = Types.GeneralData;
   type List = Types.ListResult;
   type Params = Types.FetchParams;
+  type ProjectList = Types.ListResultPerProject;
+  type ProjectStatsData = Types.ProjectData;
   type StatsData = Types.Data;
 
+  stable var statsPerProjectEntries : [(Text, [ProjectStatsData])] = [];
   stable var statsEntries : [(Text, StatsData)] = [];
   stable var generalStats : [GeneralStatsData] = [];
 
   let stats = Map.fromIter<Text, StatsData>(statsEntries.vals(), 1000, Text.equal, Text.hash);
+  let statsPerProject = Map.fromIter<Text, [ProjectStatsData]>(statsPerProjectEntries.vals(), 1000, Text.equal, Text.hash);
 
   public query func list(params : Params) : async List {
     var data = generalStats;
@@ -64,6 +68,56 @@ actor StatsIndex {
     };
 
     { data; pagination };
+  };
+
+  public query func listPerProject(identity : Text, params : Params) : async ProjectList {
+    switch (statsPerProject.get(identity)) {
+      case null {
+        return {
+          pagination = {
+            total = 0;
+            count = 0;
+            per_page = 10;
+            current_page = 1;
+            total_pages = 1;
+          };
+          data = [];
+        };
+      };
+      case (?statistics) {
+        var data = statistics;
+        let { page; pageSize } = params;
+
+        data := Array.sort<ProjectStatsData>(
+          data,
+          func(x : ProjectStatsData, y : ProjectStatsData) {
+            let (key1 : Text, key2 : Text) = (Nat.toText(x.points), Nat.toText(y.points));
+
+            if (key1 > key2) #less else if (key2 < key1) #greater else #equal;
+          },
+        );
+
+        let pagination = {
+          total = data.size();
+          count = params.pageSize;
+          per_page = params.pageSize;
+          current_page = params.page;
+          total_pages = Float.ceil(Float.fromInt(data.size()) / Float.fromInt(params.pageSize));
+        };
+
+        if (page != 0 and pageSize != 0) {
+          var offset : Int = page - 1;
+          offset := offset * pageSize;
+
+          var limit : Int = if (data.size() < offset + pageSize) data.size() else offset + pageSize;
+          var slicedData = Array.slice<ProjectStatsData>(data, Int.abs(offset), Int.abs(limit));
+
+          data := Iter.toArray(slicedData);
+        };
+
+        { data; pagination };
+      };
+    };
   };
 
   public func incrementFormCreated(identity : Text) {
@@ -114,7 +168,19 @@ actor StatsIndex {
     };
   };
 
-  public func incrementFormCompleted(identity : Text, points : Nat) {
+  public func incrementFormCompleted(qaOwner : Text, identity : Text, points : Nat) {
+    await incrementGeneralPoints(identity, points);
+    await incrementPointsPerProject(qaOwner, identity, points);
+  };
+
+  public query func findStats(identity : Text) : async ?StatsData {
+    switch (stats.get(identity)) {
+      case null null;
+      case (?stats) ?stats;
+    };
+  };
+
+  func incrementGeneralPoints(identity : Text, points : Nat) : async () {
     switch (stats.get(identity)) {
       case null {
         stats.put(
@@ -162,18 +228,59 @@ actor StatsIndex {
     };
   };
 
-  public query func findStats(identity : Text) : async ?StatsData {
-    switch (stats.get(identity)) {
-      case null null;
-      case (?stats) ?stats;
+  func incrementPointsPerProject(project : Text, identity : Text, points : Nat) : async () {
+    switch (statsPerProject.get(project)) {
+      case null {
+        statsPerProject.put(project, [{ identity; points }]);
+      };
+      case (?statistics) {
+        switch (Array.find<ProjectStatsData>(statistics, func item = item.identity == identity)) {
+          case null {
+            let statsData = Buffer.fromArray<ProjectStatsData>(statistics);
+
+            statsData.add({
+              identity;
+              points;
+            });
+
+            statsPerProject.put(project, Buffer.toArray(statsData));
+          };
+          case (?userStatsPerProject) {
+            switch (
+              Array.indexOf<ProjectStatsData>(
+                userStatsPerProject,
+                statistics,
+                func(stat1 : ProjectStatsData, stat2 : ProjectStatsData) : Bool = stat1 == stat2,
+              )
+            ) {
+              case null ();
+              case (?index) {
+                let statsData = Buffer.fromArray<ProjectStatsData>(statistics);
+
+                statsData.put(
+                  index,
+                  {
+                    identity;
+                    points = userStatsPerProject.points + points;
+                  },
+                );
+
+                statsPerProject.put(project, Buffer.toArray(statsData));
+              };
+            };
+          };
+        };
+      };
     };
   };
 
   system func preupgrade() {
     statsEntries := Iter.toArray(stats.entries());
+    statsPerProjectEntries := Iter.toArray(statsPerProject.entries());
   };
 
   system func postupgrade() {
     statsEntries := [];
+    statsPerProjectEntries := [];
   };
 };

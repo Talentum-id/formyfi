@@ -2,21 +2,17 @@ import Text "mo:base/Text";
 import Map "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Error "mo:base/Error";
-import Types "../stats_index/types";
+import StatsTypes "../stats_index/types";
 import StatsIndex "canister:stats_index";
+import Types "./types";
 import Utils "utils";
 
 actor UserIndex {
+  type UserData = Types.UserData;
+
   type ProfileData = {
     user : UserData;
-    stats : ?Types.Data;
-  };
-
-  type UserData = {
-    provider : Text;
-    fullName : Text;
-    username : Text;
-    avatar : ?Text;
+    stats : ?StatsTypes.Data;
   };
 
   stable var userEntries : [(Text, UserData)] = [];

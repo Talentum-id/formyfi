@@ -31,6 +31,12 @@
           <div class="question-description" v-if="newArr[currentIndex].description">
             {{ newArr[currentIndex].description }}
           </div>
+          <div class="flex items-center m-auto">
+            <BaseButton type="normal" @click="connect()"
+              ><Icon name="Discord-Default" class="icon-soc" :size="24"></Icon> Connect
+              Discord</BaseButton
+            >
+          </div>
           <div class="answer-textarea" v-if="isOpenQuestion">
             <TextArea
               placeholder="Your Answer"
@@ -54,9 +60,7 @@
             <div
               class="w-full text-center mt-[20px]"
               v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
-            >
-              <!--              <IsCorrectMessage></IsCorrectMessage>-->
-            </div>
+            ></div>
           </div>
           <div v-else>
             <el-radio-group
@@ -84,18 +88,6 @@
                 }"
               />
             </el-radio-group>
-            <!--            <div-->
-            <!--              class="w-full text-center mt-[20px]"-->
-            <!--              v-if="newArr[currentIndex].myAnswer || newArr[currentIndex].answer"-->
-            <!--            >-->
-            <!--              <IsCorrectMessage-->
-            <!--                v-if="isCorrect || newArr[currentIndex].openAnswerAllowed"-->
-            <!--              ></IsCorrectMessage>-->
-            <!--              <IsIncorrectMessage-->
-            <!--                v-if="!newArr[currentIndex].openAnswerAllowed && !isCorrect && correctItem"-->
-            <!--                :correct-answer="correctItem.answer"-->
-            <!--              ></IsIncorrectMessage>-->
-            <!--            </div>-->
           </div>
         </div>
         <div class="controllers">
@@ -151,6 +143,7 @@ import BaseModal from '@/components/BaseModal.vue';
 import Login from '@/components/Auth/Login.vue';
 import { createTemplatePromise } from '@vueuse/core';
 import SignUp from '@/components/Auth/SignUp.vue';
+import Icon from '@/components/Icons/Icon.vue';
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
 const assetsStore = useAssetsStore();
@@ -321,7 +314,6 @@ const handleSuccessModal = () => {
     fn: () => modal.emit('closeModal', {}),
   });
 };
-
 const handleErrorModal = () => {
   modal.emit('openModal', {
     title: 'Error Message',
@@ -338,7 +330,6 @@ const handleLoadingModal = () => {
     type: 'loading',
   });
 };
-
 const handleLoadingFilesModal = () => {
   modal.emit('openModal', {
     title: 'Uploading files...',
@@ -346,7 +337,6 @@ const handleLoadingFilesModal = () => {
     type: 'loading',
   });
 };
-
 const storeResponseAndClose = async () => {
   await handleLoadingModal();
   await responseStore.storeResponse({
@@ -402,7 +392,28 @@ const nextSlide = async () => {
     }
   }
 };
+const connect = async () => {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const currentFullURL = window.location.origin + route.fullPath;
+  const { ethereum } = window;
+  if (!ethereum) {
+    if (isMobile) {
+      window.location.href = `https://metamask.app.link/dapp/${currentFullURL}`;
+    } else {
+      window.open('https://metamask.io/', '_blank');
+    }
+    return;
+  }
 
+  const providerMM = window.ethereum.providers
+    ? window.ethereum.providers.find((provider) => provider.isMetaMask)
+    : window.ethereum;
+  const accounts = await providerMM.request({
+    method: 'eth_requestAccounts',
+  });
+
+  console.log(accounts[0]);
+};
 const rerender = async () => {
   rerenderImages.value = true;
   await nextTick();
@@ -606,5 +617,9 @@ watch(currentIndex, (value) => {
 .content {
   max-height: 90%;
   overflow-y: scroll;
+}
+
+.icon-soc {
+  filter: invert(99%) sepia(0%) saturate(7494%) hue-rotate(201deg) brightness(153%) contrast(100%);
 }
 </style>

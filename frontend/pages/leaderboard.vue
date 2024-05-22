@@ -4,6 +4,9 @@
       <div class="header">
         <h1 class="title">Leaderboard</h1>
       </div>
+      <div class="my-3 max-w-[130px]">
+        <Select :options="[{ name: 'All', id: 0 }]" @input="setProject($event)"></Select>
+      </div>
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
         <BaseTable
@@ -41,10 +44,12 @@ import TableSkeleton from '@/components/TableSkeleton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import Rank from '@/components/Table/Rank.vue';
 import Talent from '@/components/Table/Talent.vue';
+import Select from '@/components/Select.vue';
 
 const route = useRoute();
 const authStore = useAuthStore();
 const sort = ref({});
+const project = ref('');
 const currentPage = ref(route.query ? route.query.page : 1);
 const sortDirection = ref('');
 const sortColumn = ref('');
@@ -75,6 +80,7 @@ const params = computed(() => {
       key: sort.value.sortKey || '',
       value: sort.value.sortType || '',
     },
+    project: project.value,
   };
 });
 const pagination = computed(() => list.value.pagination);
@@ -115,6 +121,10 @@ const requestsRows = computed(
   { deep: true },
 );
 
+function setProject(value) {
+  project.value = value;
+  leaderboardStore.getLeaderboardAction(params.value);
+}
 onMounted(async () => {
   if (route.query && route.query.page) {
     await nextPage(route.query.page);

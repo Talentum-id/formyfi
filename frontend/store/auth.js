@@ -180,7 +180,7 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,
         },
-    );
+      );
     },
     setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
       if (isAuthenticated) {
@@ -231,17 +231,11 @@ export const useAuthStore = defineStore('auth', {
             fullName: data.fullName,
             username: data.username,
             avatar: data.avatar,
+            banner: data.banner,
           },
         )
         .then((e) => {
-          this.profile = {
-            ...e.user,
-            stats: {
-              forms_completed: Number(e.stats?.[0]?.forms_completed ?? 0),
-              forms_created: Number(e.stats?.[0]?.forms_created ?? 0),
-              points: Number(e.stats?.[0]?.points ?? 0),
-            },
-          };
+          this.getProfile();
         });
     },
   },

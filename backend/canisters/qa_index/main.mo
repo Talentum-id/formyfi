@@ -24,6 +24,13 @@ actor QAIndex {
 
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
   let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
+  let questionTypes : [Text] = [
+    "open",
+    "quiz",
+    "twitter",
+    "discord",
+    "wallet",
+  ];
 
   public query func list(params : FetchParams) : async List {
     if (params.identity == "") {
@@ -245,6 +252,14 @@ actor QAIndex {
 
     if (questions.size() < 1) {
       return false;
+    };
+
+    for (question in questions.vals()) {
+      let isValidType = Array.find<Text>(questionTypes, func x = x == question.questionType);
+
+      if (isValidType == null) {
+        return false;
+      };
     };
 
     true;

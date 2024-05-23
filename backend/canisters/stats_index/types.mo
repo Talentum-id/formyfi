@@ -27,6 +27,7 @@ module StatsTypes {
   public type ProjectData = {
     identity : Text;
     points : Nat;
+    forms_completed : Nat;
   };
 
   public type ListResultPerProject = {

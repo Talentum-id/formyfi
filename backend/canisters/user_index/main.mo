@@ -46,6 +46,7 @@ actor UserIndex {
               fullName;
               username;
               avatar;
+              forms_created = 0;
             },
           );
           usernames.put(username, identity);
@@ -69,6 +70,24 @@ actor UserIndex {
     };
 
     Buffer.toArray(data);
+  };
+
+  public func incrementFormsCreated(identity : Text) : async () {
+    switch (users.get(identity)) {
+      case null return;
+      case (?user) {
+        users.put(
+          identity,
+          {
+            provider = user.provider;
+            fullName = user.fullName;
+            username = user.username;
+            avatar = user.avatar;
+            forms_created = user.forms_created + 1;
+          },
+        );
+      };
+    };
   };
 
   public query func findUsername(username : Text) : async Bool {

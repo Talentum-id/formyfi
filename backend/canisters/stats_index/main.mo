@@ -231,7 +231,7 @@ actor StatsIndex {
   func incrementPointsPerProject(project : Text, identity : Text, points : Nat) : async () {
     switch (statsPerProject.get(project)) {
       case null {
-        statsPerProject.put(project, [{ identity; points }]);
+        statsPerProject.put(project, [{ identity; points; forms_completed = 1 }]);
       };
       case (?statistics) {
         switch (Array.find<ProjectStatsData>(statistics, func item = item.identity == identity)) {
@@ -241,6 +241,7 @@ actor StatsIndex {
             statsData.add({
               identity;
               points;
+              forms_completed = 1;
             });
 
             statsPerProject.put(project, Buffer.toArray(statsData));
@@ -262,6 +263,7 @@ actor StatsIndex {
                   {
                     identity;
                     points = userStatsPerProject.points + points;
+                    forms_completed = userStatsPerProject.forms_completed + 1;
                   },
                 );
 

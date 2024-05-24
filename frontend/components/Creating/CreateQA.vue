@@ -296,7 +296,7 @@ const errorMessage = ref('Error');
 const validationCheck = computed(() => {
   const questionTitleIsEmpty = countOfQuestions.value.find((item) => !item.question);
   const questionAnswerIsEmpty = countOfQuestions.value.find(
-    (item) => item.type?.id && item.answers.find((el) => !el.answer),
+    (item) => item.type?.id === 1 && item.answers.find((el) => !el.answer),
   );
 
   if (

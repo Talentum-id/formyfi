@@ -7,7 +7,7 @@ const MENU_LINKS = [
   {
     name: 'Responses',
     img: 'Request',
-    to: '/responses',
+    to: '/my-responses',
   },
   {
     name: 'Leaderboard',

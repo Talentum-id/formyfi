@@ -31,63 +31,69 @@
           <div class="question-description" v-if="newArr[currentIndex].description">
             {{ newArr[currentIndex].description }}
           </div>
-          <div class="flex items-center m-auto">
+          <div
+            class="flex items-center m-auto"
+            v-if="newArr[currentIndex].questionType == 'wallet'"
+          >
             <BaseButton type="normal" @click="connect()"
-              ><Icon name="Discord-Default" class="icon-soc" :size="24"></Icon> Connect
-              Discord</BaseButton
+              ><Icon name="Wallet-Default" class="icon-soc" :size="24"></Icon> Connect
+              Wallet</BaseButton
             >
-          </div>
-          <div class="answer-textarea" v-if="isOpenQuestion">
-            <TextArea
-              placeholder="Your Answer"
-              v-model="newArr[currentIndex].answer"
-              class="w-full"
-              :disabled="cacheAnswer"
-            />
-            <CustomImage
-              v-if="answers[currentIndex] && answers[currentIndex].file"
-              class="banner"
-              heigth="160"
-              width="160"
-              :image="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
-            ></CustomImage>
-
-            <CustomUpload
-              v-if="disableUploader"
-              :imagesFiles="newArr[currentIndex].answerFile"
-              @images="newArr[currentIndex].answerFile = $event"
-            ></CustomUpload>
-            <div
-              class="w-full text-center mt-[20px]"
-              v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
-            ></div>
           </div>
           <div v-else>
-            <el-radio-group
-              v-model="newArr[currentIndex].answer"
-              class="flex flex-col gap-y-[8px] items-center content-center container-radio"
-              :border="false"
-            >
-              <el-radio-button
-                class="radio"
-                :label="answer.answer"
-                :aria-selected="newArr[currentIndex].answer === answer.answer"
-                v-for="answer in newArr[currentIndex].answers"
+            <div class="answer-textarea" v-if="isOpenQuestion">
+              <TextArea
+                placeholder="Your Answer"
+                v-model="newArr[currentIndex].answer"
+                class="w-full"
                 :disabled="cacheAnswer"
-              /><input
-                class="allowed-input"
-                type="text"
-                v-model="newArr[currentIndex].myAnswer"
-                v-if="newArr[currentIndex].openAnswerAllowed && isAdditionalAnswer"
-                @focus="newArr[currentIndex].answer = ''"
-                :placeholder="cacheAnswer || 'Your answer...'"
-                :disabled="cacheAnswer"
-                :class="{
-                  selected:
-                    cacheAnswer || (!newArr[currentIndex].answer && newArr[currentIndex].myAnswer),
-                }"
               />
-            </el-radio-group>
+              <CustomImage
+                v-if="answers[currentIndex] && answers[currentIndex].file"
+                class="banner"
+                heigth="160"
+                width="160"
+                :image="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
+              ></CustomImage>
+
+              <CustomUpload
+                v-if="disableUploader"
+                :imagesFiles="newArr[currentIndex].answerFile"
+                @images="newArr[currentIndex].answerFile = $event"
+              ></CustomUpload>
+              <div
+                class="w-full text-center mt-[20px]"
+                v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
+              ></div>
+            </div>
+            <div v-else>
+              <el-radio-group
+                v-model="newArr[currentIndex].answer"
+                class="flex flex-col gap-y-[8px] items-center content-center container-radio"
+                :border="false"
+              >
+                <el-radio-button
+                  class="radio"
+                  :label="answer.answer"
+                  :aria-selected="newArr[currentIndex].answer === answer.answer"
+                  v-for="answer in newArr[currentIndex].answers"
+                  :disabled="cacheAnswer"
+                /><input
+                  class="allowed-input"
+                  type="text"
+                  v-model="newArr[currentIndex].myAnswer"
+                  v-if="newArr[currentIndex].openAnswerAllowed && isAdditionalAnswer"
+                  @focus="newArr[currentIndex].answer = ''"
+                  :placeholder="cacheAnswer || 'Your answer...'"
+                  :disabled="cacheAnswer"
+                  :class="{
+                    selected:
+                      cacheAnswer ||
+                      (!newArr[currentIndex].answer && newArr[currentIndex].myAnswer),
+                  }"
+                />
+              </el-radio-group>
+            </div>
           </div>
         </div>
         <div class="controllers">
@@ -411,8 +417,7 @@ const connect = async () => {
   const accounts = await providerMM.request({
     method: 'eth_requestAccounts',
   });
-
-  console.log(accounts[0]);
+  newArr.value[currentIndex.value].answer = accounts[0];
 };
 const rerender = async () => {
   rerenderImages.value = true;

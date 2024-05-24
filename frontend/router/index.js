@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import App from '@/pages/index.vue';
 import Responses from '@/pages/responses.vue';
+import MyResponses from '@/pages/my-responses.vue';
 import login from '@/pages/login.vue';
 import signUp from '@/pages/sign-up.vue';
 import quest from '@/pages/quest.vue';
@@ -34,6 +35,15 @@ const routes = [
     component: Responses,
     meta: {
       title: `Responses`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/my-responses',
+    name: 'my-responses',
+    component: MyResponses,
+    meta: {
+      title: `My Responses`,
       requiresAuth: true,
     },
   },

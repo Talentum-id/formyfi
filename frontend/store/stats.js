@@ -28,13 +28,11 @@ export const useStatsStore = defineStore('stats', {
     },
 
     async getLeaderboardAction(params) {
-      console.log(params);
       this.loadedList = false;
       await this.actor
-        ?.list(params)
+        ?.listPerProject(params.identity, params)
         .then((res) => {
           this.leaderboardList = res;
-          console.log(res);
         })
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));

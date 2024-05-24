@@ -44,6 +44,7 @@ export const useAuthStore = defineStore('auth', {
       user: null,
       isQuest: false,
       profile: null,
+      usersList: null,
     };
   },
   actions: {
@@ -175,7 +176,7 @@ export const useAuthStore = defineStore('auth', {
       const provider = localStorage.authenticationProvider;
 
       return this.actor?.register(
-        { username, fullName, provider, avatar: [] },
+        { username, fullName, provider, avatar: [], forms_created: 0 },
         {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,
@@ -219,6 +220,37 @@ export const useAuthStore = defineStore('auth', {
           };
         });
     },
+    async getUsers(list) {
+      if (!this.actor) {
+        return;
+      }
+
+      try {
+        const users = await this.actor.getUsers(list);
+
+        this.usersList = await Promise.all(
+          users[0].map(async (item) => {
+            let avatar = null;
+
+            if (item?.avatar?.[0]) {
+              try {
+                avatar = await useAssetsStore().getFile(item.avatar[0]);
+              } catch (e) {
+                console.error(e);
+              }
+            }
+
+            return {
+              fullName: item.fullName,
+              avatar: avatar,
+            };
+          }),
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    },
+
     async saveProfile(data) {
       return await this.actor
         ?.updateMe(
@@ -231,6 +263,7 @@ export const useAuthStore = defineStore('auth', {
             fullName: data.fullName,
             username: data.username,
             avatar: data.avatar,
+            forms_created: data.forms_created,
             banner: data.banner,
           },
         )
@@ -244,5 +277,6 @@ export const useAuthStore = defineStore('auth', {
     getPrincipal: ({ principal }) => localStorage.extraCharacter || principal?.toText() || null,
     getUser: ({ user }) => user,
     getProfileData: ({ profile }) => profile,
+    getUsersList: ({ usersList }) => usersList,
   },
 });

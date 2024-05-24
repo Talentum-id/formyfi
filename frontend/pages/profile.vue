@@ -91,6 +91,7 @@ const setName = useDebounceFn(
       username: name.value,
       avatar: user.value.avatar,
       banner: user.value.banner,
+      forms_created: user.value.forms_created,
     });
     await authStore.getProfile();
   },

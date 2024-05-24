@@ -2,8 +2,27 @@
   <Default>
     <div class="content">
       <div class="header">
-        <h1 class="title">Leaderboard</h1>
+        <h1 class="title">My response list</h1>
+        <div class="contollers">
+          <InputWithSearch
+            placeholder="Find a Form..."
+            :iconSize="24"
+            v-model="search"
+            :intervalFunc="searchInList"
+          />
+        </div>
       </div>
+      <div class="actions">
+        <ExportTable
+          name="forms"
+          @click="fetchFullList"
+          type="xlsx"
+          :data="fullList"
+          :loading="loading"
+        ></ExportTable>
+      </div>
+      <Alert message="Success" type="success" v-if="showAlert"></Alert>
+
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
         <BaseTable
@@ -39,9 +58,15 @@ import { useRoute } from 'vue-router';
 import router from '@/router';
 import TableSkeleton from '@/components/TableSkeleton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
-import Rank from '@/components/Table/Rank.vue';
-import Talent from '@/components/Table/Talent.vue';
+import ExportTable from '@/components/Table/ExportTable.vue';
+import InputWithSearch from '@/components/Table/InputWithSearch.vue';
+import Alert from '@/components/Alert.vue';
+import { useQAStore } from '@/store/qa';
+import Text from '@/components/Table/Text.vue';
+import { formatDate, reduceStringLength } from '@/util/helpers';
+import Badge from '@/components/Badge.vue';
 
+const qaStore = useQAStore();
 const route = useRoute();
 const authStore = useAuthStore();
 const sort = ref({});
@@ -49,28 +74,66 @@ const currentPage = ref(route.query ? route.query.page : 1);
 const sortDirection = ref('');
 const sortColumn = ref('');
 const leaderboardStore = useStatsStore();
+const search = ref('');
+const searchInterval = ref(null);
+const loading = ref(false);
+
+const fetchFullList = async () => {
+  if (pagination.value) {
+    loading.value = true;
+    // await qaStore
+    //   .getFullQAs({
+    //     identity: authStore.getPrincipal,
+    //     page: 1,
+    //     search: '',
+    //     pageSize: pagination.value.total,
+    //     sortBy: {
+    //       key: '',
+    //       value: '',
+    //     },
+    //   })
+    //   .then((res) => {
+    //     fullList.value = res.data.map((item) => {
+    //       return {
+    //         Title: item.title,
+    //         Description: item.description.replace(/<[^>]*>/g, ''),
+    //         'Share Link': `${window.location.href}quest/${item.shareLink}`,
+    //         Participants: Number(item.participants),
+    //         Start: formatDate(Number(item.start) * 1000),
+    //         End: formatDate(Number(item.end) * 1000),
+    //       };
+    //     });
+    //     loading.value = false;
+    //   })
+    //   .catch(() => {
+    //     loading.value = false;
+    //     modal.emit('openModal', {
+    //       title: 'Error Message',
+    //       message: 'Something went wrong!',
+    //       type: 'error',
+    //       actionText: 'Try again',
+    //       fn: fetchFullList,
+    //     });
+    //   });
+  }
+};
 
 const requestsColumns = computed(() => {
   return [
-    { prop: 'rank', label: '#', width: '20%' },
-    { prop: 'user', label: 'User', width: '300%' },
-    {
-      prop: 'qp',
-      label: 'QP',
-      width: '50%',
-    },
-    { prop: 'completed', label: 'Completed Forms', width: '70%' },
+    { prop: 'title', label: 'Title', width: '200%' },
+    { prop: 'start', label: 'Full Filled', width: '70%' },
+    { prop: 'view', label: '', width: '20%' },
   ];
 });
 
 const list = computed(() => leaderboardStore.getLeaderboardList);
-const users = computed(() => authStore.getUsersList);
 const loaded = computed(() => leaderboardStore.getLoadingStatus);
 const params = computed(() => {
   return {
     identity: authStore.getPrincipal,
     page: parseInt(currentPage.value) || 1,
     pageSize: 10,
+    search: search.value,
     sortBy: {
       key: sort.value.sortKey || '',
       value: sort.value.sortType || '',
@@ -78,42 +141,29 @@ const params = computed(() => {
   };
 });
 const pagination = computed(() => list.value.pagination);
-const getUsersList = async () => {
-  const identities = list.value.data?.map((item) => item.identity);
-  await authStore.getUsers(identities);
-};
 const requestsRows = computed(
   () => {
     const originalArray = list.value.data;
-    if (!originalArray || !originalArray?.length || !users.value?.length) {
+    if (!originalArray || !originalArray?.length) {
       return [];
     }
 
     return originalArray.map((item, index) => ({
-      isTop: Number(pagination.value.current_page) === 1 && index <= 2,
-      rank: {
-        component: Rank,
+      title: {
+        component: Text,
         props: {
-          value:
-            Number(pagination.value.current_page) > 1
-              ? index + 1
-              : Number(pagination.value.current_page) + index,
-          isTop: Number(pagination.value.current_page) === 1 && index <= 2,
+          text: reduceStringLength(item.title, 24),
         },
       },
-      user: {
-        component: Talent,
+      start: {
+        component: Badge,
         props: {
-          text: users.value[index]?.fullName,
-          img: users.value[index]?.avatar ?? null,
-          big: true,
+          text: formatDate(Number(item.start) * 1000),
+          value: '',
+          type: 'claim',
+          big: false,
+          transparent: true,
         },
-      },
-      qp: {
-        content: item.points ? Number(item.points).toFixed(2) : '0',
-      },
-      completed: {
-        content: item.points ? Number(item.forms_completed) : '0',
       },
     }));
   },
@@ -126,7 +176,6 @@ onMounted(async () => {
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
   }
-  await getUsersList();
 });
 
 function nextPage(page) {
@@ -157,6 +206,16 @@ const sortHandle = async (name, type) => {
 
   await leaderboardStore.getLeaderboardAction(params.value);
 };
+function searchInList() {
+  clearTimeout(searchInterval.value);
+  searchInterval.value = setTimeout(() => {
+    router.push({
+      query: Object.assign({}, route.query, { page: 1 }),
+    });
+
+    qaStore.getQAs(params.value);
+  }, 500);
+}
 </script>
 <style scoped lang="scss">
 .header {

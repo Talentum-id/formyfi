@@ -69,6 +69,8 @@ export default {
             fullName: useAuthStore().getProfileData.fullName,
             username: useAuthStore().getProfileData.username,
             avatar: [avatar],
+            banner: useAuthStore().getProfileData.banner,
+            forms_created: useAuthStore().getProfileData.forms_created,
           });
           await useAuthStore().getProfile();
           await modal.emit('closeModal', {});
@@ -105,6 +107,8 @@ export default {
         fullName: useAuthStore().getProfileData.fullName,
         username: useAuthStore().getProfileData.username,
         avatar: [],
+        banner: useAuthStore().getProfileData.banner,
+        forms_created: useAuthStore().getProfileData.forms_created,
       });
       await useAuthStore().getProfile();
     },

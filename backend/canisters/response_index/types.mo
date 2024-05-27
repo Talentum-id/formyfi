@@ -20,6 +20,7 @@ module ResponseTypes {
   };
 
   public type FetchParams = {
+    search : Text;
     sortBy : {
       key : Text;
       value : Text;

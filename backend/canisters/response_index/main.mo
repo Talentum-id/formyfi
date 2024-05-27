@@ -139,6 +139,7 @@ actor ResponseIndex {
         };
 
         let params = {
+          search = "";
           sortBy = {
             key = "";
             value = "";
@@ -226,7 +227,7 @@ actor ResponseIndex {
 
   func filter(authors : [Author], params : FetchParams) : List {
     var data = authors;
-    let { page; pageSize; sortBy } = params;
+    let { page; pageSize; sortBy; search } = params;
 
     if (data.size() < 1) {
       return {
@@ -239,6 +240,12 @@ actor ResponseIndex {
         };
         data = [];
       };
+    };
+
+    if (search != "") {
+      let formattedSearch = Text.toLowercase(search);
+
+      data := Array.filter<Author>(data, func author = Text.contains(Text.toLowercase(author.username), #text formattedSearch));
     };
 
     if (sortBy.key != "") {
@@ -297,7 +304,7 @@ actor ResponseIndex {
 
   func filterQAs(qas : [QA], params : FetchParams) : QAList {
     var data = qas;
-    let { page; pageSize; sortBy } = params;
+    let { page; pageSize; sortBy; search } = params;
 
     if (data.size() < 1) {
       return {
@@ -310,6 +317,12 @@ actor ResponseIndex {
         };
         data = [];
       };
+    };
+
+    if (search != "") {
+      let formattedSearch = Text.toLowercase(search);
+
+      data := Array.filter<QA>(data, func qa = Text.contains(Text.toLowercase(qa.title), #text formattedSearch));
     };
 
     if (sortBy.key != "") {

@@ -129,7 +129,7 @@ const props = defineProps({
   border-radius: 8px;
   cursor: pointer;
   width: 100%;
-  font-family: 'Basis Grotesque Pro', sans-serif;
+  font-family: $default_font, sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 16px;

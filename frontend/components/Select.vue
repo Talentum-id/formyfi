@@ -165,7 +165,7 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   user-select: none;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -179,7 +179,7 @@ export default {
   border: 1px solid $default-border;
   cursor: pointer;
   user-select: none;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -224,7 +224,7 @@ export default {
   background: $white;
   cursor: pointer;
   user-select: none;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;

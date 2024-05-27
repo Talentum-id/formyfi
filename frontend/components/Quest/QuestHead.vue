@@ -1,6 +1,6 @@
 <template>
   <div class="head-container">
-    <CustomImage :image="image || defaultBg" width="240" heigth="240"></CustomImage>
+    <CustomImage :image="image || defaultBg" width="712" heigth="240"></CustomImage>
     <div class="info w-full">
       <Talent text="Portal" class="ml-[-16px]" :img="image || defaultBg" square />
       <div class="flex items-center gap-x-[8px]">
@@ -53,7 +53,8 @@ onMounted(async () => {
 <style scoped lang="scss">
 .head-container {
   display: flex;
-  width: 1160px;
+  flex-direction: column;
+  width: 760px;
   height: fit-content;
   padding: 24px;
   align-items: flex-start;

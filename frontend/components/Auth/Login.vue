@@ -17,7 +17,6 @@ const callback = async (response) => {
         emit('success');
       });
   } catch (e) {
-    console.log(e);
     emit('reject');
   }
 };

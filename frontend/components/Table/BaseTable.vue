@@ -271,7 +271,7 @@ export default {
   // }
 }
 .table-text {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   color: $default;
 }
 .adjust {
@@ -288,7 +288,7 @@ export default {
   right: 30px;
 }
 .base-table {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-size: 14px;
   display: grid;
   grid-template-rows: auto 1fr;
@@ -316,7 +316,7 @@ export default {
   min-height: 64px;
   padding: 0 20px;
 
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
@@ -333,7 +333,7 @@ export default {
 }
 
 .header-cell {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;
@@ -372,7 +372,7 @@ export default {
   min-height: 64px;
   padding: 0 20px;
 
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -405,7 +405,7 @@ export default {
 }
 
 .cell {
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   display: flex;
   align-items: center;
   text-align: left;
@@ -450,21 +450,24 @@ export default {
   .row {
     display: flex;
     flex-direction: column;
-    margin-bottom: 10;
+    margin-bottom: 10px;
     padding: 0;
   }
 }
 
 .isTop {
-  border: 1px solid $hover-row-border !important;
-  background: $hover-row-bg !important;
-  &:hover {
-    border: 3px solid $hover-row-border !important;
-    background: $hover-row-bg !important;
+  border: 1px solid #C6DAFF !important;
+   &:hover {
+    border: 3px solid #EAEAFB !important;
+    background: #E8F0FF !important;
     .top {
-      background: $hover-row-bg-top !important;
-      color: $orange !important;
+      background: $white !important;
+      color: #0C102D !important;
     }
+  }
+  .top {
+    background: #A4C8FF !important;
+    color: $white !important;
   }
 }
 </style>

@@ -208,7 +208,7 @@ const handlePictureCardPreview = async (uploadFile) => {
   justify-content: center;
   flex-direction: column;
   gap: 16px;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   .name {
     color: #38405b;
     text-align: center;

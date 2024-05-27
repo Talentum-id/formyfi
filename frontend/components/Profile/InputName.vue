@@ -18,7 +18,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: 'Shen Yufei',
+      default: '',
     },
     modelValue: {
       type: String,
@@ -46,7 +46,7 @@ export default {
 <style scoped lang="scss">
 input {
   background: none;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 350;
   font-size: 56px;

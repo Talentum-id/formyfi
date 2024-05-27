@@ -21,7 +21,7 @@ const props = defineProps({
   align-items: center;
   text-align: center;
   font-size: 12px;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-weight: 500;
   line-height: initial;
   background: $default-badge-border;
@@ -30,7 +30,7 @@ const props = defineProps({
   color: $default;
 }
 .top {
-  color: $orange;
-  background: $rounded-bg;
+  color: #38405B;
+  background: #EAEAFB;
 }
 </style>

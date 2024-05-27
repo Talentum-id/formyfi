@@ -53,7 +53,7 @@ export default {
     }
   }
   span {
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-style: normal;
     font-weight: 500;
     font-size: 12px;

@@ -124,7 +124,7 @@ export default {
   z-index: 9999999;
   transform: translateY(100%) translateX(-50%);
   margin-bottom: 5px;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 12px;

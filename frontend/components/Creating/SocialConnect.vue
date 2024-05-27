@@ -19,7 +19,7 @@ defineProps({
   gap: 8px;
   padding: 8px 12px;
   border-radius: 8px;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   color: #344054;
   background: #d7dce5;
   font-size: 14px;

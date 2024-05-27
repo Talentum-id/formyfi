@@ -112,7 +112,7 @@ export default {
   padding: 0 12px;
   cursor: pointer;
 
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
@@ -158,7 +158,7 @@ export default {
     outline: none;
     padding-left: 20px;
 
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-style: normal;
     font-weight: 400;
     font-size: 16px;

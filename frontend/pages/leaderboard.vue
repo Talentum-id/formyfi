@@ -88,7 +88,6 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length || !users.value?.length) {
       return [];
     }
-
     return originalArray.map((item, index) => ({
       isTop: Number(pagination.value.current_page) === 1 && index <= 2,
       rank: {

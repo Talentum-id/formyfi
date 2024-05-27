@@ -22,7 +22,6 @@
         ></ExportTable>
       </div>
       <Alert message="Success" type="success" v-if="showAlert"></Alert>
-
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
         <BaseTable
@@ -53,7 +52,7 @@ import Default from '@/layouts/default.vue';
 import { computed, onMounted, ref } from 'vue';
 import Pagination from '@/components/Table/Pagination.vue';
 import { useAuthStore } from '@/store/auth';
-import { useStatsStore } from '@/store/stats';
+import { useResponseStore } from '@/store/response';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import TableSkeleton from '@/components/TableSkeleton.vue';
@@ -61,60 +60,60 @@ import BaseTable from '@/components/Table/BaseTable.vue';
 import ExportTable from '@/components/Table/ExportTable.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import Alert from '@/components/Alert.vue';
-import { useQAStore } from '@/store/qa';
 import Text from '@/components/Table/Text.vue';
 import { formatDate, reduceStringLength } from '@/util/helpers';
 import Badge from '@/components/Badge.vue';
+import { modal } from '@/mixins/modal';
 
-const qaStore = useQAStore();
+const responseStore = useResponseStore();
 const route = useRoute();
 const authStore = useAuthStore();
 const sort = ref({});
 const currentPage = ref(route.query ? route.query.page : 1);
 const sortDirection = ref('');
 const sortColumn = ref('');
-const leaderboardStore = useStatsStore();
 const search = ref('');
 const searchInterval = ref(null);
 const loading = ref(false);
+const showAlert = ref(false);
+const fullList = ref([]);
 
 const fetchFullList = async () => {
   if (pagination.value) {
     loading.value = true;
-    // await qaStore
-    //   .getFullQAs({
-    //     identity: authStore.getPrincipal,
-    //     page: 1,
-    //     search: '',
-    //     pageSize: pagination.value.total,
-    //     sortBy: {
-    //       key: '',
-    //       value: '',
-    //     },
-    //   })
-    //   .then((res) => {
-    //     fullList.value = res.data.map((item) => {
-    //       return {
-    //         Title: item.title,
-    //         Description: item.description.replace(/<[^>]*>/g, ''),
-    //         'Share Link': `${window.location.href}quest/${item.shareLink}`,
-    //         Participants: Number(item.participants),
-    //         Start: formatDate(Number(item.start) * 1000),
-    //         End: formatDate(Number(item.end) * 1000),
-    //       };
-    //     });
-    //     loading.value = false;
-    //   })
-    //   .catch(() => {
-    //     loading.value = false;
-    //     modal.emit('openModal', {
-    //       title: 'Error Message',
-    //       message: 'Something went wrong!',
-    //       type: 'error',
-    //       actionText: 'Try again',
-    //       fn: fetchFullList,
-    //     });
-    //   });
+    await responseStore
+      .getFullResponses({
+        identity: authStore.getPrincipal,
+        page: 1,
+        search: '',
+        pageSize: pagination.value.total,
+        sortBy: {
+          key: '',
+          value: '',
+        },
+      })
+      .then((res) => {
+        fullList.value = res.data.map((item) => {
+          return {
+            Title: item.title,
+            'Share Link': `${window.location.href}quest/${item.shareLink}`,
+            Start: formatDate(Number(item.filled) * 1000),
+          };
+        });
+        showAlert.value = true;
+        setTimeout(() => (showAlert.value = false), 2000);
+        loading.value = false;
+      })
+      .catch(() => {
+        loading.value = false;
+        modal.emit('openModal', {
+          title: 'Error Message',
+          message: 'Something went wrong!',
+          type: 'error',
+          actionText: 'Try again',
+          fn: fetchFullList,
+        });
+      });
   }
 };
 
@@ -126,8 +125,8 @@ const requestsColumns = computed(() => {
   ];
 });
 
-const list = computed(() => leaderboardStore.getLeaderboardList);
-const loaded = computed(() => leaderboardStore.getLoadingStatus);
+const list = computed(() => responseStore.getMyResponseList);
+const loaded = computed(() => responseStore.getLoadingStatus);
 const params = computed(() => {
   return {
     identity: authStore.getPrincipal,
@@ -147,8 +146,7 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length) {
       return [];
     }
-
-    return originalArray.map((item, index) => ({
+    return originalArray.map((item) => ({
       title: {
         component: Text,
         props: {
@@ -158,7 +156,7 @@ const requestsRows = computed(
       start: {
         component: Badge,
         props: {
-          text: formatDate(Number(item.start) * 1000),
+          text: formatDate(Number(item.filled) * 1000),
           value: '',
           type: 'claim',
           big: false,
@@ -174,14 +172,13 @@ onMounted(async () => {
   if (route.query && route.query.page) {
     await nextPage(route.query.page);
   } else {
-    await leaderboardStore.getLeaderboardAction(params.value);
+    await responseStore.getMyResponses(params.value);
   }
 });
 
 function nextPage(page) {
   currentPage.value = page;
-  getUsersList();
-  leaderboardStore.getLeaderboardAction(params.value);
+  responseStore.getMyResponses(params.value);
 }
 const sortTasks = async (prop, direction) => {
   if (!loaded) return;
@@ -204,7 +201,7 @@ const sortHandle = async (name, type) => {
 
   sort.value = paramsSort;
 
-  await leaderboardStore.getLeaderboardAction(params.value);
+  await responseStore.getMyResponses(params.value);
 };
 function searchInList() {
   clearTimeout(searchInterval.value);
@@ -213,7 +210,7 @@ function searchInList() {
       query: Object.assign({}, route.query, { page: 1 }),
     });
 
-    qaStore.getQAs(params.value);
+    responseStore.getMyResponses(params.value);
   }, 500);
 }
 </script>

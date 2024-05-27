@@ -50,7 +50,7 @@ export default {
     border-color: $error-border;
   }
   .name {
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-style: normal;
     font-weight: 500;
     font-size: 16px;
@@ -69,7 +69,7 @@ export default {
     border: 1px solid $default-border;
     border-radius: 8px;
     padding: 8px 12px;
-    font-family: 'Basis Grotesque Pro';
+    font-family: $default_font;
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
@@ -80,7 +80,7 @@ export default {
       'zero' on;
     color: $section-title;
     &::placeholder {
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-style: normal;
       font-weight: 400;
       font-size: 16px;

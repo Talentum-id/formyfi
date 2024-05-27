@@ -818,7 +818,7 @@ export default defineComponent({
     padding: 3px 8px;
 
     & > span {
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-size: 12px;
       font-style: normal;
       font-weight: 500;
@@ -852,7 +852,7 @@ export default defineComponent({
   border-radius: 8px;
   cursor: pointer;
 
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -928,7 +928,7 @@ export default defineComponent({
       transform: translateY(100%) translateX(-50%);
       margin-bottom: 5px;
 
-      font-family: 'Basis Grotesque Pro';
+      font-family: $default_font;
       font-style: normal;
       font-weight: 500;
       font-size: 12px;

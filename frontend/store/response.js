@@ -14,6 +14,7 @@ export const useResponseStore = defineStore('response', {
     actor: null,
     identity: null,
     response: [],
+    myList: [],
     loadedList: false,
     qaResponses: [],
   }),
@@ -75,9 +76,34 @@ export const useResponseStore = defineStore('response', {
           throw e;
         });
     },
+    async getMyResponses(params){
+      console.log(params)
+      await this.actor
+        ?.listQas(params.identity, params)
+        .then( (res) => {
+          this.loadedList = true;
+          this.myList = res;
+        })
+        .catch((e) => {
+          this.loadedList = true;
+          console.error(e);
+        });
+    },
+    async getFullResponses(params){
+      return await this.actor
+        ?.listQas(params.identity,params)
+        .then(async (res) => {
+          return res;
+        })
+        .catch((e) => {
+          console.error(e);
+          throw e;
+        });
+    }
   },
   getters: {
     getResponse: (state) => state.response,
+    getMyResponseList: (state) => state.myList,
     getLoadingStatus: (state) => state.loadedList,
   },
 });

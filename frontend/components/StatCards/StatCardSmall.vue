@@ -50,7 +50,7 @@ export default {
   border: 1px solid $default-border;
   border-radius: 16px;
   padding: 16px;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   &.no {
     &.active {
       .value {
@@ -104,7 +104,7 @@ export default {
     min-height: 24px;
   }
   &:hover {
-    background: $default-border;
+    background: $transparent-active-bg;
   }
 }
 </style>

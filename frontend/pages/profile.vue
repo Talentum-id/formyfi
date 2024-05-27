@@ -57,6 +57,7 @@ const avatar = ref(null);
 const banner = ref(null);
 const user = computed(() => authStore.getProfileData);
 const assetsStore = useAssetsStore();
+let name = ref('');
 
 onMounted(async () => {
   await authStore.getProfile();
@@ -70,12 +71,15 @@ watch(
   },
 );
 function initImages() {
+  name.value = user.value?.username;
+
   assetsStore
     .getFile(user.value?.avatar?.[0])
     .then((res) => {
       avatar.value = res;
     })
     .catch(() => (avatar.value = user.value?.avatar?.[0]));
+
   assetsStore
     .getFile(user.value?.banner?.[0])
     .then((res) => {
@@ -83,7 +87,6 @@ function initImages() {
     })
     .catch(() => (banner.value = user.value?.banner?.[0]));
 }
-let name = ref('');
 const setName = useDebounceFn(
   async () => {
     await authStore.saveProfile({
@@ -95,8 +98,7 @@ const setName = useDebounceFn(
     });
     await authStore.getProfile();
   },
-  1000,
-  { maxWait: 5000 },
+  2500,
 );
 </script>
 

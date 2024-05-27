@@ -21,7 +21,7 @@
       "type": "motoko"
     },
     "assets": {
-      "dependencies": ["user_index", "qa_index", "response_index", "internet_identity"],
+      "dependencies": ["internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },

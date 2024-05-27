@@ -23,7 +23,7 @@ actor UserIndex {
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
-    let { provider; fullName; username; avatar } = data;
+    let { provider; fullName; username; avatar; banner } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0 or fullName.size() == 0) {
@@ -44,6 +44,7 @@ actor UserIndex {
             {
               provider;
               fullName;
+              banner;
               username;
               avatar;
               forms_created = 0;
@@ -83,6 +84,7 @@ actor UserIndex {
             fullName = user.fullName;
             username = user.username;
             avatar = user.avatar;
+            banner = user.banner;
             forms_created = user.forms_created + 1;
           },
         );

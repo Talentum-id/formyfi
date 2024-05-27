@@ -4,6 +4,7 @@ module UserTypes {
     fullName : Text;
     username : Text;
     avatar : ?Text;
+    banner : ?Text;
     forms_created : Nat;
   };
 };

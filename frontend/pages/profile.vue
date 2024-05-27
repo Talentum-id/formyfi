@@ -44,7 +44,7 @@
 import BannerUploader from '@/components/Profile/BannerUploader.vue';
 import AvatarUploader from '@/components/Profile/AvatarUploader.vue';
 import InputName from '@/components/Profile/InputName.vue';
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import Default from '@/layouts/default.vue';
 import Badge from '@/components/Badge.vue';
 import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
@@ -64,12 +64,6 @@ onMounted(async () => {
   await initImages();
 });
 
-watch(
-  () => user.value,
-  () => {
-    initImages();
-  },
-);
 function initImages() {
   name.value = user.value?.username;
 

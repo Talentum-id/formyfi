@@ -10,6 +10,7 @@ import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
 import { useStatsStore } from '@/store/stats';
+import axiosService from '@/service/axiosService';
 
 const defaultOptions = {
   createOptions: {
@@ -210,6 +211,7 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
         })
         .then((e) => {
+          console.log(e)
           this.profile = {
             ...e.user,
             stats: {
@@ -271,6 +273,13 @@ export const useAuthStore = defineStore('auth', {
           this.getProfile();
         });
     },
+
+    async connectSocial(provider) {
+      axiosService.get(`${process.env.API_URL}auth/callback/${provider}`)
+        .then(res => {
+          console.log(res)
+        }).catch(e => console.error(e))
+    }
   },
   getters: {
     getIdentity: ({ identity }) => identity,

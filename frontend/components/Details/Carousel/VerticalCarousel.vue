@@ -31,16 +31,7 @@
           <div class="question-description" v-if="newArr[currentIndex].description">
             {{ newArr[currentIndex].description }}
           </div>
-          <div
-            class="flex items-center m-auto"
-            v-if="newArr[currentIndex].questionType == 'wallet'"
-          >
-            <BaseButton type="normal" @click="connect()"
-              ><Icon name="Wallet-Default" class="icon-soc" :size="24"></Icon> Connect
-              Wallet</BaseButton
-            >
-          </div>
-          <div v-else>
+          <div v-if="getDataByType(newArr[currentIndex].questionType) === 'NOT_SOCIAL'">
             <div class="answer-textarea" v-if="isOpenQuestion">
               <TextArea
                 placeholder="Your Answer"
@@ -94,6 +85,16 @@
                 />
               </el-radio-group>
             </div>
+          </div>
+          <div class="flex items-center m-auto" v-else>
+            <BaseButton type="normal" @click="getDataByType(newArr[currentIndex].questionType).fn()"
+              ><Icon
+                :name="getDataByType(newArr[currentIndex].questionType).icon"
+                class="icon-soc"
+                :size="24"
+              ></Icon>
+              {{ getDataByType(newArr[currentIndex].questionType).title }}</BaseButton
+            >
           </div>
         </div>
         <div class="controllers">
@@ -247,7 +248,40 @@ const isOpenQuestion = computed(() => {
   );
 });
 const step = computed(() => counterStore.getStep);
-
+const getDataByType = (type) => {
+  switch (type) {
+    case 'twitter':
+      return {
+        icon: 'Twitter-Default',
+        title: 'Connect Twitter',
+        fn: () => connectSocial(type),
+      };
+    case 'discord':
+      return {
+        icon: 'Discord-Default',
+        title: 'Connect Discord',
+        fn: () => connectSocial(type),
+      };
+    case 'wallet':
+      return {
+        icon: 'Wallet-Default',
+        title: 'Connect Wallet',
+        fn: () => connect(),
+      };
+    default:
+      return 'NOT_SOCIAL';
+  }
+};
+const connectSocial = async (provider) => {
+  useAuthStore()
+    .connectSocial(provider)
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+};
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
   document.body.style.overflow = 'hidden';

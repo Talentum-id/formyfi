@@ -57,7 +57,13 @@ Download and install NPM from [https://nodejs.org/en/download](https://nodejs.or
 
    After deployment, you will receive URIs for the canisters. Click on the URI for the `assets` canister to open the local DApp in your browser.
 
-4. If you are developing the front-end of the DApp and want to avoid running `dfx deploy` every time you make changes, run:
+4. Need to start assets canisters for uploading and reading files like images, run:
+   ```bash
+   dfx canister call storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
+   ```
+   Open the DApp through the link provided by the Vite dev server.
+
+5. If you are developing the front-end of the DApp and want to avoid running `dfx deploy` every time you make changes, run:
    ```bash
    npm run dev
    ```

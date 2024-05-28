@@ -79,7 +79,7 @@ export const useAuthStore = defineStore('auth', {
           })
           .catch(async () => await this.logout());
       } else {
-        if (!this.isQuest) {
+        if (!this.isQuest && !localStorage.socialProvider) {
           await router.push('/sign-up');
         }
       }
@@ -177,7 +177,7 @@ export const useAuthStore = defineStore('auth', {
       const provider = localStorage.authenticationProvider;
 
       return this.actor?.register(
-        { username, fullName, provider, avatar: [], forms_created: 0 },
+        { username, fullName, provider, avatar: [], banner: [], forms_created: 0 },
         {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,
@@ -189,7 +189,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.isAuthenticated = isAuthenticated;
         localStorage.extraCharacter = character;
         localStorage.authenticationProvider = provider;
-      } else {
+      } else if (!localStorage.socialProvider) {
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('extraCharacter');
         localStorage.removeItem('authenticationProvider');
@@ -211,7 +211,6 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
         })
         .then((e) => {
-          console.log(e)
           this.profile = {
             ...e.user,
             stats: {
@@ -275,11 +274,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async connectSocial(provider) {
-      axiosService.get(`${process.env.API_URL}auth/callback/${provider}`)
-        .then(res => {
-          console.log(res)
-        }).catch(e => console.error(e))
-    }
+      axiosService
+        .get(`${process.env.API_URL}auth/redirect/${provider}`)
+        .then((res) => {
+          localStorage.socialProvider = provider;
+          window.open(res.data.url, '_blank');
+        })
+        .catch((e) => console.error(e));
+    },
   },
   getters: {
     getIdentity: ({ identity }) => identity,

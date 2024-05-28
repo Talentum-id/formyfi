@@ -127,7 +127,16 @@
 </template>
 <script setup>
 import BaseButton from '@/components/BaseButton.vue';
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElRadioGroup, ElRadioButton, ElImage } from 'element-plus';
@@ -148,7 +157,7 @@ import QuizProgressTitle from '@/components/Details/QuizProgressTitle.vue';
 import CustomImage from '@/components/CustomImage.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import Login from '@/components/Auth/Login.vue';
-import { createTemplatePromise } from '@vueuse/core';
+import { createTemplatePromise, watchDeep } from '@vueuse/core';
 import SignUp from '@/components/Auth/SignUp.vue';
 import Icon from '@/components/Icons/Icon.vue';
 const TemplatePromise = createTemplatePromise();
@@ -253,19 +262,19 @@ const getDataByType = (type) => {
     case 'twitter':
       return {
         icon: 'Twitter-Default',
-        title: 'Connect Twitter',
+        title: newArr.value[currentIndex.value].answer || 'Connect Twitter',
         fn: () => connectSocial(type),
       };
     case 'discord':
       return {
         icon: 'Discord-Default',
-        title: 'Connect Discord',
+        title: newArr.value[currentIndex.value].answer || 'Connect Discord',
         fn: () => connectSocial(type),
       };
     case 'wallet':
       return {
         icon: 'Wallet-Default',
-        title: 'Connect Wallet',
+        title: newArr.value[currentIndex.value].answer || 'Connect Wallet',
         fn: () => connect(),
       };
     default:
@@ -273,14 +282,9 @@ const getDataByType = (type) => {
   }
 };
 const connectSocial = async (provider) => {
-  useAuthStore()
-    .connectSocial(provider)
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((e) => {
-      console.error(e);
-    });
+  if (!newArr.value[currentIndex.value].answer) {
+    useAuthStore().connectSocial(provider);
+  }
 };
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
@@ -444,14 +448,15 @@ const connect = async () => {
     }
     return;
   }
-
-  const providerMM = window.ethereum.providers
-    ? window.ethereum.providers.find((provider) => provider.isMetaMask)
-    : window.ethereum;
-  const accounts = await providerMM.request({
-    method: 'eth_requestAccounts',
-  });
-  newArr.value[currentIndex.value].answer = accounts[0];
+  if (!newArr.value[currentIndex.value].answer) {
+    const providerMM = window.ethereum.providers
+      ? window.ethereum.providers.find((provider) => provider.isMetaMask)
+      : window.ethereum;
+    const accounts = await providerMM.request({
+      method: 'eth_requestAccounts',
+    });
+    newArr.value[currentIndex.value].answer = accounts[0];
+  }
 };
 const rerender = async () => {
   rerenderImages.value = true;
@@ -474,6 +479,36 @@ watch(currentIndex, (value) => {
   setCachedAnswer(value);
   rerender();
 });
+
+const storedValue = ref(localStorage.socialInfo || '');
+
+watchEffect(() => {
+  storedValue.value = localStorage.socialInfo || '';
+});
+
+const handleStorageEvent = (event) => {
+  if (event.key === 'socialInfo') {
+    storedValue.value = event.newValue || '';
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('storage', handleStorageEvent);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', handleStorageEvent);
+});
+
+watch(
+  () => storedValue.value,
+  () => {
+    if (storedValue.value) {
+      newArr.value[currentIndex.value].answer = storedValue.value;
+      localStorage.removeItem('socialInfo');
+    }
+  },
+);
 </script>
 <style lang="scss">
 .layout {

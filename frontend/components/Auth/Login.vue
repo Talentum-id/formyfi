@@ -3,10 +3,14 @@ import AuthButton from '@/components/Auth/AuthButton.vue';
 import { useAuthStore } from '@/store/auth';
 import { googleLogout } from 'vue3-google-login';
 import { onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import axiosService from '@/service/axiosService';
+
+const route = useRoute();
 
 onMounted(() => {
   googleLogout();
-
+  readCode();
   useAuthStore().setAuthenticationStorage(false);
 });
 const callback = async (response) => {
@@ -22,7 +26,20 @@ const callback = async (response) => {
 };
 const authStore = useAuthStore();
 const emit = defineEmits(['success', 'reject']);
-
+const readCode = () => {
+  if (route.query) {
+    axiosService
+      .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
+      .then((res) => {
+        console.log(res.data.data.nickname);
+        console.log(res.data.data);
+        localStorage.socialInfo = res.data.data.nickname;
+        localStorage.removeItem('socialProvider');
+        window.close();
+      })
+      .catch((e) => console.error(e));
+  }
+};
 const nfidConnect = async () => {};
 
 const connect = async () => {

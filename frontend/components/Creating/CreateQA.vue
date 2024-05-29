@@ -506,7 +506,7 @@ const preview = async () => {
 
   localStorage.previewData = JSON.stringify(obj);
   localForage.setItem('previewData', JSON.stringify(obj), () => {});
-  await window.open('#/preview', '_blank');
+  await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
   return await qaStore.storeQA({

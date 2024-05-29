@@ -11,12 +11,12 @@
       "type": "motoko"
     },
     "response_index": {
-      "dependencies": ["user_index", "qa_index"],
+      "dependencies": ["qa_index"],
       "main": "backend/canisters/response_index/main.mo",
       "type": "motoko"
     },
     "stats_index": {
-      "dependencies": ["user_index", "qa_index", "response_index"],
+      "dependencies": ["response_index"],
       "main": "backend/canisters/stats_index/main.mo",
       "type": "motoko"
     },

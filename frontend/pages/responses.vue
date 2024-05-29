@@ -158,6 +158,7 @@ const params = computed(() => {
   return {
     page: parseInt(currentPage.value) || 1,
     pageSize: 10,
+    search: '',
     sortBy: {
       key: sort.value.sortKey || '',
       value: sort.value.sortType || '',

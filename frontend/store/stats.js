@@ -4,7 +4,7 @@ import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 
 function createActorFromIdentity(agent) {
-  return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, { agent });
+  return createActor(process.env.STATS_INDEX_CANISTER_ID, { agent });
 }
 
 export const useStatsStore = defineStore('stats', {
@@ -12,7 +12,6 @@ export const useStatsStore = defineStore('stats', {
   state: () => ({
     actor: null,
     identity: null,
-    response: [],
     loadedList: false,
     leaderboardList: [],
   }),

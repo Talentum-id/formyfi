@@ -1,22 +1,21 @@
 {
   "canisters": {
     "user_index": {
-      "dependencies": ["internet_identity"],
+      "dependencies": ["stats_index"],
       "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
     },
     "qa_index": {
-      "dependencies": ["user_index"],
+      "dependencies": ["stats_index"],
       "main": "backend/canisters/qa_index/main.mo",
       "type": "motoko"
     },
     "response_index": {
-      "dependencies": ["user_index", "qa_index"],
+      "dependencies": ["user_index", "qa_index", "stats_index"],
       "main": "backend/canisters/response_index/main.mo",
       "type": "motoko"
     },
     "stats_index": {
-      "dependencies": ["user_index", "qa_index", "response_index"],
       "main": "backend/canisters/stats_index/main.mo",
       "type": "motoko"
     },

@@ -48,7 +48,6 @@ watch(
     immediate: true,
   },
 );
-console.log(data.value);
 
 onMounted(async () => {
   await responseStore.fetchResponse(data.value.shareLink, props.userInfo.identity);

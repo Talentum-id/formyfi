@@ -45,6 +45,13 @@
         />
       </div>
     </div>
+    <ResultModal
+      v-if="show && currentItem"
+      @close="show = false"
+      :userInfo="currentItem"
+      @next="nextItem()"
+      @prev="prevItem()"
+    ></ResultModal>
   </Default>
 </template>
 <script setup>
@@ -53,6 +60,7 @@ import { computed, onMounted, ref } from 'vue';
 import Pagination from '@/components/Table/Pagination.vue';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
+import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import router from '@/router';
 import TableSkeleton from '@/components/TableSkeleton.vue';
@@ -64,9 +72,14 @@ import Text from '@/components/Table/Text.vue';
 import { formatDate, reduceStringLength } from '@/util/helpers';
 import Badge from '@/components/Badge.vue';
 import { modal } from '@/mixins/modal';
+import ResultModal from '@/components/Result/ResultModal.vue';
+import View from '@/components/View.vue';
 
 const responseStore = useResponseStore();
 const route = useRoute();
+const show = ref(false);
+const currentItem = ref(null);
+const currentIndex = ref(null);
 const authStore = useAuthStore();
 const sort = ref({});
 const currentPage = ref(route.query ? route.query.page : 1);
@@ -77,6 +90,7 @@ const searchInterval = ref(null);
 const loading = ref(false);
 const showAlert = ref(false);
 const fullList = ref([]);
+const allItems = ref(null);
 
 const fetchFullList = async () => {
   if (pagination.value) {
@@ -146,7 +160,7 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length) {
       return [];
     }
-    return originalArray.map((item) => ({
+    return originalArray.map((item, i) => ({
       title: {
         component: Text,
         props: {
@@ -163,10 +177,42 @@ const requestsRows = computed(
           transparent: true,
         },
       },
+      view: {
+        component: View,
+        props: {
+          fn: () => showModal(originalArray, i),
+        },
+      },
     }));
   },
   { deep: true },
 );
+const prevItem = async () => {
+  if (currentIndex.value !== 0) {
+    await useQAStore().fetchQA(allItems.value[--currentIndex.value]?.shareLink);
+    currentItem.value = await useQAStore().getQA;
+  }
+};
+const nextItem = async () => {
+  if (currentIndex.value < allItems.value?.length - 1) {
+    await useQAStore().fetchQA(allItems.value[++currentIndex.value]?.shareLink);
+    currentItem.value = await useQAStore().getQA;
+  }
+};
+
+const showModal = async (items, index) => {
+  currentIndex.value = index;
+  allItems.value = items.map((i) => {
+    return {
+      ...i,
+      filled: Number(i.filled),
+    };
+  });
+  await useQAStore().fetchQA(allItems.value[currentIndex.value]?.shareLink);
+  currentItem.value = await useQAStore().getQA;
+
+  show.value = true;
+};
 
 onMounted(async () => {
   if (route.query && route.query.page) {

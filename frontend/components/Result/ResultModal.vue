@@ -48,6 +48,7 @@ watch(
     immediate: true,
   },
 );
+console.log(data.value);
 
 onMounted(async () => {
   await responseStore.fetchResponse(data.value.shareLink, props.userInfo.identity);
@@ -82,7 +83,7 @@ const isAdditionalAnswer = (answer, variants) => {
     <div class="result-wrapper">
       <div class="header">
         <div class="head-title">
-          <span>{{ data.title }}</span>
+          <span>{{ data?.title }}</span>
 
           <div class="controller">
             <div class="switch">

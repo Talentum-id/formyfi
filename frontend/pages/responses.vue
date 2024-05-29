@@ -162,6 +162,7 @@ const params = computed(() => {
       key: sort.value.sortKey || '',
       value: sort.value.sortType || '',
     },
+    search: '',
   };
 });
 const qa = computed(() => useQAStore().getQA);

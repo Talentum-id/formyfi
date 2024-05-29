@@ -77,7 +77,6 @@ export const useResponseStore = defineStore('response', {
         });
     },
     async getMyResponses(params){
-      console.log(params)
       await this.actor
         ?.listQas(params.identity, params)
         .then( (res) => {

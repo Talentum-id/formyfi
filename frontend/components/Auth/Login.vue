@@ -31,8 +31,6 @@ const readCode = () => {
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then((res) => {
-        console.log(res.data.data.nickname);
-        console.log(res.data.data);
         localStorage.socialInfo = res.data.data.nickname;
         localStorage.removeItem('socialProvider');
         window.close();

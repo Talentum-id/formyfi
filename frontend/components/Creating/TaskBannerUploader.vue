@@ -19,7 +19,7 @@
       <div v-if="isEditingActive" class="overlay">
         <div class="requirements">
           <span class="requirements__title">
-            Recommended size — 480 x 480 px. PNG, JPEG. Maximum 10 MB.
+            Recommended size — 480 x 760 px. PNG, JPEG. Maximum 10 MB.
           </span>
         </div>
         <div class="controllers">
@@ -86,8 +86,8 @@ const uploadImage = () => {
 
 <style scoped lang="scss">
 .main {
-  width: 240px;
-  height: 240px;
+  width: 360px;
+  height: 130px;
   position: relative;
   z-index: 0;
   border-radius: 16px;
@@ -122,8 +122,8 @@ const uploadImage = () => {
   .background-block {
     background: url('@/assets/images/default-back.png') no-repeat center;
     background-size: cover;
-    width: 240px;
-    height: 240px;
+    width: 360px;
+    height: 130px;
     border-radius: 16px;
 
     .overlay {

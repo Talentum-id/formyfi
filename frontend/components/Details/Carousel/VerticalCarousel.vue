@@ -86,7 +86,16 @@
               </el-radio-group>
             </div>
           </div>
-          <div class="flex items-center m-auto" v-else>
+          <div class="flex flex-col items-center m-auto gap-1" v-else>
+            <div class="flex gap-1 items-center wrapper-title font-semibold">
+              {{ getDataByType(newArr[currentIndex].questionType).info.title }}
+              <TooltipIcon tooltipText="tooltipText" />
+            </div>
+            <div
+              class="wrapper-subtitle w-[450px] mb-4"
+              v-html="getDataByType(newArr[currentIndex].questionType).info.description"
+            />
+
             <BaseButton type="normal" @click="getDataByType(newArr[currentIndex].questionType).fn()"
               ><Icon
                 :name="getDataByType(newArr[currentIndex].questionType).icon"
@@ -160,6 +169,7 @@ import Login from '@/components/Auth/Login.vue';
 import { createTemplatePromise, watchDeep } from '@vueuse/core';
 import SignUp from '@/components/Auth/SignUp.vue';
 import Icon from '@/components/Icons/Icon.vue';
+import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
 const assetsStore = useAssetsStore();
@@ -264,18 +274,31 @@ const getDataByType = (type) => {
         icon: 'Twitter-Default',
         title: newArr.value[currentIndex.value].answer || 'Connect Twitter',
         fn: () => connectSocial(type),
+        info: {
+          title: 'What is your X username?',
+          description: 'Please verify your account by clicking the button below.',
+        },
       };
     case 'discord':
       return {
         icon: 'Discord-Default',
         title: newArr.value[currentIndex.value].answer || 'Connect Discord',
         fn: () => connectSocial(type),
+        info: {
+          title: 'What is your Discord handle?',
+          description: 'Please verify your account by clicking the button below.',
+        },
       };
     case 'wallet':
       return {
         icon: 'Wallet-Default',
         title: newArr.value[currentIndex.value].answer || 'Connect Wallet',
         fn: () => connect(),
+        info: {
+          title: 'What is your wallet address?',
+          description:
+            '<span>Please connect your wallet and sign the message to verify ownership <br/> NOTE: connecting your wallet will not trigger a transaction or cost any gas fees.</span>',
+        },
       };
     default:
       return 'NOT_SOCIAL';
@@ -695,5 +718,33 @@ watch(
 
 .icon-soc {
   filter: invert(99%) sepia(0%) saturate(7494%) hue-rotate(201deg) brightness(153%) contrast(100%);
+}
+
+.wrapper-title {
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
+  color: $section-title;
+}
+
+.wrapper-subtitle {
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.014em;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
+  color: $secondary;
+  text-align: center;
 }
 </style>

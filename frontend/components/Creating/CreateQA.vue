@@ -16,7 +16,7 @@
       <div class="section_wrapper">
         <div class="section_wrapper-title">Cover Image</div>
         <div class="upload-requirements">
-          Recommended size — 480 x 480 px. PNG, JPEG. Maximum 10 MB.
+          Recommended size — 480 x 760 px. PNG, JPEG. Maximum 10 MB.
         </div>
         <TaskBannerUploader
           :setImage="setTaskBanner"

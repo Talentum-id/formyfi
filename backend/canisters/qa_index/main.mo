@@ -266,6 +266,30 @@ actor QAIndex {
     true;
   };
 
+  public query func readAll() : async Text {
+    var pairs = "";
+
+    for ((key, value) in QAs.entries()) {
+      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+    };
+
+    for ((key, value) in shareLinks.entries()) {
+      pairs := "(" # key # ", " # value # ") " # pairs;
+    };
+
+    return pairs;
+  };
+
+  public func reset() : async () {
+    for ((key, value) in QAs.entries()) {
+      QAs.delete(key);
+    };
+
+    for ((key, value) in shareLinks.entries()) {
+      shareLinks.delete(key);
+    };
+  };
+
   system func preupgrade() {
     QAEntries := Iter.toArray(QAs.entries());
     shareLinkEntries := Iter.toArray(shareLinks.entries());

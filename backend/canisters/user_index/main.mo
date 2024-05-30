@@ -131,6 +131,31 @@ actor UserIndex {
     };
   };
 
+  public query func readAll() : async Text {
+    var pairs = "";
+
+    for ((key, value) in users.entries()) {
+      pairs := "(" # key # ", " # value.username # " " # value.fullName # ") " # pairs;
+    };
+
+    for ((key, value) in usernames.entries()) {
+      pairs := "(" # key # ", " # value # ") " # pairs;
+    };
+
+    return pairs;
+  };
+
+  public func reset() : async () {
+    for ((key, value) in users.entries()) {
+      users.delete(key);
+    };
+
+    for ((key, value) in usernames.entries()) {
+      usernames.delete(key);
+    };
+
+  };
+
   system func preupgrade() {
     userEntries := Iter.toArray(users.entries());
     usernameEntries := Iter.toArray(usernames.entries());

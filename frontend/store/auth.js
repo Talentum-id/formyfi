@@ -222,27 +222,25 @@ export const useAuthStore = defineStore('auth', {
         });
     },
     async getUsers(list) {
-      if (!this.actor) {
-        return;
-      }
-
       try {
-        const users = await this.actor.getUsers(list);
+        const users = await this.actor?.getUsers(list);
 
         this.usersList = await Promise.all(
-          users[0].map(async (item) => {
+          users.map(async (item) => {
+            let user = item[0]
             let avatar = null;
 
-            if (item?.avatar?.[0]) {
+            if (user?.avatar?.[0]) {
               try {
-                avatar = await useAssetsStore().getFile(item.avatar[0]);
+                avatar = await useAssetsStore().getFile(user.avatar[0]);
               } catch (e) {
                 console.error(e);
               }
             }
 
             return {
-              fullName: item.fullName,
+              fullName: user.fullName,
+              username: user.username,
               avatar: avatar,
             };
           }),

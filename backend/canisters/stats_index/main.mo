@@ -20,6 +20,7 @@ actor StatsIndex {
   stable var statsEntries : [(Text, StatsData)] = [];
   stable var generalStats : [GeneralStatsData] = [];
 
+  let FORMS_CREATED_POINTS = 5;
   let stats = Map.fromIter<Text, StatsData>(statsEntries.vals(), 1000, Text.equal, Text.hash);
   let statsPerProject = Map.fromIter<Text, [ProjectStatsData]>(statsPerProjectEntries.vals(), 1000, Text.equal, Text.hash);
 
@@ -45,7 +46,7 @@ actor StatsIndex {
       func(x : GeneralStatsData, y : GeneralStatsData) {
         let (key1 : Text, key2 : Text) = (Nat.toText(x.points), Nat.toText(y.points));
 
-        if (key1 > key2) #less else if (key2 < key1) #greater else #equal;
+        if (key1 > key2) #less else if (key2 > key1) #greater else #equal;
       },
     );
 
@@ -93,7 +94,7 @@ actor StatsIndex {
           func(x : ProjectStatsData, y : ProjectStatsData) {
             let (key1 : Text, key2 : Text) = (Nat.toText(x.points), Nat.toText(y.points));
 
-            if (key1 > key2) #less else if (key2 < key1) #greater else #equal;
+            if (key1 > key2) #less else if (key2 > key1) #greater else #equal;
           },
         );
 
@@ -128,7 +129,7 @@ actor StatsIndex {
           {
             forms_created = 1;
             forms_completed = 0;
-            points = 5;
+            points = FORMS_CREATED_POINTS;
           },
         );
 
@@ -137,7 +138,7 @@ actor StatsIndex {
         statistics.add({
           forms_created = 1;
           forms_completed = 0;
-          points = 5;
+          points = FORMS_CREATED_POINTS;
           identity;
         });
 
@@ -149,21 +150,50 @@ actor StatsIndex {
           {
             forms_created = stat.forms_created + 1;
             forms_completed = stat.forms_completed;
-            points = stat.points + 5;
+            points = stat.points + FORMS_CREATED_POINTS;
           },
         );
 
-        let newStats = Array.map<GeneralStatsData, GeneralStatsData>(
-          generalStats,
-          func value = {
-            forms_created = stat.forms_created + 1;
-            forms_completed = stat.forms_completed;
-            points = stat.points + 5;
-            identity;
-          },
-        );
+        switch (Array.find<GeneralStatsData>(generalStats, func item = item.identity == identity)) {
+          case null {
+            let statistics = Buffer.fromArray<GeneralStatsData>(generalStats);
 
-        generalStats := newStats;
+            statistics.add({
+              forms_created = 1;
+              forms_completed = 0;
+              points = FORMS_CREATED_POINTS;
+              identity;
+            });
+
+            generalStats := Buffer.toArray(statistics);
+          };
+          case (?userStats) {
+            switch (
+              Array.indexOf<GeneralStatsData>(
+                userStats,
+                generalStats,
+                func(stat1 : GeneralStatsData, stat2 : GeneralStatsData) : Bool = stat1 == stat2,
+              )
+            ) {
+              case null ();
+              case (?index) {
+                let statsData = Buffer.fromArray<GeneralStatsData>(generalStats);
+
+                statsData.put(
+                  index,
+                  {
+                    identity = userStats.identity;
+                    points = userStats.points + FORMS_CREATED_POINTS;
+                    forms_created = userStats.forms_created + 1;
+                    forms_completed = userStats.forms_completed;
+                  },
+                );
+
+                generalStats := Buffer.toArray<GeneralStatsData>(statsData);
+              };
+            };
+          };
+        };
       };
     };
   };
@@ -213,17 +243,46 @@ actor StatsIndex {
           },
         );
 
-        let newStats = Array.map<GeneralStatsData, GeneralStatsData>(
-          generalStats,
-          func value = {
-            forms_created = stat.forms_created;
-            forms_completed = stat.forms_completed + 1;
-            points = stat.points + points;
-            identity;
-          },
-        );
+        switch (Array.find<GeneralStatsData>(generalStats, func item = item.identity == identity)) {
+          case null {
+            let statistics = Buffer.fromArray<GeneralStatsData>(generalStats);
 
-        generalStats := newStats;
+            statistics.add({
+              forms_created = 0;
+              forms_completed = 1;
+              points;
+              identity;
+            });
+
+            generalStats := Buffer.toArray(statistics);
+          };
+          case (?userStats) {
+            switch (
+              Array.indexOf<GeneralStatsData>(
+                userStats,
+                generalStats,
+                func(stat1 : GeneralStatsData, stat2 : GeneralStatsData) : Bool = stat1 == stat2,
+              )
+            ) {
+              case null ();
+              case (?index) {
+                let statsData = Buffer.fromArray<GeneralStatsData>(generalStats);
+
+                statsData.put(
+                  index,
+                  {
+                    identity = userStats.identity;
+                    points = userStats.points + points;
+                    forms_created = userStats.forms_created;
+                    forms_completed = userStats.forms_completed + 1;
+                  },
+                );
+
+                generalStats := Buffer.toArray<GeneralStatsData>(statsData);
+              };
+            };
+          };
+        };
       };
     };
   };
@@ -274,6 +333,32 @@ actor StatsIndex {
         };
       };
     };
+  };
+
+  public query func readAll() : async Text {
+    var pairs = "";
+
+    for ((key, value) in stats.entries()) {
+      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+    };
+
+    for ((key, value) in statsPerProject.entries()) {
+      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+    };
+
+    return pairs;
+  };
+
+  public func reset() : async () {
+    for ((key, value) in stats.entries()) {
+      stats.delete(key);
+    };
+
+    for ((key, value) in statsPerProject.entries()) {
+      statsPerProject.delete(key);
+    };
+
+    generalStats := [];
   };
 
   system func preupgrade() {

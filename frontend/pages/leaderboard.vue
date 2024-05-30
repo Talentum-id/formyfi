@@ -89,7 +89,8 @@ const params = computed(() => {
 });
 const pagination = computed(() => list.value.pagination);
 const getUsersList = async () => {
-  const identities = list.value.data?.map((item) => item.identity);
+  const identities = list.value.data?.map(({ identity }) => identity);
+
   await authStore.getUsers(identities);
 };
 const requestsRows = computed(
@@ -172,6 +173,8 @@ const selectTable = async (table) => {
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
   }
+
+  await getUsersList()
 };
 </script>
 <style scoped lang="scss">

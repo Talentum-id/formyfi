@@ -4,6 +4,12 @@
       <div class="header">
         <h1 class="title">Leaderboard</h1>
       </div>
+      <Select
+        class="w-[200px] mb-4"
+        :options="projectOptions"
+        @input="selectTable($event)"
+      ></Select>
+
       <div ref="index">
         <TableSkeleton v-if="!loaded" />
         <BaseTable
@@ -41,6 +47,7 @@ import TableSkeleton from '@/components/TableSkeleton.vue';
 import BaseTable from '@/components/Table/BaseTable.vue';
 import Rank from '@/components/Table/Rank.vue';
 import Talent from '@/components/Table/Talent.vue';
+import Select from '@/components/Select.vue';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -49,7 +56,10 @@ const currentPage = ref(route.query ? route.query.page : 1);
 const sortDirection = ref('');
 const sortColumn = ref('');
 const leaderboardStore = useStatsStore();
-
+const projectOptions = ref([
+  { name: 'My Project', id: 0, type: 'project' },
+  { name: 'Formify', id: 1, type: 'all' },
+]);
 const requestsColumns = computed(() => {
   return [
     { prop: 'rank', label: '#', width: '20%' },
@@ -155,6 +165,13 @@ const sortHandle = async (name, type) => {
   sort.value = paramsSort;
 
   await leaderboardStore.getLeaderboardAction(params.value);
+};
+const selectTable = async (table) => {
+  if (table.type === 'all') {
+    await leaderboardStore.getLeaderboardAllAction(params.value);
+  } else {
+    await leaderboardStore.getLeaderboardAction(params.value);
+  }
 };
 </script>
 <style scoped lang="scss">

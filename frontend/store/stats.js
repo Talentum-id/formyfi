@@ -36,6 +36,16 @@ export const useStatsStore = defineStore('stats', {
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));
     },
+    async getLeaderboardAllAction(params) {
+      this.loadedList = false;
+      await this.actor
+        ?.list(params)
+        .then((res) => {
+          this.leaderboardList = res;
+        })
+        .catch((e) => console.error(e))
+        .finally(() => (this.loadedList = true));
+    },
   },
   getters: {
     getLoadingStatus: (state) => state.loadedList,

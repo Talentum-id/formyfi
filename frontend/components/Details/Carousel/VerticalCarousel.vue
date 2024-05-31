@@ -446,6 +446,7 @@ const nextSlide = async () => {
         isOpen: isOpenQuestion.value || !!item.myAnswer,
       };
     });
+
     try {
       if (!useAuthStore().isAuthenticated) {
         await checkUserIdentity();

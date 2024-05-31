@@ -44,7 +44,7 @@ actor StatsIndex {
     data := Array.sort<GeneralStatsData>(
       data,
       func(x : GeneralStatsData, y : GeneralStatsData) {
-        let (key1 : Text, key2 : Text) = (Nat.toText(x.points), Nat.toText(y.points));
+        let (key1 : Nat, key2 : Nat) = (x.points, y.points);
 
         if (key1 > key2) #less else if (key2 > key1) #greater else #equal;
       },
@@ -92,7 +92,7 @@ actor StatsIndex {
         data := Array.sort<ProjectStatsData>(
           data,
           func(x : ProjectStatsData, y : ProjectStatsData) {
-            let (key1 : Text, key2 : Text) = (Nat.toText(x.points), Nat.toText(y.points));
+            let (key1 : Nat, key2 : Nat) = (x.points, y.points);
 
             if (key1 > key2) #less else if (key2 > key1) #greater else #equal;
           },

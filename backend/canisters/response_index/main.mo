@@ -80,7 +80,7 @@ actor ResponseIndex {
   };
 
   public shared ({ caller }) func store(data : Data, character : Utils.Character) : async () {
-    let identity = await Utils.authenticate(caller, true, character);
+    let identity = await Utils.authenticate(caller, false, character);
     let { shareLink; answers } = data;
     let responseIdentifier = identity # "-" # shareLink;
 

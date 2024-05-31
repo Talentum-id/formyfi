@@ -28,20 +28,26 @@ export const useStatsStore = defineStore('stats', {
 
     async getLeaderboardAction(params) {
       this.loadedList = false;
+
       await this.actor
         ?.listPerProject(params.identity, params)
-        .then((res) => {
+        .then(async (res) => {
           this.leaderboardList = res;
+
+          await useAuthStore().getUsers(res.data?.map(({ identity }) => identity));
         })
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));
     },
     async getLeaderboardAllAction(params) {
       this.loadedList = false;
+
       await this.actor
         ?.list(params)
-        .then((res) => {
+        .then(async (res) => {
           this.leaderboardList = res;
+
+          await useAuthStore().getUsers(res.data?.map(({ identity }) => identity));
         })
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));

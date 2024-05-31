@@ -88,11 +88,7 @@ const params = computed(() => {
   };
 });
 const pagination = computed(() => list.value.pagination);
-const getUsersList = async () => {
-  const identities = list.value.data?.map(({ identity }) => identity);
 
-  await authStore.getUsers(identities);
-};
 const requestsRows = computed(
   () => {
     const originalArray = list.value.data;
@@ -123,7 +119,7 @@ const requestsRows = computed(
         content: item.points ? Number(item.points).toFixed(2) : '0',
       },
       completed: {
-        content: item.points ? Number(item.forms_completed) : '0',
+        content: Number(item.forms_completed),
       },
     }));
   },
@@ -136,12 +132,10 @@ onMounted(async () => {
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
   }
-  await getUsersList();
 });
 
 function nextPage(page) {
   currentPage.value = page;
-  getUsersList();
   leaderboardStore.getLeaderboardAction(params.value);
 }
 const sortTasks = async (prop, direction) => {
@@ -173,8 +167,6 @@ const selectTable = async (table) => {
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
   }
-
-  await getUsersList()
 };
 </script>
 <style scoped lang="scss">

@@ -41,64 +41,64 @@
   </Default>
 </template>
 <script setup>
-import BannerUploader from '@/components/Profile/BannerUploader.vue';
-import AvatarUploader from '@/components/Profile/AvatarUploader.vue';
-import InputName from '@/components/Profile/InputName.vue';
-import { ref, computed, onMounted } from 'vue';
-import Default from '@/layouts/default.vue';
-import Badge from '@/components/Badge.vue';
-import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
-import { useAuthStore } from '@/store/auth';
-import { useDebounceFn } from '@vueuse/core';
-import { useAssetsStore } from '@/store/assets';
-import { useStatsStore } from '@/store/stats';
+  import BannerUploader from '@/components/Profile/BannerUploader.vue';
+  import AvatarUploader from '@/components/Profile/AvatarUploader.vue';
+  import InputName from '@/components/Profile/InputName.vue';
+  import { ref, computed, onMounted } from 'vue';
+  import Default from '@/layouts/default.vue';
+  import Badge from '@/components/Badge.vue';
+  import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
+  import { useAuthStore } from '@/store/auth';
+  import { useAssetsStore } from '@/store/assets';
+  import { useDebounceFn } from '@vueuse/core';
+  import { useStatsStore } from '@/store/stats';
 
-const authStore = useAuthStore();
-const statsStore = useStatsStore();
+  const authStore = useAuthStore();
+  const assetsStore = useAssetsStore();
+  const statsStore = useStatsStore();
 
-const avatar = ref(null);
-const banner = ref(null);
-const user = computed(() => authStore.getProfileData);
-const stats = computed(() => statsStore.getStatistics)
-const assetsStore = useAssetsStore();
-let name = ref('');
+  const avatar = ref(null);
+  const banner = ref(null);
+  const stats = computed(() => statsStore.getStatistics);
+  const user = computed(() => authStore.getProfileData);
 
-onMounted(async () => {
-  await statsStore.findStatistics();
+  let name = ref('');
 
-  initImages();
-});
+  onMounted(async () => {
+    await statsStore.findStatistics();
+    initImages();
+  });
 
-function initImages() {
-  name.value = user.value?.username;
+  const initImages = () => {
+    name.value = user.value?.username;
 
-  assetsStore
-    .getFile(user.value?.avatar?.[0])
-    .then((res) => {
-      avatar.value = res;
-    })
-    .catch(() => (avatar.value = user.value?.avatar?.[0]));
+    assetsStore
+      .getFile(user.value?.avatar?.[0])
+      .then((res) => {
+        avatar.value = res;
+      })
+      .catch(() => (avatar.value = user.value?.avatar?.[0]));
 
-  assetsStore
-    .getFile(user.value?.banner?.[0])
-    .then((res) => {
-      banner.value = res;
-    })
-    .catch(() => (banner.value = user.value?.banner?.[0]));
-}
-const setName = useDebounceFn(
-  async () => {
-    await authStore.saveProfile({
-      fullName: user.value.fullName,
-      username: name.value,
-      avatar: user.value.avatar,
-      banner: user.value.banner,
-      forms_created: user.value.forms_created,
-    });
-    await authStore.getProfile();
-  },
-  2500,
-);
+    assetsStore
+      .getFile(user.value?.banner?.[0])
+      .then((res) => {
+        banner.value = res;
+      })
+      .catch(() => (banner.value = user.value?.banner?.[0]));
+  }
+
+  const setName = useDebounceFn(
+    async () => {
+      await authStore.saveProfile({
+        fullName: user.value.fullName,
+        username: name.value,
+        avatar: user.value.avatar,
+        banner: user.value.banner,
+        forms_created: user.value.forms_created,
+      });
+    },
+    2500,
+  );
 </script>
 
 <style scoped lang="scss">

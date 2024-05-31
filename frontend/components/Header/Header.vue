@@ -70,6 +70,7 @@ export default {
 
     onMounted(async () => {
       document.addEventListener('click', handleClickOutside);
+
       await assetsStore
         .getFile(user.value?.avatar?.[0])
         .then((res) => {

@@ -65,14 +65,19 @@ export default {
           }
 
           await batch.commit();
+
+          const profileData = useAuthStore().getProfileData;
+
           await useAuthStore().saveProfile({
-            fullName: useAuthStore().getProfileData.fullName,
-            username: useAuthStore().getProfileData.username,
+            fullName: profileData.fullName,
+            username: profileData.username,
             avatar: [avatar],
-            banner: useAuthStore().getProfileData.banner,
-            forms_created: useAuthStore().getProfileData.forms_created,
+            banner: profileData.banner,
+            forms_created: profileData.forms_created,
           });
+
           await useAuthStore().getProfile();
+
           await modal.emit('closeModal', {});
           resolve();
         } catch (error) {

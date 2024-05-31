@@ -14,6 +14,7 @@ export const useStatsStore = defineStore('stats', {
     identity: null,
     loadedList: false,
     leaderboardList: [],
+    stats: [],
   }),
   actions: {
     async init() {
@@ -25,7 +26,22 @@ export const useStatsStore = defineStore('stats', {
         this.actor = stats_index;
       }
     },
+    async findStatistics() {
+      await this.actor
+        ?.findStats(useAuthStore().getPrincipal)
+        .then(res => {
+          if (res.length) {
+            const data = res[0]
 
+            this.stats = {
+              forms_completed: Number(data.forms_completed ?? 0),
+              forms_created: Number(data.forms_created ?? 0),
+              points: Number(data.points ?? 0),
+            }
+          }
+        })
+        .catch(e => console.error(e))
+    },
     async getLeaderboardAction(params) {
       this.loadedList = false;
 
@@ -56,5 +72,6 @@ export const useStatsStore = defineStore('stats', {
   getters: {
     getLoadingStatus: (state) => state.loadedList,
     getLeaderboardList: (state) => state.leaderboardList,
+    getStatistics: ({ stats }) => stats,
   },
 });

@@ -238,7 +238,7 @@ actor StatsIndex {
           identity,
           {
             forms_created = stat.forms_created;
-            forms_completed = stat.forms_completed;
+            forms_completed = stat.forms_completed + 1;
             points = points + stat.points;
           },
         );

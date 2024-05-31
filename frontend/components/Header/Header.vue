@@ -13,7 +13,7 @@
         />
         <img v-else src="@/assets/images/default-avatar.png" alt="" class="cursor-pointer" />
 
-        <div class="user-info" v-if="user">
+        <div class="user-info">
           <span>{{ user.username }}</span>
           <span class="fullname">{{ user.fullName }} </span>
         </div>

@@ -199,9 +199,8 @@ export const useAuthStore = defineStore('auth', {
       if (user == null) {
         this.user = null;
       } else {
-        const { fullName, provider, username } = user;
-        this.getProfile();
-        this.user = { fullName, provider, username };
+        this.profile = user
+        this.user = user;
       }
     },
     async getProfile() {
@@ -210,16 +209,7 @@ export const useAuthStore = defineStore('auth', {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })
-        .then((e) => {
-          this.profile = {
-            ...e.user,
-            stats: {
-              forms_completed: Number(e.stats?.[0]?.forms_completed ?? 0),
-              forms_created: Number(e.stats?.[0]?.forms_created ?? 0),
-              points: Number(e.stats?.[0]?.points ?? 0),
-            },
-          };
-        });
+        .then(res => this.profile = res);
     },
     async getUsers(list) {
       try {

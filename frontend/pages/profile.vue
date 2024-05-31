@@ -14,12 +14,12 @@
             <StatCardSmall
               title="Forms Completed"
               icon="Tasks"
-              :value="user.stats.forms_completed"
+              :value="stats.forms_completed"
             ></StatCardSmall>
             <StatCardSmall
               title="Forms Created"
               icon="Tik-Tik"
-              :value="user.stats.forms_created"
+              :value="stats.forms_created"
             ></StatCardSmall>
           </div>
           <div class="container">
@@ -33,7 +33,7 @@
         </div>
         <div class="sidebar">
           <div class="points">
-            <span>Points</span> <span> {{ user.stats.points }} QP</span>
+            <span>Points</span> <span> {{ stats.points }} QP</span>
           </div>
         </div>
       </div>
@@ -51,17 +51,22 @@ import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
 import { useAuthStore } from '@/store/auth';
 import { useDebounceFn } from '@vueuse/core';
 import { useAssetsStore } from '@/store/assets';
+import { useStatsStore } from '@/store/stats';
 
 const authStore = useAuthStore();
+const statsStore = useStatsStore();
+
 const avatar = ref(null);
 const banner = ref(null);
 const user = computed(() => authStore.getProfileData);
+const stats = computed(() => statsStore.getStatistics)
 const assetsStore = useAssetsStore();
 let name = ref('');
 
 onMounted(async () => {
-  await authStore.getProfile();
-  await initImages();
+  await statsStore.findStatistics();
+
+  initImages();
 });
 
 function initImages() {

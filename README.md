@@ -21,6 +21,14 @@ DFX_VERSION=0.15.2 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
 
 Download and install NPM from [https://nodejs.org/en/download](https://nodejs.org/en/download).
 
+#### Web2
+
+There is certain functionality implemented in web2 for this project. If you are interested to see web2 part, run the following code:
+
+   ```bash
+   git clone <path_to_this_repo> <your_local_dir> --recursive
+   ```
+
 ## Running Locally
 
 1. Navigate to the project directory and start DFX using the following command:

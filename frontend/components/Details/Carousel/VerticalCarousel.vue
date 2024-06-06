@@ -148,12 +148,13 @@ import {
 } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
-import { ElRadioGroup, ElRadioButton, ElImage } from 'element-plus';
+import { ElRadioGroup, ElRadioButton } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
-import { useAssetsStore } from '@/store/assets';
+import { useQaStorageStore } from '@/store/qa-storage';
+import { useResponseStorageStore } from '@/store/response-storage';
 import { modal } from '@/mixins/modal';
 import Item from '@/components/Details/Carousel/Item.vue';
 import LastEmptyItem from '@/components/Details/Carousel/LastEmptyItem.vue';
@@ -166,13 +167,14 @@ import QuizProgressTitle from '@/components/Details/QuizProgressTitle.vue';
 import CustomImage from '@/components/CustomImage.vue';
 import BaseModal from '@/components/BaseModal.vue';
 import Login from '@/components/Auth/Login.vue';
-import { createTemplatePromise, watchDeep } from '@vueuse/core';
+import { createTemplatePromise } from '@vueuse/core';
 import SignUp from '@/components/Auth/SignUp.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
-const assetsStore = useAssetsStore();
+const assetsStore = useQaStorageStore();
+const responseAssetsStore = useResponseStorageStore();
 const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
@@ -329,7 +331,7 @@ onMounted(async () => {
     const index = props.answers.indexOf(answer);
 
     if (answer.file) {
-      await assetsStore
+      await responseAssetsStore
         .getFile(answer.file)
         .then((res) => (answerFiles.value[index] = res))
         .catch(() => (answerFiles.value[index] = answer.file));
@@ -353,12 +355,14 @@ const prevSlide = () => {
 const loadImages = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      await handleLoadingFilesModal();
+      handleLoadingFilesModal();
+
       let index = currentIndex.value;
+
       await Promise.all(
         result.value.map(async (item) => {
           if (item.file) {
-            item.file = await assetsStore.assetManager.store(item.file?.[0].raw, {
+            item.file = await responseAssetsStore.assetManager.store(item.file?.[0].raw, {
               path: `/assets/${props.shareLink}/${realTime.value}/${index}`,
             });
             index++;

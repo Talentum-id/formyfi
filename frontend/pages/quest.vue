@@ -3,7 +3,6 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Quest from '@/components/Quest/Quest.vue';
 import Default from '@/layouts/default.vue';
 import { useAuthStore } from '@/store/auth';
-import { useAssetsStore } from '@/store/assets';
 import { useQAStore } from '@/store/qa';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
@@ -12,9 +11,9 @@ import Modal from '@/components/Quest/Modal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import BackToList from '@/components/BackToList.vue';
 import { modal } from '@/mixins/modal';
+import { useResponseStore } from '@/store/response';
 
 const authStore = useAuthStore();
-const assetsStore = useAssetsStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -45,7 +44,10 @@ async function deleteQuest() {
     message: 'Please wait for a while',
     type: 'loading',
   });
+
   await useQAStore().removeQuest(data.value);
+  await useResponseStore().deleteResponsesByShareLink(data.value.shareLink);
+
   await modal.emit('closeModal', {});
   deleting.value = false;
   await router.push('/');

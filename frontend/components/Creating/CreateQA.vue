@@ -212,14 +212,13 @@ import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import Input from '@/components/Input.vue';
 import { transformDate, addDaysToDate } from '@/util/helpers';
-import FilterToggle from '@/components/Creating/FilterToggle.vue';
 import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
-import { useAssetsStore } from '@/store/assets';
+import { useQaStorageStore } from '@/store/qa-storage';
 import Alert from '@/components/Alert.vue';
 import { useRouter } from 'vue-router';
 import Checkbox from '@/components/Creating/Checkbox.vue';
@@ -227,7 +226,6 @@ import { modal } from '@/mixins/modal';
 import localForage from 'localforage';
 import SocialConnect from '@/components/Creating/SocialConnect.vue';
 
-const router = useRouter();
 const emits = defineEmits('refresh');
 
 const loading = ref(false);
@@ -276,7 +274,7 @@ const questsTypeItems = ref([
 
 const authStore = useAuthStore();
 const qaStore = useQAStore();
-const assetsStore = useAssetsStore();
+const assetsStore = useQaStorageStore();
 
 const countOfQuestions = ref([
   {

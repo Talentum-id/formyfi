@@ -27,7 +27,6 @@ try {
 } catch (e) {
   console.error('\n⚠️  Before starting the dev server run: dfx deploy\n\n');
 }
-
 const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name, _value]) => {
   const outputRoot = path.join(__dirname, '.dfx', network || 'local', 'canisters', name);
 

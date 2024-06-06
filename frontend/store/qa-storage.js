@@ -4,8 +4,8 @@ import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { AssetManager } from '@dfinity/assets';
 import { generateUint8Array } from '@/util/helpers';
 
-export const useAssetsStore = defineStore('assets', {
-  id: 'assets',
+export const useQaStorageStore = defineStore('qaStorage', {
+  id: 'qaStorage',
   state: () => {
     return {
       assetManager: null,
@@ -16,7 +16,7 @@ export const useAssetsStore = defineStore('assets', {
       const identity = Ed25519KeyIdentity.generate(
         generateUint8Array(process.env.DFX_ASSET_PRINCIPAL),
       );
-      const canisterId = process.env.STORAGE_CANISTER_ID;
+      const canisterId = process.env.QA_STORAGE_CANISTER_ID;
       const agent = new HttpAgent({ identity });
 
       if (process.env.NODE_ENV === 'development') {

@@ -24,12 +24,12 @@ import { formatDate } from '@/util/helpers';
 import { useCounterStore } from '@/store';
 import { computed, onMounted, ref } from 'vue';
 import { useResponseStore } from '@/store/response';
-import { useAssetsStore } from '@/store/assets';
+import { useQaStorageStore } from '@/store/qa-storage';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
 import { ElImage } from 'element-plus';
 import CustomImage from '@/components/CustomImage.vue';
 
-const assetsStore = useAssetsStore();
+const assetsStore = useQaStorageStore();
 const counterStore = useCounterStore();
 
 const step = computed(() => counterStore.getStep);

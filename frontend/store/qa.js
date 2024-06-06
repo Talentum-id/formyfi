@@ -3,7 +3,7 @@ import { createActor, qa_index } from '~/qa_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
-import { useAssetsStore } from '@/store/assets';
+import { useQaStorageStore } from '@/store/qa-storage';
 import router from '@/router';
 
 function createActorFromIdentity(agent) {
@@ -23,6 +23,7 @@ export const useQAStore = defineStore('qa', {
   actions: {
     async init() {
       this.identity = useAuthStore().identity;
+
       if (this.identity) {
         this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
       } else {
@@ -42,7 +43,7 @@ export const useQAStore = defineStore('qa', {
           character: localStorage.extraCharacter,
         })
         .then(async () => {
-          const batch = useAssetsStore().assetManager.batch();
+          const batch = useQaStorageStore().assetManager.batch();
 
           await batch.delete(image);
           await batch.delete(`/assets/${shareLink}`);

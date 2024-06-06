@@ -8,11 +8,13 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useQAStore } from '@/store/qa';
 import { useResponseStore } from '@/store/response';
 import { formatDate } from '@/util/helpers';
-import { useAssetsStore } from '@/store/assets';
+import { useResponseStorageStore } from '@/store/response-storage';
+import { useQaStorageStore } from '@/store/qa-storage';
 import ResultCard from '@/components/Result/ResultCard.vue';
 import CustomImage from '@/components/CustomImage.vue';
 
-const assetsStore = useAssetsStore();
+const qaAssetsStore = useQaStorageStore();
+const responseAssetsStore = useResponseStorageStore();
 const responseStore = useResponseStore();
 
 const questionFiles = ref([]);
@@ -37,7 +39,7 @@ watch(
       const index = answers.value.indexOf(answer);
 
       if (answer.file) {
-        await assetsStore.getFile(answer.file).then((res) => (answerFiles.value[index] = res));
+        await responseAssetsStore.getFile(answer.file).then((res) => (answerFiles.value[index] = res));
       } else {
         answerFiles.value[index] = null;
       }
@@ -56,7 +58,7 @@ onMounted(async () => {
     const index = data.value.questions.indexOf(question);
 
     if (question.file) {
-      await assetsStore.getFile(question.file).then((res) => (questionFiles.value[index] = res));
+      await qaAssetsStore.getFile(question.file).then((res) => (questionFiles.value[index] = res));
     } else {
       questionFiles.value[index] = null;
     }

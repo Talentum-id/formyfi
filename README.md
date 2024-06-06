@@ -67,7 +67,9 @@ There is certain functionality implemented in web2 for this project. If you are 
 
 4. Need to start assets canisters for uploading and reading files like images, run:
    ```bash
-   dfx canister call storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
+   dfx canister call user_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
+   dfx canister call qa_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
+   dfx canister call response_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
    ```
    Open the DApp through the link provided by the Vite dev server.
 

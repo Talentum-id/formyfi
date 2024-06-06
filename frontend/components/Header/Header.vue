@@ -6,9 +6,9 @@
     <div class="info relative" ref="notificationContainer" v-if="user">
       <div class="avatar" @click="showTooltips = !showTooltips" ref="menu">
         <div
-          :style="{ background: `url(${avatar})` }"
+          v-if="user.avatarUri"
+          :style="{ background: `url(${user.avatarUri})` }"
           style="background-size: cover; background-position: center"
-          v-if="avatar"
           class="avatar-img"
         />
         <img v-else src="@/assets/images/default-avatar.png" alt="" class="cursor-pointer" />
@@ -20,7 +20,7 @@
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>
           <div class="menu">
-            <router-link to="/profile" class="logout"> Profile </router-link>
+            <router-link to="/profile" class="logout"> Profile</router-link>
             <hr />
             <span class="logout" @click="authStore.logout()">
               Logout
@@ -39,7 +39,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 import { useAuthStore } from '@/store/auth';
-import { useAssetsStore } from '@/store/assets';
 
 export default {
   name: 'Header',
@@ -50,12 +49,10 @@ export default {
     };
   },
   setup() {
-    const avatar = ref(null);
     const showTooltips = ref(false);
     const router = useRouter();
     const authStore = useAuthStore();
     const user = computed(() => authStore.getProfileData);
-    const assetsStore = useAssetsStore();
 
     const menu = ref(null);
     const goHome = () => {
@@ -70,27 +67,9 @@ export default {
 
     onMounted(async () => {
       document.addEventListener('click', handleClickOutside);
-
-      await assetsStore
-        .getFile(user.value?.avatar?.[0])
-        .then((res) => {
-          avatar.value = res;
-        })
-        .catch(() => (avatar.value = user.value?.avatar?.[0]));
     });
-    watch(
-      () => user.value,
-      () => {
-        assetsStore
-          .getFile(user.value?.avatar?.[0])
-          .then((res) => {
-            avatar.value = res;
-          })
-          .catch(() => (avatar.value = user.value?.avatar?.[0]));
-      },
-    );
+
     return {
-      avatar,
       menu,
       showTooltips,
       authStore,
@@ -213,15 +192,18 @@ export default {
   display: flex;
   gap: 16px;
   align-items: center;
+
   .avatar-img {
     height: 48px;
     width: 48px;
     border-radius: 50px;
     cursor: pointer;
   }
+
   .user-info {
     display: flex;
     flex-direction: column;
+
     span {
       font-family: $default_font;
       font-style: normal;
@@ -236,6 +218,7 @@ export default {
       justify-content: space-between;
       text-decoration: none;
     }
+
     .fullname {
       font-size: 12px;
     }

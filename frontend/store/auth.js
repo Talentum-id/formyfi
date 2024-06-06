@@ -2,10 +2,11 @@ import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
 import { createActor, user_index } from '~/user_index';
 import router from '@/router';
-
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
-import { useAssetsStore } from './assets';
+import { useUserStorageStore } from './user-storage';
+import { useResponseStorageStore } from './response-storage';
+import { useQaStorageStore } from './qa-storage';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
@@ -63,10 +64,10 @@ export const useAuthStore = defineStore('auth', {
         await this.actor
           ?.findUser(this.getPrincipal)
           .then(async (res) => {
+            await this.initStores();
+
             if (res.length) {
               this.setUser(res[0]);
-
-              await this.initStores();
             } else {
               this.isAuthenticated = false;
 
@@ -89,10 +90,10 @@ export const useAuthStore = defineStore('auth', {
     async initWeb2Auth() {
       this.actor = user_index;
 
+      await this.initStores();
+
       this.isAuthenticated = true;
       this.principal = localStorage.extraCharacter;
-
-      await this.initStores();
     },
     async initII() {
       const authClient = await AuthClient.create(defaultOptions.createOptions);
@@ -110,8 +111,10 @@ export const useAuthStore = defineStore('auth', {
       this.principal = principal;
     },
     async initStores() {
+      await useUserStorageStore().init();
+      await useQaStorageStore().init();
+      await useResponseStorageStore().init();
       await useQAStore().init();
-      await useAssetsStore().init();
       await useResponseStore().init();
       await useStatsStore().init();
     },
@@ -125,6 +128,8 @@ export const useAuthStore = defineStore('auth', {
       await authClient.login({
         ...defaultOptions.loginOptions,
         onSuccess: async () => {
+          await this.initStores();
+
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
@@ -135,8 +140,6 @@ export const useAuthStore = defineStore('auth', {
 
           this.setAuthenticationStorage(this.isAuthenticated);
 
-          await this.initStores();
-
           if (!this.isQuest) {
             await router.push('/sign-up');
           }
@@ -146,14 +149,14 @@ export const useAuthStore = defineStore('auth', {
     async loginWithGoogle(credential) {
       const { email } = decodeCredential(credential);
 
+      await this.initStores();
+
       this.actor = user_index;
 
       this.setAuthenticationStorage(true, 'google', email);
 
       this.principal = localStorage.extraCharacter;
       this.isAuthenticated = localStorage.isAuthenticated = true;
-
-      await this.initStores();
 
       if (!this.isQuest) {
         await router.push('/sign-up');
@@ -195,12 +198,34 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('authenticationProvider');
       }
     },
-    setUser(user = null) {
+    async setUser(user = null) {
       if (user == null) {
         this.profile = null;
         this.user = null;
       } else {
-        this.profile = user
+        if (user.avatar.length) {
+          await useUserStorageStore()
+            .getFile(user.avatar[0])
+            .then(res => user.avatarUri = res)
+            .catch(error => {
+              console.error(error);
+
+              user.avatarUri = null;
+            });
+        } else {
+          user.avatarUri = null
+        }
+
+        if (user.banner.length) {
+          await useUserStorageStore()
+            .getFile(user.banner[0])
+            .then(res => user.bannerUri = res)
+            .catch(() => user.bannerUri = null);
+        } else {
+          user.bannerUri = null
+        }
+
+        this.profile = user;
         this.user = user;
       }
     },
@@ -218,12 +243,12 @@ export const useAuthStore = defineStore('auth', {
 
         this.usersList = await Promise.all(
           users.map(async (item) => {
-            let user = item[0]
+            let user = item[0];
             let avatar = null;
 
             if (user?.avatar?.[0]) {
               try {
-                avatar = await useAssetsStore().getFile(user.avatar[0]);
+                avatar = await useQaStorageStore().getFile(user.avatar[0]);
               } catch (e) {
                 console.error(e);
               }

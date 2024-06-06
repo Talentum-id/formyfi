@@ -23,7 +23,7 @@
 <script>
 import Icon from '@/components/Icons/Icon.vue';
 import { modal } from '@/mixins/modal';
-import { useAssetsStore } from '@/store/assets';
+import { useUserStorageStore } from '@/store/user-storage';
 import { useAuthStore } from '@/store/auth';
 
 export default {
@@ -54,19 +54,25 @@ export default {
             message: 'Please wait for a while',
             type: 'loading',
           });
-          let index = 0;
-          const realTime = Math.floor(new Date().getTime() / 1000);
-          const batch = useAssetsStore().assetManager.batch();
+
+          const batch = useUserStorageStore().assetManager.batch();
+          const profileData = useAuthStore().getProfileData;
+
           let avatar;
+
           if (typeof this.image !== 'string') {
+            const directory = `/assets/${useAuthStore().getPrincipal}/avatar`;
+
+            if (profileData.avatar.length) {
+              await batch.delete(profileData.avatar[0]);
+            }
+
             avatar = await batch.store(this.image, {
-              path: `/assets/${realTime}/${index}`,
+              path: directory,
             });
           }
 
           await batch.commit();
-
-          const profileData = useAuthStore().getProfileData;
 
           await useAuthStore().saveProfile({
             fullName: profileData.fullName,

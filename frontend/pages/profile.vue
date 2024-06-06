@@ -1,9 +1,9 @@
 <template>
   <Default>
     <div class="profile" v-if="user">
-      <BannerUploader :banner="banner"></BannerUploader>
+      <BannerUploader :banner="user.bannerUri"></BannerUploader>
       <div class="naming w-full">
-        <AvatarUploader :avatar="avatar"></AvatarUploader>
+        <AvatarUploader :avatar="user.avatarUri"></AvatarUploader>
         <div class="info">
           <InputName v-model="name" :placeholder="user.username" @input="setName"></InputName>
         </div>
@@ -49,16 +49,12 @@
   import Badge from '@/components/Badge.vue';
   import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
   import { useAuthStore } from '@/store/auth';
-  import { useAssetsStore } from '@/store/assets';
   import { useDebounceFn } from '@vueuse/core';
   import { useStatsStore } from '@/store/stats';
 
   const authStore = useAuthStore();
-  const assetsStore = useAssetsStore();
   const statsStore = useStatsStore();
 
-  const avatar = ref(null);
-  const banner = ref(null);
   const stats = computed(() => statsStore.getStatistics);
   const user = computed(() => authStore.getProfileData);
 
@@ -66,26 +62,7 @@
 
   onMounted(async () => {
     await statsStore.findStatistics();
-    initImages();
   });
-
-  const initImages = () => {
-    name.value = user.value?.username;
-
-    assetsStore
-      .getFile(user.value?.avatar?.[0])
-      .then((res) => {
-        avatar.value = res;
-      })
-      .catch(() => (avatar.value = user.value?.avatar?.[0]));
-
-    assetsStore
-      .getFile(user.value?.banner?.[0])
-      .then((res) => {
-        banner.value = res;
-      })
-      .catch(() => (banner.value = user.value?.banner?.[0]));
-  }
 
   const setName = useDebounceFn(
     async () => {
@@ -96,6 +73,8 @@
         banner: user.value.banner,
         forms_created: user.value.forms_created,
       });
+
+      await authStore.getProfile();
     },
     2500,
   );

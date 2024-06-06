@@ -132,6 +132,34 @@ actor ResponseIndex {
     };
   };
 
+  public shared func deleteByShareLink(shareLink : Text) : async [Text] {
+    var answerImages = Buffer.fromArray<Text>([]);
+
+    authorsViaQA.delete(shareLink);
+
+    for ((key, value) in responses.entries()) {
+      var identificator = "-" #shareLink;
+
+      if (Text.endsWith(key, #text identificator)) {
+        for (indexedAnswer in value.vals()) {
+          if (indexedAnswer.file.size() > 0) {
+            answerImages.add(indexedAnswer.file);
+          };
+        };
+
+        responses.delete(key);
+      };
+    };
+
+    for ((key, value) in qasViaAuthor.entries()) {
+      let filteredValue = Array.filter<QA>(value, func item = item.shareLink != shareLink);
+
+      qasViaAuthor.put(key, filteredValue);
+    };
+
+    Buffer.toArray(answerImages);
+  };
+
   public shared ({ caller }) func export(shareLink : Text, character : Utils.Character) : async ExportResponse {
     let identity = await Utils.authenticate(caller, true, character);
 

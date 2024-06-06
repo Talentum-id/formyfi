@@ -3,6 +3,7 @@ import { createActor, response_index } from '~/response_index';
 import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
+import { useResponseStorageStore } from '@/store/response-storage';
 
 function createActorFromIdentity(agent) {
   return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, { agent });
@@ -98,7 +99,23 @@ export const useResponseStore = defineStore('response', {
           console.error(e);
           throw e;
         });
-    }
+    },
+    async deleteResponsesByShareLink(shareLink) {
+      return await this.actor
+        ?.deleteByShareLink(shareLink)
+        .then(async res => {
+          if (res.length) {
+            const batch = useResponseStorageStore().assetManager.batch();
+
+            await Promise.all(
+              res.map(async (answer) => await batch.delete(answer)),
+            );
+
+            await batch.commit();
+          }
+        })
+        .catch((e) => console.error(e))
+    },
   },
   getters: {
     getResponse: (state) => state.response,

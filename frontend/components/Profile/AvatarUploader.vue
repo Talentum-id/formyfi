@@ -18,6 +18,8 @@
       </div>
     </div>
   </div>
+
+  <Alert :message="errorMessage" type="error" v-if="showError" />
 </template>
 
 <script>
@@ -25,15 +27,21 @@ import Icon from '@/components/Icons/Icon.vue';
 import { modal } from '@/mixins/modal';
 import { useUserStorageStore } from '@/store/user-storage';
 import { useAuthStore } from '@/store/auth';
+import Alert from '@/components/Alert.vue';
 
 export default {
   name: 'AvatarUploader',
-  components: { Icon },
+  components: {
+    Alert,
+    Icon,
+  },
   data() {
     return {
       noAvatar: true,
       newAvatar: null,
       image: null,
+      errorMessage: null,
+      showError: false,
     };
   },
   props: {
@@ -93,12 +101,18 @@ export default {
     },
     handleFileUpload(event) {
       const file = event.target.files[0];
-      const maxSizeInMB = 10;
+      const maxSizeInMB = 1;
       const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
       if (file.size > maxSizeInBytes) {
+        this.errorMessage = 'The file size can\'t be more than 1MB';
+        this.showError = true;
+
+        setTimeout(() => this.showError = false, 3000);
+
         return;
       }
+
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -112,16 +126,32 @@ export default {
       event.target.value = null;
     },
     async removeAvatar() {
+      await modal.emit('openModal', {
+        title: 'Removing file...',
+        message: 'Please wait for a while',
+        type: 'loading',
+      });
+
       this.newAvatar = null;
       this.noAvatar = true;
+
+      const profileData = useAuthStore().getProfileData;
+
+      if (profileData.avatar.length) {
+        await useUserStorageStore().assetManager.delete(profileData.avatar[0]);
+      }
+
       await useAuthStore().saveProfile({
-        fullName: useAuthStore().getProfileData.fullName,
-        username: useAuthStore().getProfileData.username,
+        fullName: profileData.fullName,
+        username: profileData.username,
         avatar: [],
-        banner: useAuthStore().getProfileData.banner,
-        forms_created: useAuthStore().getProfileData.forms_created,
+        banner: profileData.banner,
+        forms_created: profileData.forms_created,
       });
+
       await useAuthStore().getProfile();
+
+      await modal.emit('closeModal', {});
     },
   },
 };

@@ -60,7 +60,7 @@ const fileInput = ref(null);
 const handleFileUpload = () => {
   const file = fileInput.value.files[0];
 
-  const maxSizeInMB = 10;
+  const maxSizeInMB = 1;
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
   if (file.size > maxSizeInBytes) {
@@ -68,8 +68,10 @@ const handleFileUpload = () => {
     noImage.value = true;
     return;
   }
+
   if (file) {
     const reader = new FileReader();
+
     reader.onload = (e) => {
       image.value = e.target.result;
       noImage.value = false;

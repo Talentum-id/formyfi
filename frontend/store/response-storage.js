@@ -24,8 +24,6 @@ export const useResponseStorageStore = defineStore('responseStorage', {
       }
 
       this.assetManager = new AssetManager({ canisterId, agent });
-
-      console.log(this.assetManager.list())
     },
     async getFile(link) {
       const asset = await this.assetManager.get(link);

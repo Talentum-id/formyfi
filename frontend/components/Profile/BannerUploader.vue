@@ -17,6 +17,8 @@
       </div>
     </div>
   </div>
+
+  <Alert :message="errorMessage" type="error" v-if="showError" />
 </template>
 
 <script>
@@ -24,16 +26,22 @@ import Icon from '@/components/Icons/Icon.vue';
 import { modal } from '@/mixins/modal';
 import { useUserStorageStore } from '@/store/user-storage';
 import { useAuthStore } from '@/store/auth';
+import Alert from '@/components/Alert.vue';
 
 export default {
   name: 'BannerUploader',
-  components: { Icon },
+  components: {
+    Alert,
+    Icon,
+  },
   data() {
     return {
       hover: false,
       noImage: true,
       image: null,
       file: null,
+      errorMessage: null,
+      showError: false,
     };
   },
   props: {
@@ -91,10 +99,15 @@ export default {
 
     handleFileUpload() {
       const file = this.$refs.fileInput.files[0];
-      const maxSizeInMB = 10;
+      const maxSizeInMB = 1;
       const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
       if (file.size > maxSizeInBytes) {
+        this.errorMessage = 'The file size can\'t be more than 1MB';
+        this.showError = true;
+
+        setTimeout(() => this.showError = false, 3000);
+
         return;
       }
 

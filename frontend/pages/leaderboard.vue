@@ -16,7 +16,6 @@
           v-else
           :columns="requestsColumns"
           :rows="requestsRows"
-          is-sorting
           :sortFunction="sortTasks"
           :sortDirection="sortDirection"
           :setSortDirection="setSortDirection"

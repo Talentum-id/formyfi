@@ -99,21 +99,17 @@ const checkImageSize = () => {
   } else {
     for (const file of fileList.value) {
       if (file && file.size) {
-        if ((file && file.raw.size / 1000 < 10) || (file && file.size / 1000 < 10)) {
+        if ((file && file.raw.size / 1000000 > 1) || (file && file.size / 1000000 > 1)) {
           isShowFileError.isError = true;
-          isShowFileError.message = "The file can't be less than 10 kB";
+          isShowFileError.message = "The file size can't be more than 1 MB";
           handleRemove(file);
           emit('changeError', isShowFileError.isError);
-          return false;
-        } else if ((file && file.raw.size / 1000000 > 10) || (file && file.size / 1000000 > 10)) {
-          isShowFileError.isError = true;
-          isShowFileError.message = "The file size can't be more than 10 MB";
-          handleRemove(file);
-          emit('changeError', isShowFileError.isError);
+
           return false;
         } else {
           isShowFileError.isError = false;
           isShowFileError.message = '';
+
           return true;
         }
       }

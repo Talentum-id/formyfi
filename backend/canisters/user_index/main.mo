@@ -135,7 +135,7 @@ actor UserIndex {
     var pairs = "";
 
     for ((key, value) in users.entries()) {
-      pairs := "(" # key # ", " # value.username # " " # value.fullName # ") " # pairs;
+      pairs := "(" # key # ", " # value.username # ", " # value.fullName # ") " # pairs;
     };
 
     for ((key, value) in usernames.entries()) {

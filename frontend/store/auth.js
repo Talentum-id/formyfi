@@ -172,7 +172,8 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = false;
       this.identity = this.actor = this.principal = null;
 
-      this.setUser();
+      await this.setUser();
+
       await router.push('/login');
       window.location.reload();
     },

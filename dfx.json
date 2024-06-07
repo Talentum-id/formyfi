@@ -27,7 +27,15 @@
       "source": ["dist/", "frontend/assets"],
       "type": "assets"
     },
-    "storage": {
+    "user_storage": {
+      "type": "assets",
+      "source": []
+    },
+    "qa_storage": {
+      "type": "assets",
+      "source": []
+    },
+    "response_storage": {
       "type": "assets",
       "source": []
     },

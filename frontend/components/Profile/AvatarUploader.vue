@@ -105,7 +105,7 @@ export default {
       const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
       if (file.size > maxSizeInBytes) {
-        this.errorMessage = 'The file size can\'t be more than 1MB';
+        this.errorMessage = 'The file size can\'t be more than 1 MB';
         this.showError = true;
 
         setTimeout(() => this.showError = false, 3000);

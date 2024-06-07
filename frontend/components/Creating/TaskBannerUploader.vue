@@ -19,7 +19,7 @@
       <div v-if="isEditingActive" class="overlay">
         <div class="requirements">
           <span class="requirements__title">
-            Recommended size — 480 x 760 px. PNG, JPEG. Maximum 10 MB.
+            Recommended size — 480 x 760 px. PNG, JPEG. Maximum 1 MB.
           </span>
         </div>
         <div class="controllers">
@@ -28,11 +28,14 @@
       </div>
     </div>
     <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>
+
+    <Alert :message="errorMessage" type="error" v-if="showError" />
   </div>
 </template>
 
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
+import Alert from '@/components/Alert.vue';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -56,6 +59,8 @@ const hover = ref(false);
 const noImage = ref(true);
 const image = ref(null);
 const fileInput = ref(null);
+const showError = ref(false);
+const errorMessage = ref('')
 
 const handleFileUpload = () => {
   const file = fileInput.value.files[0];
@@ -66,6 +71,12 @@ const handleFileUpload = () => {
   if (file.size > maxSizeInBytes) {
     image.value = null;
     noImage.value = true;
+
+    errorMessage.value = 'The file size can\'t be more than 1 MB';
+    showError.value = true;
+
+    setTimeout(() => showError.value = false, 3000);
+
     return;
   }
 

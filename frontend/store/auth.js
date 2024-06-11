@@ -67,7 +67,7 @@ export const useAuthStore = defineStore('auth', {
             await this.initStores();
 
             if (res.length) {
-              this.setUser(res[0]);
+              await this.setUser(res[0]);
             } else {
               this.isAuthenticated = false;
 
@@ -82,6 +82,10 @@ export const useAuthStore = defineStore('auth', {
       } else {
         if (!this.isQuest && !localStorage.socialProvider) {
           await router.push('/sign-up');
+        }
+
+        if (this.isQuest) {
+          await this.initStores();
         }
       }
 
@@ -236,7 +240,7 @@ export const useAuthStore = defineStore('auth', {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })
-        .then(({ user }) => this.setUser(user));
+        .then(async ({ user }) => await this.setUser(user));
     },
     async getUsers(list) {
       try {

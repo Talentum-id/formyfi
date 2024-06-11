@@ -22,7 +22,7 @@ export const useQAStore = defineStore('qa', {
   }),
   actions: {
     async init() {
-      this.identity = useAuthStore().identity;
+      this.identity = useAuthStore().getIdentity;
 
       if (this.identity) {
         this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));

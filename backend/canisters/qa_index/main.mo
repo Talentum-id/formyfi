@@ -78,7 +78,7 @@ actor QAIndex {
   };
 
   public shared ({ caller }) func store(data : QA, character : Utils.Character) : async () {
-    let identity = await Utils.authenticate(caller, true, character);
+    let identity = await Utils.authenticate(caller, false, character);
 
     if (not (validate(data))) {
       throw Error.reject("Please, fill required fields!");

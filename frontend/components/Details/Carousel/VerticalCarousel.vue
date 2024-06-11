@@ -125,7 +125,7 @@
     <BaseModal :visible="show" width="500" @close="onClose">
       <div class="p-12">
         <Login
-          @success="useAuthStore().isAuthenticated ? resolve(true) : (showSignUp = true)"
+          @success="hasUser ? resolve(true) : (showSignUp = true)"
           @reject="reject(null)"
           v-if="!showSignUp"
         ></Login>
@@ -199,6 +199,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'success']);
 const show = ref(false);
 const currentIndex = ref(findCurrentItemIndex());
+const hasUser = computed(() => useAuthStore().getUser);
 const loading = ref(false);
 const newArr = ref(
   props.items.map((item) => {
@@ -452,7 +453,7 @@ const nextSlide = async () => {
     });
 
     try {
-      if (!useAuthStore().isAuthenticated) {
+      if (!hasUser.value) {
         await checkUserIdentity();
       }
       await loadImages();

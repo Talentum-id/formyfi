@@ -28,6 +28,13 @@ actor QAIndex {
     "twitter",
     "discord",
     "wallet",
+    "rating",
+    "number",
+    "email",
+    "link",
+    "date",
+    "address",
+    "file",
   ];
 
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);

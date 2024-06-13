@@ -64,14 +64,14 @@ export const useAuthStore = defineStore('auth', {
         await this.actor
           ?.findUser(this.getPrincipal)
           .then(async (res) => {
-            await this.initStores();
-
             if (res.length) {
               await this.setUser(res[0]);
             } else {
               this.isAuthenticated = false;
 
               this.setAuthenticationStorage(false);
+
+              await this.initStores();
 
               if (!this.isQuest) {
                 await router.push('/sign-up');
@@ -132,8 +132,6 @@ export const useAuthStore = defineStore('auth', {
       await authClient.login({
         ...defaultOptions.loginOptions,
         onSuccess: async () => {
-          await this.initStores();
-
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
@@ -144,6 +142,8 @@ export const useAuthStore = defineStore('auth', {
 
           this.setAuthenticationStorage(this.isAuthenticated);
 
+          await this.initStores();
+
           if (!this.isQuest) {
             await router.push('/sign-up');
           }
@@ -153,14 +153,14 @@ export const useAuthStore = defineStore('auth', {
     async loginWithGoogle(credential) {
       const { email } = decodeCredential(credential);
 
-      await this.initStores();
-
       this.actor = user_index;
 
       this.setAuthenticationStorage(true, 'google', email);
 
       this.principal = localStorage.extraCharacter;
       this.isAuthenticated = localStorage.isAuthenticated = true;
+
+      await this.initStores();
 
       if (!this.isQuest) {
         await router.push('/sign-up');

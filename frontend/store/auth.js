@@ -64,6 +64,8 @@ export const useAuthStore = defineStore('auth', {
         await this.actor
           ?.findUser(this.getPrincipal)
           .then(async (res) => {
+           await this.initStorageStores();
+
             if (res.length) {
               await this.setUser(res[0]);
             } else {
@@ -85,6 +87,7 @@ export const useAuthStore = defineStore('auth', {
         }
 
         if (this.isQuest) {
+          await this.initStorageStores();
           await this.initStores();
         }
       }
@@ -94,6 +97,7 @@ export const useAuthStore = defineStore('auth', {
     async initWeb2Auth() {
       this.actor = user_index;
 
+      await this.initStorageStores();
       await this.initStores();
 
       this.isAuthenticated = true;
@@ -115,12 +119,14 @@ export const useAuthStore = defineStore('auth', {
       this.principal = principal;
     },
     async initStores() {
-      await useUserStorageStore().init();
-      await useQaStorageStore().init();
-      await useResponseStorageStore().init();
       await useQAStore().init();
       await useResponseStore().init();
       await useStatsStore().init();
+    },
+    async initStorageStores() {
+      await useUserStorageStore().init();
+      await useQaStorageStore().init();
+      await useResponseStorageStore().init();
     },
     async loginWithII() {
       if (this.authClient === null) {
@@ -132,6 +138,8 @@ export const useAuthStore = defineStore('auth', {
       await authClient.login({
         ...defaultOptions.loginOptions,
         onSuccess: async () => {
+          await this.initStorageStores();
+
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
@@ -152,6 +160,8 @@ export const useAuthStore = defineStore('auth', {
     },
     async loginWithGoogle(credential) {
       const { email } = decodeCredential(credential);
+
+      await this.initStorageStores();
 
       this.actor = user_index;
 

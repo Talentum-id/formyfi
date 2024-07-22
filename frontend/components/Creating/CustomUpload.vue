@@ -2,7 +2,7 @@
   <ElUpload
     action="/"
     v-model:file-list="fileList"
-    list-type="picture-card"
+    list-type="picture"
     :on-preview="handlePictureCardPreview"
     :on-remove="handleRemove"
     :limit="1"
@@ -13,7 +13,14 @@
     }"
   >
     <template #default>
-      <ElIcon><Icon name="Add" :size="20" /></ElIcon>
+      <div class="flex items-center gap-2">
+        <el-button class="add flex items-center gap-2"
+          >Add File <img src="@/assets/icons/add.svg" alt="" />
+        </el-button>
+        <TooltipIcon
+          tooltipText="Allowed formats: .png, .jpg, .svg, .mvk, .mp4, .mov, .webm, .wmv. File size 10 mb max."
+        />
+      </div>
     </template>
     <template #file="{ file }">
       <div :class="{ 'file-with-error': file.isError }" class="uploader-wrapper" :title="file.name">
@@ -23,7 +30,8 @@
           :src="file.url"
           alt=""
         />
-        <div v-else class="el-upload-list__item-thumbnail uploaded-pdf-file-gray">
+
+        <div v-else class="uploaded-pdf-file-gray">
           <div class="name">
             {{ extractName(file.name) }}
           </div>
@@ -35,7 +43,7 @@
               <img src="@/assets/icons/upload/view.svg" alt="" />
             </div>
           </span>
-          <span class="el-upload-list__item-delete" @click="handleRemove(file)">
+          <span class="el-upload-list__item-preview" @click="handleRemove(file)">
             <div class="icon-wrapper">
               <img src="@/assets/icons/upload/remove.svg" alt="" />
             </div>
@@ -54,10 +62,9 @@
 
 <script setup>
 import { ref, reactive, toRef, watch } from 'vue';
-import { Plus } from '@element-plus/icons-vue';
 import 'element-plus/dist/index.css';
-import { ElDialog, ElUpload, ElIcon, ElRadioGroup, ElRadioButton } from 'element-plus';
-import Icon from '@/components/Icons/Icon.vue';
+import { ElDialog, ElUpload } from 'element-plus';
+import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 
 const props = defineProps({
   imagesFiles: { type: Array, default: null },
@@ -228,5 +235,69 @@ const handlePictureCardPreview = async (uploadFile) => {
     line-height: 16px; /* 133.333% */
     letter-spacing: 0.168px;
   }
+}
+
+.add {
+  background: #d7dce5;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #344054;
+  text-align: center;
+  font-variant-numeric: lining-nums tabular-nums slashed-zero;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 450;
+  line-height: 16px;
+  letter-spacing: 0.168px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  img {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.el-upload-list__item-thumbnail {
+  padding: 0;
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 8px;
+  position: relative;
+}
+
+.el-upload-list--picture .el-upload-list__item {
+  padding: 0;
+  width: 120px;
+  height: 120px;
+}
+.uploader-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  position: relative;
+
+  &:hover {
+    .el-upload-list__item-actions {
+      background-color: rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s;
+      width: 120px;
+      height: 120px;
+      position: absolute;
+      border-radius: 8px;
+      padding: 4px 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      z-index: 9999999;
+      top: 0;
+      gap: 8px;
+    }
+  }
+}
+
+.el-upload-list__item-actions {
+  display: none;
 }
 </style>

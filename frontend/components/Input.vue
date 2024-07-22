@@ -5,7 +5,9 @@
       <span>{{ symbol }}</span>
     </div>
     <input
-      type="text"
+      :type="isNumber ? 'number' : 'text'"
+      :min="$attrs.min"
+      :max="$attrs.max"
       :class="{ error: !rule && touched }"
       :value="modelValue"
       @blur="touched = true"
@@ -28,7 +30,7 @@ export default {
     },
     name: {
       type: String,
-      default: 'Email',
+      default: '',
     },
     modelValue: {
       type: String,
@@ -39,6 +41,7 @@ export default {
       default: true,
     },
     isError: { type: Boolean, default: false },
+    isNumber: { type: Boolean, default: false },
     withoutName: { type: Boolean, default: false },
     errorText: { type: String, default: '' },
     symbol: { type: String, default: '' },
@@ -184,5 +187,16 @@ export default {
       box-shadow: 2px $default-border;
     }
   }
+} /* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
 }
 </style>

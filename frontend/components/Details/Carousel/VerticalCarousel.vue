@@ -593,7 +593,7 @@ watch(
       display: flex;
       flex-direction: column;
       gap: 24px;
-      align-items: flex-end;
+      align-items: flex-start;
     }
 
     .answers {

@@ -69,7 +69,7 @@
       </div>
       <div class="line"></div>
       <div class="section_wrapper">
-        <div class="section_wrapper-title flex-custom">
+        <div class="section_wrapper-title flex gap-6">
           Questions
           <TooltipIcon tooltipText="tooltipText" />
         </div>
@@ -126,7 +126,7 @@
                 <Switch :checkedProp="question.required" @checked="question.required = $event" />
               </div>
             </div>
-            <div class="flex-custom flex-col">
+            <div class="flex gap-6 flex-col">
               <Input
                 name=""
                 placeholder="Question"
@@ -141,6 +141,45 @@
                   @check="question.fileAllowed = $event"
                 ></Checkbox
                 ><TooltipIcon tooltipText="tooltipText" />
+              </div>
+              <Rating v-if="question.type?.id === 6" @getRate="() => {}"></Rating>
+              <NumberBlock v-if="question.type?.id === 7"></NumberBlock>
+              <EmailBlock v-if="question.type?.id === 8"></EmailBlock>
+              <LinkBlock v-if="question.type?.id === 9"></LinkBlock>
+              <DateBlock v-if="question.type?.id === 10"></DateBlock>
+              <FileBlock v-if="question.type?.id === 11"></FileBlock>
+              <AddressBlock v-if="question.type?.id === 12"></AddressBlock>
+              <div v-if="question.type?.id === 2">
+                <div class="section_wrapper-subtitle">
+                  Users will be asked to choose answers from listed below.
+                </div>
+                <div class="answers">
+                  <div class="answer" v-for="(answer, id) in question.answers" :key="id">
+                    <CheckboxAnswer @check="answer.isCorrect = !answer.isCorrect"></CheckboxAnswer>
+                    <Answer
+                      v-model="answer.answer"
+                      :isError="!answer.answer && touched"
+                      :isCorrect="answer.isCorrect"
+                      errorText="Answer is Required"
+                      :is-last="question.answers.length === 1"
+                      @remove="question.answers.splice(id, 1)"
+                    />
+                    <div
+                      class="add-answer"
+                      :class="{ hidden: question.answers.length - 1 !== id }"
+                      @click="addAnswers(question.answers)"
+                    >
+                      <img src="@/assets/icons/add.svg" alt="" />
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-x-[8px] ml-[40px]">
+                    <Checkbox
+                      label="Allow own answer"
+                      @check="question.openAnswerAllowed = $event"
+                    ></Checkbox
+                    ><TooltipIcon tooltipText="tooltipText" />
+                  </div>
+                </div>
               </div>
             </div>
             <div v-if="question.type?.id === 1">
@@ -186,7 +225,7 @@
           <img src="@/assets/icons/add.svg" alt="" />
           <span>Add Question</span>
         </div>
-        <div class="flex-custom footer">
+        <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton
             :text="statusMessage"
@@ -225,6 +264,14 @@ import Checkbox from '@/components/Creating/Checkbox.vue';
 import { modal } from '@/mixins/modal';
 import localForage from 'localforage';
 import SocialConnect from '@/components/Creating/SocialConnect.vue';
+import Rating from '@/components/Creating/Rating.vue';
+import NumberBlock from '@/components/Creating/NumberBlock.vue';
+import EmailBlock from '@/components/Creating/EmailBlock.vue';
+import LinkBlock from '@/components/Creating/LinkBlock.vue';
+import CheckboxAnswer from '@/components/Creating/CheckboxAnswer.vue';
+import DateBlock from '@/components/Creating/DateBlock.vue';
+import AddressBlock from '@/components/Creating/AddressBlock.vue';
+import FileBlock from '@/components/Creating/FileBlock.vue';
 
 const emits = defineEmits('refresh');
 
@@ -237,7 +284,7 @@ const endDate = ref(twoDaysFromNow);
 const questsTypeItems = ref([
   { name: 'Open Question', id: 0, type: 'open' },
   { name: 'Quiz Question', id: 1, type: 'quiz' },
-  // { name: 'Multiple Choice', id: 2 },
+  { name: 'Multiple Choice', id: 2 },
   {
     name: 'Twitter Connect',
     id: 3,
@@ -270,6 +317,13 @@ const questsTypeItems = ref([
       description: 'Users will be asked to connect their wallet by clicking the button bellow.',
     },
   },
+  { name: 'Rate the List', id: 6, type: 'rate' },
+  { name: 'Number', id: 7, type: 'number' },
+  { name: 'Email Address', id: 8, type: 'email' },
+  { name: 'Link', id: 9, type: 'link' },
+  { name: 'Date', id: 10, type: 'date' },
+  { name: 'Add File', id: 11, type: 'file' },
+  { name: 'Address', id: 12, type: 'address' },
 ]);
 
 const authStore = useAuthStore();
@@ -788,10 +842,6 @@ export default defineComponent({
     }
   }
 }
-.flex-custom {
-  display: flex;
-  gap: 24px;
-}
 
 .check-btn_wrapper {
   display: flex;
@@ -833,11 +883,7 @@ export default defineComponent({
   align-items: flex-start;
   margin: 12px 0;
 }
-.flex-col {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
+
 .add-talent-btn {
   display: flex;
   justify-content: center;

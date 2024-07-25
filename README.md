@@ -28,8 +28,11 @@ There is certain functionality implemented in web2 for this project. If you are 
    ```bash
    git clone <path_to_this_repo> <your_local_dir> --recursive
    ```
+---
 
-## Running Locally
+## There are 2 ways to run and stop the project locally - Manual (I) and Automatic (II)
+
+## I. Running Manually
 
 1. Navigate to the project directory and start DFX using the following command:
 
@@ -79,7 +82,7 @@ There is certain functionality implemented in web2 for this project. If you are 
    ```
    Open the DApp through the link provided by the Vite dev server.
 
-## Stopping Canisters
+## I. Stopping Manually
 
 1. Before stopping canisters, ensure that the "local" is removed from the "networks" section in your `dfx.json` file, if you removed it while
    starting DFX and added it back during deployment, then run following command:
@@ -87,3 +90,17 @@ There is certain functionality implemented in web2 for this project. If you are 
    dfx stop
    ```
 2. After stopping the canisters, if you removed "local" earlier, make sure to add it back to the "networks" section in your `dfx.json` file:
+
+***
+
+## II. Running Automatically
+
+1. ```bash
+   make start
+   ```
+
+## II. Stopping Automatically
+
+1. ```bash
+   make stop
+   ```

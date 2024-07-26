@@ -64,7 +64,8 @@ export const useAuthStore = defineStore('auth', {
         await this.actor
           ?.findUser(this.getPrincipal)
           .then(async (res) => {
-           await this.initStorageStores();
+            await this.initStorageStores();
+            await this.initStores();
 
             if (res.length) {
               await this.setUser(res[0]);
@@ -72,8 +73,6 @@ export const useAuthStore = defineStore('auth', {
               this.isAuthenticated = false;
 
               this.setAuthenticationStorage(false);
-
-              await this.initStores();
 
               if (!this.isQuest) {
                 await router.push('/sign-up');

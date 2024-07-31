@@ -1,12 +1,28 @@
 <script setup>
 import AuthButton from '@/components/Auth/AuthButton.vue';
+import axiosService from '@/service/axiosService';
 import { useAuthStore } from '@/store/auth';
 import { googleLogout } from 'vue3-google-login';
 import { onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import axiosService from '@/service/axiosService';
+import { useRoute } from 'vue-router';
+import {
+  useConnect,
+  useChainId,
+  useAccount,
+  useDisconnect,
+  useSignMessage,
+} from '@wagmi/vue';
+import { config } from '@/wagmi.config';
 
+const authStore = useAuthStore();
+const { connect, connectors } = useConnect();
+const { address, isConnected } = useAccount();
+const { disconnect } = useDisconnect();
+const { signMessageAsync } = useSignMessage({ config });
+const chainId = useChainId();
 const route = useRoute();
+
+const emit = defineEmits(['success', 'reject']);
 
 onMounted(() => {
   googleLogout();
@@ -24,8 +40,7 @@ const callback = async (response) => {
     emit('reject');
   }
 };
-const authStore = useAuthStore();
-const emit = defineEmits(['success', 'reject']);
+
 const readCode = () => {
   if (route.query) {
     axiosService
@@ -38,9 +53,8 @@ const readCode = () => {
       .catch((e) => console.error(e));
   }
 };
-const nfidConnect = async () => {};
 
-const connect = async () => {
+const IIConnect = async () => {
   try {
     await authStore.loginWithII();
   } catch (e) {
@@ -48,30 +62,58 @@ const connect = async () => {
   }
 };
 
-watch(
-  () => authStore.isAuthenticated,
-  () => {
-    emit('success');
-  },
-);
+const logout = async () => {
+  await disconnect();
+  await authStore.logout();
+};
+
+watch(authStore.isAuthenticated, () => emit('success'));
+
+watch(isConnected, async value => {
+  if (value) {
+    const message = await authStore.prepareSIWELogin(address.value);
+
+    if (message === null) {
+      await logout();
+    } else {
+      await signMessageAsync({ message })
+        .then(async signature => await authStore.loginWithSIWE(address.value, signature))
+        .catch(async () => await logout());
+    }
+  }
+}, {
+  immediate: true,
+});
 </script>
 
 <template>
   <div class="main">
     <span class="title">Welcome to Formyfi!</span>
     <div class="form-block">
-      <AuthButton @click="connect()">
+      <AuthButton @click="IIConnect()">
         <div class="container">
           <img src="@/assets/images/definity.svg" alt="Dfinity" />
           <div class="name-social">Internet Identity</div>
         </div>
       </AuthButton>
-      <AuthButton @click="nfidConnect">
-        <div class="container">
-          <img src="@/assets/images/nfid.svg" alt="NFID" />
-          <div class="name-social">NFID</div>
-        </div>
-      </AuthButton>
+      <template v-for="connector in connectors" :key="connector.name">
+        <AuthButton
+          v-if="connector.id !== 'metaMaskSDK'"
+          @click="connect({ connector, chainId })"
+        >
+          <div class="container">
+            <img
+              v-if="connector.icon"
+              :src="connector.icon"
+              :alt="connector.name"
+              class="h-[24px]"
+            >
+            <div class="name-social">
+              {{ connector.name }}
+            </div>
+          </div>
+        </AuthButton>
+      </template>
       <GoogleLogin
         style="margin-top: -4px"
         :callback="callback"

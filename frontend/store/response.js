@@ -1,13 +1,17 @@
 import { defineStore } from 'pinia';
 import { createActor, response_index } from '~/response_index';
-import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
 import { useResponseStorageStore } from '@/store/response-storage';
+import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
+import { ic_siwe_provider } from '~/ic_siwe_provider';
+import { generateIdentityFromPrincipal } from '@/util/helpers';
 
-function createActorFromIdentity(agent) {
-  return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, { agent });
-}
+const createActorFromIdentity = identity => {
+  return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, {
+    agentOptions: { identity },
+  });
+};
 
 export const useResponseStore = defineStore('response', {
   id: 'response',
@@ -21,12 +25,21 @@ export const useResponseStore = defineStore('response', {
   }),
   actions: {
     async init() {
-      this.identity = useAuthStore().getIdentity;
+      const provider = localStorage.getItem('authenticationProvider');
 
-      if (this.identity) {
-        this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
+      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
+        const { Ok: principal } = await ic_siwe_provider.get_principal(localStorage.getItem('address'));
+
+        if (principal !== undefined) {
+          const identity = generateIdentityFromPrincipal(principal);
+          const actor = identity ? createActorFromIdentity(identity) : null;
+
+          this.identity = identity;
+          this.actor = actor;
+        }
       } else {
-        this.actor = response_index;
+        this.identity = useAuthStore().getIdentity;
+        this.actor = this.identity ? createActorFromIdentity(this.identity) : response_index;
       }
     },
     async storeResponse(params) {
@@ -77,10 +90,10 @@ export const useResponseStore = defineStore('response', {
           throw e;
         });
     },
-    async getMyResponses(params){
+    async getMyResponses(params) {
       await this.actor
         ?.listQas(params.identity, params)
-        .then( (res) => {
+        .then((res) => {
           this.loadedList = true;
           this.myList = res;
         })
@@ -89,9 +102,9 @@ export const useResponseStore = defineStore('response', {
           console.error(e);
         });
     },
-    async getFullResponses(params){
+    async getFullResponses(params) {
       return await this.actor
-        ?.listQas(params.identity,params)
+        ?.listQas(params.identity, params)
         .then(async (res) => {
           return res;
         })
@@ -114,7 +127,7 @@ export const useResponseStore = defineStore('response', {
             await batch.commit();
           }
         })
-        .catch((e) => console.error(e))
+        .catch((e) => console.error(e));
     },
   },
   getters: {

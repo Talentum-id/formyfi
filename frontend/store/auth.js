@@ -12,6 +12,9 @@ import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
 import { useStatsStore } from '@/store/stats';
 import axiosService from '@/service/axiosService';
+import { ic_siwe_provider } from '~/ic_siwe_provider';
+import * as asn1js from 'asn1js';
+import { generateIdentityFromPrincipal } from '@/util/helpers';
 
 const defaultOptions = {
   createOptions: {
@@ -25,13 +28,11 @@ const defaultOptions = {
   },
 };
 
-function createActorFromIdentity(identity) {
+const createActorFromIdentity = identity => {
   return createActor(process.env.USER_INDEX_CANISTER_ID, {
-    agentOptions: {
-      identity,
-    },
+    agentOptions: { identity },
   });
-}
+};
 
 export const useAuthStore = defineStore('auth', {
   id: 'auth',
@@ -51,13 +52,15 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async init() {
-      if (
-        localStorage.authenticationProvider !== '' &&
-        localStorage.authenticationProvider !== undefined
-      ) {
-        await this.initWeb2Auth();
-      } else {
+      const authenticationProvider = localStorage.authenticationProvider;
+      const IIIdentification = ['ii', undefined, ''];
+
+      if (IIIdentification.indexOf(authenticationProvider) !== -1) {
         await this.initII();
+      } else if (authenticationProvider === 'siwe') {
+        await this.initSIWE();
+      } else {
+        await this.initWeb2Auth();
       }
 
       if (this.isAuthenticated) {
@@ -92,6 +95,25 @@ export const useAuthStore = defineStore('auth', {
       }
 
       this.isReady = true;
+    },
+    async initSIWE() {
+      const address = localStorage.getItem('address');
+
+      if (address) {
+        try {
+          const { Ok: principal } = await ic_siwe_provider.get_principal(address);
+
+          if (principal !== undefined) {
+            await this.generateSIWEIdentity(principal);
+          }
+        } catch (e) {
+          console.error(e);
+
+          await this.logout();
+        }
+      } else {
+        await this.logout();
+      }
     },
     async initWeb2Auth() {
       this.actor = user_index;
@@ -147,7 +169,7 @@ export const useAuthStore = defineStore('auth', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
           this.principal = this.identity ? await agent.getPrincipal() : null;
 
-          this.setAuthenticationStorage(this.isAuthenticated);
+          this.setAuthenticationStorage(this.isAuthenticated, 'ii');
 
           await this.initStores();
 
@@ -173,6 +195,34 @@ export const useAuthStore = defineStore('auth', {
 
       if (!this.isQuest) {
         await router.push('/sign-up');
+      }
+    },
+    async prepareSIWELogin(address) {
+      const data = await ic_siwe_provider.siwe_prepare_login(address);
+
+      return data?.Ok || null;
+    },
+    async loginWithSIWE(address, signature) {
+      try {
+        const sessionKey = new Uint8Array(new asn1js.OctetString({ valueHex: new Uint8Array([67]) }).toBER(false));
+
+        await ic_siwe_provider.siwe_login(signature, address, sessionKey);
+
+        await this.initStorageStores();
+
+        const { Ok: principal } = await ic_siwe_provider.get_principal(address);
+
+        await this.generateSIWEIdentity(principal);
+
+        localStorage.setItem('address', address);
+
+        await this.initStores();
+
+        if (!this.isQuest) {
+          await router.push('/sign-up');
+        }
+      } catch (e) {
+        console.error(e);
       }
     },
     async logout() {
@@ -210,6 +260,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('extraCharacter');
         localStorage.removeItem('authenticationProvider');
+        localStorage.removeItem('address');
       }
     },
     async setUser(user = null) {
@@ -227,7 +278,7 @@ export const useAuthStore = defineStore('auth', {
               user.avatarUri = null;
             });
         } else {
-          user.avatarUri = null
+          user.avatarUri = null;
         }
 
         if (user.banner.length) {
@@ -236,7 +287,7 @@ export const useAuthStore = defineStore('auth', {
             .then(res => user.bannerUri = res)
             .catch(() => user.bannerUri = null);
         } else {
-          user.bannerUri = null
+          user.bannerUri = null;
         }
 
         this.profile = user;
@@ -279,7 +330,6 @@ export const useAuthStore = defineStore('auth', {
         console.error(e);
       }
     },
-
     async saveProfile(data) {
       return await this.actor
         ?.updateMe(
@@ -297,7 +347,6 @@ export const useAuthStore = defineStore('auth', {
           },
         );
     },
-
     async connectSocial(provider) {
       axiosService
         .get(`${process.env.API_URL}auth/redirect/${provider}`)
@@ -306,6 +355,19 @@ export const useAuthStore = defineStore('auth', {
           window.open(res.data.url, '_blank');
         })
         .catch((e) => console.error(e));
+    },
+    async generateSIWEIdentity(principal) {
+      const identity = generateIdentityFromPrincipal(principal);
+
+      const agent = identity ? new HttpAgent({ identity }) : null;
+      const actor = identity ? createActorFromIdentity(identity) : null;
+
+      this.identity = identity;
+      this.actor = actor;
+      this.principal = this.identity ? await agent.getPrincipal() : null;
+      this.isAuthenticated = true;
+
+      this.setAuthenticationStorage(true, 'siwe');
     },
   },
   getters: {

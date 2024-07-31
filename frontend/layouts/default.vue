@@ -23,14 +23,13 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue';
 import Footer from '@/components/Footer/Footer.vue';
 import Header from '@/components/Header/Header.vue';
 import { computed } from 'vue';
-import { useAuthStore } from '../store/auth';
+import { useAuthStore } from '@/store/auth';
 const isDesktop = computed(
-  () => window.innerWidth > 1330 || (localStorage.scale != 'false' && localStorage.scale),
+  () => window.innerWidth > 1330 || (localStorage.scale !== 'false' && localStorage.scale),
 );
 </script>
 <script>
 import windowSizeMixin from '@/mixins/windowSizeMixin';
-
 export default {
   mixins: [windowSizeMixin],
   data() {

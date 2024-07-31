@@ -1,11 +1,15 @@
 import { defineStore } from 'pinia';
 import { createActor, stats_index } from '~/stats_index';
-import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
+import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
+import { ic_siwe_provider } from '~/ic_siwe_provider';
+import { generateIdentityFromPrincipal } from '@/util/helpers';
 
-function createActorFromIdentity(agent) {
-  return createActor(process.env.STATS_INDEX_CANISTER_ID, { agent });
-}
+const createActorFromIdentity = identity => {
+  return createActor(process.env.STATS_INDEX_CANISTER_ID, {
+    agentOptions: { identity },
+  });
+};
 
 export const useStatsStore = defineStore('stats', {
   id: 'stats',
@@ -18,12 +22,21 @@ export const useStatsStore = defineStore('stats', {
   }),
   actions: {
     async init() {
-      this.identity = useAuthStore().getIdentity;
+      const provider = localStorage.getItem('authenticationProvider');
 
-      if (this.identity) {
-        this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
+      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
+        const { Ok: principal } = await ic_siwe_provider.get_principal(localStorage.getItem('address'));
+
+        if (principal !== undefined) {
+          const identity = generateIdentityFromPrincipal(principal);
+          const actor = identity ? createActorFromIdentity(identity) : null;
+
+          this.identity = identity;
+          this.actor = actor;
+        }
       } else {
-        this.actor = stats_index;
+        this.identity = useAuthStore().getIdentity;
+        this.actor = this.identity ? createActorFromIdentity(this.identity) : stats_index;
       }
     },
     async findStatistics() {
@@ -31,16 +44,16 @@ export const useStatsStore = defineStore('stats', {
         ?.findStats(useAuthStore().getPrincipal)
         .then(res => {
           if (res.length) {
-            const data = res[0]
+            const data = res[0];
 
             this.stats = {
               forms_completed: Number(data.forms_completed ?? 0),
               forms_created: Number(data.forms_created ?? 0),
               points: Number(data.points ?? 0),
-            }
+            };
           }
         })
-        .catch(e => console.error(e))
+        .catch(e => console.error(e));
     },
     async getLeaderboardAction(params) {
       this.loadedList = false;

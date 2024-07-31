@@ -19,14 +19,6 @@
       "main": "backend/canisters/stats_index/main.mo",
       "type": "motoko"
     },
-    "assets": {
-      "dependencies": ["internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
-      "frontend": {
-        "entrypoint": "dist/index.html"
-      },
-      "source": ["dist/", "frontend/assets"],
-      "type": "assets"
-    },
     "user_storage": {
       "type": "assets",
       "source": []
@@ -39,6 +31,14 @@
       "type": "assets",
       "source": []
     },
+    "assets": {
+      "dependencies": ["ic_siwe_provider", "internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
+      "frontend": {
+        "entrypoint": "dist/index.html"
+      },
+      "source": ["dist/", "frontend/assets"],
+      "type": "assets"
+    },
     "internet_identity": {
       "type": "custom",
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
@@ -50,6 +50,11 @@
         }
       },
       "frontend": {}
+    },
+    "ic_siwe_provider": {
+      "type": "custom",
+      "candid": "https://github.com/kristoferlund/ic-siwe/releases/download/v0.0.6/ic_siwe_provider.did",
+      "wasm": "https://github.com/kristoferlund/ic-siwe/releases/download/v0.0.6/ic_siwe_provider.wasm.gz"
     }
   },
   "defaults": {

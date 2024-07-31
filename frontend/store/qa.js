@@ -1,14 +1,18 @@
 import { defineStore } from 'pinia';
 import { createActor, qa_index } from '~/qa_index';
-import { HttpAgent } from '@dfinity/agent';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
 import { useQaStorageStore } from '@/store/qa-storage';
 import router from '@/router';
+import { ic_siwe_provider } from '~/ic_siwe_provider';
+import { generateIdentityFromPrincipal } from '@/util/helpers';
+import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 
-function createActorFromIdentity(agent) {
-  return createActor(process.env.QA_INDEX_CANISTER_ID, { agent });
-}
+const createActorFromIdentity = identity => {
+  return createActor(process.env.QA_INDEX_CANISTER_ID, {
+    agentOptions: { identity },
+  });
+};
 
 export const useQAStore = defineStore('qa', {
   id: 'qa',
@@ -22,12 +26,21 @@ export const useQAStore = defineStore('qa', {
   }),
   actions: {
     async init() {
-      this.identity = useAuthStore().getIdentity;
+      const provider = localStorage.getItem('authenticationProvider');
 
-      if (this.identity) {
-        this.actor = createActorFromIdentity(new HttpAgent({ identity: this.identity }));
+      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
+        const { Ok: principal } = await ic_siwe_provider.get_principal(localStorage.getItem('address'));
+
+        if (principal !== undefined) {
+          const identity = generateIdentityFromPrincipal(principal);
+          const actor = identity ? createActorFromIdentity(identity) : null;
+
+          this.identity = identity;
+          this.actor = actor;
+        }
       } else {
-        this.actor = qa_index;
+        this.identity = useAuthStore().getIdentity;
+        this.actor = this.identity ? createActorFromIdentity(this.identity) : qa_index;
       }
     },
     async storeQA(params) {

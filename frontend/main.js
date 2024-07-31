@@ -1,5 +1,8 @@
+import { VueQueryPlugin } from '@tanstack/vue-query';
+import { WagmiPlugin } from '@wagmi/vue';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { config } from './wagmi.config';
 
 import App from './App.vue';
 import router from './router';
@@ -15,6 +18,8 @@ app.use(pinia);
 app.use(vue3GoogleLogin, {
   clientId: process.env.CLIENT_ID,
 });
+app.use(WagmiPlugin, { config })
+app.use(VueQueryPlugin, {})
 app.mount('#app');
 app.component('Modal', Modal);
 app.use(modal);

@@ -22,7 +22,7 @@
           <div class="menu">
             <router-link to="/profile" class="logout"> Profile</router-link>
             <hr />
-            <span class="logout" @click="authStore.logout()">
+            <span class="logout" @click="logout()">
               Logout
               <Icon icon="Kick-out" :size="24"></Icon>
             </span>
@@ -35,10 +35,11 @@
 <script>
 import windowSizeMixin from '@/mixins/windowSizeMixin';
 import defaultAvatar from '@/assets/images/User.png';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 import { useAuthStore } from '@/store/auth';
+import { useDisconnect } from '@wagmi/vue';
 
 export default {
   name: 'Header',
@@ -52,6 +53,8 @@ export default {
     const showTooltips = ref(false);
     const router = useRouter();
     const authStore = useAuthStore();
+    const { disconnect } = useDisconnect();
+
     const user = computed(() => authStore.getProfileData);
 
     const menu = ref(null);
@@ -65,12 +68,18 @@ export default {
       }
     };
 
+    const logout = () => {
+      disconnect();
+      authStore.logout();
+    };
+
     onMounted(async () => {
       document.addEventListener('click', handleClickOutside);
     });
 
     return {
       menu,
+      logout,
       showTooltips,
       authStore,
       goHome,
@@ -133,10 +142,9 @@ export default {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
 
   .tooltip-arrow {
     position: absolute;

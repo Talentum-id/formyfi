@@ -55,15 +55,37 @@ There is certain functionality implemented in web2 for this project. If you are 
    Ensure to add "local" back to the "networks" section in `dfx.json` if you removed it while starting DFX.
 
 3. Deploy the canisters locally with:
+   
+      ```bash
+      dfx deploy
+      ```
+
+   Previous command may return an error, so don't worry about it, we will run it again later.
+   Our project uses SIWE (Sign-In With Etherium), so for it to operate properly, run `ic_siwe_provider` canister individually with runtime configurations:
 
    ```bash
-   dfx generate
+   dfx deploy ic_siwe_provider --argument $'(
+    record {
+        domain = "127.0.0.1";
+        uri = "http://127.0.0.1:3000";
+        salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
+        chain_id = opt 1;
+        scheme = opt "http";
+        statement = opt "Login to the app";
+        sign_in_expires_in = opt 2592000000000000;
+        session_expires_in = opt 2592000000000000;
+        targets = opt vec {
+            "'$(dfx canister id ic_siwe_provider)'";
+            "'$(dfx canister id assets)'";
+        };
+    }
+   )'
    ```
 
-   If this command returns an error, ignore it and run next command:
+   Lastly, for completeness and Front-end to work with canisters, run:
 
    ```bash
-   dfx deploy
+   dfx deploy && dfx generate
    ```
 
    After deployment, you will receive URIs for the canisters. Click on the URI for the `assets` canister to open the local DApp in your browser.

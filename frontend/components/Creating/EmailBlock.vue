@@ -9,7 +9,7 @@ const emit = defineEmits(['getEmail']);
 <template>
   <div class="flex flex-col gap-y-2">
     <div class="title">Users will be asked to enter the Email in the filed listed below.</div>
-    <Input withoutName placeholder="formify@gmail.com" v-model="email" />
+    <Input withoutName placeholder="formyfi@gmail.com" v-model="email" />
   </div>
 </template>
 

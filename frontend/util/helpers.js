@@ -1,9 +1,11 @@
+import { Ed25519KeyIdentity } from '@dfinity/identity';
+
 export const getTaskStatus = (status) => {
   switch (status) {
     case 'available':
       return 'Available';
     case 'upcoming':
-      return 'Upcomig';
+      return 'Upcoming';
     case 'overdue':
     case 'overdue_by_manager':
       return 'Overdue';
@@ -488,3 +490,5 @@ export const generateUint8Array = (str) => {
 
   return uint8Array;
 };
+
+export const generateIdentityFromPrincipal = principal => Ed25519KeyIdentity.generate(generateUint8Array(principal));

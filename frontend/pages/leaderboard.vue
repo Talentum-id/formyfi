@@ -57,7 +57,7 @@ const sortColumn = ref('');
 const leaderboardStore = useStatsStore();
 const projectOptions = ref([
   { name: 'My Project', id: 0, type: 'project' },
-  { name: 'Formify', id: 1, type: 'all' },
+  { name: 'Formyfi', id: 1, type: 'all' },
 ]);
 const requestsColumns = computed(() => {
   return [

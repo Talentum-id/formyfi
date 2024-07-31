@@ -142,13 +142,13 @@ export default {
   position: relative;
   max-width: 240px;
   border-radius: 16px;
+  cursor: pointer;
   &.isSmall {
     input {
       width: 117px;
       height: 24px;
     }
   }
-  cursor: pointer;
   input {
     width: 210px;
     height: 40px;

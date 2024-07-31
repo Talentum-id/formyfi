@@ -1,8 +1,8 @@
 {
   "name": "formyfi",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port=3000",
     "build": "vite build",
     "serve": "vite preview"
   },
@@ -15,8 +15,11 @@
     "@dfinity/principal": "^1.0.0",
     "@element-plus/icons-vue": "^2.3.1",
     "@mobiscroll/javascript": "^5.22.2",
+    "@tanstack/vue-query": "^5.51.15",
     "@vueup/vue-quill": "^1.1.1",
     "@vueuse/core": "^10.9.0",
+    "@wagmi/vue": "^0.0.33",
+    "asn1js": "^3.0.5",
     "axios": "^1.7.2",
     "dotenv": "^16.3.1",
     "element-plus": "^2.3.4",
@@ -27,7 +30,8 @@
     "rxjs": "^7.8.1",
     "sass": "^1.69.5",
     "sass-loader": "^13.3.2",
-    "vue": "^3.2.37",
+    "viem": "^2.18.5",
+    "vue": ">=3.4.21",
     "vue-draggable-next": "^2.2.1",
     "vue-icomoon": "^0.6.1",
     "vue-load-image": "^1.1.0",
@@ -38,13 +42,14 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^2.3.3",
+    "@vitejs/plugin-vue": "^5.0.4",
     "@vue/compiler-sfc": "^3.2.37",
     "autoprefixer": "^10.4.16",
     "buffer": "^6.0.3",
     "postcss": "^8.4.33",
     "prettier": "3.1.1",
     "tailwindcss": "^3.4.1",
-    "vite": "^2.9.13"
+    "vite": "^5.2.11",
+    "vue-tsc": "^2.0.6"
   }
 }

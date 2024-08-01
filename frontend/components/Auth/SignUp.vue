@@ -21,15 +21,20 @@ const errors = ref({
 
 onMounted(async () => {
   try {
-    await authStore.actor?.findUser(authStore.getPrincipal).then((res) => {
-      if (res.length) {
-        authStore.setUser(res[0]);
-        if (!useAuthStore().isQuest) {
-          router.push('/');
+    await authStore.actor?.findUser(authStore.getPrincipal)
+      .then(async (res) => {
+        if (res.length) {
+          authStore.setUser(res[0]);
+          if (!useAuthStore().isQuest) {
+            await router.push('/');
+
+            if (localStorage.getItem('authenticationProvider') === 'siwe') {
+              await window.location.reload();
+            }
+          }
+          emit('success');
         }
-        emit('success');
-      }
-    });
+      });
   } catch (e) {
     emit('reject');
   }
@@ -59,15 +64,20 @@ const createAccount = () => {
 
   authStore
     .register(form.value)
-    .then((res) => {
-      authStore.setUser(res[0]);
+    .then(async (res) => {
+      await authStore.setUser(res[0]);
 
       if (!useAuthStore().isQuest) {
-        router.push('/');
+        await router.push('/');
         modal.emit('closeModal', {});
       }
+
       localStorage.isAuthenticated = true;
       emit('success');
+
+      if (localStorage.getItem('authenticationProvider') === 'siwe') {
+        await window.location.reload();
+      }
     })
     .catch((error) => {
       modal.emit('closeModal', {});

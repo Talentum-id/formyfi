@@ -24,7 +24,7 @@ onMounted(async () => {
     await authStore.actor?.findUser(authStore.getPrincipal)
       .then(async (res) => {
         if (res.length) {
-          authStore.setUser(res[0]);
+          await authStore.setUser(res[0]);
           if (!useAuthStore().isQuest) {
             await router.push('/');
 

@@ -104,8 +104,21 @@ export const useQAStore = defineStore('qa', {
         .then(async (res) => {
           const arr = res.map((item) => {
             const { quest } = item;
+
             return {
               ...quest,
+              questions: quest.questions.map(question => {
+                let parameters = {};
+
+                if (question.parameters.length > 0) {
+                  parameters = JSON.parse(question.parameters[0]);
+                }
+
+                return {
+                  ...question,
+                  parameters,
+                };
+              }),
               end: Number(quest.end),
               start: Number(quest.start),
               participants: Number(quest.participants),

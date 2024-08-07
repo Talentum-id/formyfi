@@ -570,10 +570,15 @@ const saveQA = async () => {
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,
     questions: countOfQuestions.value.map((item) => {
+      if (!Object.keys(item.parameters).length) {
+        item.parameters = [];
+      } else {
+        item.parameters = [JSON.stringify(item.parameters)];
+      }
+
       return {
         ...item,
         questionType: item.type.type,
-        parameters: Object.keys(item.parameters).length ? JSON.stringify(item.parameters) : null,
         answers: item.type?.id === 1 ? item.answers : [],
       };
     }),

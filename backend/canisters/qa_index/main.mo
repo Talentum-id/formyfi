@@ -28,7 +28,7 @@ actor QAIndex {
     "twitter",
     "discord",
     "wallet",
-    "rating",
+    "rate",
     "number",
     "email",
     "link",

@@ -20,6 +20,7 @@ module QATypes {
     answers : [Answer];
     fileAllowed : Bool;
     openAnswerAllowed : Bool;
+    parameters : ?Text;
   };
 
   public type QA = {

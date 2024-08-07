@@ -52,7 +52,7 @@ actor UserIndex {
           );
           usernames.put(username, identity);
         };
-        case (?user) {};
+        case (?_) {};
       };
     };
 

@@ -1,6 +1,13 @@
 <script setup>
 import Input from '@/components/Input.vue';
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+
+const props = defineProps({
+  question: {
+    required: true,
+    type: Object,
+  },
+});
 
 const data = ref({
   address: '',
@@ -10,12 +17,24 @@ const data = ref({
   region: '',
   post: '',
 });
+
+onMounted(() => {
+  props.question.parameters = data.value;
+
+  props.question.answers = [];
+});
+
+watch(data, value => {
+  props.question.parameters = value;
+}, {
+  deep: true,
+});
 </script>
 
 <template>
   <div class="flex flex-col gap-y-4">
     <div class="title">Users will be asked to fullfill the filed listed below.</div>
-    <Input withoutName placeholder="Address " v-model="data.address" />
+    <Input withoutName placeholder="Address" v-model="data.address" />
     <Input withoutName placeholder="Address Line 2" v-model="data.address2" />
     <Input withoutName placeholder="Country" v-model="data.country" />
     <Input withoutName placeholder="City" v-model="data.city" />
@@ -39,10 +58,9 @@ const data = ref({
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $secondary;
 }
 </style>

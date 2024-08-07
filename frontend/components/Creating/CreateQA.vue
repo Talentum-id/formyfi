@@ -108,7 +108,7 @@
           <div class="section_wrapper-subtitle">
             Determine if the talent must meet certain conditions in order to validate the task
           </div>
-          <Select :options="questsTypeItems" @input="question.type = $event"></Select>
+          <Select :options="questsTypeItems" @input="question.type = $event; question.parameters = {}" />
           <div class="body">
             <span class="section_wrapper-subtitle">{{ question.type?.info?.description }}</span>
             <div class="content-block">
@@ -140,22 +140,22 @@
                   label="Allow respondent to add file"
                   @check="question.fileAllowed = $event"
                 ></Checkbox
-                ><TooltipIcon tooltipText="tooltipText" />
+                >
+                <TooltipIcon tooltipText="tooltipText" />
               </div>
-              <Rating v-if="question.type?.id === 6" @getRate="() => {}"></Rating>
-              <NumberBlock v-if="question.type?.id === 7"></NumberBlock>
-              <EmailBlock v-if="question.type?.id === 8"></EmailBlock>
-              <LinkBlock v-if="question.type?.id === 9"></LinkBlock>
-              <DateBlock v-if="question.type?.id === 10"></DateBlock>
-              <FileBlock v-if="question.type?.id === 11"></FileBlock>
-              <AddressBlock v-if="question.type?.id === 12"></AddressBlock>
+              <Rating v-if="question.type?.id === 6" :question="question" />
+              <NumberBlock v-if="question.type?.id === 7" :question="question" />
+              <EmailBlock v-if="question.type?.id === 8" :question="question" />
+              <LinkBlock v-if="question.type?.id === 9" :question="question" />
+              <DateBlock v-if="question.type?.id === 10" :question="question" />
+              <AddressBlock v-if="question.type?.id === 11" :question="question" />
               <div v-if="question.type?.id === 2">
                 <div class="section_wrapper-subtitle">
                   Users will be asked to choose answers from listed below.
                 </div>
                 <div class="answers">
                   <div class="answer" v-for="(answer, id) in question.answers" :key="id">
-                    <CheckboxAnswer @check="answer.isCorrect = !answer.isCorrect"></CheckboxAnswer>
+                    <CheckboxAnswer @check="answer.isCorrect = !answer.isCorrect" />
                     <Answer
                       v-model="answer.answer"
                       :isError="!answer.answer && touched"
@@ -176,8 +176,8 @@
                     <Checkbox
                       label="Allow own answer"
                       @check="question.openAnswerAllowed = $event"
-                    ></Checkbox
-                    ><TooltipIcon tooltipText="tooltipText" />
+                    />
+                    <TooltipIcon tooltipText="tooltipText" />
                   </div>
                 </div>
               </div>
@@ -215,7 +215,8 @@
                     label="Allow own answer"
                     @check="question.openAnswerAllowed = $event"
                   ></Checkbox
-                  ><TooltipIcon tooltipText="tooltipText" />
+                  >
+                  <TooltipIcon tooltipText="tooltipText" />
                 </div>
               </div>
             </div>
@@ -255,11 +256,9 @@ import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
-import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
 import { useQaStorageStore } from '@/store/qa-storage';
 import Alert from '@/components/Alert.vue';
-import { useRouter } from 'vue-router';
 import Checkbox from '@/components/Creating/Checkbox.vue';
 import { modal } from '@/mixins/modal';
 import localForage from 'localforage';
@@ -271,7 +270,6 @@ import LinkBlock from '@/components/Creating/LinkBlock.vue';
 import CheckboxAnswer from '@/components/Creating/CheckboxAnswer.vue';
 import DateBlock from '@/components/Creating/DateBlock.vue';
 import AddressBlock from '@/components/Creating/AddressBlock.vue';
-import FileBlock from '@/components/Creating/FileBlock.vue';
 
 const emits = defineEmits('refresh');
 
@@ -322,11 +320,9 @@ const questsTypeItems = ref([
   { name: 'Email Address', id: 8, type: 'email' },
   { name: 'Link', id: 9, type: 'link' },
   { name: 'Date', id: 10, type: 'date' },
-  { name: 'Add File', id: 11, type: 'file' },
-  { name: 'Address', id: 12, type: 'address' },
+  { name: 'Address', id: 11, type: 'address' },
 ]);
 
-const authStore = useAuthStore();
 const qaStore = useQAStore();
 const assetsStore = useQaStorageStore();
 
@@ -340,6 +336,7 @@ const countOfQuestions = ref([
     description: '',
     file: '',
     image: [],
+    parameters: {},
     required: false,
     answers: [{ answer: '', isCorrect: false }],
   },
@@ -405,6 +402,7 @@ const addQuestion = () => {
       file: '',
       image: [],
       required: false,
+      parameters: {},
       answers: [{ answer: '', isCorrect: false }],
     });
   }
@@ -509,7 +507,7 @@ const convertImage = (file) => {
   return new Promise((resolve) => {
     if (file && FileReader) {
       const fr = new FileReader();
-      fr.onload = function () {
+      fr.onload = function() {
         resolve(fr.result);
       };
       fr.readAsDataURL(file);
@@ -540,6 +538,7 @@ const preview = async () => {
       answers: item.type?.id === 1 ? item.answers : [],
       file: file,
       answer: null,
+      parameters: item.parameters,
     };
   });
 
@@ -557,7 +556,8 @@ const preview = async () => {
   };
 
   localStorage.previewData = JSON.stringify(obj);
-  localForage.setItem('previewData', JSON.stringify(obj), () => {});
+  await localForage.setItem('previewData', JSON.stringify(obj), () => {
+  });
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
@@ -573,6 +573,7 @@ const saveQA = async () => {
       return {
         ...item,
         questionType: item.type.type,
+        parameters: Object.keys(item.parameters).length ? JSON.stringify(item.parameters) : null,
         answers: item.type?.id === 1 ? item.answers : [],
       };
     }),
@@ -638,6 +639,7 @@ const check = async () => {
 <script>
 import { defineComponent } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
+
 export default defineComponent({
   components: {
     draggable: VueDraggableNext,
@@ -657,6 +659,7 @@ export default defineComponent({
   padding: 40px;
   gap: 32px;
 }
+
 .upload-requirements {
   font-family: $default_font;
   font-style: normal;
@@ -664,12 +667,12 @@ export default defineComponent({
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $default;
 }
+
 .title_wrapper {
   display: flex;
   justify-content: space-between;
@@ -684,6 +687,7 @@ export default defineComponent({
     color: $section-title;
   }
 }
+
 .section_wrapper {
   display: flex;
   flex-direction: column;
@@ -752,10 +756,9 @@ export default defineComponent({
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings:
-      'tnum' on,
-      'lnum' on,
-      'zero' on;
+    font-feature-settings: 'tnum' on,
+    'lnum' on,
+    'zero' on;
     color: $section-title;
   }
 
@@ -766,10 +769,9 @@ export default defineComponent({
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.014em;
-    font-feature-settings:
-      'tnum' on,
-      'lnum' on,
-      'zero' on;
+    font-feature-settings: 'tnum' on,
+    'lnum' on,
+    'zero' on;
     color: $secondary;
   }
 
@@ -798,6 +800,7 @@ export default defineComponent({
     }
   }
 }
+
 .line {
   width: 100%;
   height: 1px;
@@ -812,6 +815,7 @@ export default defineComponent({
   background: #e9ecf2;
   border-radius: 8px;
   margin-top: 12px;
+
   .title {
     font-weight: 500;
     font-size: 16px;
@@ -904,17 +908,20 @@ export default defineComponent({
   font-feature-settings: 'zero' on;
   color: $default;
 }
+
 .answers {
   margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
   align-items: flex-start;
+
   .answer {
     display: flex;
     align-items: center;
     gap: 4px;
     width: 100%;
+
     .add-answer {
       display: flex;
       padding: 4px;
@@ -922,30 +929,37 @@ export default defineComponent({
       gap: 8px;
       border-radius: 8px;
       background: transparent;
+
       &:hover {
         background: $default-border;
       }
     }
   }
 }
+
 .hidden {
   visibility: hidden;
 }
+
 .head-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   img {
     cursor: pointer;
   }
 }
+
 .blur-custom {
   opacity: 0.4;
 }
+
 .footer {
   margin-top: 60px;
   gap: 24px;
 }
+
 .status {
   display: flex;
   padding: 4px;
@@ -953,11 +967,14 @@ export default defineComponent({
   border-radius: 8px;
   position: relative;
   background: transparent;
+
   .tooltip-checkbox {
     display: none;
   }
+
   &:hover {
     background: $default-border;
+
     .tooltip-checkbox {
       display: block;
       position: absolute;
@@ -978,14 +995,14 @@ export default defineComponent({
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.014em;
-      font-feature-settings:
-        'tnum' on,
-        'lnum' on,
-        'zero' on;
+      font-feature-settings: 'tnum' on,
+      'lnum' on,
+      'zero' on;
       color: $white;
       text-align: left;
       bottom: 76px;
       left: 50%;
+
       &::after {
         content: '';
         position: absolute;
@@ -999,6 +1016,7 @@ export default defineComponent({
       }
     }
   }
+
   .isCorrect {
     filter: invert(51%) sepia(11%) saturate(2579%) hue-rotate(70deg) brightness(102%) contrast(87%);
   }

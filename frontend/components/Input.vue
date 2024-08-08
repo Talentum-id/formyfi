@@ -13,6 +13,7 @@
       @blur="touched = true"
       @focus="touched = false"
       @input="updateValue"
+      :disabled="disabled"
       :placeholder="placeholder"
     />
     <div v-if="!rule && touched" class="error-message">Please enter your {{ name }}.</div>
@@ -24,6 +25,10 @@
 export default {
   name: 'Input',
   props: {
+    disabled: {
+      default: false,
+      type: Boolean,
+    },
     placeholder: {
       type: String,
       default: 'Input text',

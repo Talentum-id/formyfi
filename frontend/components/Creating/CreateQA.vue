@@ -579,7 +579,12 @@ const saveQA = async () => {
       return {
         ...item,
         questionType: item.type.type,
-        answers: item.type?.id === 1 ? item.answers : [],
+        answers: item.answers.map(({ answer, isCorrect }) => {
+          return {
+            answer: answer.toString(),
+            isCorrect,
+          };
+        }),
       };
     }),
   });
@@ -587,7 +592,7 @@ const saveQA = async () => {
 
 const resetFields = () => {
   bannerImage.value = null;
-  questionName.value = description.value = null;
+  questionName.value = description.value = '';
   countOfQuestions.value = [
     {
       question: '',

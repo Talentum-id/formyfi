@@ -8,6 +8,7 @@
       <label class="flex flex-col items-center gap-1">
         <input
           type="radio"
+          :disabled="disabled"
           :value="option"
           v-model="selectedValue"
           @change="updateValue(option)"
@@ -23,10 +24,17 @@
 import { ref, watch, defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
   size: {
     type: Number,
     required: true,
     default: 10,
+  },
+  modelValue: {
+    default: null,
   },
 });
 

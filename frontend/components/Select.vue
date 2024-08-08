@@ -4,9 +4,10 @@
       <div :class="`${selectedLabelStyle}`">
         {{ reduceStringLength(selected.name, stringLengthSelected) }}
       </div>
-      <div class="arrow" :class="`${open && 'flipped'} ${arrowStyle}`"></div>
+      <div v-if="!disabled" class="arrow" :class="`${open && 'flipped'} ${arrowStyle}`"></div>
     </div>
     <div
+      v-if="!disabled"
       class="items"
       :class="`${itemsStyles} ${!open && 'selectHide'}`"
       :style="{
@@ -105,6 +106,10 @@ export default {
     height: {
       type: Number,
       default: 200,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
     smallText: {
       type: Boolean,

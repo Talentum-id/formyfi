@@ -19,13 +19,21 @@ const data = ref({
 });
 
 onMounted(() => {
-  props.question.parameters = data.value;
+  props.question.parameters = {};
 
-  props.question.answers = [];
+  props.question.answers = [{
+    answer: '',
+    isCorrect: false,
+  }];
 });
 
 watch(data, value => {
-  props.question.parameters = value;
+  const answer = Object.values(value).map(item => item.trim()).join('');
+
+  props.question.answers = [{
+    answer: answer.trim().length ? JSON.stringify(value) : '',
+    isCorrect: !!answer.trim().length,
+  }];
 }, {
   deep: true,
 });

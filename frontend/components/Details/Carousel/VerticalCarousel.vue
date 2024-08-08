@@ -32,7 +32,37 @@
             {{ newArr[currentIndex].description }}
           </div>
           <div v-if="getDataByType(newArr[currentIndex].questionType) === 'NOT_SOCIAL'">
-            <div class="answer-textarea" v-if="isOpenQuestion">
+            <Rating
+              v-if="newArr[currentIndex].questionType === 'rate'"
+              :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer"
+            />
+            <NumberBlock
+              v-else-if="newArr[currentIndex].questionType === 'number'"
+              :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer"
+            />
+            <EmailBlock
+              v-else-if="newArr[currentIndex].questionType === 'email'"
+              :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer"
+            />
+            <LinkBlock
+              v-else-if="newArr[currentIndex].questionType === 'link'"
+              :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer"
+            />
+            <DateBlock
+              v-else-if="newArr[currentIndex].questionType === 'date'"
+              :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer"
+            />
+            <AddressBlock
+              v-else-if="newArr[currentIndex].questionType === 'address'"
+              :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer"
+            />
+            <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea
                 placeholder="Your Answer"
                 v-model="newArr[currentIndex].answer"
@@ -171,6 +201,12 @@ import { createTemplatePromise } from '@vueuse/core';
 import SignUp from '@/components/Auth/SignUp.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
+import Rating from '@/components/Details/Carousel/Rating.vue';
+import NumberBlock from '@/components/Details/Carousel/NumberBlock.vue';
+import EmailBlock from '@/components/Details/Carousel/EmailBlock.vue';
+import LinkBlock from '@/components/Details/Carousel/LinkBlock.vue';
+import DateBlock from '@/components/Details/Carousel/DateBlock.vue';
+import AddressBlock from '@/components/Details/Carousel/AddressBlock.vue';
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
 const assetsStore = useQaStorageStore();
@@ -265,9 +301,7 @@ const disableUploader = computed(() => {
   );
 });
 const isOpenQuestion = computed(() => {
-  return (
-    !newArr.value[currentIndex.value].answers || !newArr.value[currentIndex.value].answers.length
-  );
+  return newArr.value[currentIndex.value].questionType === 'open';
 });
 const step = computed(() => counterStore.getStep);
 const getDataByType = (type) => {
@@ -446,7 +480,7 @@ const nextSlide = async () => {
     result.value = newArr.value.map((item) => {
       return {
         isCorrect: isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value,
-        answer: item.answer || item.myAnswer || '',
+        answer: item.answer?.toString() || item.myAnswer?.toString() || '',
         file: item.answerFile.length ? item.answerFile : '',
         isOpen: isOpenQuestion.value || !!item.myAnswer,
       };

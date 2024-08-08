@@ -11,6 +11,8 @@ const props = defineProps({
   },
 });
 
+const failedMessage = ref('');
+const regexFailed = ref(false);
 const number = ref('');
 const min = ref('');
 const minEnabled = ref(false);
@@ -42,6 +44,29 @@ const setOption = ({ id }) => {
 };
 
 const setValue = () => {
+  if (isNaN(number.value)) {
+    regexFailed.value = true;
+    failedMessage.value = 'Number is invalid';
+    number.value = '';
+  } else {
+    const ltMin = minEnabled.value && min.value > number.value;
+    const gtMax = maxEnabled.value && max.value < number.value;
+
+    if (ltMin) {
+      regexFailed.value = true;
+      failedMessage.value = 'Number should be greater than min';
+
+      number.value = '';
+    } else if (gtMax) {
+      regexFailed.value = true;
+      failedMessage.value = 'Number should be less than max';
+
+      number.value = '';
+    } else {
+      regexFailed.value = false;
+    }
+  }
+
   props.question.answers = [{
     answer: number.value,
     isCorrect: !!number.value.length,
@@ -59,12 +84,12 @@ watch(max, value => props.question.parameters.max = value);
     <div class="title">Users will be asked to enter the number in the filed listed below.</div>
     <Input
       withoutName
-      @input="setValue"
       class="w-[136px]"
       placeholder="Number"
-      is-number
+      @focusout="setValue"
       v-model="number"
     />
+    <span v-if="regexFailed" class="invalid-feedback">{{ failedMessage }}</span>
     <hr />
     <div class="title">Question Settings</div>
     <Select :options="options" @input="setOption" :stringLength="66" :stringLengthSelected="66" />
@@ -87,7 +112,7 @@ watch(max, value => props.question.parameters.max = value);
 </template>
 
 <style scoped lang="scss">
-.title {
+.title, .invalid-feedback {
   font-family: $default_font;
   font-style: normal;
   font-weight: 500;
@@ -110,5 +135,9 @@ watch(max, value => props.question.parameters.max = value);
   align-items: center;
   font-feature-settings: 'zero' on;
   color: $default;
+}
+
+.invalid-feedback {
+  color: $red;
 }
 </style>

@@ -6,6 +6,7 @@
       ref="inputRef"
       type="text"
       @click="showDatePicker"
+      :disabled="disabled"
       :value="selectedDate"
     />
     <label
@@ -37,6 +38,7 @@ export default {
     minDate: { type: Date, default: null },
     maxDate: { type: Date, default: null },
     isSmall: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
   },
   setup(props, { emit }) {
     const inputRef = ref(null);

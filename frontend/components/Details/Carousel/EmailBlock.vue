@@ -1,53 +1,43 @@
 <script setup>
 import Input from '@/components/Input.vue';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
+import RadioGroup from '@/components/Creating/RadioGroup.vue';
 
 const props = defineProps({
-  question: {
+  answer: {
     required: true,
     type: Object,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-onMounted(() => {
-  props.question.parameters = {};
-
-  props.question.answers = [{
-    answer: '',
-    isCorrect: false,
-  }];
-});
-
-const link = ref('');
 const regexFailed = ref(false);
 
 const setValue = () => {
-  const linkRegex = /(<a[^>]*>.*?<\/a>|https?:\/\/[^\s<]+)/g;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (linkRegex.test(link.value)) {
-    regexFailed.value = false;
-  } else {
+  if (!emailRegex.test(props.answer.answer)) {
+    props.answer.answer = '';
     regexFailed.value = true;
-    link.value = '';
+  } else {
+    regexFailed.value = false;
   }
-
-  props.question.answers = [{
-    answer: link.value,
-    isCorrect: !!link.value.length,
-  }];
 };
 </script>
 
 <template>
   <div class="flex flex-col gap-y-2">
-    <div class="title">Users will be asked to enter the link in the filed listed below.</div>
     <Input
       withoutName
-      placeholder="https://formyfi.io"
+      placeholder="formyfi@gmail.com"
+      v-model="answer.answer"
+      :disabled="disabled"
       @focusout="setValue"
-      v-model="link"
     />
-    <span v-if="regexFailed" class="invalid-feedback">Link is invalid</span>
+    <span v-if="regexFailed" class="invalid-feedback">Email is invalid</span>
   </div>
 </template>
 

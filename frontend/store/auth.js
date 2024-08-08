@@ -313,7 +313,7 @@ export const useAuthStore = defineStore('auth', {
 
             if (user?.avatar?.[0]) {
               try {
-                avatar = await useQaStorageStore().getFile(user.avatar[0]);
+                avatar = await useUserStorageStore().getFile(user.avatar[0]);
               } catch (e) {
                 console.error(e);
               }

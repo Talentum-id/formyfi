@@ -87,7 +87,7 @@
                 v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
               ></div>
             </div>
-            <div v-else>
+            <div v-else-if="newArr[currentIndex].questionType === 'quiz'">
               <el-radio-group
                 v-model="newArr[currentIndex].answer"
                 class="flex flex-col gap-y-[8px] items-center content-center container-radio"
@@ -99,7 +99,8 @@
                   :aria-selected="newArr[currentIndex].answer === answer.answer"
                   v-for="answer in newArr[currentIndex].answers"
                   :disabled="cacheAnswer"
-                /><input
+                />
+                <input
                   class="allowed-input"
                   type="text"
                   v-model="newArr[currentIndex].myAnswer"
@@ -114,6 +115,35 @@
                   }"
                 />
               </el-radio-group>
+            </div>
+            <div v-else class="flex justify-center">
+              <el-checkbox-group
+                v-model="newArr[currentIndex].myAnswers"
+                class="flex flex-col gap-y-[8px] items-center content-center container-radio"
+                :border="false"
+              >
+                <el-checkbox-button
+                  class="radio"
+                  :label="answer.answer"
+                  :aria-selected="newArr[currentIndex].myAnswers.indexOf(answer.answer) !== -1"
+                  v-for="answer in newArr[currentIndex].answers"
+                  :disabled="cacheAnswer"
+                />
+                <input
+                  class="allowed-input"
+                  type="text"
+                  v-model="newArr[currentIndex].myAnswer"
+                  v-if="newArr[currentIndex].openAnswerAllowed && isAdditionalAnswer && cacheAnswer !== 'undeF1N3d'"
+                  @focus="newArr[currentIndex].answer = ''"
+                  :placeholder="cacheAnswer || 'Your answer...'"
+                  :disabled="cacheAnswer"
+                  :class="{
+                    selected:
+                      cacheAnswer ||
+                      (!newArr[currentIndex].answer && newArr[currentIndex].myAnswer),
+                  }"
+                />
+              </el-checkbox-group>
             </div>
           </div>
           <div class="flex flex-col items-center m-auto gap-1" v-else>
@@ -178,7 +208,7 @@ import {
 } from 'vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
-import { ElRadioGroup, ElRadioButton } from 'element-plus';
+import { ElCheckboxGroup, ElCheckboxButton, ElRadioGroup, ElRadioButton } from 'element-plus';
 import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useAuthStore } from '@/store/auth';
@@ -241,6 +271,7 @@ const newArr = ref(
   props.items.map((item) => {
     return {
       ...item,
+      myAnswers: [],
       answer: '',
       uploadedFile: '',
       answerFile: [],
@@ -253,8 +284,27 @@ const rerenderImages = ref(false);
 const result = ref([]);
 const realTime = computed(() => Math.floor(Date.now() / 1000));
 const cacheAnswer = computed(() => {
-  if (props.answers.length && props.answers[currentIndex.value]) {
-    return props.answers[currentIndex.value].answer;
+  const currentAnswer = props.answers[currentIndex.value];
+  const currentQuestion = newArr.value[currentIndex.value];
+
+  if (props.answers.length && currentAnswer) {
+    if (currentQuestion.questionType === 'multiple') {
+      let cacheAnswer = 'undeF1N3d';
+      let answers = JSON.parse(currentAnswer.answer);
+      let custom = answers.find(answer => !currentQuestion.answers.includes(answer));
+
+      if (custom !== null) {
+        cacheAnswer = answers[answers.length - 1];
+
+        answers.splice(answers.length - 1, 1);
+      }
+
+      currentQuestion.myAnswers = answers;
+
+      return cacheAnswer;
+    }
+
+    return currentAnswer.answer;
   } else {
     return null;
   }
@@ -478,9 +528,28 @@ const nextSlide = async () => {
     currentIndex.value++;
   } else {
     result.value = newArr.value.map((item) => {
+      let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
+      let isCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
+
+      if (item.myAnswers.length) {
+        const correctAnswers = item.answers.filter(({isCorrect}) => isCorrect);
+
+        if (item.myAnswer.trim() !== '') {
+          item.myAnswers.push(item.myAnswer);
+        }
+
+        isCorrect = true;
+        answer = JSON.stringify(item.myAnswers);
+
+        if (correctAnswers.length) {
+          isCorrect = item.myAnswers.every(value => correctAnswers.indexOf(value) !== -1)
+            && item.myAnswers.length === correctAnswers.length;
+        }
+      }
+
       return {
-        isCorrect: isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value,
-        answer: item.answer?.toString() || item.myAnswer?.toString() || '',
+        isCorrect,
+        answer,
         file: item.answerFile.length ? item.answerFile : '',
         isOpen: isOpenQuestion.value || !!item.myAnswer,
       };
@@ -697,7 +766,7 @@ watch(
 }
 
 .container-radio {
-  .is-active {
+  .is-active, .is-checked {
     border-radius: 8px;
     background: #eaeafb !important;
     border: 1px solid #2637c0 !important;
@@ -723,7 +792,6 @@ watch(
   }
 
   .radio {
-    width: auto;
     cursor: pointer;
     display: flex;
     padding: 9px 16px 11px 16px;

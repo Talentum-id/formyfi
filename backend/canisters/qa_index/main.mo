@@ -26,6 +26,7 @@ actor QAIndex {
     "open",
     "quiz",
     "twitter",
+    "multiple",
     "discord",
     "wallet",
     "rate",

@@ -282,7 +282,7 @@ const endDate = ref(twoDaysFromNow);
 const questsTypeItems = ref([
   { name: 'Open Question', id: 0, type: 'open' },
   { name: 'Quiz Question', id: 1, type: 'quiz' },
-  { name: 'Multiple Choice', id: 2 },
+  { name: 'Multiple Choice', id: 2, type: 'multiple' },
   {
     name: 'Twitter Connect',
     id: 3,

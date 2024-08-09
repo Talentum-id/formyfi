@@ -24,7 +24,7 @@ onMounted(() => {
 const setValue = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailRegex.test(email.value)) {
+  if (email.value.trim() !== '' && !emailRegex.test(email.value)) {
     email.value = '';
     regexFailed.value = true;
   } else {

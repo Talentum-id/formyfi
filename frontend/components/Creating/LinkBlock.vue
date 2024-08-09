@@ -24,7 +24,7 @@ const regexFailed = ref(false);
 const setValue = () => {
   const linkRegex = /(<a[^>]*>.*?<\/a>|https?:\/\/[^\s<]+)/g;
 
-  if (linkRegex.test(link.value)) {
+  if (link.value.trim() === '' || linkRegex.test(link.value)) {
     regexFailed.value = false;
   } else {
     regexFailed.value = true;

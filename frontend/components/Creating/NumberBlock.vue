@@ -44,11 +44,11 @@ const setOption = ({ id }) => {
 };
 
 const setValue = () => {
-  if (isNaN(number.value)) {
+  if (number.value.trim() !== '' && isNaN(number.value)) {
     regexFailed.value = true;
     failedMessage.value = 'Number is invalid';
     number.value = '';
-  } else {
+  } else if (number.value.trim() !== '') {
     const ltMin = minEnabled.value && min.value > number.value;
     const gtMax = maxEnabled.value && max.value < number.value;
 
@@ -73,10 +73,62 @@ const setValue = () => {
   }];
 };
 
-watch(minEnabled, value => props.question.parameters.minEnabled = value);
-watch(maxEnabled, value => props.question.parameters.maxEnabled = value);
-watch(min, value => props.question.parameters.min = value);
-watch(max, value => props.question.parameters.max = value);
+watch(minEnabled, value => {
+  props.question.parameters.minEnabled = value;
+
+  const ltMin = minEnabled.value && min.value > number.value;
+
+  if (ltMin) {
+    regexFailed.value = true;
+    failedMessage.value = 'Number should be greater than min';
+
+    number.value = '';
+  } else {
+    regexFailed.value = false;
+  }
+});
+watch(maxEnabled, value => {
+  props.question.parameters.maxEnabled = value;
+
+  const gtMax = maxEnabled.value && max.value < number.value;
+
+  if (gtMax) {
+    regexFailed.value = true;
+    failedMessage.value = 'Number should be less than max';
+
+    number.value = '';
+  } else {
+    regexFailed.value = false;
+  }
+});
+watch(min, value => {
+  props.question.parameters.min = value;
+
+  const ltMin = minEnabled.value && min.value > number.value;
+
+  if (ltMin) {
+    regexFailed.value = true;
+    failedMessage.value = 'Number should be greater than min';
+
+    number.value = '';
+  } else {
+    regexFailed.value = false;
+  }
+});
+watch(max, value => {
+  props.question.parameters.max = value;
+
+  const gtMax = maxEnabled.value && max.value < number.value;
+
+  if (gtMax) {
+    regexFailed.value = true;
+    failedMessage.value = 'Number should be less than max';
+
+    number.value = '';
+  } else {
+    regexFailed.value = false;
+  }
+});
 </script>
 
 <template>

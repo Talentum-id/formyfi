@@ -19,7 +19,7 @@ const regexFailed = ref(false);
 const setValue = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailRegex.test(props.answer.answer)) {
+  if (props.answer.answer.trim() !== '' && !emailRegex.test(props.answer.answer)) {
     props.answer.answer = '';
     regexFailed.value = true;
   } else {

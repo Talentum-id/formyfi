@@ -29,11 +29,11 @@ const options = computed(() => {
 const setValue = () => {
   const {minEnabled, maxEnabled, min, max} = props.answer.parameters;
 
-  if (isNaN(props.answer.answer)) {
+  if (props.answer.answer.trim() !== '' && isNaN(props.answer.answer)) {
     regexFailed.value = true;
     failedMessage.value = 'Number is invalid';
     props.answer.answer = '';
-  } else {
+  } else if (props.answer.answer.trim() !== '') {
     const ltMin = minEnabled && min > props.answer.answer;
     const gtMax = maxEnabled && max < props.answer.answer;
 

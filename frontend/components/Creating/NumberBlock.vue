@@ -49,8 +49,8 @@ const setValue = () => {
     failedMessage.value = 'Number is invalid';
     number.value = '';
   } else if (number.value.trim() !== '') {
-    const ltMin = minEnabled.value && min.value > number.value;
-    const gtMax = maxEnabled.value && max.value < number.value;
+    const ltMin = minEnabled.value && parseInt(min.value) > parseInt(number.value);
+    const gtMax = maxEnabled.value && parseInt(max.value) < parseInt(number.value);
 
     if (ltMin) {
       regexFailed.value = true;
@@ -76,7 +76,7 @@ const setValue = () => {
 watch(minEnabled, value => {
   props.question.parameters.minEnabled = value;
 
-  const ltMin = minEnabled.value && min.value > number.value;
+  const ltMin = minEnabled.value && parseInt(min.value) > parseInt(number.value);
 
   if (ltMin) {
     regexFailed.value = true;
@@ -90,7 +90,7 @@ watch(minEnabled, value => {
 watch(maxEnabled, value => {
   props.question.parameters.maxEnabled = value;
 
-  const gtMax = maxEnabled.value && max.value < number.value;
+  const gtMax = maxEnabled.value && parseInt(max.value) < parseInt(number.value);
 
   if (gtMax) {
     regexFailed.value = true;
@@ -104,7 +104,7 @@ watch(maxEnabled, value => {
 watch(min, value => {
   props.question.parameters.min = value;
 
-  const ltMin = minEnabled.value && min.value > number.value;
+  const ltMin = minEnabled.value && parseInt(min.value) > parseInt(number.value);
 
   if (ltMin) {
     regexFailed.value = true;
@@ -118,7 +118,7 @@ watch(min, value => {
 watch(max, value => {
   props.question.parameters.max = value;
 
-  const gtMax = maxEnabled.value && max.value < number.value;
+  const gtMax = maxEnabled.value && parseInt(max.value) < parseInt(number.value);
 
   if (gtMax) {
     regexFailed.value = true;

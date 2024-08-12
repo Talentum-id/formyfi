@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted } from 'vue';
-import { transformDate } from '@/util/helpers';
+import { onMounted, ref } from 'vue';
+import { dateTimeToSeconds, transformDate } from '@/util/helpers';
 import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
-import RadioGroup from '@/components/Creating/RadioGroup.vue';
 
 const props = defineProps({
   answer: {
@@ -15,18 +14,18 @@ const props = defineProps({
   },
 });
 
-const todayDate = new Date();
+const answerValue = ref(new Date());
 
 onMounted(() => {
   if (!props.answer.answer.length) {
-    props.answer.answer = transformDate(todayDate);
-  } else {
-    props.answer.answer = transformDate(new Date(props.answer.answer));
+    answerValue.value = new Date(props.answer.answer * 1000);
   }
+
+  answerValue.value = transformDate(answerValue.value);
 });
 
 const setDate = (event) => {
-  props.answer.answer = event;
+  props.answer.answer = dateTimeToSeconds(event);
 };
 </script>
 
@@ -34,7 +33,7 @@ const setDate = (event) => {
   <div class="flex flex-col gap-y-2">
     <CustomDatePicker
       :disabled="disabled"
-      :defaultDate="answer.answer"
+      :defaultDate="answerValue"
       @selectedDate="setDate"
     />
   </div>

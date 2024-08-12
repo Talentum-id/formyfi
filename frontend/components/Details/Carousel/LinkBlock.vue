@@ -14,16 +14,23 @@ const props = defineProps({
   },
 });
 
+const answerValue = ref(props.answer.answer);
 const regexFailed = ref(false);
 
-const setValue = () => {
+const setValue = focussedOut => {
   const linkRegex = /(<a[^>]*>.*?<\/a>|https?:\/\/[^\s<]+)/g;
 
-  if (props.answer.answer.trim() === '' || linkRegex.test(props.answer.answer)) {
+  if (answerValue.value.trim() === '' || linkRegex.test(answerValue.value)) {
     regexFailed.value = false;
+
+    props.answer.answer = answerValue.value
   } else {
     regexFailed.value = true;
     props.answer.answer = '';
+
+    if (focussedOut) {
+      answerValue.value = '';
+    }
   }
 };
 </script>
@@ -33,9 +40,10 @@ const setValue = () => {
     <Input
       withoutName
       placeholder="https://formyfi.io"
-      @focusout="setValue"
+      @input="setValue(false)"
+      @focusout="setValue(true)"
       :disabled="disabled"
-      v-model="answer.answer"
+      v-model="answerValue"
     />
     <span v-if="regexFailed" class="invalid-feedback">Link is invalid</span>
   </div>

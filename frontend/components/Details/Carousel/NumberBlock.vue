@@ -15,6 +15,7 @@ const props = defineProps({
   },
 });
 
+const answerValue = ref(props.answer.answer);
 const failedMessage = ref('');
 const regexFailed = ref(false);
 
@@ -26,30 +27,44 @@ const options = computed(() => {
   ].filter(({ id }) => id === props.answer.parameters.option);
 });
 
-const setValue = () => {
-  const {minEnabled, maxEnabled, min, max} = props.answer.parameters;
+const setValue = focussedOut => {
+  let error = false;
+  const { minEnabled, maxEnabled, min, max } = props.answer.parameters;
 
-  if (props.answer.answer.trim() !== '' && isNaN(props.answer.answer)) {
+  if (props.answer.answer.trim() !== '' && isNaN(answerValue.value)) {
     regexFailed.value = true;
     failedMessage.value = 'Number is invalid';
-    props.answer.answer = '';
-  } else if (props.answer.answer.trim() !== '') {
-    const ltMin = minEnabled && min > props.answer.answer;
-    const gtMax = maxEnabled && max < props.answer.answer;
+
+    error = true;
+  } else if (answerValue.value.trim() !== '') {
+    const ltMin = minEnabled && parseInt(min) > parseInt(answerValue.value);
+    const gtMax = maxEnabled && parseInt(max) < parseInt(answerValue.value);
 
     if (ltMin) {
       regexFailed.value = true;
       failedMessage.value = 'Number should be greater than min';
 
-      props.answer.answer = '';
+      error = true;
     } else if (gtMax) {
       regexFailed.value = true;
       failedMessage.value = 'Number should be less than max';
 
-      props.answer.answer = '';
+      error = true;
     } else {
       regexFailed.value = false;
+
+      error = false;
     }
+  }
+
+  if (error) {
+    props.answer.answer = '';
+
+    if (focussedOut) {
+      answerValue.value = '';
+    }
+  } else {
+    props.answer.answer = answerValue.value;
   }
 };
 </script>
@@ -60,13 +75,13 @@ const setValue = () => {
       withoutName
       class="w-[136px] inline-block"
       placeholder="Number"
-      @focusout="setValue"
+      @focusout="setValue(true)"
+      @input="setValue(false)"
       :disabled="disabled"
-      v-model="answer.answer"
+      v-model="answerValue"
     />
     <span v-if="regexFailed" class="invalid-feedback">{{ failedMessage }}</span>
     <hr />
-    <div class="title">Question Settings</div>
     <Select
       :options="options"
       readonly

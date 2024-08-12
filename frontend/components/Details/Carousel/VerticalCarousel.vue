@@ -291,9 +291,10 @@ const cacheAnswer = computed(() => {
     if (currentQuestion.questionType === 'multiple') {
       let cacheAnswer = 'undeF1N3d';
       let answers = JSON.parse(currentAnswer.answer);
-      let custom = answers.find(answer => !currentQuestion.answers.includes(answer));
+      let answerValues = currentQuestion.answers.map(({ answer }) => answer);
+      let custom = answers.find(answer => !answerValues.includes(answer));
 
-      if (custom !== null) {
+      if (custom !== undefined) {
         cacheAnswer = answers[answers.length - 1];
 
         answers.splice(answers.length - 1, 1);
@@ -534,7 +535,7 @@ const nextSlide = async () => {
       if (item.myAnswers.length) {
         const correctAnswers = item.answers.filter(({isCorrect}) => isCorrect);
 
-        if (item.myAnswer.trim() !== '') {
+        if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
           item.myAnswers.push(item.myAnswer);
         }
 

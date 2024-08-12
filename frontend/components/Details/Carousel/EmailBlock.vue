@@ -14,15 +14,21 @@ const props = defineProps({
   },
 });
 
+const answerValue = ref(props.answer.answer);
 const regexFailed = ref(false);
 
-const setValue = () => {
+const setValue = focussedOut => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (props.answer.answer.trim() !== '' && !emailRegex.test(props.answer.answer)) {
+  if (answerValue.value.trim() !== '' && !emailRegex.test(answerValue.value)) {
+    if (focussedOut) {
+      answerValue.value = '';
+    }
+
     props.answer.answer = '';
     regexFailed.value = true;
   } else {
+    props.answer.answer = answerValue.value;
     regexFailed.value = false;
   }
 };
@@ -33,9 +39,10 @@ const setValue = () => {
     <Input
       withoutName
       placeholder="formyfi@gmail.com"
-      v-model="answer.answer"
+      v-model="answerValue"
       :disabled="disabled"
-      @focusout="setValue"
+      @focusout="setValue(true)"
+      @input="setValue(false)"
     />
     <span v-if="regexFailed" class="invalid-feedback">Email is invalid</span>
   </div>

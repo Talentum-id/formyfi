@@ -3,7 +3,7 @@ import AuthButton from '@/components/Auth/AuthButton.vue';
 import axiosService from '@/service/axiosService';
 import { useAuthStore } from '@/store/auth';
 import { googleLogout } from 'vue3-google-login';
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   useConnect,
@@ -13,6 +13,7 @@ import {
   useSignMessage,
 } from '@wagmi/vue';
 import { config } from '@/wagmi.config';
+import { siweConnectors } from '@/constants/siweConnectors';
 
 const authStore = useAuthStore();
 const { connect, connectors } = useConnect();
@@ -29,6 +30,13 @@ onMounted(() => {
   readCode();
   useAuthStore().setAuthenticationStorage(false);
 });
+
+const filteredConnectors = computed(() => {
+  return connectors.filter(connector => {
+    return siweConnectors.indexOf(connector.name) !== -1;
+  });
+});
+
 const callback = async (response) => {
   try {
     await useAuthStore()
@@ -96,7 +104,7 @@ watch(isConnected, async value => {
           <div class="name-social">Internet Identity</div>
         </div>
       </AuthButton>
-      <template v-for="connector in connectors" :key="connector.name">
+      <template v-for="connector in filteredConnectors" :key="connector.name">
         <AuthButton
           v-if="connector.id !== 'metaMaskSDK'"
           @click="connect({ connector, chainId })"

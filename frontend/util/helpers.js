@@ -404,6 +404,12 @@ export function timestampToString(timestamp) {
   return formattedString;
 }
 
+export const dateTimeToSeconds = datetime => {
+  const date = new Date(datetime);
+
+  return Math.floor(date.getTime() / 1000);
+};
+
 export const isTaskHasLongWord = (text) => {
   if (!text) return false;
   const words = text.split(' ');

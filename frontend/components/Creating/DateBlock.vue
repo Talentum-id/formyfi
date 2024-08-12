@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { transformDate } from '@/util/helpers';
+import { dateTimeToSeconds, transformDate } from '@/util/helpers';
 import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
 
 const props = defineProps({
@@ -28,7 +28,7 @@ const setDate = (event) => {
   date.value = event;
 
   props.question.answers = [{
-    answer: date.value,
+    answer: dateTimeToSeconds(date.value),
     isCorrect: !!date.value,
   }];
 };

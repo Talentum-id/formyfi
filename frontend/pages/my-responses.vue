@@ -190,13 +190,13 @@ const requestsRows = computed(
 const prevItem = async () => {
   if (currentIndex.value !== 0) {
     await useQAStore().fetchQA(allItems.value[--currentIndex.value]?.shareLink);
-    currentItem.value = await useQAStore().getQA;
+    currentItem.value = allItems.value[currentIndex.value];
   }
 };
 const nextItem = async () => {
   if (currentIndex.value < allItems.value?.length - 1) {
     await useQAStore().fetchQA(allItems.value[++currentIndex.value]?.shareLink);
-    currentItem.value = await useQAStore().getQA;
+    currentItem.value = allItems.value[currentIndex.value];
   }
 };
 
@@ -209,7 +209,7 @@ const showModal = async (items, index) => {
     };
   });
   await useQAStore().fetchQA(allItems.value[currentIndex.value]?.shareLink);
-  currentItem.value = await useQAStore().getQA;
+  currentItem.value = allItems.value[currentIndex.value];
 
   show.value = true;
 };

@@ -530,7 +530,7 @@ const nextSlide = async () => {
   } else {
     result.value = newArr.value.map((item) => {
       let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
-      let isCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
+      let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
 
       if (item.myAnswers.length) {
         const correctAnswers = item.answers.filter(({isCorrect}) => isCorrect);
@@ -539,17 +539,17 @@ const nextSlide = async () => {
           item.myAnswers.push(item.myAnswer);
         }
 
-        isCorrect = true;
+        answerIsCorrect = true;
         answer = JSON.stringify(item.myAnswers);
 
         if (correctAnswers.length) {
-          isCorrect = item.myAnswers.every(value => correctAnswers.indexOf(value) !== -1)
+          answerIsCorrect = item.myAnswers.every(value => correctAnswers.indexOf(value) !== -1)
             && item.myAnswers.length === correctAnswers.length;
         }
       }
 
       return {
-        isCorrect,
+        isCorrect: answerIsCorrect,
         answer,
         file: item.answerFile.length ? item.answerFile : '',
         isOpen: isOpenQuestion.value || !!item.myAnswer,

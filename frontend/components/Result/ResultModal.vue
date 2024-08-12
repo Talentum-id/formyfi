@@ -12,6 +12,7 @@ import { useResponseStorageStore } from '@/store/response-storage';
 import { useQaStorageStore } from '@/store/qa-storage';
 import ResultCard from '@/components/Result/ResultCard.vue';
 import CustomImage from '@/components/CustomImage.vue';
+import { useAuthStore } from '@/store/auth';
 
 const qaAssetsStore = useQaStorageStore();
 const responseAssetsStore = useResponseStorageStore();
@@ -27,6 +28,7 @@ const props = defineProps({
   },
 });
 
+const user = computed(() => useAuthStore().getUser);
 const data = computed(() => useQAStore().getQA);
 const answers = computed(() => responseStore.getResponse);
 
@@ -99,7 +101,7 @@ const isAdditionalAnswer = (answer, variants) => {
         <div class="data">
           <div>
             From
-            <Link :text="userInfo.username" :size="0"></Link>
+            <Link :text="userInfo.username || user.username" :size="0"></Link>
           </div>
           <div>
             Filled
@@ -118,7 +120,7 @@ const isAdditionalAnswer = (answer, variants) => {
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answers[idx]">
-            <div class="flex flex-col gap-[16px] w-full" v-if="question.answers.length">
+            <div class="flex flex-col gap-[16px] w-full" v-if="['multiple', 'quiz'].indexOf(question.questionType) !== -1">
               <Variant
                 v-for="i in question.answers"
                 :key="i"
@@ -133,13 +135,24 @@ const isAdditionalAnswer = (answer, variants) => {
                 "
                 :text="answers[idx].answer"
                 is-correct
-              ></Variant>
+              />
             </div>
             <div class="w-full" v-else>
               <Variant
+                v-if="question.questionType === 'address'"
+                :text="answers[idx].answer ? Object.values(JSON.parse(answers[idx].answer)).join(', ') : 'No Answer'"
+                :is-correct="!!answers[idx].answer || answers[idx].isCorrect"
+              />
+              <Variant
+                v-else-if="question.questionType === 'date'"
+                :text="new Date(answers[idx].answer * 1000)"
+                :is-correct="!!answers[idx].answer || answers[idx].isCorrect"
+              />
+              <Variant
+                v-else
                 :text="answers[idx].answer || 'No Answer'"
-                :is-correct="!!answers[idx].answer"
-              ></Variant>
+                :is-correct="!!answers[idx].answer || answers[idx].isCorrect"
+              />
             </div>
           </div>
           <div v-if="answers[idx].file">

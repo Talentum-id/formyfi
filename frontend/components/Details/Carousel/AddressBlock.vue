@@ -24,7 +24,6 @@ const data = ref({
 
 onMounted(() => {
   if (!!props.answer.answer.length) {
-    console.log(JSON.parse(props.answer.answer))
     data.value = JSON.parse(props.answer.answer);
   }
 });

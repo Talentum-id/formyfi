@@ -2,7 +2,7 @@
   <div class="head-container">
     <CustomImage :image="image || defaultBg" width="712" heigth="240"></CustomImage>
     <div class="info w-full">
-      <Talent text="Portal" class="ml-[-16px]" :img="image || defaultBg" square />
+      <Talent :text="user.username" class="ml-[-16px]" :img="image || defaultBg" square />
       <div class="flex items-center gap-x-[8px]">
         <Badge :text="formatDate(Number(data.start) * 1000)" transparent></Badge>
         -
@@ -28,6 +28,7 @@ import { useQaStorageStore } from '@/store/qa-storage';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
 import { ElImage } from 'element-plus';
 import CustomImage from '@/components/CustomImage.vue';
+import { useAuthStore } from '@/store/auth';
 
 const assetsStore = useQaStorageStore();
 const counterStore = useCounterStore();
@@ -42,6 +43,7 @@ const props = defineProps({
 
 const image = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
+const user = computed(() => useAuthStore().getUser);
 
 onMounted(async () => {
   await assetsStore

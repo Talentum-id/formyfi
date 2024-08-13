@@ -19,14 +19,6 @@ const answerValue = ref(props.answer.answer);
 const failedMessage = ref('');
 const regexFailed = ref(false);
 
-const options = computed(() => {
-  return [
-    { name: 'Decimal (ex: 2.34)', id: 0, type: 'decimal' },
-    { name: 'Integer (ex: 2)', id: 1, type: 'integer' },
-    { name: 'Percentage (ex: 2%)', id: 2, type: 'percentage' },
-  ].filter(({ id }) => id === props.answer.parameters.option);
-});
-
 const setValue = focussedOut => {
   let error = false;
   const { minEnabled, maxEnabled, min, max } = props.answer.parameters;
@@ -37,17 +29,17 @@ const setValue = focussedOut => {
 
     error = true;
   } else if (answerValue.value.trim() !== '') {
-    const ltMin = minEnabled && parseInt(min) > parseInt(answerValue.value);
-    const gtMax = maxEnabled && parseInt(max) < parseInt(answerValue.value);
+    const ltMin = minEnabled && parseFloat(min) > parseFloat(answerValue.value);
+    const gtMax = maxEnabled && parseFloat(max) < parseFloat(answerValue.value);
 
     if (ltMin) {
       regexFailed.value = true;
-      failedMessage.value = 'Number should be greater than min';
+      failedMessage.value = `Number should be greater than ${min}`;
 
       error = true;
     } else if (gtMax) {
       regexFailed.value = true;
-      failedMessage.value = 'Number should be less than max';
+      failedMessage.value = `Number should be less than ${max}`;
 
       error = true;
     } else {
@@ -81,28 +73,6 @@ const setValue = focussedOut => {
       v-model="answerValue"
     />
     <span v-if="regexFailed" class="invalid-feedback">{{ failedMessage }}</span>
-    <hr />
-    <Select
-      :options="options"
-      readonly
-      :stringLength="66"
-      :stringLengthSelected="66"
-      disabled
-    />
-    <div v-if="answer.parameters.minEnabled" class="flex items-center gap-x-4">
-      <div class="flex items-center gap-2 mt-2">
-        <div class="wrapper-title">Min</div>
-      </div>
-
-      <Input withoutName class="w-[136px]" is-number placeholder="Value" v-model="answer.parameters.min" disabled />
-    </div>
-
-    <div v-if="answer.parameters.maxEnabled" class="flex items-center gap-x-4">
-      <div class="flex items-center gap-2 mt-2">
-        <div class="wrapper-title">Max</div>
-      </div>
-      <Input is-number withoutName class="w-[136px]" placeholder="Value" v-model="answer.parameters.max" disabled />
-    </div>
   </div>
 </template>
 

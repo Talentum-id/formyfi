@@ -1,5 +1,5 @@
 export const siweConnectors = [
   'MetaMask',
-  'Injected',
-  'Safe',
+  'Coinbase Wallet',
+  'OKX Wallet',
 ];

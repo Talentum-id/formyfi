@@ -69,6 +69,18 @@ onMounted(async () => {
 const isAdditionalAnswer = (answer, variants) => {
   return !variants.find((variant) => variant.answer === answer);
 };
+
+const isAdditionalMultipleAnswer = (answer, variants) => {
+  const variantAnswers = variants.map(({answer}) => answer);
+  const additionalAnswer = JSON.parse(answer)
+    .find(item => variantAnswers.indexOf(item) === -1);
+
+  if (additionalAnswer !== undefined) {
+    return additionalAnswer;
+  }
+
+  return null;
+};
 </script>
 
 <template>
@@ -111,7 +123,7 @@ const isAdditionalAnswer = (answer, variants) => {
       </div>
       <div class="flex flex-col w-full gap-[16px] mt-[32px]">
         <ResultCard v-for="(question, idx) in data.questions" :key="idx">
-          <div class="head">
+          <div class="head flex justify-between w-full">
             <div class="step">{{ idx + 1 }}/{{ data.questions.length }}</div>
             <div class="required" v-if="question.required">Required</div>
           </div>
@@ -120,20 +132,37 @@ const isAdditionalAnswer = (answer, variants) => {
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answers[idx]">
-            <div class="flex flex-col gap-[16px] w-full" v-if="['multiple', 'quiz'].indexOf(question.questionType) !== -1">
+            <div class="flex flex-col gap-[16px] w-full" v-if="question.questionType === 'quiz'">
               <Variant
                 v-for="i in question.answers"
                 :key="i"
                 :text="i.answer"
                 :is-correct="answers[idx].answer === i.answer && answers[idx].isCorrect"
                 :is-incorrect="answers[idx].answer === i.answer && !answers[idx].isCorrect"
-              ></Variant>
+              />
               <Variant
                 v-if="
                   question.openAnswerAllowed &&
                   isAdditionalAnswer(answers[idx].answer, question.answers)
                 "
                 :text="answers[idx].answer"
+                is-correct
+              />
+            </div>
+            <div class="flex flex-col gap-[16px] w-full" v-else-if="question.questionType === 'multiple'">
+              <Variant
+                v-for="i in question.answers"
+                :key="i"
+                :text="i.answer"
+                :is-correct="JSON.parse(answers[idx].answer).indexOf(i.answer) !== -1"
+                :is-incorrect="JSON.parse(answers[idx].answer).indexOf(i.answer) === -1"
+              />
+              <Variant
+                v-if="
+                  question.openAnswerAllowed &&
+                  isAdditionalMultipleAnswer(answers[idx].answer, question.answers)
+                "
+                :text="isAdditionalMultipleAnswer(answers[idx].answer, question.answers)"
                 is-correct
               />
             </div>
@@ -145,7 +174,7 @@ const isAdditionalAnswer = (answer, variants) => {
               />
               <Variant
                 v-else-if="question.questionType === 'date'"
-                :text="new Date(answers[idx].answer * 1000)"
+                :text="(new Date(answers[idx].answer * 1000)).toDateString()"
                 :is-correct="!!answers[idx].answer || answers[idx].isCorrect"
               />
               <Variant
@@ -168,6 +197,11 @@ const isAdditionalAnswer = (answer, variants) => {
 .result-wrapper {
   font-family: $default_font;
   padding: 40px;
+
+  .required {
+    color: $red;
+    font-size: .8em;
+  }
 
   .header {
     display: flex;

@@ -53,7 +53,7 @@
       @next="nextItem()"
       @prev="prevItem()"
     ></ResultModal>
-    <CreateQA @refresh="refreshList()" @close="showPreview" v-if="showCreation"></CreateQA>
+    <CreateQA @refresh="refreshList()" @close="showCreation = false" v-if="showCreation" />
   </Default>
 </template>
 <script setup>
@@ -209,7 +209,7 @@ onMounted(async () => {
   isMounted = true;
 });
 const showPreview = () => {
-  showCreation.value = !showCreation.value;
+  showCreation.value = true;
 };
 const fetchFullList = async () => {
   if (pagination.value) {

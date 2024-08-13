@@ -189,8 +189,13 @@ const fetchFullList = async () => {
     .then((res) => {
       fullList.value = res?.answers.map((item) => {
         let answersObject = item.answers.reduce((acc, el, index) => {
+          if (qa.value.questions[index].questionType === 'date' && el.answer.trim() !== '') {
+            el.answer = (new Date(el.answer * 1000)).toDateString();
+          }
+
           acc[`Question ${index + 1} : ${res.quest.questions[index].question}`] =
             el.answer.toString() ?? '';
+
           return acc;
         }, {});
 

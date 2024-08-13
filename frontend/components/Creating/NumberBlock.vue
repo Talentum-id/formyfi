@@ -49,8 +49,8 @@ const setValue = () => {
     failedMessage.value = 'Number is invalid';
     number.value = '';
   } else if (number.value.trim() !== '') {
-    const ltMin = minEnabled.value && parseInt(min.value) > parseInt(number.value);
-    const gtMax = maxEnabled.value && parseInt(max.value) < parseInt(number.value);
+    const ltMin = minEnabled.value && parseFloat(min.value) > parseFloat(number.value);
+    const gtMax = maxEnabled.value && parseFloat(max.value) < parseFloat(number.value);
 
     if (ltMin) {
       regexFailed.value = true;
@@ -76,7 +76,7 @@ const setValue = () => {
 watch(minEnabled, value => {
   props.question.parameters.minEnabled = value;
 
-  const ltMin = minEnabled.value && parseInt(min.value) > parseInt(number.value);
+  const ltMin = minEnabled.value && parseFloat(min.value) > parseFloat(number.value);
 
   if (ltMin) {
     regexFailed.value = true;
@@ -90,7 +90,7 @@ watch(minEnabled, value => {
 watch(maxEnabled, value => {
   props.question.parameters.maxEnabled = value;
 
-  const gtMax = maxEnabled.value && parseInt(max.value) < parseInt(number.value);
+  const gtMax = maxEnabled.value && parseFloat(max.value) < parseFloat(number.value);
 
   if (gtMax) {
     regexFailed.value = true;
@@ -104,7 +104,7 @@ watch(maxEnabled, value => {
 watch(min, value => {
   props.question.parameters.min = value;
 
-  const ltMin = minEnabled.value && parseInt(min.value) > parseInt(number.value);
+  const ltMin = minEnabled.value && parseFloat(min.value) > parseFloat(number.value);
 
   if (ltMin) {
     regexFailed.value = true;
@@ -118,7 +118,7 @@ watch(min, value => {
 watch(max, value => {
   props.question.parameters.max = value;
 
-  const gtMax = maxEnabled.value && parseInt(max.value) < parseInt(number.value);
+  const gtMax = maxEnabled.value && parseFloat(max.value) < parseFloat(number.value);
 
   if (gtMax) {
     regexFailed.value = true;
@@ -150,15 +150,14 @@ watch(max, value => {
         <div class="wrapper-title">Min</div>
         <Switch :checkedProp="minEnabled" @checked="minEnabled = $event" />
       </div>
-
-      <Input withoutName class="w-[136px]" is-number placeholder="Value" v-model="min" />
+      <Input v-if="minEnabled" withoutName class="w-[136px]" is-number placeholder="Value" v-model="min" />
     </div>
     <div class="flex items-center gap-x-4">
       <div class="flex items-center gap-2 mt-2">
         <div class="wrapper-title">Max</div>
         <Switch :checkedProp="maxEnabled" @checked="maxEnabled = $event" />
       </div>
-      <Input is-number withoutName class="w-[136px]" placeholder="Value" v-model="max" />
+      <Input v-if="maxEnabled" is-number withoutName class="w-[136px]" placeholder="Value" v-model="max" />
     </div>
   </div>
 </template>

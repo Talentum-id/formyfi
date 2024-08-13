@@ -12,10 +12,10 @@
       'hide-upload': fileList.length >= 1,
     }"
   >
-    <template #default>
+    <template #default v-if="imagesFiles.length < 1">
       <div class="flex items-center gap-2">
-        <el-button class="add flex items-center gap-2"
-          >Add File <img src="@/assets/icons/add.svg" alt="" />
+        <el-button class="add flex items-center gap-2">
+          Add File <img src="@/assets/icons/add.svg" alt="" />
         </el-button>
         <TooltipIcon
           tooltipText="Allowed formats: .png, .jpg, .svg, .mvk, .mp4, .mov, .webm, .wmv. File size 10 mb max."
@@ -177,6 +177,8 @@ const handlePictureCardPreview = async (uploadFile) => {
   align-items: center;
 }
 .hide-upload {
+  margin-top: -35px;
+
   .el-upload--picture-card {
     width: 120px;
     height: 120px;

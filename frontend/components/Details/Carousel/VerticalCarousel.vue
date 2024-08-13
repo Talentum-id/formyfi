@@ -40,27 +40,27 @@
             <NumberBlock
               v-else-if="newArr[currentIndex].questionType === 'number'"
               :answer="newArr[currentIndex]"
-              :disabled="!!cacheAnswer"
+              :disabled="cacheAnswer !== null"
             />
             <EmailBlock
               v-else-if="newArr[currentIndex].questionType === 'email'"
               :answer="newArr[currentIndex]"
-              :disabled="!!cacheAnswer"
+              :disabled="cacheAnswer !== null"
             />
             <LinkBlock
               v-else-if="newArr[currentIndex].questionType === 'link'"
               :answer="newArr[currentIndex]"
-              :disabled="!!cacheAnswer"
+              :disabled="cacheAnswer !== null"
             />
             <DateBlock
               v-else-if="newArr[currentIndex].questionType === 'date'"
               :answer="newArr[currentIndex]"
-              :disabled="!!cacheAnswer"
+              :disabled="cacheAnswer !== null"
             />
             <AddressBlock
               v-else-if="newArr[currentIndex].questionType === 'address'"
               :answer="newArr[currentIndex]"
-              :disabled="!!cacheAnswer"
+              :disabled="cacheAnswer !== null"
             />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea
@@ -149,7 +149,6 @@
           <div class="flex flex-col items-center m-auto gap-1" v-else>
             <div class="flex gap-1 items-center wrapper-title font-semibold">
               {{ getDataByType(newArr[currentIndex].questionType).info.title }}
-              <TooltipIcon tooltipText="tooltipText" />
             </div>
             <div
               class="wrapper-subtitle w-[450px] mb-4"

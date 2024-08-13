@@ -1,11 +1,15 @@
 <template>
-  <div class="btn" @click="$emit('click')">
+  <div class="btn" :class="{'light': light}" @click="$emit('click')">
     <slot></slot>
   </div>
 </template>
 <script setup>
 defineProps({
   disabled: {
+    type: Boolean,
+    default: false,
+  },
+  light: {
     type: Boolean,
     default: false,
   },
@@ -23,5 +27,11 @@ defineProps({
   background: $blue;
   cursor: pointer;
   outline: none;
+}
+
+.btn.light {
+  color: $secondary;
+  background: #e9ecf2;
+  border: 1px solid $default-bg;
 }
 </style>

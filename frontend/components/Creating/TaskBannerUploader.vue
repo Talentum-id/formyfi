@@ -1,4 +1,5 @@
 <template>
+  <Alert :message="errorMessage" type="error" v-if="showError" />
   <div class="main">
     <input
       type="file"
@@ -28,8 +29,6 @@
       </div>
     </div>
     <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>
-
-    <Alert :message="errorMessage" type="error" v-if="showError" />
   </div>
 </template>
 

@@ -32,9 +32,10 @@ onMounted(() => {
 });
 
 const filteredConnectors = computed(() => {
-  return connectors.filter(connector => {
-    return siweConnectors.indexOf(connector.name) !== -1;
-  });
+  return connectors.filter(({ name, icon }) => siweConnectors.indexOf(name) !== -1
+    && icon !== null
+    && icon !== undefined,
+  );
 });
 
 const callback = async (response) => {
@@ -122,6 +123,7 @@ watch(isConnected, async value => {
           </div>
         </AuthButton>
       </template>
+      <hr>
       <GoogleLogin
         style="margin-top: -4px"
         :callback="callback"

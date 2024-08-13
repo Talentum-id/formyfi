@@ -6,6 +6,10 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: $section-title !important;
 }
 
+body {
+  background-color: $default-bg;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
 }

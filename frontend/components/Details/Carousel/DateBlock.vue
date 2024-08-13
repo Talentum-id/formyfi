@@ -30,8 +30,9 @@ const setDate = (event) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-2">
+  <div class="text-center">
     <CustomDatePicker
+      class="inline-block"
       :disabled="disabled"
       :defaultDate="answerValue"
       @selectedDate="setDate"

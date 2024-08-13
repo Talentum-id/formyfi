@@ -139,8 +139,7 @@
                 <Checkbox
                   label="Allow respondent to add file"
                   @check="question.fileAllowed = $event"
-                ></Checkbox
-                >
+                />
                 <TooltipIcon tooltipText="tooltipText" />
               </div>
               <Rating v-if="question.type?.id === 6" :question="question" />
@@ -535,7 +534,12 @@ const preview = async () => {
     return {
       ...item,
       questionType: item.type.type,
-      answers: item.type?.id === 1 ? item.answers : [],
+      answers: item.answers.map(({ answer, isCorrect }) => {
+        return {
+          answer: answer.toString(),
+          isCorrect,
+        };
+      }),
       file: file,
       answer: null,
       parameters: item.parameters,

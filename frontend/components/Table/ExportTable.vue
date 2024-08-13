@@ -1,7 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
 import { utils, writeFileXLSX } from 'xlsx';
 import downloadIcon from '@/assets/icons/Download.svg';
+import VButton from '@/components/Button.vue';
 
 const props = defineProps({
   data: {
@@ -50,11 +51,10 @@ watch(
 </script>
 
 <template>
-  <div class="export-btn">
-    <span>Export </span>
-    <img v-if="!loading" :src="downloadIcon" alt="" />
-    <span v-else class="loader"></span>
-  </div>
+  <VButton light class="export-btn" :disabled="loading">
+    <span>{{ loading ? 'Loading...' : 'Export' }}</span>
+    <img v-if="!loading" :src="downloadIcon" class="h-[20px]" alt="" />
+  </VButton>
 </template>
 
 <style scoped lang="scss">
@@ -64,14 +64,12 @@ watch(
   gap: 10px;
   border-radius: 8px;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 4px 16px;
   height: fit-content;
   border: none;
   width: fit-content;
-  background: transparent;
 
   span {
-    color: $default;
     font-variant-numeric: slashed-zero;
     font-family: $default_font;
     font-size: 14px;
@@ -80,10 +78,6 @@ watch(
     line-height: 20px;
   }
 
-  &:hover {
-    border-radius: 8px;
-    background: $default-badge-border;
-  }
   .loader {
     width: 16px;
     height: 16px;

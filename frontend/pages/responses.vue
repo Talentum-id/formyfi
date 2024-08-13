@@ -7,6 +7,13 @@
           <base-button text="Create a Q&A" @click="showPreview()"></base-button>
         </div>
         <h1 class="title">Form responses list</h1>
+        <div v-if="pagination">
+          <StatCardSmall
+            title="Total responses"
+            icon="Tasks"
+            :value="Number(pagination.total)"
+          />
+        </div>
         <div class="actions" v-if="qa">
           <div class="title">
             For the form
@@ -80,6 +87,7 @@ import { useAuthStore } from '@/store/auth';
 import { useQAStore } from '@/store/qa';
 import ExportTable from '@/components/Table/ExportTable.vue';
 import { modal } from '@/mixins/modal';
+import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
 
 const route = useRoute();
 const responseStore = useResponseStore();
@@ -279,7 +287,7 @@ const sortHandle = async (name, type) => {
 .header {
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 30px;
 
   .title {
     color: $primary-text;

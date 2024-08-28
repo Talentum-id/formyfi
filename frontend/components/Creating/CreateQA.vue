@@ -288,7 +288,7 @@ const questsTypeItems = ref([
     type: 'twitter',
     info: {
       icon: 'Twitter-Default',
-      title: 'Connect Twitter',
+      title: 'Connect X',
       description:
         'Users will be asked to connect their Twitter Account by clicking the button bellow.',
     },

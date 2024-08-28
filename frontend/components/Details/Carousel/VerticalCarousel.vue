@@ -324,10 +324,17 @@ const btnStatus = computed(() => {
   }
 });
 const disableBtn = computed(() => {
-  const answer = newArr.value[currentIndex.value].answer;
-  const additional = newArr.value[currentIndex.value].myAnswer;
-  const files = newArr.value[currentIndex.value].answerFile.length;
-  return !(!newArr.value[currentIndex.value].required || answer || additional || files);
+  const currentQuestion = newArr.value[currentIndex.value];
+
+  const answer = currentQuestion.answer;
+  const additional = currentQuestion.myAnswer;
+  const files = currentQuestion.answerFile.length;
+
+  if (currentQuestion.questionType === 'multiple') {
+    return !(!currentQuestion.required || currentQuestion.myAnswers.length || additional);
+  }
+
+  return !(!currentQuestion.required || answer || additional || files);
 });
 const isPreview = computed(() => route.name === 'preview');
 const noCorrectAnswers = computed(() => {
@@ -359,7 +366,7 @@ const getDataByType = (type) => {
     case 'twitter':
       return {
         icon: 'Twitter-Default',
-        title: newArr.value[currentIndex.value].answer || 'Connect Twitter',
+        title: newArr.value[currentIndex.value].answer || 'Connect X',
         fn: () => connectSocial(type),
         info: {
           title: 'What is your X username?',

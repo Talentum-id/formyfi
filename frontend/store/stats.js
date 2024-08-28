@@ -57,7 +57,6 @@ export const useStatsStore = defineStore('stats', {
     },
     async getLeaderboardAction(params) {
       this.loadedList = false;
-
       await this.actor
         ?.listPerProject(params.identity, params)
         .then(async (res) => {
@@ -84,7 +83,7 @@ export const useStatsStore = defineStore('stats', {
   },
   getters: {
     getLoadingStatus: (state) => state.loadedList,
-    getLeaderboardList: (state) => state.leaderboardList,
+    getLeaderboardList: ({ leaderboardList }) => leaderboardList,
     getStatistics: ({ stats }) => stats,
   },
 });

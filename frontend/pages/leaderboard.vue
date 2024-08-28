@@ -54,6 +54,7 @@ const sort = ref({});
 const currentPage = ref(route.query ? route.query.page : 1);
 const sortDirection = ref('');
 const sortColumn = ref('');
+const tableType = ref('project');
 const leaderboardStore = useStatsStore();
 const projectOptions = ref([
   { name: 'My Project', id: 0, type: 'project' },
@@ -133,9 +134,14 @@ onMounted(async () => {
   }
 });
 
-function nextPage(page) {
-  currentPage.value = page;
-  leaderboardStore.getLeaderboardAction(params.value);
+const nextPage = async page => {
+  currentPage.value = await page;
+
+  if (tableType.value === 'all') {
+    await leaderboardStore.getLeaderboardAllAction(params.value);
+  } else {
+    await leaderboardStore.getLeaderboardAction(params.value);
+  }
 }
 const sortTasks = async (prop, direction) => {
   if (!loaded) return;
@@ -160,8 +166,11 @@ const sortHandle = async (name, type) => {
 
   await leaderboardStore.getLeaderboardAction(params.value);
 };
-const selectTable = async (table) => {
-  if (table.type === 'all') {
+const selectTable = async ({ type }) => {
+  currentPage.value = 1;
+  tableType.value = type;
+
+  if (type === 'all') {
     await leaderboardStore.getLeaderboardAllAction(params.value);
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);

@@ -1,17 +1,17 @@
 <template>
   <div class="head-container">
-    <CustomImage :image="image || defaultBg" width="712" heigth="240"></CustomImage>
+    <CustomImage :image="image || defaultBg" width="712" heigth="240" />
     <div class="info w-full">
-      <Talent :text="user.username" class="ml-[-16px]" :img="image || defaultBg" square />
+      <Talent v-if="qaAuthor !== null" :text="qaAuthor.username" class="ml-[-16px]" :img="image || defaultBg" square />
       <div class="flex items-center gap-x-[8px]">
-        <Badge :text="formatDate(Number(data.start) * 1000)" transparent></Badge>
+        <Badge :text="formatDate(Number(data.start) * 1000)" transparent />
         -
-        <Badge :text="formatDate(Number(data.end) * 1000)" transparent></Badge>
+        <Badge :text="formatDate(Number(data.end) * 1000)" transparent />
       </div>
       <div class="title">{{ data.title }}</div>
       <div class="counter-info w-full">
         <div>{{ data.questions.length }} steps</div>
-        <QuizProgress :length="data.questions.length" :current-index="step"></QuizProgress>
+        <QuizProgress :length="data.questions.length" :current-index="step" />
       </div>
     </div>
   </div>
@@ -31,9 +31,9 @@ import CustomImage from '@/components/CustomImage.vue';
 import { useAuthStore } from '@/store/auth';
 
 const assetsStore = useQaStorageStore();
+const userStore = useAuthStore();
 const counterStore = useCounterStore();
 
-const step = computed(() => counterStore.getStep);
 const props = defineProps({
   data: {
     type: Object,
@@ -41,15 +41,26 @@ const props = defineProps({
   },
 });
 
+const qaAuthor = ref(null);
 const image = ref(null);
+
 const answers = computed(() => useResponseStore().getResponse);
-const user = computed(() => useAuthStore().getUser);
+const step = computed(() => counterStore.getStep);
 
 onMounted(async () => {
   await assetsStore
     .getFile(props.data.image)
     .then((res) => (image.value = res))
     .catch(() => (image.value = props.data.image));
+
+  await userStore
+    .findUser(props.data.owner)
+    .then(res => {
+      if (res.length) {
+        qaAuthor.value = res[0];
+      }
+    })
+    .catch(e => console.error(e));
 });
 </script>
 <style scoped lang="scss">

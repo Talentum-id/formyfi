@@ -149,7 +149,7 @@ const requestsRows = computed(
       shareLink: {
         component: Link,
         props: {
-          text: `${window.location.href}quest/${item.shareLink}`,
+          text: `${window.location.href}form/${item.shareLink}`,
           size: 12,
           value: item.shareLink,
         },
@@ -176,7 +176,7 @@ const requestsRows = computed(
       view: {
         component: View,
         props: {
-          fn: () => router.push(`quest/${item.shareLink}`),
+          fn: () => router.push(`form/${item.shareLink}`),
         },
       },
       open: {
@@ -230,7 +230,7 @@ const fetchFullList = async () => {
           return {
             Title: item.title,
             Description: item.description.replace(/<[^>]*>/g, ''),
-            'Share Link': `${window.location.href}quest/${item.shareLink}`,
+            'Share Link': `${window.location.href}form/${item.shareLink}`,
             Participants: Number(item.participants),
             Start: formatDate(Number(item.start) * 1000),
             End: formatDate(Number(item.end) * 1000),

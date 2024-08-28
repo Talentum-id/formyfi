@@ -64,8 +64,7 @@ export const useAuthStore = defineStore('auth', {
       }
 
       if (this.isAuthenticated) {
-        await this.actor
-          ?.findUser(this.getPrincipal)
+        await this.findUser(this.getPrincipal)
           .then(async (res) => {
             await this.initStorageStores();
             await this.initStores();
@@ -301,6 +300,9 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
         })
         .then(async ({ user }) => await this.setUser(user));
+    },
+    async findUser(principal) {
+      return this.actor?.findUser(principal);
     },
     async getUsers(list) {
       try {

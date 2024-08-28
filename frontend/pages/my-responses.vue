@@ -110,7 +110,7 @@ const fetchFullList = async () => {
         fullList.value = res.data.map((item) => {
           return {
             Title: item.title,
-            'Share Link': `${window.location.href}quest/${item.shareLink}`,
+            'Share Link': `${window.location.href}form/${item.shareLink}`,
             Start: formatDate(Number(item.filled) * 1000),
           };
         });

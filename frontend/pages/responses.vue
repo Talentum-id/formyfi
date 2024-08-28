@@ -17,7 +17,7 @@
         <div class="actions" v-if="qa">
           <div class="title">
             For the form
-            <router-link :to="`/quest/${qa.shareLink}`" class="link"
+            <router-link :to="`/form/${qa.shareLink}`" class="link"
               >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>

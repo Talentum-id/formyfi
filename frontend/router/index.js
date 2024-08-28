@@ -21,11 +21,11 @@ const routes = [
     },
   },
   {
-    path: '/quest/:id',
+    path: '/form/:id',
     name: 'quest',
     component: quest,
     meta: {
-      title: `Quest`,
+      title: `Form`,
       requiresAuth: false,
     },
   },

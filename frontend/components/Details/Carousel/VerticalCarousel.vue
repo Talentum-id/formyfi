@@ -1,5 +1,5 @@
 <template>
-  <div class="layout">
+  <div v-show="visible" class="layout">
     <div class="slider">
       <FirstEmptyItem v-if="items[currentIndex - 2]"></FirstEmptyItem>
       <Item v-if="items[currentIndex - 1]" :item="items[currentIndex - 1].question"></Item>
@@ -8,7 +8,7 @@
           marginTop: !items[currentIndex - 1],
           marginBottom: !items[currentIndex + 1],
         }"
-        @close="$emit('close')"
+        @close="closeModal()"
       >
         <div class="flex flex-col gap-y-[24px] w-full content">
           <QuizProgress :length="items.length" :current-index="currentIndex"></QuizProgress>
@@ -200,7 +200,6 @@ import {
   nextTick,
   onBeforeUnmount,
   onMounted,
-  onUnmounted,
   ref,
   watch,
   watchEffect,
@@ -247,6 +246,10 @@ const props = defineProps({
   currentItem: {
     type: Object,
     default: () => {},
+  },
+  visible: {
+    default: false,
+    type: Boolean,
   },
   shareLink: {
     type: String,
@@ -405,7 +408,6 @@ const connectSocial = async (provider) => {
 };
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
-  document.body.style.overflow = 'hidden';
   for (const question of newArr.value) {
     const index = newArr.value.indexOf(question);
 
@@ -431,9 +433,6 @@ onMounted(async () => {
       answerFiles.value[index] = null;
     }
   }
-});
-onUnmounted(() => {
-  document.body.style.overflow = '';
 });
 
 function findCurrentItemIndex() {
@@ -508,8 +507,12 @@ const storeResponseAndClose = async () => {
     answers: result.value,
   });
   await counterStore.setValue(props.items.length);
-  await emit('close');
+  await closeModal();
   await handleSuccessModal();
+};
+const closeModal = async() => {
+  await emit('close');
+  document.body.style.overflow = '';
 };
 const checkUserIdentity = async () => {
   show.value = true;
@@ -522,7 +525,7 @@ const nextSlide = async () => {
     if (currentIndex.value < props.items.length - 1) {
       currentIndex.value++;
     } else {
-      emit('close');
+      await closeModal();
     }
     return;
   }

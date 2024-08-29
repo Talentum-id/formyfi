@@ -16,14 +16,16 @@
           @view="openQuestion($event)"
         ></QuestItem>
       </div>
-      <VerticalCarousel
-        v-if="showQuestion"
-        @close="showQuestion = false"
-        :current-item="currentItem"
-        :items="data.questions"
-        :share-link="data.shareLink"
-        :answers="answers"
-      ></VerticalCarousel>
+      <template v-if="currentItem">
+        <VerticalCarousel
+          :visible="showQuestion"
+          @close="showQuestion = false"
+          :current-item="currentItem"
+          :items="data.questions"
+          :share-link="data.shareLink"
+          :answers="answers"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -49,6 +51,9 @@ const isAvailable = computed(() => Date.now() > Number(props.data.start) * 1000)
 
 const openQuestion = (item) => {
   if (!isAvailable.value) return;
+
+  document.body.style.overflow = 'hidden';
+
   showQuestion.value = true;
   currentItem.value = item;
 };

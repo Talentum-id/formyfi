@@ -2,11 +2,11 @@ import { defineStore } from 'pinia';
 import { createActor, qa_index } from '~/qa_index';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
-import { useQaStorageStore } from '@/store/qa-storage';
 import router from '@/router';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
+import axiosService from '@/service/axiosService';
 
 const createActorFromIdentity = identity => {
   return createActor(process.env.QA_INDEX_CANISTER_ID, {
@@ -56,20 +56,18 @@ export const useQAStore = defineStore('qa', {
           character: localStorage.extraCharacter,
         })
         .then(async () => {
-          const batch = useQaStorageStore().assetManager.batch();
+          let deletingFiles = [image];
 
-          await batch.delete(image);
-          await batch.delete(`/assets/${shareLink}`);
+          for (const question of questions) {
+            if (question.file) {
+              deletingFiles.push(question.file);
+            }
+          }
 
-          await Promise.all(
-            questions.map(async (question) => {
-              if (question.file) {
-                await batch.delete(question.file);
-              }
-            }),
-          );
-
-          await batch.commit();
+          await axiosService.post(`${process.env.API_URL}delete-files`, {
+            paths: deletingFiles,
+          })
+            .catch(e => console.error(e));
         });
     },
     async getQAs(params) {
@@ -125,8 +123,9 @@ export const useQAStore = defineStore('qa', {
               owner: item.owner,
             };
           });
+
           if (!arr.length) {
-            router.push('/');
+            await router.push('/');
           } else {
             await useResponseStore().fetchResponse(arr?.[0].shareLink);
 

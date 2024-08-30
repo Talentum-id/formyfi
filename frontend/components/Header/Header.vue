@@ -6,7 +6,7 @@
     <div class="info relative" ref="notificationContainer" v-if="user">
       <div class="avatar" @click="showTooltips = !showTooltips" ref="menu">
         <div
-          v-if="user.avatarUri"
+          v-if="user.avatar.length"
           :style="{ background: `url(${user.avatarUri})` }"
           style="background-size: cover; background-position: center"
           class="avatar-img"
@@ -40,6 +40,7 @@ import { useRouter } from 'vue-router';
 import Icon from '@/components/Icons/Icon.vue';
 import { useAuthStore } from '@/store/auth';
 import { useDisconnect } from '@wagmi/vue';
+import { readFile } from '@/util/helpers';
 
 export default {
   name: 'Header',
@@ -83,6 +84,7 @@ export default {
       showTooltips,
       authStore,
       goHome,
+      readFile,
       user,
     };
   },

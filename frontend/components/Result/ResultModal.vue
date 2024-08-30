@@ -8,18 +8,12 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useQAStore } from '@/store/qa';
 import { useResponseStore } from '@/store/response';
 import { formatDate } from '@/util/helpers';
-import { useResponseStorageStore } from '@/store/response-storage';
-import { useQaStorageStore } from '@/store/qa-storage';
 import ResultCard from '@/components/Result/ResultCard.vue';
 import CustomImage from '@/components/CustomImage.vue';
 import { useAuthStore } from '@/store/auth';
+import { readFile } from '@/util/helpers';
 
-const qaAssetsStore = useQaStorageStore();
-const responseAssetsStore = useResponseStorageStore();
 const responseStore = useResponseStore();
-
-const questionFiles = ref([]);
-const answerFiles = ref([]);
 
 const props = defineProps({
   userInfo: {
@@ -27,6 +21,9 @@ const props = defineProps({
     default: null,
   },
 });
+
+const answerFiles = ref([]);
+const questionFiles = ref([]);
 
 const user = computed(() => useAuthStore().getUser);
 const data = computed(() => useQAStore().getQA);
@@ -41,7 +38,7 @@ watch(
       const index = answers.value.indexOf(answer);
 
       if (answer.file) {
-        await responseAssetsStore.getFile(answer.file).then((res) => (answerFiles.value[index] = res));
+        answerFiles.value[index] = await readFile(answer.file);
       } else {
         answerFiles.value[index] = null;
       }
@@ -60,7 +57,7 @@ onMounted(async () => {
     const index = data.value.questions.indexOf(question);
 
     if (question.file) {
-      await qaAssetsStore.getFile(question.file).then((res) => (questionFiles.value[index] = res));
+      questionFiles.value[index] = await readFile(question.file);
     } else {
       questionFiles.value[index] = null;
     }
@@ -128,7 +125,7 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
             <div class="required" v-if="question.required">Required</div>
           </div>
           <div v-if="question.file" class="w-full flex justify-center">
-            <CustomImage :image="questionFiles[idx]" width="160" heigth="160"></CustomImage>
+            <CustomImage :image="questionFiles[idx]" width="160" heigth="160" />
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answers[idx]">
@@ -185,7 +182,7 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
             </div>
           </div>
           <div v-if="answers[idx].file">
-            <CustomImage :image="answerFiles[idx]" width="160" heigth="160"></CustomImage>
+            <CustomImage :image="answerFiles[idx]" width="160" heigth="160" />
           </div>
         </ResultCard>
       </div>

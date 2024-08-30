@@ -256,7 +256,6 @@ import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import { useQAStore } from '@/store/qa';
-import { useQaStorageStore } from '@/store/qa-storage';
 import Alert from '@/components/Alert.vue';
 import Checkbox from '@/components/Creating/Checkbox.vue';
 import { modal } from '@/mixins/modal';
@@ -269,6 +268,7 @@ import LinkBlock from '@/components/Creating/LinkBlock.vue';
 import CheckboxAnswer from '@/components/Creating/CheckboxAnswer.vue';
 import DateBlock from '@/components/Creating/DateBlock.vue';
 import AddressBlock from '@/components/Creating/AddressBlock.vue';
+import axiosService from '@/service/axiosService';
 
 const emits = defineEmits('refresh');
 
@@ -323,7 +323,6 @@ const questsTypeItems = ref([
 ]);
 
 const qaStore = useQAStore();
-const assetsStore = useQaStorageStore();
 
 const countOfQuestions = ref([
   {
@@ -470,31 +469,49 @@ const loadFiles = () => {
         message: 'Please wait for a while',
         type: 'loading',
       });
+
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
-      const batch = assetsStore.assetManager.batch();
 
       if (typeof bannerImage.value !== 'string') {
-        bannerImage.value = await batch.store(bannerImage.value, {
-          path: `/assets/${realTime}/${index}`,
-        });
+        const formData = new FormData();
+
+        formData.append('files[]', bannerImage.value);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-images`, formData)
+          .then(({ data }) => bannerImage.value = data[0])
+          .catch(e => console.error(e));
 
         index++;
       }
 
-      await Promise.all(
-        countOfQuestions.value.map(async (item) => {
-          if (item.image.length) {
-            item.file = await batch.store(item.image[0].raw, {
-              path: `/assets/${realTime}/${index}`,
-            });
+      const formData = new FormData();
 
-            index++;
+      for (const item of countOfQuestions.value) {
+        if (item.image.length) {
+          formData.append('files[]', item.image[0].raw);
+          formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+
+          index++;
+        }
+      }
+
+      await axiosService
+        .post(`${process.env.API_URL}upload-images`, formData)
+        .then(({ data }) => {
+          let resultIndex = 0;
+
+          for (const item of countOfQuestions.value) {
+            if (item.image.length) {
+              item.file = data[resultIndex];
+
+              resultIndex++;
+            }
           }
-        }),
-      );
-
-      await batch.commit();
+        })
+        .catch(e => console.error(e));
 
       resolve();
     } catch (error) {

@@ -1,20 +1,21 @@
 # Formyfi
 
-Formyfi is a robust Q&A application fully running on the Internet Computer blockchain.
+Formyfi is a robust Q&A application that runs entirely on the Internet Computer blockchain.
 
 ## Prerequisites
 
-If you are using the Windows operating system, please ensure that you have <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank">WSL</a>
-(Windows Subsystem for Linux) installed on your machine, as all the code below should be executed in the WSL terminal.
+If you are using Windows, please ensure you
+have <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank">WSL</a> (Windows Subsystem for
+Linux) installed, as all commands should be executed in the WSL terminal.
 
-Before getting started with Formyfi, ensure you have the following tools installed:
+Before getting started, make sure you have the following tools installed:
 
-#### DFX 0.15.2
+#### DFX
 
-To install DFX 0.15.2, run the following command:
+To install DFX, run the following command:
 
 ```bash
-DFX_VERSION=0.15.2 sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ```
 
 #### NPM
@@ -23,45 +24,63 @@ Download and install NPM from [https://nodejs.org/en/download](https://nodejs.or
 
 #### Web2
 
-There is certain functionality implemented in web2 for this project. If you are interested to see web2 part, run the following code:
+There is some Web2 functionality implemented in this project. To see it, clone the repository with the following
+command:
 
    ```bash
    git clone <path_to_this_repo> <your_local_dir> --recursive
    ```
+
 ---
 
-## There are 2 ways to run and stop the project locally - Manual (I) and Automatic (II)
+## Running the Project
 
-## I. Running Manually
+### I. Running Manually
 
-1. Navigate to the project directory and start DFX using the following command:
-
+1. Create an .env file by copying values from .env.example and setting appropriate values.
+2. Navigate to the project directory and start DFX:
    ```bash
    dfx start --clean --background
    ```
 
-   > **Note:** If starting DFX returns an error, open the `dfx.json` file, remove "local" from "networks," and run:
+   > **Note:** If you encounter an error, open dfx.json, remove "local" from "networks", and start DFX with:
 
    ```bash
    dfx start --clean --background --host 127.0.0.1:4943
    ```
 
-2. Install project dependencies by running:
+3. Install project dependencies:
 
    ```bash
    npm install
    ```
 
-   Ensure to add "local" back to the "networks" section in `dfx.json` if you removed it while starting DFX.
+4. Deploy the canisters:
 
-3. Deploy the canisters locally with:
-   
+   First, deploy the `ic_siwe_provider` canister:
+
       ```bash
-      dfx deploy
+      dfx deploy ic_siwe_provider --argument $'(
+        record {
+          domain = "127.0.0.1";
+          uri = "http://127.0.0.1:3000";
+          salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
+          chain_id = opt 1;
+          scheme = opt "http";
+          statement = opt "Login to the app";
+          sign_in_expires_in = opt 2592000000000000;
+          session_expires_in = opt 2592000000000000;
+        }
+      )'
       ```
 
-   Previous command may return an error, so don't worry about it, we will run it again later.
-   Our project uses SIWE (Sign-In With Etherium), so for it to operate properly, run `ic_siwe_provider` canister individually with runtime configurations:
+   Then deploy all other canisters:
+
+   ```bash
+   dfx deploy
+   ```
+
+   Finally, redeploy `ic_siwe_provider` with additional arguments:
 
    ```bash
    dfx deploy ic_siwe_provider --argument $'(
@@ -82,47 +101,42 @@ There is certain functionality implemented in web2 for this project. If you are 
    )'
    ```
 
-   Lastly, for completeness and Front-end to work with canisters, run:
+   To ensure the front-end works with the canisters, run:
 
    ```bash
-   dfx deploy && dfx generate
+   dfx generate
    ```
 
-   After deployment, you will receive URIs for the canisters. Click on the URI for the `assets` canister to open the local DApp in your browser.
+   After deployment, you’ll receive URIs for the canisters. Open the URI for the assets canister to view the local DApp
+   in your browser.
 
-4. Need to start assets canisters for uploading and reading files like images, run:
-   ```bash
-   dfx canister call user_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
-   dfx canister call qa_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
-   dfx canister call response_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
-   ```
-   Open the DApp through the link provided by the Vite dev server.
-
-5. If you are developing the front-end of the DApp and want to avoid running `dfx deploy` every time you make changes, run:
+5. If you are developing the front-end of the DApp and want to avoid running `dfx deploy` every time you make changes,
+   run:
    ```bash
    npm run dev
    ```
-   Open the DApp through the link provided by the Vite dev server.
+   Access the DApp via the link provided by the Vite dev server.
 
 ## I. Stopping Manually
 
-1. Before stopping canisters, ensure that the "local" is removed from the "networks" section in your `dfx.json` file, if you removed it while
-   starting DFX and added it back during deployment, then run following command:
+1. Ensure "local" is removed from the "networks" section in dfx.json if you did so during deployment, and then run:
    ```bash
    dfx stop
    ```
-2. After stopping the canisters, if you removed "local" earlier, make sure to add it back to the "networks" section in your `dfx.json` file:
+2. If you removed "local" earlier, add it back to the "networks" section in dfx.json.
 
 ***
 
-## II. Running Automatically
+## II. Automatic manual
 
-1. ```bash
+1. To start the project with all commands being called automatically, run:
+
+   ```bash
    make start
    ```
 
-## II. Stopping Automatically
+2. In case you started the project with Automatic Manual, you have to use following command to stop it:
 
-1. ```bash
+   ```bash
    make stop
    ```

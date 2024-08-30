@@ -19,18 +19,6 @@
       "main": "backend/canisters/stats_index/main.mo",
       "type": "motoko"
     },
-    "user_storage": {
-      "type": "assets",
-      "source": []
-    },
-    "qa_storage": {
-      "type": "assets",
-      "source": []
-    },
-    "response_storage": {
-      "type": "assets",
-      "source": []
-    },
     "assets": {
       "dependencies": ["ic_siwe_provider", "internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
       "frontend": {

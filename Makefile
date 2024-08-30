@@ -7,33 +7,40 @@ export $(shell grep -v '^#' .env | xargs)
 start:
 	@echo "Starting DFX..."
 	dfx start --clean --background
-	@echo "Deploying canisters..."
-	dfx deploy
 	@echo "Deploying ic_siwe_provider canister with runtime configurations..."
-	dfx deploy ic_siwe_provider --argument $'(\n\
-		record {\n\
-			domain = "127.0.0.1";\n\
-			uri = "http://127.0.0.1:3000";\n\
-			salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";\n\
-			chain_id = opt 1;\n\
-			scheme = opt "http";\n\
-			statement = opt "Login to the app";\n\
-			sign_in_expires_in = opt 2592000000000000;\n\
-			session_expires_in = opt 2592000000000000;\n\
-			targets = opt vec {\n\
-				"'$(dfx canister id ic_siwe_provider)'";\n\
-				"'$(dfx canister id assets)'";\n\
-			};\n\
-		}\n\
-   	)'
-	@echo "Redeploying and Generating canisters for Front-end..."
-	dfx deploy && dfx generate
-	@echo "Authorizing user_storage assets..."
-	dfx canister call user_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
-	@echo "Authorizing qa_storage assets..."
-	dfx canister call qa_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
-	@echo "Authorizing response_storage assets..."
-	dfx canister call response_storage authorize '(principal "m7ob5-xdzun-z3vt2-6oujc-gfm2t-2lt5p-bw5kn-2tatc-fjkti-eko6j-jqe")'
+	dfx deploy ic_siwe_provider --argument '$$(\
+		record { \
+			domain = "127.0.0.1"; \
+			uri = "http://127.0.0.1:3000"; \
+			salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4="; \
+			chain_id = opt 1; \
+			scheme = opt "http"; \
+			statement = opt "Login to the app"; \
+			sign_in_expires_in = opt 2592000000000000; \
+			session_expires_in = opt 2592000000000000; \
+		}\
+	)'
+	@echo "Deploying the rest of canisters..."
+	dfx deploy
+	@echo "Redeploying ic_siwe_provider canister with more configurations..."
+	dfx deploy ic_siwe_provider --argument '$$(\
+		record { \
+			domain = "127.0.0.1"; \
+			uri = "http://127.0.0.1:3000"; \
+			salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4="; \
+			chain_id = opt 1; \
+			scheme = opt "http"; \
+			statement = opt "Login to the app"; \
+			sign_in_expires_in = opt 2592000000000000; \
+			session_expires_in = opt 2592000000000000; \
+			targets = opt vec { \
+				"$$(dfx canister id ic_siwe_provider)"; \
+				"$$(dfx canister id assets)"; \
+			}; \
+		}\
+	)'
+	@echo "Generating canister for Front-end..."
+	dfx generate
 	@echo "Installing npm dependencies and starting dev server..."
 	npm install && npm run dev
 

@@ -24,9 +24,9 @@
 <script>
 import Icon from '@/components/Icons/Icon.vue';
 import { modal } from '@/mixins/modal';
-import { useUserStorageStore } from '@/store/user-storage';
 import { useAuthStore } from '@/store/auth';
 import Alert from '@/components/Alert.vue';
+import axiosService from '@/service/axiosService';
 
 export default {
   name: 'BannerUploader',
@@ -60,24 +60,26 @@ export default {
             type: 'loading',
           });
 
-          const batch = useUserStorageStore().assetManager.batch();
           const profileData = useAuthStore().getProfileData;
 
           let banner;
 
           if (typeof this.file !== 'string') {
-            const directory = `/assets/${useAuthStore().getPrincipal}/banner`;
-
             if (profileData.banner.length) {
-              await batch.delete(profileData.banner[0]);
+              await axiosService.post(`${process.env.API_URL}delete-files`, {
+                paths: [profileData.banner[0]],
+              });
             }
 
-            banner = await batch.store(this.file, {
-              path: directory,
-            });
-          }
+            const formData = new FormData();
 
-          await batch.commit();
+            formData.append('files[]', this.file);
+            formData.append('paths[]', `${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/banner`);
+
+            await axiosService.post(`${process.env.API_URL}upload-images`, formData)
+              .then(({ data }) => banner = data[0])
+              .catch(e => console.error(e));
+          }
 
           await useAuthStore().saveProfile({
             fullName: profileData.fullName,
@@ -126,16 +128,35 @@ export default {
     uploadImage() {
       this.$refs.fileInput.click();
     },
-    removeImage() {
+    async removeImage() {
+      await modal.emit('openModal', {
+        title: 'Removing file...',
+        message: 'Please wait for a while',
+        type: 'loading',
+      });
+
       this.image = null;
       this.noImage = true;
-      useAuthStore().saveProfile({
+
+      const profileData = useAuthStore().getProfileData;
+
+      if (profileData.banner.length) {
+        await axiosService.post(`${process.env.API_URL}delete-files`, {
+          paths: [profileData.banner[0]],
+        });
+      }
+
+      await useAuthStore().saveProfile({
         fullName: useAuthStore().getProfileData.fullName,
         username: useAuthStore().getProfileData.username,
         avatar: useAuthStore().getProfileData.avatar,
         forms_created: useAuthStore().getProfileData.forms_created,
         banner: [],
       });
+
+      await useAuthStore().getProfile();
+
+      await modal.emit('closeModal', {});
     },
   },
 };

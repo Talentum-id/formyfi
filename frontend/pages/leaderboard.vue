@@ -47,6 +47,7 @@ import BaseTable from '@/components/Table/BaseTable.vue';
 import Rank from '@/components/Table/Rank.vue';
 import Talent from '@/components/Table/Talent.vue';
 import Select from '@/components/Select.vue';
+import { readFile } from '@/util/helpers';
 
 const route = useRoute();
 const authStore = useAuthStore();

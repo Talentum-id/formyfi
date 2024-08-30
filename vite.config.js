@@ -88,6 +88,8 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production'),
     'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
     'process.env.DFX_ASSET_PRINCIPAL': JSON.stringify(process.env.DFX_ASSET_PRINCIPAL),
+    'process.env.DFX_NETWORK': JSON.stringify(process.env.DFX_NETWORK),
     'process.env.API_URL': JSON.stringify(process.env.API_URL),
+    'process.env.AWS_ENDPOINT': JSON.stringify(process.env.AWS_ENDPOINT),
   },
 });

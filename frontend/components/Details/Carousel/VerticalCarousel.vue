@@ -18,7 +18,7 @@
           ></QuizProgressTitle>
           <div
             class="flex items-center justify-center"
-            v-if="newArr[currentIndex].file || questionFiles[currentIndex]"
+            v-if="newArr[currentIndex].file"
           >
             <CustomImage
               :image="questionFiles[currentIndex]"
@@ -74,8 +74,8 @@
                 class="banner"
                 heigth="160"
                 width="160"
-                :image="answerFiles[currentIndex] || newArr[currentIndex].uploadedFile"
-              ></CustomImage>
+                :image="answers[currentIndex].file ? answerFiles[currentIndex] : newArr[currentIndex].uploadedFile"
+              />
 
               <CustomUpload
                 v-if="disableUploader"
@@ -155,14 +155,14 @@
               v-html="getDataByType(newArr[currentIndex].questionType).info.description"
             />
 
-            <BaseButton type="normal" @click="getDataByType(newArr[currentIndex].questionType).fn()"
-              ><Icon
+            <BaseButton type="normal" @click="getDataByType(newArr[currentIndex].questionType).fn()">
+              <Icon
                 :name="getDataByType(newArr[currentIndex].questionType).icon"
                 class="icon-soc"
                 :size="24"
-              ></Icon>
-              {{ getDataByType(newArr[currentIndex].questionType).title }}</BaseButton
-            >
+              />
+              {{ getDataByType(newArr[currentIndex].questionType).title }}
+            </BaseButton>
           </div>
         </div>
         <div class="controllers">
@@ -204,6 +204,7 @@ import {
   watch,
   watchEffect,
 } from 'vue';
+import { readFile } from '@/util/helpers';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElCheckboxGroup, ElCheckboxButton, ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -211,8 +212,6 @@ import { useRoute } from 'vue-router';
 import { useCounterStore } from '@/store';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
-import { useQaStorageStore } from '@/store/qa-storage';
-import { useResponseStorageStore } from '@/store/response-storage';
 import { modal } from '@/mixins/modal';
 import Item from '@/components/Details/Carousel/Item.vue';
 import LastEmptyItem from '@/components/Details/Carousel/LastEmptyItem.vue';
@@ -235,10 +234,9 @@ import EmailBlock from '@/components/Details/Carousel/EmailBlock.vue';
 import LinkBlock from '@/components/Details/Carousel/LinkBlock.vue';
 import DateBlock from '@/components/Details/Carousel/DateBlock.vue';
 import AddressBlock from '@/components/Details/Carousel/AddressBlock.vue';
+import axiosService from '@/service/axiosService';
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
-const assetsStore = useQaStorageStore();
-const responseAssetsStore = useResponseStorageStore();
 const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
@@ -266,6 +264,8 @@ const props = defineProps({
 });
 const emit = defineEmits(['close', 'success']);
 const show = ref(false);
+const questionFiles = ref([]);
+const answerFiles = ref([]);
 const currentIndex = ref(findCurrentItemIndex());
 const hasUser = computed(() => useAuthStore().getUser);
 const loading = ref(false);
@@ -280,8 +280,6 @@ const newArr = ref(
     };
   }),
 );
-const questionFiles = ref([]);
-const answerFiles = ref([]);
 const rerenderImages = ref(false);
 const result = ref([]);
 const realTime = computed(() => Math.floor(Date.now() / 1000));
@@ -355,7 +353,6 @@ const disableUploader = computed(() => {
   return (
     newArr.value[currentIndex.value].fileAllowed &&
     !newArr.value[currentIndex.value].uploadedFile &&
-    !answerFiles.value[currentIndex.value] &&
     !rerenderImages.value &&
     !cacheAnswer.value
   );
@@ -403,19 +400,17 @@ const getDataByType = (type) => {
 };
 const connectSocial = async (provider) => {
   if (!newArr.value[currentIndex.value].answer) {
-    useAuthStore().connectSocial(provider);
+    await useAuthStore().connectSocial(provider);
   }
 };
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
+
   for (const question of newArr.value) {
     const index = newArr.value.indexOf(question);
 
     if (question.file) {
-      await assetsStore
-        .getFile(question.file)
-        .then((res) => (questionFiles.value[index] = res))
-        .catch(() => (questionFiles.value[index] = question.file));
+      questionFiles.value[index] = await readFile(question.file);
     } else {
       questionFiles.value[index] = null;
     }
@@ -425,10 +420,7 @@ onMounted(async () => {
     const index = props.answers.indexOf(answer);
 
     if (answer.file) {
-      await responseAssetsStore
-        .getFile(answer.file)
-        .then((res) => (answerFiles.value[index] = res))
-        .catch(() => (answerFiles.value[index] = answer.file));
+      answerFiles.value[index] = await readFile(answer.file);
     } else {
       answerFiles.value[index] = null;
     }
@@ -450,16 +442,30 @@ const loadImages = () => {
 
       let index = currentIndex.value;
 
-      await Promise.all(
-        result.value.map(async (item) => {
-          if (item.file) {
-            item.file = await responseAssetsStore.assetManager.store(item.file?.[0].raw, {
-              path: `/assets/${props.shareLink}/${realTime.value}/${index}`,
-            });
-            index++;
+      const formData = new FormData();
+
+      for (const item of result.value) {
+        if (item.file) {
+          formData.append('files[]', item.file?.[0].raw);
+          formData.append('paths[]', `/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`);
+        }
+      }
+
+      await axiosService
+        .post(`${process.env.API_URL}upload-images`, formData)
+        .then(({ data }) => {
+          let resultIndex = 0;
+
+          for (const item of result.value) {
+            if (item.file) {
+              item.file = data[resultIndex];
+
+              resultIndex++;
+            }
           }
-        }),
-      );
+        })
+        .catch(e => console.error(e));
+
       resolve();
     } catch (error) {
       handleErrorModal();

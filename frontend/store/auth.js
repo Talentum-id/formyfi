@@ -4,9 +4,6 @@ import { createActor, user_index } from '~/user_index';
 import router from '@/router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
-import { useUserStorageStore } from './user-storage';
-import { useResponseStorageStore } from './response-storage';
-import { useQaStorageStore } from './qa-storage';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
@@ -14,7 +11,7 @@ import { useStatsStore } from '@/store/stats';
 import axiosService from '@/service/axiosService';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import * as asn1js from 'asn1js';
-import { generateIdentityFromPrincipal } from '@/util/helpers';
+import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 
 const defaultOptions = {
   createOptions: {
@@ -66,7 +63,6 @@ export const useAuthStore = defineStore('auth', {
       if (this.isAuthenticated) {
         await this.findUser(this.getPrincipal)
           .then(async (res) => {
-            await this.initStorageStores();
             await this.initStores();
 
             if (res.length) {
@@ -88,7 +84,6 @@ export const useAuthStore = defineStore('auth', {
         }
 
         if (this.isQuest) {
-          await this.initStorageStores();
           await this.initStores();
         }
       }
@@ -117,7 +112,6 @@ export const useAuthStore = defineStore('auth', {
     async initWeb2Auth() {
       this.actor = user_index;
 
-      await this.initStorageStores();
       await this.initStores();
 
       this.isAuthenticated = true;
@@ -143,11 +137,6 @@ export const useAuthStore = defineStore('auth', {
       await useResponseStore().init();
       await useStatsStore().init();
     },
-    async initStorageStores() {
-      await useUserStorageStore().init();
-      await useQaStorageStore().init();
-      await useResponseStorageStore().init();
-    },
     async loginWithII() {
       if (this.authClient === null) {
         await this.initII();
@@ -158,8 +147,6 @@ export const useAuthStore = defineStore('auth', {
       await authClient.login({
         ...defaultOptions.loginOptions,
         onSuccess: async () => {
-          await this.initStorageStores();
-
           this.isAuthenticated = await authClient.isAuthenticated();
           this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
@@ -180,8 +167,6 @@ export const useAuthStore = defineStore('auth', {
     },
     async loginWithGoogle(credential) {
       const { email } = decodeCredential(credential);
-
-      await this.initStorageStores();
 
       this.actor = user_index;
 
@@ -206,8 +191,6 @@ export const useAuthStore = defineStore('auth', {
         const sessionKey = new Uint8Array(new asn1js.OctetString({ valueHex: new Uint8Array([67]) }).toBER(false));
 
         await ic_siwe_provider.siwe_login(signature, address, sessionKey);
-
-        await this.initStorageStores();
 
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
@@ -268,23 +251,13 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
       } else {
         if (user.avatar.length) {
-          await useUserStorageStore()
-            .getFile(user.avatar[0])
-            .then(res => user.avatarUri = res)
-            .catch(error => {
-              console.error(error);
-
-              user.avatarUri = null;
-            });
+          user.avatarUri = await readFile(user.avatar[0]);
         } else {
           user.avatarUri = null;
         }
 
         if (user.banner.length) {
-          await useUserStorageStore()
-            .getFile(user.banner[0])
-            .then(res => user.bannerUri = res)
-            .catch(() => user.bannerUri = null);
+          user.bannerUri = await readFile(user.banner[0]);
         } else {
           user.bannerUri = null;
         }
@@ -315,7 +288,7 @@ export const useAuthStore = defineStore('auth', {
 
             if (user?.avatar?.[0]) {
               try {
-                avatar = await useUserStorageStore().getFile(user.avatar[0]);
+                avatar = await readFile(user.avatar[0]);
               } catch (e) {
                 console.error(e);
               }
@@ -324,7 +297,7 @@ export const useAuthStore = defineStore('auth', {
             return {
               fullName: user.fullName,
               username: user.username,
-              avatar: avatar,
+              avatar,
             };
           }),
         );

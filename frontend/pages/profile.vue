@@ -1,9 +1,9 @@
 <template>
   <Default>
     <div class="profile" v-if="user">
-      <BannerUploader :banner="user.bannerUri"></BannerUploader>
+      <BannerUploader :banner="user.bannerUri" />
       <div class="naming w-full">
-        <AvatarUploader :avatar="user.avatarUri"></AvatarUploader>
+        <AvatarUploader :avatar="user.avatarUri" />
         <div class="info">
           <InputName v-model="name" :placeholder="user.username" @input="setName"></InputName>
         </div>
@@ -15,12 +15,12 @@
               title="Forms Completed"
               icon="Tasks"
               :value="stats.forms_completed"
-            ></StatCardSmall>
+            />
             <StatCardSmall
               title="Forms Created"
               icon="Tik-Tik"
               :value="stats.forms_created"
-            ></StatCardSmall>
+            />
           </div>
           <div class="container">
             <span>Role</span>

@@ -1,8 +1,14 @@
 <template>
   <div class="head-container">
-    <CustomImage :image="image || defaultBg" width="712" heigth="240" />
+    <CustomImage :image="banner || defaultBg" width="712" heigth="240" />
     <div class="info w-full">
-      <Talent v-if="qaAuthor !== null" :text="qaAuthor.username" class="ml-[-16px]" :img="image || defaultBg" square />
+      <Talent
+        v-if="qaAuthor !== null"
+        :text="qaAuthor.username"
+        class="ml-[-16px]"
+        :img="banner || defaultBg"
+        square
+      />
       <div class="flex items-center gap-x-[8px]">
         <Badge :text="formatDate(Number(data.start) * 1000)" transparent />
         -
@@ -20,17 +26,14 @@
 import defaultBg from '@/assets/images/default-avatar.png';
 import Talent from '@/components/Talent.vue';
 import Badge from '@/components/Badge.vue';
-import { formatDate } from '@/util/helpers';
+import { formatDate, readFile } from '@/util/helpers';
 import { useCounterStore } from '@/store';
 import { computed, onMounted, ref } from 'vue';
 import { useResponseStore } from '@/store/response';
-import { useQaStorageStore } from '@/store/qa-storage';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
-import { ElImage } from 'element-plus';
 import CustomImage from '@/components/CustomImage.vue';
 import { useAuthStore } from '@/store/auth';
 
-const assetsStore = useQaStorageStore();
 const userStore = useAuthStore();
 const counterStore = useCounterStore();
 
@@ -41,18 +44,13 @@ const props = defineProps({
   },
 });
 
+const banner = ref(null);
 const qaAuthor = ref(null);
-const image = ref(null);
 
 const answers = computed(() => useResponseStore().getResponse);
 const step = computed(() => counterStore.getStep);
 
 onMounted(async () => {
-  await assetsStore
-    .getFile(props.data.image)
-    .then((res) => (image.value = res))
-    .catch(() => (image.value = props.data.image));
-
   await userStore
     .findUser(props.data.owner)
     .then(res => {
@@ -61,6 +59,8 @@ onMounted(async () => {
       }
     })
     .catch(e => console.error(e));
+
+  banner.value = await readFile(props.data.image);
 });
 </script>
 <style scoped lang="scss">

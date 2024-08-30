@@ -2,10 +2,10 @@ import { defineStore } from 'pinia';
 import { createActor, response_index } from '~/response_index';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
-import { useResponseStorageStore } from '@/store/response-storage';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
+import axiosService from '@/service/axiosService';
 
 const createActorFromIdentity = identity => {
   return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, {
@@ -118,13 +118,14 @@ export const useResponseStore = defineStore('response', {
         ?.deleteByShareLink(shareLink)
         .then(async res => {
           if (res.length) {
-            const batch = useResponseStorageStore().assetManager.batch();
+            let paths = [];
 
-            await Promise.all(
-              res.map(async (answer) => await batch.delete(answer)),
-            );
+            for (const path in res) {
+              paths.push(path)
+            }
 
-            await batch.commit();
+            await axiosService.post(`${process.env.API_URL}delete-files`, { paths })
+              .catch(e => console.error(e));
           }
         })
         .catch((e) => console.error(e));

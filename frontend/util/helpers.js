@@ -498,3 +498,21 @@ export const generateUint8Array = (str) => {
 };
 
 export const generateIdentityFromPrincipal = principal => Ed25519KeyIdentity.generate(generateUint8Array(principal));
+
+export const readFile = async path => {
+  let fileHost = process.env.AWS_ENDPOINT;
+  let fileUrl = path.replaceAll('//', '/');
+
+  if (!fileHost.endsWith('/')) {
+    fileHost = fileHost + '/';
+  }
+
+  if (fileUrl.startsWith('/')) {
+    fileUrl = fileUrl.slice(1);
+  }
+
+  const response = await fetch(fileHost + fileUrl);
+  const blob = await response.blob();
+
+  return URL.createObjectURL(blob);
+};

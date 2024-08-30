@@ -25,9 +25,9 @@
 <script>
 import Icon from '@/components/Icons/Icon.vue';
 import { modal } from '@/mixins/modal';
-import { useUserStorageStore } from '@/store/user-storage';
 import { useAuthStore } from '@/store/auth';
 import Alert from '@/components/Alert.vue';
+import axiosService from '@/service/axiosService';
 
 export default {
   name: 'AvatarUploader',
@@ -63,24 +63,26 @@ export default {
             type: 'loading',
           });
 
-          const batch = useUserStorageStore().assetManager.batch();
           const profileData = useAuthStore().getProfileData;
 
           let avatar;
 
           if (typeof this.image !== 'string') {
-            const directory = `/assets/${useAuthStore().getPrincipal}/avatar`;
-
             if (profileData.avatar.length) {
-              await batch.delete(profileData.avatar[0]);
+              await axiosService.post(`${process.env.API_URL}delete-files`, {
+                paths: [profileData.avatar[0]],
+              });
             }
 
-            avatar = await batch.store(this.image, {
-              path: directory,
-            });
-          }
+            const formData = new FormData();
 
-          await batch.commit();
+            formData.append('files[]', this.image);
+            formData.append('paths[]', `/${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/avatar`);
+
+            await axiosService.post(`${process.env.API_URL}upload-images`, formData)
+              .then(({ data }) => avatar = data[0])
+              .catch(e => console.error(e));
+          }
 
           await useAuthStore().saveProfile({
             fullName: profileData.fullName,
@@ -138,7 +140,9 @@ export default {
       const profileData = useAuthStore().getProfileData;
 
       if (profileData.avatar.length) {
-        await useUserStorageStore().assetManager.delete(profileData.avatar[0]);
+        await axiosService.post(`${process.env.API_URL}delete-files`, {
+          paths: [profileData.avatar[0]],
+        });
       }
 
       await useAuthStore().saveProfile({

@@ -14,6 +14,7 @@ import {
 } from '@wagmi/vue';
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
+import { WalletMultiButton } from 'solana-wallets-vue';
 
 const authStore = useAuthStore();
 const { connect, connectors } = useConnect();
@@ -101,10 +102,11 @@ watch(isConnected, async value => {
     <div class="form-block">
       <AuthButton @click="IIConnect()">
         <div class="container">
-          <img src="@/assets/images/definity.svg" alt="Dfinity" />
+          <img src="@/assets/images/dfinity.svg" alt="Dfinity" />
           <div class="name-social">Internet Identity</div>
         </div>
       </AuthButton>
+      <WalletMultiButton/>
       <template v-for="connector in filteredConnectors" :key="connector.name">
         <AuthButton
           v-if="connector.id !== 'metaMaskSDK'"

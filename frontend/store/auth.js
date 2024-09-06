@@ -10,6 +10,7 @@ import { decodeCredential } from 'vue3-google-login';
 import { useStatsStore } from '@/store/stats';
 import axiosService from '@/service/axiosService';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
+import { ic_siws_provider } from '~/ic_siws_provider';
 import * as asn1js from 'asn1js';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 
@@ -56,6 +57,8 @@ export const useAuthStore = defineStore('auth', {
         await this.initII();
       } else if (authenticationProvider === 'siwe') {
         await this.initSIWE();
+      } else if (authenticationProvider === 'siws') {
+        await this.initSIWS();
       } else {
         await this.initWeb2Auth();
       }
@@ -98,7 +101,26 @@ export const useAuthStore = defineStore('auth', {
           const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
           if (principal !== undefined) {
-            await this.generateSIWEIdentity(principal);
+            await this.generateWeb3WalletIdentity(principal, 'siwe');
+          }
+        } catch (e) {
+          console.error(e);
+
+          await this.logout();
+        }
+      } else {
+        await this.logout();
+      }
+    },
+    async initSIWS() {
+      const address = localStorage.getItem('address');
+
+      if (address) {
+        try {
+          const { Ok: principal } = await ic_siws_provider.get_principal(address);
+
+          if (principal !== undefined) {
+            await this.generateWeb3WalletIdentity(principal, 'siws');
           }
         } catch (e) {
           console.error(e);
@@ -194,7 +216,33 @@ export const useAuthStore = defineStore('auth', {
 
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
-        await this.generateSIWEIdentity(principal);
+        await this.generateWeb3WalletIdentity(principal, 'siwe');
+
+        localStorage.setItem('address', address);
+
+        await this.initStores();
+
+        if (!this.isQuest) {
+          await router.push('/sign-up');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async prepareSIWSLogin(address) {
+      const data = await ic_siws_provider.siws_prepare_login(address);
+
+      return data?.Ok || null;
+    },
+    async loginWithSIWS(address, signature) {
+      try {
+        const sessionKey = new Uint8Array(new asn1js.OctetString({ valueHex: new Uint8Array([67]) }).toBER(false));
+
+        await ic_siws_provider.siws_login(signature, address, sessionKey);
+
+        const { Ok: principal } = await ic_siws_provider.get_principal(address);
+
+        await this.generateWeb3WalletIdentity(principal, 'siws');
 
         localStorage.setItem('address', address);
 
@@ -331,7 +379,7 @@ export const useAuthStore = defineStore('auth', {
         })
         .catch((e) => console.error(e));
     },
-    async generateSIWEIdentity(principal) {
+    async generateWeb3WalletIdentity(principal, provider) {
       const identity = generateIdentityFromPrincipal(principal);
 
       const agent = identity ? new HttpAgent({ identity }) : null;
@@ -342,8 +390,8 @@ export const useAuthStore = defineStore('auth', {
       this.principal = this.identity ? await agent.getPrincipal() : null;
       this.isAuthenticated = true;
 
-      this.setAuthenticationStorage(true, 'siwe');
-    },
+      this.setAuthenticationStorage(true, provider);
+    }
   },
   getters: {
     getIdentity: ({ identity }) => identity,

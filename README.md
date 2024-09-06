@@ -59,28 +59,44 @@ command:
 
    First, deploy the `ic_siwe_provider` canister:
 
-      ```bash
-      dfx deploy ic_siwe_provider --argument $'(
-        record {
-          domain = "127.0.0.1";
-          uri = "http://127.0.0.1:3000";
-          salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
-          chain_id = opt 1;
-          scheme = opt "http";
-          statement = opt "Login to the app";
-          sign_in_expires_in = opt 2592000000000000;
-          session_expires_in = opt 2592000000000000;
-        }
-      )'
-      ```
+   ```bash
+   dfx deploy ic_siwe_provider --argument $'(
+     record {
+       domain = "127.0.0.1";
+       uri = "http://127.0.0.1:3000";
+       salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
+       chain_id = opt 1;
+       scheme = opt "http";
+       statement = opt "Login to the app";
+       sign_in_expires_in = opt 2592000000000000;
+       session_expires_in = opt 2592000000000000;
+     }
+   )'
+   ```
 
-   Then deploy all other canisters:
+   Second, deploy the `ic_siws_provider` canister:
+   ```bash
+   dfx deploy ic_siws_provider --argument $'(
+    record {
+      domain = "127.0.0.1";
+      uri = "http://127.0.0.1:3000";
+      salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
+      chain_id = opt "mainnet"; 
+      scheme = opt "http";
+      statement = opt "Login to the app";
+      sign_in_expires_in = opt 2592000000000000;
+      session_expires_in = opt 2592000000000000;
+    }
+   )'
+   ```
+
+   Third, deploy all other canisters:
 
    ```bash
    dfx deploy
    ```
 
-   Finally, redeploy `ic_siwe_provider` with additional arguments:
+   Fourth, redeploy `ic_siwe_provider` with additional arguments:
 
    ```bash
    dfx deploy ic_siwe_provider --argument $'(
@@ -97,6 +113,27 @@ command:
             "'$(dfx canister id ic_siwe_provider)'";
             "'$(dfx canister id assets)'";
         };
+    }
+   )'
+   ```
+
+   Finally, redeploy `ic_siws_provider` with additional arguments:
+
+   ```bash
+   dfx deploy ic_siws_provider --argument $'(
+    record {
+      domain = "127.0.0.1";
+      uri = "http://127.0.0.1:3000";
+      salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
+      chain_id = opt "mainnet"; 
+      scheme = opt "http";
+      statement = opt "Login to the app";
+      sign_in_expires_in = opt 2592000000000000;
+      session_expires_in = opt 2592000000000000;
+      targets = opt vec {
+        "'$(dfx canister id ic_siws_provider)'";
+        "'$(dfx canister id assets)'";
+      };
     }
    )'
    ```

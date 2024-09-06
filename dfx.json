@@ -20,7 +20,7 @@
       "type": "motoko"
     },
     "assets": {
-      "dependencies": ["ic_siwe_provider", "internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
+      "dependencies": ["ic_siwe_provider", "ic_siws_provider", "internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },
@@ -43,6 +43,11 @@
       "type": "custom",
       "candid": "https://github.com/kristoferlund/ic-siwe/releases/download/v0.0.6/ic_siwe_provider.did",
       "wasm": "https://github.com/kristoferlund/ic-siwe/releases/download/v0.0.6/ic_siwe_provider.wasm.gz"
+    },
+    "ic_siws_provider": {
+      "type": "custom",
+      "candid": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.did",
+      "wasm": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.wasm.gz"
     }
   },
   "defaults": {

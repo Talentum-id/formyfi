@@ -71,8 +71,6 @@ start:
 	)"
 	@echo "Generating canister for Front-end..."
 	dfx generate
-	@echo "Installing npm dependencies and starting dev server..."
-	npm install && npm run dev
 
 stop:
 	@echo "Stopping DFX..."

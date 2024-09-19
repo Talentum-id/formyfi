@@ -5,6 +5,9 @@
   "ic_siwe_provider": {
     "ic": "6uxaf-pqaaa-aaaao-a3prq-cai"
   },
+  "ic_siws_provider": {
+    "ic": "7zpqj-gyaaa-aaaao-a3qtq-cai"
+  },
   "qa_index": {
     "ic": "pva35-bqaaa-aaaap-abwaa-cai"
   },

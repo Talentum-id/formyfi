@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
 import router from '@/router';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
+import { ic_siws_provider} from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import axiosService from '@/service/axiosService';
@@ -29,7 +30,9 @@ export const useQAStore = defineStore('qa', {
       const provider = localStorage.getItem('authenticationProvider');
 
       if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
-        const { Ok: principal } = await ic_siwe_provider.get_principal(localStorage.getItem('address'));
+        const { Ok: principal } = provider === 'siwe'
+          ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
+          : await ic_siws_provider.get_principal(localStorage.getItem('address'));
 
         if (principal !== undefined) {
           const identity = generateIdentityFromPrincipal(principal);

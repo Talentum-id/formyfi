@@ -5,7 +5,11 @@
       <div class="naming w-full">
         <AvatarUploader :avatar="user.avatarUri" />
         <div class="info">
-          <InputName v-model="name" :placeholder="user.username" @input="setName"></InputName>
+          <InputName
+            v-model="name"
+            :placeholder="user.username"
+            @input="setName()"
+          />
         </div>
       </div>
       <div class="info-block">
@@ -39,6 +43,7 @@
       </div>
     </div>
   </Default>
+  <Alert :message="error" type="error" v-if="error.trim().length > 0" />
 </template>
 <script setup>
   import BannerUploader from '@/components/Profile/BannerUploader.vue';
@@ -51,6 +56,8 @@
   import { useAuthStore } from '@/store/auth';
   import { useDebounceFn } from '@vueuse/core';
   import { useStatsStore } from '@/store/stats';
+  import Input from '@/components/Input.vue';
+  import Alert from '@/components/Alert.vue';
 
   const authStore = useAuthStore();
   const statsStore = useStatsStore();
@@ -59,6 +66,7 @@
   const user = computed(() => authStore.getProfileData);
 
   let name = ref('');
+  const error = ref('');
 
   onMounted(async () => {
     await statsStore.findStatistics();
@@ -66,15 +74,33 @@
 
   const setName = useDebounceFn(
     async () => {
-      await authStore.saveProfile({
-        fullName: user.value.fullName,
-        username: name.value,
-        avatar: user.value.avatar,
-        banner: user.value.banner,
-        forms_created: user.value.forms_created,
-      });
+      const validatedName = name.value.trim().toLowerCase();
+      const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
 
-      await authStore.getProfile();
+      if (validatedName.length < 4 || validatedName.length > 18) {
+        error.value = 'Username should have from 4 to 18 characters';
+
+        return;
+      }
+
+      if (!alphaNumericWithDot.test(validatedName)) {
+        error.value = 'Username can only consist of alphanumeric characters and dot';
+      } else {
+        error.value = '';
+        name.value = validatedName;
+
+        await authStore.saveProfile({
+          fullName: user.value.fullName,
+          username: name.value,
+          avatar: user.value.avatar,
+          banner: user.value.banner,
+          forms_created: user.value.forms_created,
+        });
+
+        await authStore.getProfile();
+      }
+
+      setTimeout(() => error.value = '', 3000);
     },
     2500,
   );

@@ -1,1 +1,1 @@
-export const externalWeb3IdentityProviders = ['siwe'];
+export const externalWeb3IdentityProviders = ['siwe', 'siws'];

@@ -10,6 +10,10 @@ const authStore = useAuthStore();
 const router = useRouter();
 const emit = defineEmits(['success', 'reject']);
 
+const reloadingProviders = [
+  'siwe',
+  'siws',
+];
 const form = ref({
   username: '',
   fullName: '',
@@ -28,7 +32,7 @@ onMounted(async () => {
           if (!useAuthStore().isQuest) {
             await router.push('/');
 
-            if (localStorage.getItem('authenticationProvider') === 'siwe') {
+            if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
               await window.location.reload();
             }
           }
@@ -75,7 +79,7 @@ const createAccount = () => {
       localStorage.isAuthenticated = true;
       emit('success');
 
-      if (localStorage.getItem('authenticationProvider') === 'siwe') {
+      if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
         await window.location.reload();
       }
     })

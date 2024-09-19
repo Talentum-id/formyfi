@@ -13,6 +13,7 @@ import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import * as asn1js from 'asn1js';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
+import { Ed25519KeyIdentity } from '@dfinity/identity';
 
 const defaultOptions = {
   createOptions: {
@@ -210,9 +211,9 @@ export const useAuthStore = defineStore('auth', {
     },
     async loginWithSIWE(address, signature) {
       try {
-        const sessionKey = new Uint8Array(new asn1js.OctetString({ valueHex: new Uint8Array([67]) }).toBER(false));
+        const sessionKey = Ed25519KeyIdentity.generate().getPublicKey().toDer();
 
-        await ic_siwe_provider.siwe_login(signature, address, sessionKey);
+        await ic_siwe_provider.siwe_login(signature, address, new Uint8Array(sessionKey));
 
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
@@ -236,9 +237,9 @@ export const useAuthStore = defineStore('auth', {
     },
     async loginWithSIWS(address, signature) {
       try {
-        const sessionKey = new Uint8Array(new asn1js.OctetString({ valueHex: new Uint8Array([67]) }).toBER(false));
+        const sessionKey = Ed25519KeyIdentity.generate().getPublicKey().toDer();
 
-        await ic_siws_provider.siws_login(signature, address, sessionKey);
+        await ic_siws_provider.siws_login(signature, address, new Uint8Array(sessionKey));
 
         const { Ok: principal } = await ic_siws_provider.get_principal(address);
 

@@ -4,7 +4,6 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { config } from './wagmi.config';
 import SolanaWallets from 'solana-wallets-vue';
-import 'solana-wallets-vue/styles.css';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   PhantomWalletAdapter,
@@ -13,6 +12,7 @@ import {
 import App from './App.vue';
 import router from './router';
 import './assets/style.css';
+import 'solana-wallets-vue/styles.css';
 import { modal } from '@/mixins/modal';
 import Modal from '@/components/Modal/Modal.vue';
 import vue3GoogleLogin from 'vue3-google-login';

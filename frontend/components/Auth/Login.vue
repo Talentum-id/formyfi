@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/auth';
 import { googleLogout } from 'vue3-google-login';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import bs58 from 'bs58';
 import {
   useConnect,
   useChainId,
@@ -14,9 +15,11 @@ import {
 } from '@wagmi/vue';
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
-import { WalletMultiButton } from 'solana-wallets-vue';
+import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
 
 const authStore = useAuthStore();
+const { connected, publicKey, wallet: solanaWallet } = useWallet();
+
 const { connect, connectors } = useConnect();
 const { address, isConnected } = useAccount();
 const { disconnect } = useDisconnect();
@@ -52,7 +55,7 @@ const callback = async (response) => {
 };
 
 const readCode = () => {
-  if (route.query) {
+  if (Object.keys(route.query).length > 0) {
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then((res) => {
@@ -94,6 +97,36 @@ watch(isConnected, async value => {
 }, {
   immediate: true,
 });
+
+watch(connected, async value => {
+  if (value) {
+    const walletAddress = publicKey.value.toBase58();
+    let siwsMessage = await authStore.prepareSIWSLogin(walletAddress);
+
+    if (siwsMessage === null) {
+      await logout();
+    } else {
+      const encodedMessage = new TextEncoder().encode(
+        `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
+        `${siwsMessage.address}\n\n` +
+        `${siwsMessage.statement}\n\n` +
+        `URI: ${siwsMessage.uri}\n` +
+        `Version: ${siwsMessage.version}\n` +
+        `Chain ID: ${siwsMessage.chain_id}\n` +
+        `Nonce: ${siwsMessage.nonce}\n` +
+        `Issued At: ${new Date(Number(siwsMessage.issued_at / 1_000_000n)).toISOString()}\n` +
+        `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / 1_000_000n)).toISOString()}`,
+      );
+
+      const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
+
+      await authStore.loginWithSIWS(walletAddress, bs58.encode(signature))
+        .catch(e => console.error(e));
+    }
+  }
+}, {
+  immediate: true,
+});
 </script>
 
 <template>
@@ -106,7 +139,6 @@ watch(isConnected, async value => {
           <div class="name-social">Internet Identity</div>
         </div>
       </AuthButton>
-      <WalletMultiButton/>
       <template v-for="connector in filteredConnectors" :key="connector.name">
         <AuthButton
           v-if="connector.id !== 'metaMaskSDK'"
@@ -125,6 +157,7 @@ watch(isConnected, async value => {
           </div>
         </AuthButton>
       </template>
+      <WalletMultiButton />
       <hr>
       <GoogleLogin
         style="margin-top: -4px"

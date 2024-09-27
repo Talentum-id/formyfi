@@ -20,7 +20,15 @@
       "type": "motoko"
     },
     "assets": {
-      "dependencies": ["ic_siwe_provider", "ic_siws_provider", "internet_identity", "user_index", "qa_index", "response_index", "stats_index"],
+      "dependencies": [
+        "ic_siwe_provider",
+        "ic_siws_provider",
+        "internet_identity",
+        "user_index",
+        "qa_index",
+        "response_index",
+        "stats_index"
+      ],
       "frontend": {
         "entrypoint": "dist/index.html"
       },
@@ -57,6 +65,10 @@
     }
   },
   "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943",
+      "type": "ephemeral"
+    },
     "ic": {
       "providers": ["https://mainnet.dfinity.network"],
       "type": "persistent"

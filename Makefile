@@ -33,8 +33,6 @@ start:
 			session_expires_in = opt 2592000000000000; \
 		}\
 	)"
-	@echo "Generating canister for Front-end..."
-	dfx generate
 	@echo "Deploying the rest of canisters..."
 	dfx deploy
 	@echo "Redeploying ic_siwe_provider canister with more configurations..."

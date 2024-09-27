@@ -108,7 +108,13 @@
           <div class="section_wrapper-subtitle">
             Determine if the talent must meet certain conditions in order to validate the task
           </div>
-          <Select :options="questsTypeItems" @input="question.type = $event; question.parameters = {}" />
+          <Select
+            :options="questsTypeItems"
+            @input="
+              question.type = $event;
+              question.parameters = {};
+            "
+          />
           <div class="body">
             <span class="section_wrapper-subtitle">{{ question.type?.info?.description }}</span>
             <div class="content-block">
@@ -213,8 +219,7 @@
                   <Checkbox
                     label="Allow own answer"
                     @check="question.openAnswerAllowed = $event"
-                  ></Checkbox
-                  >
+                  ></Checkbox>
                   <TooltipIcon tooltipText="tooltipText" />
                 </div>
               </div>
@@ -225,6 +230,59 @@
           <img src="@/assets/icons/add.svg" alt="" />
           <span>Add Question</span>
         </div>
+        <div class="section_wrapper">
+          <div class="flex justify-between">
+            <div class="section_item">
+              <div class="section_wrapper-title">Thank you Page</div>
+              <div class="upload-requirements">Edit and customise</div>
+            </div>
+            <div class="check-btn_wrapper">
+              <div class="check-btn_title">Required</div>
+              <Switch :checkedProp="thxRequired" @checked="thxRequired = $event" />
+            </div>
+          </div>
+          <div class="flex flex-col gap-y-4 mt-2" v-if="thxRequired">
+            <div class="section_wrapper">
+              <div class="section_wrapper-title">Cover Image</div>
+              <div class="upload-requirements">
+                Recommended size — 480 x 760 px. PNG, JPEG. Maximum 1 MB.
+              </div>
+              <CustomUpload
+                :imagesFiles="thxMessage.image"
+                @images="thxMessage.image = $event"
+                @changeError="handleImageError"
+              />
+            </div>
+            <div class="section_wrapper">
+              <div class="section_wrapper-title">Title</div>
+              <Input
+                v-model="thxMessage.title"
+                name=""
+                placeholder="Title"
+                :isError="!thxMessage.title && touched"
+                errorText="Enter the title"
+              />
+            </div>
+            <div class="section_wrapper">
+              <div class="section_wrapper-title">Description</div>
+              <div class="section_wrapper-subtitle">
+                These are the instructions to complete the quest.
+              </div>
+              <TextArea placeholder="Description (optional)" v-model="thxMessage.description" />
+            </div>
+            <!--            <div class="section_wrapper">-->
+            <!--              <div class="check-btn_wrapper">-->
+            <!--                <div class="section_wrapper-title">Reff Link</div>-->
+            <!--                <Switch :checkedProp="thxRequired" @checked="thxRequired = $event" />-->
+            <!--              </div>-->
+            <!--            </div>-->
+            <!--            <div class="section_wrapper">-->
+            <!--              <div class="section_wrapper-title">Referral Bonus Points</div>-->
+            <!--              <Input withoutName class="w-[136px]" placeholder="Number" v-model="thxNumber" />-->
+            <!--            </div>-->
+          </div>
+        </div>
+
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton
@@ -240,7 +298,7 @@
   </BaseModal>
 </template>
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import BaseModal from '@/components/BaseModal.vue';
 import Select from '@/components/Select.vue';
 import BaseButton from '@/components/BaseButton.vue';
@@ -274,6 +332,9 @@ const emits = defineEmits('refresh');
 
 const loading = ref(false);
 const isImagesError = ref(false);
+//THX BLOCK
+const thxRequired = ref(false);
+//
 const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
@@ -323,7 +384,11 @@ const questsTypeItems = ref([
 ]);
 
 const qaStore = useQAStore();
-
+const thxMessage = ref({
+  title: '',
+  description: '',
+  image: '',
+});
 const countOfQuestions = ref([
   {
     question: '',
@@ -340,6 +405,13 @@ const countOfQuestions = ref([
   },
 ]);
 const errorMessage = ref('Error');
+const thxValidation = computed(() => {
+  if (thxRequired.value) {
+    return !!(thxMessage.value.title && thxMessage.value.image);
+  } else {
+    return true;
+  }
+});
 const validationCheck = computed(() => {
   const questionTitleIsEmpty = countOfQuestions.value.find((item) => !item.question);
   const questionAnswerIsEmpty = countOfQuestions.value.find(
@@ -353,7 +425,8 @@ const validationCheck = computed(() => {
     !startDate.value ||
     !description.value ||
     !!questionTitleIsEmpty ||
-    !!questionAnswerIsEmpty
+    !!questionAnswerIsEmpty ||
+    !thxValidation.value
   ) {
     errorMessage.value = 'Some fields are empty or incorrect';
     return false;
@@ -472,7 +545,6 @@ const loadFiles = () => {
 
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
-
       if (typeof bannerImage.value !== 'string') {
         const formData = new FormData();
 
@@ -481,8 +553,8 @@ const loadFiles = () => {
 
         await axiosService
           .post(`${process.env.API_URL}upload-images`, formData)
-          .then(({ data }) => bannerImage.value = data[0])
-          .catch(e => console.error(e));
+          .then(({ data }) => (bannerImage.value = data[0]))
+          .catch((e) => console.error(e));
 
         index++;
       }
@@ -498,6 +570,10 @@ const loadFiles = () => {
         }
       }
 
+      if (typeof thxMessage.value.image !== 'string' && thxRequired.value) {
+        formData.append('files[]', thxMessage.value.image);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+      }
       await axiosService
         .post(`${process.env.API_URL}upload-images`, formData)
         .then(({ data }) => {
@@ -511,7 +587,7 @@ const loadFiles = () => {
             }
           }
         })
-        .catch(e => console.error(e));
+        .catch((e) => console.error(e));
 
       resolve();
     } catch (error) {
@@ -523,7 +599,7 @@ const convertImage = (file) => {
   return new Promise((resolve) => {
     if (file && FileReader) {
       const fr = new FileReader();
-      fr.onload = function() {
+      fr.onload = function () {
         resolve(fr.result);
       };
       fr.readAsDataURL(file);
@@ -574,11 +650,11 @@ const preview = async () => {
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,
     questions: questions,
+    ...(thxRequired.value && { thxMessage: thxMessage.value }),
   };
-
+  console.log(obj);
   localStorage.previewData = JSON.stringify(obj);
-  await localForage.setItem('previewData', JSON.stringify(obj), () => {
-  });
+  await localForage.setItem('previewData', JSON.stringify(obj), () => {});
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
@@ -608,12 +684,14 @@ const saveQA = async () => {
         }),
       };
     }),
+    ...(thxRequired.value && { thxMessage: thxMessage.value }),
   });
 };
 
 const resetFields = () => {
-  bannerImage.value = null;
+  bannerImage.value = '';
   questionName.value = description.value = '';
+  thxRequired.value = false;
   countOfQuestions.value = [
     {
       question: '',
@@ -666,6 +744,16 @@ const check = async () => {
     loading.value = false;
   }
 };
+
+watch(thxRequired, (value) => {
+  if (!value) {
+    thxMessage.value = {
+      title: '',
+      description: '',
+      image: '',
+    };
+  }
+});
 </script>
 <script>
 import { defineComponent } from 'vue';
@@ -698,9 +786,10 @@ export default defineComponent({
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $default;
 }
 
@@ -787,9 +876,10 @@ export default defineComponent({
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings: 'tnum' on,
-    'lnum' on,
-    'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $section-title;
   }
 
@@ -800,9 +890,10 @@ export default defineComponent({
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.014em;
-    font-feature-settings: 'tnum' on,
-    'lnum' on,
-    'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $secondary;
   }
 
@@ -1026,9 +1117,10 @@ export default defineComponent({
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.014em;
-      font-feature-settings: 'tnum' on,
-      'lnum' on,
-      'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $white;
       text-align: left;
       bottom: 76px;

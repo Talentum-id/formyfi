@@ -5,7 +5,8 @@
         <Icon icon="Cancel" :size="24"></Icon>
       </div>
       <div class="modal">
-        <component :is="getIcon(type)" />
+        <div v-if="customImg" v-html="customImg" class="h-20 w-20"></div>
+        <component v-else :is="getIcon(type)" />
         <span class="title">{{ title }}</span>
         <span class="message">{{ message }}</span>
         <div class="action" v-if="showActionBtn" @click="handleAction()">
@@ -28,6 +29,7 @@ const visible = ref(false);
 const title = ref('');
 const message = ref('');
 const actionText = ref('');
+const customImg = ref('');
 const type = ref('');
 let action = null;
 
@@ -61,6 +63,7 @@ const openModal = (data) => {
   message.value = data.message;
   type.value = data.type;
   actionText.value = data.actionText;
+  customImg.value = data.customImg;
   action = data.fn;
 };
 const isLoading = computed(() => {

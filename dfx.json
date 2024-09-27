@@ -57,10 +57,6 @@
     }
   },
   "networks": {
-    "local": {
-      "bind": "127.0.0.1:4943",
-      "type": "ephemeral"
-    },
     "ic": {
       "providers": ["https://mainnet.dfinity.network"],
       "type": "persistent"

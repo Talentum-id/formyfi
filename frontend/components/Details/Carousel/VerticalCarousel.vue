@@ -16,10 +16,7 @@
             :size="items.length"
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
-          <div
-            class="flex items-center justify-center"
-            v-if="newArr[currentIndex].file"
-          >
+          <div class="flex items-center justify-center" v-if="newArr[currentIndex].file">
             <CustomImage
               :image="questionFiles[currentIndex]"
               heigth="160"
@@ -74,7 +71,11 @@
                 class="banner"
                 heigth="160"
                 width="160"
-                :image="answers[currentIndex].file ? answerFiles[currentIndex] : newArr[currentIndex].uploadedFile"
+                :image="
+                  answers[currentIndex].file
+                    ? answerFiles[currentIndex]
+                    : newArr[currentIndex].uploadedFile
+                "
               />
 
               <CustomUpload
@@ -133,7 +134,11 @@
                   class="allowed-input"
                   type="text"
                   v-model="newArr[currentIndex].myAnswer"
-                  v-if="newArr[currentIndex].openAnswerAllowed && isAdditionalAnswer && cacheAnswer !== 'undeF1N3d'"
+                  v-if="
+                    newArr[currentIndex].openAnswerAllowed &&
+                    isAdditionalAnswer &&
+                    cacheAnswer !== 'undeF1N3d'
+                  "
                   @focus="newArr[currentIndex].answer = ''"
                   :placeholder="cacheAnswer || 'Your answer...'"
                   :disabled="cacheAnswer"
@@ -155,7 +160,10 @@
               v-html="getDataByType(newArr[currentIndex].questionType).info.description"
             />
 
-            <BaseButton type="normal" @click="getDataByType(newArr[currentIndex].questionType).fn()">
+            <BaseButton
+              type="normal"
+              @click="getDataByType(newArr[currentIndex].questionType).fn()"
+            >
               <Icon
                 :name="getDataByType(newArr[currentIndex].questionType).icon"
                 class="icon-soc"
@@ -195,15 +203,7 @@
 </template>
 <script setup>
 import BaseButton from '@/components/BaseButton.vue';
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 import { readFile } from '@/util/helpers';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
@@ -292,7 +292,7 @@ const cacheAnswer = computed(() => {
       let cacheAnswer = 'undeF1N3d';
       let answers = JSON.parse(currentAnswer.answer);
       let answerValues = currentQuestion.answers.map(({ answer }) => answer);
-      let custom = answers.find(answer => !answerValues.includes(answer));
+      let custom = answers.find((answer) => !answerValues.includes(answer));
 
       if (custom !== undefined) {
         cacheAnswer = answers[answers.length - 1];
@@ -447,7 +447,10 @@ const loadImages = () => {
       for (const item of result.value) {
         if (item.file) {
           formData.append('files[]', item.file?.[0].raw);
-          formData.append('paths[]', `/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`);
+          formData.append(
+            'paths[]',
+            `/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`,
+          );
         }
       }
 
@@ -464,7 +467,7 @@ const loadImages = () => {
             }
           }
         })
-        .catch(e => console.error(e));
+        .catch((e) => console.error(e));
 
       resolve();
     } catch (error) {
@@ -473,12 +476,16 @@ const loadImages = () => {
     }
   });
 };
+
+import error from '@/assets/icons/modal/error.vue';
 const handleSuccessModal = () => {
   modal.emit('openModal', {
     title: 'Q&A Form Submitted',
     message: 'Your request sent successfully',
     type: 'success',
     actionText: 'Great!',
+    customImg:
+      '<img alt="test" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvffJyQWIF2fkCnfuVONqo0wS-tSbyZ7gwrg&s"/>',
     fn: () => modal.emit('closeModal', {}),
   });
 };
@@ -516,7 +523,7 @@ const storeResponseAndClose = async () => {
   await closeModal();
   await handleSuccessModal();
 };
-const closeModal = async() => {
+const closeModal = async () => {
   await emit('close');
   document.body.style.overflow = '';
 };
@@ -548,7 +555,7 @@ const nextSlide = async () => {
       let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
 
       if (item.myAnswers.length) {
-        const correctAnswers = item.answers.filter(({isCorrect}) => isCorrect);
+        const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
 
         if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
           item.myAnswers.push(item.myAnswer);
@@ -558,8 +565,9 @@ const nextSlide = async () => {
         answer = JSON.stringify(item.myAnswers);
 
         if (correctAnswers.length) {
-          answerIsCorrect = item.myAnswers.every(value => correctAnswers.indexOf(value) !== -1)
-            && item.myAnswers.length === correctAnswers.length;
+          answerIsCorrect =
+            item.myAnswers.every((value) => correctAnswers.indexOf(value) !== -1) &&
+            item.myAnswers.length === correctAnswers.length;
         }
       }
 
@@ -782,7 +790,8 @@ watch(
 }
 
 .container-radio {
-  .is-active, .is-checked {
+  .is-active,
+  .is-checked {
     border-radius: 8px;
     background: #eaeafb !important;
     border: 1px solid #2637c0 !important;

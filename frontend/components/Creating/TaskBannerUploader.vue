@@ -59,7 +59,7 @@ const noImage = ref(true);
 const image = ref(null);
 const fileInput = ref(null);
 const showError = ref(false);
-const errorMessage = ref('')
+const errorMessage = ref('');
 
 const handleFileUpload = () => {
   const file = fileInput.value.files[0];
@@ -71,10 +71,10 @@ const handleFileUpload = () => {
     image.value = null;
     noImage.value = true;
 
-    errorMessage.value = 'The file size can\'t be more than 1 MB';
+    errorMessage.value = "The file size can't be more than 1 MB";
     showError.value = true;
 
-    setTimeout(() => showError.value = false, 3000);
+    setTimeout(() => (showError.value = false), 3000);
 
     return;
   }
@@ -92,7 +92,7 @@ const handleFileUpload = () => {
   }
 };
 const uploadImage = () => {
-  fileInput.value.click();
+  if (fileInput.value) fileInput.value.click();
 };
 </script>
 

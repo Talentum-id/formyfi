@@ -234,7 +234,8 @@ import EmailBlock from '@/components/Details/Carousel/EmailBlock.vue';
 import LinkBlock from '@/components/Details/Carousel/LinkBlock.vue';
 import DateBlock from '@/components/Details/Carousel/DateBlock.vue';
 import AddressBlock from '@/components/Details/Carousel/AddressBlock.vue';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
+
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
 const route = useRoute();
@@ -263,6 +264,7 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(['close', 'success']);
+const authStore = useAuthStore();
 const show = ref(false);
 const questionFiles = ref([]);
 const answerFiles = ref([]);
@@ -518,6 +520,7 @@ const storeResponseAndClose = async () => {
     filled: realTime.value,
     shareLink: props.shareLink,
     answers: result.value,
+    owner: authStore.getPrincipal,
   });
   await counterStore.setValue(props.items.length);
   await closeModal();

@@ -7,7 +7,7 @@ import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider} from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
 
 const createActorFromIdentity = identity => {
   return createActor(process.env.QA_INDEX_CANISTER_ID, {

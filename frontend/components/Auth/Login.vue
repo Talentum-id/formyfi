@@ -1,6 +1,6 @@
 <script setup>
 import AuthButton from '@/components/Auth/AuthButton.vue';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
 import { useAuthStore } from '@/store/auth';
 import { googleLogout } from 'vue3-google-login';
 import { computed, onMounted, watch } from 'vue';

@@ -326,7 +326,7 @@ import LinkBlock from '@/components/Creating/LinkBlock.vue';
 import CheckboxAnswer from '@/components/Creating/CheckboxAnswer.vue';
 import DateBlock from '@/components/Creating/DateBlock.vue';
 import AddressBlock from '@/components/Creating/AddressBlock.vue';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
 
 const emits = defineEmits('refresh');
 
@@ -652,7 +652,7 @@ const preview = async () => {
     questions: questions,
     ...(thxRequired.value && { thxMessage: thxMessage.value }),
   };
-  console.log(obj);
+
   localStorage.previewData = JSON.stringify(obj);
   await localForage.setItem('previewData', JSON.stringify(obj), () => {});
   await window.open('/preview', '_blank');

@@ -4,6 +4,9 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import dfxJson from './dfx.json';
 import fs from 'fs';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
+
 require('dotenv').config();
 
 const network = process.env['DFX_NETWORK'];
@@ -47,12 +50,16 @@ const canisterDefinitions = Object.entries(canisterIds).reduce(
 
 const internetIdentityUri = isDev
   ? `http://localhost:${DFX_PORT}/?canisterId=${JSON.parse(
-      canisterDefinitions['process.env.INTERNET_IDENTITY_CANISTER_ID'],
-    )}`
+    canisterDefinitions['process.env.INTERNET_IDENTITY_CANISTER_ID'],
+  )}`
   : 'https://identity.ic0.app';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    wasm(),
+    topLevelAwait(),
+  ],
   resolve: {
     alias: {
       vue: path.resolve('./node_modules/vue'),

@@ -4,9 +4,11 @@ import PaginationTypes "../../types/pagination";
 module ResponseTypes {
   public type Answer = {
     answer : Text;
+    encryptedAnswer : ?Text;
     isCorrect : Bool;
     file : Text;
     isOpen : Bool;
+    owner: ?Text;
   };
 
   public type ExportAnswer = {

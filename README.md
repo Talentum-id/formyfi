@@ -90,13 +90,20 @@ command:
    )'
    ```
 
-   Third, deploy all other canisters:
-
+   Third, deploy Internet Identity, create VetKeys API canister with hard-coded ID and deploy it too:
    ```bash
-   dfx deploy
+   dfx deploy internet_identity --argument '(null)'
+   dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
+   dfx deploy vetkd_system_api
    ```
 
-   Fourth, redeploy `ic_siwe_provider` with additional arguments:
+   Fourth, generate ready canisters and deploy all other ones:
+
+   ```bash
+   dfx generate && dfx deploy
+   ```
+
+   Fifth, redeploy `ic_siwe_provider` with additional arguments:
 
    ```bash
    dfx deploy ic_siwe_provider --argument $'(

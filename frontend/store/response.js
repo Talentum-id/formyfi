@@ -4,9 +4,10 @@ import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
-import { ic_siws_provider} from '~/ic_siws_provider';
+import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
+import { CryptoService } from '@/services/crypto';
 
 const createActorFromIdentity = identity => {
   return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, {
@@ -18,6 +19,7 @@ export const useResponseStore = defineStore('response', {
   id: 'response',
   state: () => ({
     actor: null,
+    crypto: null,
     identity: null,
     response: [],
     myList: [],
@@ -44,14 +46,37 @@ export const useResponseStore = defineStore('response', {
         this.identity = useAuthStore().getIdentity;
         this.actor = this.identity ? createActorFromIdentity(this.identity) : response_index;
       }
+
+      this.crypto = new CryptoService(this.actor);
     },
     async storeResponse(params) {
-      await this.actor?.store(params, {
-        identity: process.env.DFX_ASSET_PRINCIPAL,
-        character: localStorage.extraCharacter,
-      });
+      await Promise.all(params.answers.map(async param => {
+        const owner = useAuthStore().getPrincipal;
+        const key = `${owner}-${param.shareLink}`;
 
-      await this.fetchResponse(params.shareLink);
+        const encryptedAnswer = await this.crypto.encrypt(
+          key,
+          owner,
+          JSON.stringify(params),
+        );
+
+        return {
+          ...param,
+          encryptedAnswer: [encryptedAnswer],
+          owner: [owner],
+        };
+      }))
+        .then(async result => {
+          params.answers = result;
+
+          await this.actor?.store(params, {
+            identity: process.env.DFX_ASSET_PRINCIPAL,
+            character: localStorage.extraCharacter,
+          });
+
+          await this.fetchResponse(params.shareLink);
+        })
+        .catch(e => console.error(e));
     },
     async getQAResponses(shareLink, params) {
       this.loadedList = false;
@@ -70,9 +95,24 @@ export const useResponseStore = defineStore('response', {
 
       await this.actor
         ?.show({ identity, shareLink })
-        .then((res) => {
-          this.response = res;
-          useCounterStore().setValue(this.response.length);
+        .then(async res => {
+          await Promise.all(await res.map(async answer => {
+            if (answer.answer === '' && answer.encryptedAnswer.length) {
+              const owner = answer.owner[0];
+
+              const decryptedAnswer = await this.crypto.decrypt(
+                `${owner}-${shareLink}`,
+                owner,
+                answer.encryptedAnswer[0],
+              );
+
+              return JSON.parse(decryptedAnswer);
+            }
+
+            return answer;
+          }))
+            .then(result => this.response = result)
+            .catch(e => console.error(e))
         })
         .catch((e) => {
           console.error(e);
@@ -124,7 +164,7 @@ export const useResponseStore = defineStore('response', {
             let paths = [];
 
             for (const path in res) {
-              paths.push(path)
+              paths.push(path);
             }
 
             await axiosService.post(`${process.env.API_URL}delete-files`, { paths })

@@ -16,9 +16,9 @@ import 'solana-wallets-vue/styles.css';
 import { modal } from '@/mixins/modal';
 import Modal from '@/components/Modal/Modal.vue';
 import vue3GoogleLogin from 'vue3-google-login';
+import { default as vetkd_init } from '../vetkd_user/ic_vetkd_utils.js';
 
 const pinia = createPinia();
-const app = createApp(App);
 const walletOptions = {
   wallets: [
     new PhantomWalletAdapter(),
@@ -27,14 +27,22 @@ const walletOptions = {
   autoConnect: false,
 };
 
-app.use(router);
-app.use(pinia);
-app.use(vue3GoogleLogin, {
-  clientId: process.env.CLIENT_ID,
-});
-app.use(WagmiPlugin, { config });
-app.use(VueQueryPlugin, {});
-app.use(SolanaWallets, walletOptions);
-app.mount('#app');
-app.component('Modal', Modal);
-app.use(modal);
+const init = async () => {
+  await vetkd_init();
+
+  const app = createApp(App);
+
+  app.use(router);
+  app.use(pinia);
+  app.use(vue3GoogleLogin, {
+    clientId: process.env.CLIENT_ID,
+  });
+  app.use(WagmiPlugin, { config });
+  app.use(VueQueryPlugin, {});
+  app.use(SolanaWallets, walletOptions);
+  app.mount('#app');
+  app.component('Modal', Modal);
+  app.use(modal);
+};
+
+await init();

@@ -26,7 +26,7 @@ import Icon from '@/components/Icons/Icon.vue';
 import { modal } from '@/mixins/modal';
 import { useAuthStore } from '@/store/auth';
 import Alert from '@/components/Alert.vue';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
 
 export default {
   name: 'BannerUploader',

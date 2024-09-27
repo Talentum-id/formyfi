@@ -1,17 +1,31 @@
 {
   "canisters": {
+    "vetkd_system_api": {
+      "candid": "vetkd_system_api.did",
+      "type": "custom",
+      "wasm": "vetkd_system_api.wasm"
+    },
     "user_index": {
-      "dependencies": ["stats_index"],
+      "dependencies": [
+        "stats_index"
+      ],
       "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
     },
     "qa_index": {
-      "dependencies": ["stats_index"],
+      "dependencies": [
+        "stats_index"
+      ],
       "main": "backend/canisters/qa_index/main.mo",
       "type": "motoko"
     },
     "response_index": {
-      "dependencies": ["user_index", "qa_index", "stats_index"],
+      "dependencies": [
+        "vetkd_system_api",
+        "user_index",
+        "qa_index",
+        "stats_index"
+      ],
       "main": "backend/canisters/response_index/main.mo",
       "type": "motoko"
     },
@@ -21,6 +35,7 @@
     },
     "assets": {
       "dependencies": [
+        "vetkd_system_api",
         "ic_siwe_provider",
         "ic_siws_provider",
         "internet_identity",
@@ -32,7 +47,10 @@
       "frontend": {
         "entrypoint": "dist/index.html"
       },
-      "source": ["dist/", "frontend/assets"],
+      "source": [
+        "dist/",
+        "frontend/assets"
+      ],
       "type": "assets"
     },
     "internet_identity": {
@@ -70,7 +88,9 @@
       "type": "ephemeral"
     },
     "ic": {
-      "providers": ["https://mainnet.dfinity.network"],
+      "providers": [
+        "https://mainnet.dfinity.network"
+      ],
       "type": "persistent"
     }
   },

@@ -33,6 +33,13 @@ start:
 			session_expires_in = opt 2592000000000000; \
 		}\
 	)"
+	@echo "Deploying Internet Identity canister..."
+	dfx deploy internet_identity --argument '(null)'
+	@echo "Creating VetKeys API canister with hardcoded ID and Deploying..."
+	dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
+	dfx deploy vetkd_system_api
+	@echo "Generating canisters for Front-end..."
+	dfx generate
 	@echo "Deploying the rest of canisters..."
 	dfx deploy
 	@echo "Redeploying ic_siwe_provider canister with more configurations..."
@@ -69,7 +76,7 @@ start:
 			}; \
 		}\
 	)"
-	@echo "Generating canister for Front-end..."
+	@echo "Generating canisters for Front-end..."
 	dfx generate
 
 stop:

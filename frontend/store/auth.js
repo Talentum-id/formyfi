@@ -8,10 +8,9 @@ import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
 import { useStatsStore } from '@/store/stats';
-import axiosService from '@/service/axiosService';
+import axiosService from '@/services/axiosService';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
-import * as asn1js from 'asn1js';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 
@@ -392,7 +391,7 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = true;
 
       this.setAuthenticationStorage(true, provider);
-    }
+    },
   },
   getters: {
     getIdentity: ({ identity }) => identity,

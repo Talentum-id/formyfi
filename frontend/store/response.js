@@ -111,7 +111,10 @@ export const useResponseStore = defineStore('response', {
 
             return answer;
           }))
-            .then(result => this.response = result)
+            .then(result => {
+              this.response = result;
+              useCounterStore().setValue(this.response.length);
+            })
             .catch(e => console.error(e))
         })
         .catch((e) => {

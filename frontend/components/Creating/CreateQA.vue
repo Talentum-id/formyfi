@@ -230,6 +230,7 @@
           <img src="@/assets/icons/add.svg" alt="" />
           <span>Add Question</span>
         </div>
+        <div class="line my-8" />
         <div class="section_wrapper">
           <div class="flex justify-between">
             <div class="section_item">
@@ -387,7 +388,8 @@ const qaStore = useQAStore();
 const thxMessage = ref({
   title: '',
   description: '',
-  image: '',
+  image: [],
+  file: null,
 });
 const countOfQuestions = ref([
   {
@@ -407,7 +409,7 @@ const countOfQuestions = ref([
 const errorMessage = ref('Error');
 const thxValidation = computed(() => {
   if (thxRequired.value) {
-    return !!(thxMessage.value.title && thxMessage.value.image);
+    return !!(thxMessage.value.title && thxMessage.value.image.length);
   } else {
     return true;
   }
@@ -559,35 +561,45 @@ const loadFiles = () => {
         index++;
       }
 
-      const formData = new FormData();
+      if (countOfQuestions.value.some(({ image }) => !!image.length)) {
+        const formData = new FormData();
 
-      for (const item of countOfQuestions.value) {
-        if (item.image.length) {
-          formData.append('files[]', item.image[0].raw);
-          formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+        for (const item of countOfQuestions.value) {
+          if (item.image.length) {
+            formData.append('files[]', item.image[0].raw);
+            formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
 
-          index++;
-        }
-      }
-
-      if (typeof thxMessage.value.image !== 'string' && thxRequired.value) {
-        formData.append('files[]', thxMessage.value.image);
-        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
-      }
-      await axiosService
-        .post(`${process.env.API_URL}upload-images`, formData)
-        .then(({ data }) => {
-          let resultIndex = 0;
-
-          for (const item of countOfQuestions.value) {
-            if (item.image.length) {
-              item.file = data[resultIndex];
-
-              resultIndex++;
-            }
+            index++;
           }
-        })
-        .catch((e) => console.error(e));
+        }
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-images`, formData)
+          .then(({ data }) => {
+            let resultIndex = 0;
+
+            for (const item of countOfQuestions.value) {
+              if (item.image.length) {
+                item.file = data[resultIndex];
+
+                resultIndex++;
+              }
+            }
+          })
+          .catch((e) => console.error(e));
+      }
+
+      if (thxMessage.value.image.length > 0 && thxRequired.value) {
+        const formData = new FormData();
+
+        formData.append('files[]', thxMessage.value.image[0].raw);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-images`, formData)
+          .then(({ data }) => thxMessage.value.file = data[0])
+          .catch((e) => console.error(e));
+      }
 
       resolve();
     } catch (error) {
@@ -599,7 +611,7 @@ const convertImage = (file) => {
   return new Promise((resolve) => {
     if (file && FileReader) {
       const fr = new FileReader();
-      fr.onload = function () {
+      fr.onload = function() {
         resolve(fr.result);
       };
       fr.readAsDataURL(file);
@@ -654,7 +666,8 @@ const preview = async () => {
   };
 
   localStorage.previewData = JSON.stringify(obj);
-  await localForage.setItem('previewData', JSON.stringify(obj), () => {});
+  await localForage.setItem('previewData', JSON.stringify(obj), () => {
+  });
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
@@ -684,7 +697,7 @@ const saveQA = async () => {
         }),
       };
     }),
-    ...(thxRequired.value && { thxMessage: thxMessage.value }),
+    thxMessage: thxRequired.value ? [thxMessage.value] : [],
   });
 };
 
@@ -750,7 +763,8 @@ watch(thxRequired, (value) => {
     thxMessage.value = {
       title: '',
       description: '',
-      image: '',
+      image: [],
+      file: null,
     };
   }
 });
@@ -786,10 +800,9 @@ export default defineComponent({
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $default;
 }
 
@@ -876,10 +889,9 @@ export default defineComponent({
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings:
-      'tnum' on,
-      'lnum' on,
-      'zero' on;
+    font-feature-settings: 'tnum' on,
+    'lnum' on,
+    'zero' on;
     color: $section-title;
   }
 
@@ -890,10 +902,9 @@ export default defineComponent({
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.014em;
-    font-feature-settings:
-      'tnum' on,
-      'lnum' on,
-      'zero' on;
+    font-feature-settings: 'tnum' on,
+    'lnum' on,
+    'zero' on;
     color: $secondary;
   }
 
@@ -1117,10 +1128,9 @@ export default defineComponent({
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.014em;
-      font-feature-settings:
-        'tnum' on,
-        'lnum' on,
-        'zero' on;
+      font-feature-settings: 'tnum' on,
+      'lnum' on,
+      'zero' on;
       color: $white;
       text-align: left;
       bottom: 76px;

@@ -244,7 +244,8 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
   visible: {
     default: false,
@@ -261,6 +262,10 @@ const props = defineProps({
   answers: {
     type: Array,
     default: () => [],
+  },
+  thankYouMessage: {
+    type: Object,
+    default: null,
   },
 });
 const emit = defineEmits(['close', 'success']);
@@ -432,6 +437,7 @@ onMounted(async () => {
 function findCurrentItemIndex() {
   return props.items.findIndex((item) => item.question === props.currentItem.question);
 }
+
 const prevSlide = () => {
   if (currentIndex.value > 0) {
     currentIndex.value--;
@@ -446,30 +452,32 @@ const loadImages = () => {
 
       const formData = new FormData();
 
-      for (const item of result.value) {
-        if (item.file) {
-          formData.append('files[]', item.file?.[0].raw);
-          formData.append(
-            'paths[]',
-            `/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`,
-          );
-        }
-      }
-
-      await axiosService
-        .post(`${process.env.API_URL}upload-images`, formData)
-        .then(({ data }) => {
-          let resultIndex = 0;
-
-          for (const item of result.value) {
-            if (item.file) {
-              item.file = data[resultIndex];
-
-              resultIndex++;
-            }
+      if (result.value.some(({ file }) => !!file.length)) {
+        for (const item of result.value) {
+          if (item.file) {
+            formData.append('files[]', item.file?.[0].raw);
+            formData.append(
+              'paths[]',
+              `/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`,
+            );
           }
-        })
-        .catch((e) => console.error(e));
+        }
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-images`, formData)
+          .then(({ data }) => {
+            let resultIndex = 0;
+
+            for (const item of result.value) {
+              if (item.file) {
+                item.file = data[resultIndex];
+
+                resultIndex++;
+              }
+            }
+          })
+          .catch((e) => console.error(e));
+      }
 
       resolve();
     } catch (error) {
@@ -480,14 +488,26 @@ const loadImages = () => {
 };
 
 import error from '@/assets/icons/modal/error.vue';
-const handleSuccessModal = () => {
+
+const handleSuccessModal = async () => {
+  const { thankYouMessage } = props;
+
+  let title = 'Q&A Form Submitted';
+  let message = 'Your request sent successfully';
+  let customImg = null;
+
+  if (thankYouMessage) {
+    title = thankYouMessage.title;
+    message = thankYouMessage.description || message;
+    customImg = await readFile(thankYouMessage.file);
+  }
+
   modal.emit('openModal', {
-    title: 'Q&A Form Submitted',
-    message: 'Your request sent successfully',
+    title,
+    message,
     type: 'success',
     actionText: 'Great!',
-    customImg:
-      '<img alt="test" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvffJyQWIF2fkCnfuVONqo0wS-tSbyZ7gwrg&s"/>',
+    customImg,
     fn: () => modal.emit('closeModal', {}),
   });
 };
@@ -708,9 +728,8 @@ watch(
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings:
-        'dlig' on,
-        'ss04' on;
+      font-feature-settings: 'dlig' on,
+      'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
@@ -745,6 +764,7 @@ watch(
         width: 120px;
       }
     }
+
     .allowed-input {
       display: flex;
       padding: 9px 16px 11px 16px;
@@ -762,6 +782,7 @@ watch(
       font-weight: 500;
       line-height: 20px;
       outline: none;
+
       &::placeholder {
         color: #344054;
         font-variant-numeric: slashed-zero;
@@ -771,12 +792,14 @@ watch(
         font-weight: 500;
         line-height: 20px;
       }
+
       &:focus {
         border-radius: 8px;
         background: #eaeafb;
         border: 1px solid #2637c0;
       }
     }
+
     .selected {
       background: #eaeafb !important;
       border: 1px solid #2637c0 !important;
@@ -862,10 +885,9 @@ watch(
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $section-title;
 }
 
@@ -876,10 +898,9 @@ watch(
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $secondary;
   text-align: center;
 }

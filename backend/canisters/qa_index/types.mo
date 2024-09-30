@@ -32,6 +32,13 @@ module QATypes {
     start : Nat;
     end : Nat;
     questions : [Question];
+    thxMessage : ?ThanksMessage;
+  };
+
+  public type ThanksMessage = {
+    title : Text;
+    file : Text;
+    description : Text;
   };
 
   public type QAGetParams = {

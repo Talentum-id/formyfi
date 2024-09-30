@@ -24,6 +24,7 @@
           :items="data.questions"
           :share-link="data.shareLink"
           :answers="answers"
+          :thank-you-message="data.thxMessage"
         />
       </template>
     </div>
@@ -35,13 +36,15 @@ import VerticalCarousel from '@/components/Details/Carousel/VerticalCarousel.vue
 import { computed, ref } from 'vue';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
+
 const counterStore = useCounterStore();
 
 const step = computed(() => counterStore.getStep);
 const props = defineProps({
   data: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
 });
 const showQuestion = ref(false);
@@ -69,6 +72,7 @@ const openQuestion = (item) => {
   border-radius: 16px;
   border: 1px solid $default-border;
   background: $white;
+
   .section {
     width: 100%;
     display: flex;
@@ -78,15 +82,15 @@ const openQuestion = (item) => {
     .description {
       color: $primary-text;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings:
-        'dlig' on,
-        'ss04' on;
+      font-feature-settings: 'dlig' on,
+      'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
       font-weight: 400;
       line-height: 32px;
     }
+
     .title {
       color: $primary-text;
       font-variant-numeric: slashed-zero;
@@ -96,6 +100,7 @@ const openQuestion = (item) => {
       font-weight: 500;
       line-height: 40px;
     }
+
     .quest-list {
       display: flex;
       flex-direction: column;

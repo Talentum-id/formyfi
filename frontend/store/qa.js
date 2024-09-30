@@ -124,6 +124,7 @@ export const useQAStore = defineStore('qa', {
               start: Number(quest.start),
               participants: Number(quest.participants),
               owner: item.owner,
+              thxMessage: quest.thxMessage[0] || null,
             };
           });
 

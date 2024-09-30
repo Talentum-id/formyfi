@@ -135,6 +135,7 @@ actor QAIndex {
                 start = quest.start;
                 end = quest.end;
                 questions = quest.questions;
+                thxMessage = quest.thxMessage;
               },
             );
 
@@ -236,6 +237,7 @@ actor QAIndex {
         start = x.start;
         end = x.end;
         questions = [];
+        thxMessage = x.thxMessage;
       },
     );
 

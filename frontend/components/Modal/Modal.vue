@@ -5,7 +5,9 @@
         <Icon icon="Cancel" :size="24"></Icon>
       </div>
       <div class="modal">
-        <div v-if="customImg" v-html="customImg" class="h-20 w-20"></div>
+        <div v-if="customImg">
+          <img :src="customImg" :alt="title" class="rounded h-20 w-20">
+        </div>
         <component v-else :is="getIcon(type)" />
         <span class="title">{{ title }}</span>
         <span class="message">{{ message }}</span>

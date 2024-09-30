@@ -414,8 +414,8 @@ const countOfQuestions = ref([
     file: '',
     image: [],
     parameters: {},
-    twitter: [],
-    discord: [],
+    twitter: {},
+    discord: {},
     required: false,
     answers: [{ answer: '', isCorrect: false }],
   },
@@ -490,8 +490,8 @@ const addQuestion = () => {
       image: [],
       required: false,
       parameters: {},
-      twitter: [],
-      discord: [],
+      twitter: {},
+      discord: {},
       answers: [{ answer: '', isCorrect: false }],
     });
   }
@@ -710,8 +710,8 @@ const saveQA = async () => {
             isCorrect,
           };
         }),
-        ...(item.twitter.length && [{ twitter: item.twitter }]),
-        ...(item.discord.length && [{ discord: item.discord }]),
+        twitter: Object.keys(item.twitter).length ? [item.twitter] : [],
+        discord: Object.keys(item.discord).length ? [item.discord] : [],
       };
     }),
     thxMessage: thxRequired.value ? [thxMessage.value] : [],

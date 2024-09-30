@@ -11,6 +11,11 @@ module QATypes {
     pagination : PaginationTypes.Pagination;
   };
 
+  public type DiscordVerification = {
+    link : Text;
+    server : Text;
+  };
+
   public type Question = {
     question : Text;
     questionType : Text;
@@ -21,6 +26,8 @@ module QATypes {
     fileAllowed : Bool;
     openAnswerAllowed : Bool;
     parameters : ?Text;
+    twitter : ?TwitterVerification;
+    discord : ?DiscordVerification;
   };
 
   public type QA = {
@@ -39,6 +46,12 @@ module QATypes {
     title : Text;
     file : Text;
     description : Text;
+  };
+
+  public type TwitterVerification = {
+    follow : Text;
+    like : Text;
+    retweet : Text;
   };
 
   public type QAGetParams = {

@@ -171,6 +171,10 @@
               />
               {{ getDataByType(newArr[currentIndex].questionType).title }}
             </BaseButton>
+            <SocialVerify
+              :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
+              :action-type="getDataByType(newArr[currentIndex].questionType)"
+            />
           </div>
         </div>
         <div class="controllers">
@@ -244,8 +248,7 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
   visible: {
     default: false,
@@ -488,6 +491,7 @@ const loadImages = () => {
 };
 
 import error from '@/assets/icons/modal/error.vue';
+import SocialVerify from '@/components/Details/Carousel/SocialVerify.vue';
 
 const handleSuccessModal = async () => {
   const { thankYouMessage } = props;
@@ -728,8 +732,9 @@ watch(
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings: 'dlig' on,
-      'ss04' on;
+      font-feature-settings:
+        'dlig' on,
+        'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
@@ -885,9 +890,10 @@ watch(
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $section-title;
 }
 
@@ -898,9 +904,10 @@ watch(
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $secondary;
   text-align: center;
 }

@@ -148,6 +148,16 @@
                 />
                 <TooltipIcon tooltipText="tooltipText" />
               </div>
+              <TwitterBlock
+                v-if="question.type?.id === 3"
+                :question="question"
+                @input="question.twitter = $event"
+              />
+              <DiscordBlock
+                v-if="question.type?.id === 4"
+                :question="question"
+                @input="question.discord = $event"
+              />
               <Rating v-if="question.type?.id === 6" :question="question" />
               <NumberBlock v-if="question.type?.id === 7" :question="question" />
               <EmailBlock v-if="question.type?.id === 8" :question="question" />
@@ -328,6 +338,8 @@ import CheckboxAnswer from '@/components/Creating/CheckboxAnswer.vue';
 import DateBlock from '@/components/Creating/DateBlock.vue';
 import AddressBlock from '@/components/Creating/AddressBlock.vue';
 import axiosService from '@/services/axiosService';
+import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
+import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
 
 const emits = defineEmits('refresh');
 
@@ -402,6 +414,8 @@ const countOfQuestions = ref([
     file: '',
     image: [],
     parameters: {},
+    twitter: [],
+    discord: [],
     required: false,
     answers: [{ answer: '', isCorrect: false }],
   },
@@ -476,6 +490,8 @@ const addQuestion = () => {
       image: [],
       required: false,
       parameters: {},
+      twitter: [],
+      discord: [],
       answers: [{ answer: '', isCorrect: false }],
     });
   }
@@ -597,7 +613,7 @@ const loadFiles = () => {
 
         await axiosService
           .post(`${process.env.API_URL}upload-images`, formData)
-          .then(({ data }) => thxMessage.value.file = data[0])
+          .then(({ data }) => (thxMessage.value.file = data[0]))
           .catch((e) => console.error(e));
       }
 
@@ -611,7 +627,7 @@ const convertImage = (file) => {
   return new Promise((resolve) => {
     if (file && FileReader) {
       const fr = new FileReader();
-      fr.onload = function() {
+      fr.onload = function () {
         resolve(fr.result);
       };
       fr.readAsDataURL(file);
@@ -666,8 +682,7 @@ const preview = async () => {
   };
 
   localStorage.previewData = JSON.stringify(obj);
-  await localForage.setItem('previewData', JSON.stringify(obj), () => {
-  });
+  await localForage.setItem('previewData', JSON.stringify(obj), () => {});
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
@@ -695,6 +710,8 @@ const saveQA = async () => {
             isCorrect,
           };
         }),
+        ...(item.twitter.length && [{ twitter: item.twitter }]),
+        ...(item.discord.length && [{ discord: item.discord }]),
       };
     }),
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
@@ -800,9 +817,10 @@ export default defineComponent({
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $default;
 }
 
@@ -889,9 +907,10 @@ export default defineComponent({
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    font-feature-settings: 'tnum' on,
-    'lnum' on,
-    'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $section-title;
   }
 
@@ -902,9 +921,10 @@ export default defineComponent({
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.014em;
-    font-feature-settings: 'tnum' on,
-    'lnum' on,
-    'zero' on;
+    font-feature-settings:
+      'tnum' on,
+      'lnum' on,
+      'zero' on;
     color: $secondary;
   }
 
@@ -1128,9 +1148,10 @@ export default defineComponent({
       font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.014em;
-      font-feature-settings: 'tnum' on,
-      'lnum' on,
-      'zero' on;
+      font-feature-settings:
+        'tnum' on,
+        'lnum' on,
+        'zero' on;
       color: $white;
       text-align: left;
       bottom: 76px;

@@ -172,9 +172,35 @@
               {{ getDataByType(newArr[currentIndex].questionType).title }}
             </BaseButton>
             <SocialVerify
+              class="mt-4"
+              v-if="newArr[currentIndex].discord?.length"
               :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-              :action-type="getDataByType(newArr[currentIndex].questionType)"
+              :action-type="newArr[currentIndex].discord[0].server"
+              :title="`Join the ${newArr[currentIndex].discord[0].server}`"
             />
+            <div
+              class="w-full flex flex-col gap-2 mt-4"
+              v-for="social in newArr[currentIndex].twitter"
+            >
+              <SocialVerify
+                v-if="social.like"
+                :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
+                :action-type="social.like"
+                title="Like this post"
+              />
+              <SocialVerify
+                v-if="social.retweet"
+                :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
+                :action-type="social.retweet"
+                title="Retweet this post"
+              />
+              <SocialVerify
+                v-if="social.follow"
+                :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
+                :action-type="social.follow"
+                :title="`Follow ${social.follow}`"
+              />
+            </div>
           </div>
         </div>
         <div class="controllers">
@@ -416,8 +442,8 @@ const connectSocial = async (provider) => {
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
 
-    for (const question of newArr.value) {
-      const index = newArr.value.indexOf(question);
+  for (const question of newArr.value) {
+    const index = newArr.value.indexOf(question);
 
     if (question.file) {
       if (!isPreview.value) {

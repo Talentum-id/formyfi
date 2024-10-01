@@ -416,11 +416,15 @@ const connectSocial = async (provider) => {
 onMounted(async () => {
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
 
-  for (const question of newArr.value) {
-    const index = newArr.value.indexOf(question);
+    for (const question of newArr.value) {
+      const index = newArr.value.indexOf(question);
 
     if (question.file) {
-      questionFiles.value[index] = await readFile(question.file);
+      if (!isPreview.value) {
+        questionFiles.value[index] = await readFile(question.file);
+      } else {
+        questionFiles.value[index] = question.file;
+      }
     } else {
       questionFiles.value[index] = null;
     }

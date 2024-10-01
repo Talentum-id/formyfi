@@ -33,6 +33,7 @@ import { useResponseStore } from '@/store/response';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
 import CustomImage from '@/components/CustomImage.vue';
 import { useAuthStore } from '@/store/auth';
+import { useRoute } from 'vue-router';
 
 const userStore = useAuthStore();
 const counterStore = useCounterStore();
@@ -46,21 +47,27 @@ const props = defineProps({
 
 const banner = ref(null);
 const qaAuthor = ref(null);
+const route = useRoute();
 
 const answers = computed(() => useResponseStore().getResponse);
 const step = computed(() => counterStore.getStep);
+const isPreview = computed(() => route.name === 'preview');
 
 onMounted(async () => {
-  await userStore
-    .findUser(props.data.owner)
-    .then(res => {
-      if (res.length) {
-        qaAuthor.value = res[0];
-      }
-    })
-    .catch(e => console.error(e));
+  if (!isPreview.value) {
+    await userStore
+      .findUser(props.data.owner)
+      .then(res => {
+        if (res.length) {
+          qaAuthor.value = res[0];
+        }
+      })
+      .catch(e => console.error(e));
 
-  banner.value = await readFile(props.data.image);
+    banner.value = await readFile(props.data.image);
+  } else {
+    banner.value = props.data.image;
+  }
 });
 </script>
 <style scoped lang="scss">

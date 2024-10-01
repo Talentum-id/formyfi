@@ -433,7 +433,7 @@ actor ResponseIndex {
     }) -> async ({ encrypted_key : Blob });
   };
 
-  let vetkd_system_api : VETKD_SYSTEM_API = actor ("s55qq-oqaaa-aaaaa-aaakq-cai");
+  let vetkd_system_api : VETKD_SYSTEM_API = actor ("h6gim-oiaaa-aaaao-a3siq-cai");
 
   public shared ({ caller }) func symmetricKeyVerification() : async Text {
     let { public_key } = await vetkd_system_api.vetkd_public_key({

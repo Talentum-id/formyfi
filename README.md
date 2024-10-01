@@ -93,7 +93,7 @@ command:
    Third, deploy Internet Identity, create VetKeys API canister with hard-coded ID and deploy it too:
    ```bash
    dfx deploy internet_identity --argument '(null)'
-   dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
+   dfx canister create vetkd_system_api --specified-id h6gim-oiaaa-aaaao-a3siq-cai
    dfx deploy vetkd_system_api
    ```
 

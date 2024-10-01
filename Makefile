@@ -36,7 +36,7 @@ start:
 	@echo "Deploying Internet Identity canister..."
 	dfx deploy internet_identity --argument '(null)'
 	@echo "Creating VetKeys API canister with hardcoded ID and Deploying..."
-	dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
+	dfx canister create vetkd_system_api --specified-id h6gim-oiaaa-aaaao-a3siq-cai
 	dfx deploy vetkd_system_api
 	@echo "Generating canisters for Front-end..."
 	dfx generate

@@ -50,7 +50,7 @@ module QATypes {
 
   public type TwitterVerification = {
     follow : Text;
-    like : Text;
+    reply : Text;
     retweet : Text;
   };
 

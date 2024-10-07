@@ -33,7 +33,7 @@
 <script setup>
 import QuestItem from '@/components/Quest/QuestItem.vue';
 import VerticalCarousel from '@/components/Details/Carousel/VerticalCarousel.vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
 
@@ -51,6 +51,14 @@ const showQuestion = ref(false);
 const currentItem = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
 const isAvailable = computed(() => Date.now() > Number(props.data.start) * 1000);
+
+onMounted(() => {
+  props.data.questions.forEach((item) => {
+    if (item.verificationAmount === undefined) {
+      item.verificationAmount = 0;
+    }
+  });
+});
 
 const openQuestion = (item) => {
   if (!isAvailable.value) return;

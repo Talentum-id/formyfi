@@ -174,31 +174,51 @@
             <SocialVerify
               class="mt-4"
               v-if="newArr[currentIndex].discord?.length"
+              action="invite"
               :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
               :action-type="newArr[currentIndex].discord[0].server"
+              :provider="newArr[currentIndex].questionType"
+              :provider-id="storedProviderId"
               :title="`Join the ${newArr[currentIndex].discord[0].server}`"
+              :verified="cacheAnswer && !!cacheAnswer.length"
+              @verify="incrementVerification()"
             />
             <div
               class="w-full flex flex-col gap-2 mt-4"
               v-for="social in newArr[currentIndex].twitter"
             >
               <SocialVerify
-                v-if="social.like"
+                v-if="social.reply"
+                action="reply"
                 :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-                :action-type="social.like"
-                title="Like this post"
+                :action-type="social.reply"
+                :provider-id="storedProviderId"
+                :provider="newArr[currentIndex].questionType"
+                :verified="cacheAnswer && !!cacheAnswer.length"
+                title="Reply to this post"
+                @verify="incrementVerification()"
               />
               <SocialVerify
                 v-if="social.retweet"
+                action="retweet"
                 :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
                 :action-type="social.retweet"
+                :provider-id="storedProviderId"
+                :provider="newArr[currentIndex].questionType"
+                :verified="cacheAnswer && !!cacheAnswer.length"
                 title="Retweet this post"
+                @verify="incrementVerification()"
               />
               <SocialVerify
                 v-if="social.follow"
+                action="follow"
                 :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
                 :action-type="social.follow"
+                :provider-id="storedProviderId"
+                :provider="newArr[currentIndex].questionType"
                 :title="`Follow ${social.follow}`"
+                :verified="cacheAnswer && !!cacheAnswer.length"
+                @verify="incrementVerification()"
               />
             </div>
           </div>
@@ -274,7 +294,8 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
   visible: {
     default: false,
@@ -371,6 +392,13 @@ const disableBtn = computed(() => {
     return !(!currentQuestion.required || currentQuestion.myAnswers.length || additional);
   }
 
+  if (
+    ['twitter', 'discord'].indexOf(currentQuestion.questionType) !== -1 &&
+    !!currentQuestion[currentQuestion.questionType].length
+  ) {
+    return currentQuestion.verificationAmount < Object.keys(currentQuestion[currentQuestion.questionType][0]).length;
+  }
+
   return !(!currentQuestion.required || answer || additional || files);
 });
 const isPreview = computed(() => route.name === 'preview');
@@ -397,6 +425,9 @@ const isOpenQuestion = computed(() => {
   return newArr.value[currentIndex.value].questionType === 'open';
 });
 const step = computed(() => counterStore.getStep);
+const incrementVerification = () => {
+  newArr.value[currentIndex.value].verificationAmount += 1;
+};
 const getDataByType = (type) => {
   switch (type) {
     case 'twitter':
@@ -440,6 +471,10 @@ const connectSocial = async (provider) => {
   }
 };
 onMounted(async () => {
+  if (newArr.value[currentIndex.value].verificationAmount === undefined) {
+    newArr.value[currentIndex.value].verificationAmount = 0;
+  }
+
   newArr.value[currentIndex.value].answer = cacheAnswer.value ?? '';
 
   for (const question of newArr.value) {
@@ -693,9 +728,11 @@ watch(currentIndex, (value) => {
   rerender();
 });
 
+const storedProviderId = ref(localStorage.providerId || '');
 const storedValue = ref(localStorage.socialInfo || '');
 
 watchEffect(() => {
+  storedProviderId.value = localStorage.providerId || '';
   storedValue.value = localStorage.socialInfo || '';
 });
 
@@ -703,6 +740,11 @@ const handleStorageEvent = (event) => {
   if (event.key === 'socialInfo') {
     storedValue.value = event.newValue || '';
   }
+
+  if (event.key === 'providerId') {
+    storedProviderId.value = event.newValue || '';
+  }
+  console.log(event);
 };
 
 onMounted(() => {
@@ -722,6 +764,15 @@ watch(
     }
   },
 );
+
+watch(
+  () => storedProviderId.value,
+  () => {
+    if (storedProviderId.value) {
+      console.log('erase');
+      localStorage.removeItem('providerId');
+    }
+  });
 </script>
 <style lang="scss">
 .layout {
@@ -762,9 +813,8 @@ watch(
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings:
-        'dlig' on,
-        'ss04' on;
+      font-feature-settings: 'dlig' on,
+      'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
@@ -920,10 +970,9 @@ watch(
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $section-title;
 }
 
@@ -934,10 +983,9 @@ watch(
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $secondary;
   text-align: center;
 }

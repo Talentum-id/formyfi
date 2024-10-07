@@ -60,6 +60,7 @@ const readCode = () => {
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then((res) => {
         localStorage.socialInfo = res.data.data.nickname;
+        localStorage.providerId = res.data.data.id;
         localStorage.removeItem('socialProvider');
         window.close();
       })

@@ -16,15 +16,15 @@
       />
     </div>
     <div class="check-btn_wrapper">
-      <div class="check-btn_title">Encourage like</div>
-      <Switch :checkedProp="requiredLike" @checked="requiredLike = $event" />
+      <div class="check-btn_title">Encourage reply</div>
+      <Switch :checkedProp="requiredReply" @checked="requiredReply = $event" />
     </div>
-    <div v-if="requiredLike" class="flex flex-col gap-6">
+    <div v-if="requiredReply" class="flex flex-col gap-6">
       <Input
         name=""
         placeholder="Tweet URLs"
-        v-model="twitter.like"
-        :isError="!twitter.like"
+        v-model="twitter.reply"
+        :isError="!twitter.reply"
         errorText="Tweet URLs is Required"
       />
     </div>
@@ -48,22 +48,22 @@ import Switch from '@/components/Creating/Switch.vue';
 import { ref, watch } from 'vue';
 import Input from '@/components/Input.vue';
 import { useFocusWithin } from '@vueuse/core';
-const requiredLike = ref(false);
+const requiredReply = ref(false);
 const requiredFollow = ref(false);
 const requiredRetweet = ref(false);
 const twitter = ref({
   follow: '',
-  like: '',
+  reply: '',
   retweet: '',
 });
 const target = ref();
 const emit = defineEmits(['input']);
 const { focused } = useFocusWithin(target);
 watch(
-  () => [requiredLike, requiredFollow, requiredRetweet],
-  ([requiredLike, requiredFollow, requiredRetweet]) => {
-    if (!requiredLike.value) {
-      twitter.value.like = '';
+  () => [requiredReply, requiredFollow, requiredRetweet],
+  ([requiredReply, requiredFollow, requiredRetweet]) => {
+    if (!requiredReply.value) {
+      twitter.value.reply = '';
     }
     if (!requiredFollow.value) {
       twitter.value.follow = '';

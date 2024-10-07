@@ -5,28 +5,108 @@
       <div>{{ title }}</div>
     </div>
     <div class="w-[1px] bg-white h-10"></div>
-    <div class="py-2 px-4 w-full text-center cursor-pointer" @click="verify">Verify</div>
+    <div class="py-2 px-4 w-full text-center cursor-pointer" @click="verify">
+      <span v-if="!loading && !isCompleted && !verified && counter === 0">
+        Verify
+      </span>
+      <span v-else-if="loading">
+        . . .
+      </span>
+      <span class="text-green-600" v-else-if="verified || isCompleted">
+        Done
+      </span>
+      <span v-else class="text-bold">
+        {{ counter }}
+      </span>
+    </div>
   </div>
 </template>
 <script setup>
 import Icon from '@/components/Icons/Icon.vue';
+import axiosService from '@/services/axiosService';
+import { ref } from 'vue';
+
+const emits = defineEmits(['verify']);
 
 const props = defineProps({
+  action: {
+    type: String,
+    required: true,
+  },
   actionType: {
     type: String,
-    default: 'test',
+    required: true,
+  },
+  provider: {
+    type: String,
+    required: true,
+  },
+  providerId: {
+    type: String,
+    required: true,
   },
   title: {
     type: String,
-    default: 'test',
+    required: true,
   },
   socialIcon: {
     type: String,
     default: 'twitter',
   },
+  verified: {
+    default: false,
+    type: Boolean,
+  },
 });
 
-const verify = () => {};
+const counter = ref(0);
+const loading = ref(false);
+const isCompleted = ref(false);
+
+const verify = () => {
+  if (loading.value || isCompleted.value || counter.value !== 0) {
+    return;
+  }
+
+  loading.value = true;
+
+  axiosService.post(`${process.env.API_URL}social-verification/${props.provider}`, {
+    provider_id: props.providerId,
+    action: props.action,
+    source: props.actionType,
+  })
+    .then(({ data }) => {
+      isCompleted.value = data.result;
+
+      if (!isCompleted.value) {
+        counter.value = 10;
+        const intervalId = setInterval(() => {
+          counter.value--;
+
+          if (counter.value === 0) {
+            clearInterval(intervalId);
+          }
+        }, 1000);
+      } else {
+        emits('verify');
+      }
+    })
+    .catch(e => {
+      emits('verify');
+      
+      console.error(e);
+
+      counter.value = 10;
+      const intervalId = setInterval(() => {
+        counter.value--;
+
+        if (counter.value === 0) {
+          clearInterval(intervalId);
+        }
+      }, 1000);
+    })
+    .finally(() => loading.value = false);
+};
 </script>
 <style scoped lang="scss">
 .action-button {
@@ -36,6 +116,7 @@ const verify = () => {};
   background: $default-border;
   color: $default;
 }
+
 .icon-soc {
   filter: invert(99%) sepia(0%) saturate(7494%) hue-rotate(201deg) brightness(0%) contrast(100%);
 }

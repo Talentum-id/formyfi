@@ -97,10 +97,10 @@ command:
    dfx deploy vetkd_system_api
    ```
 
-   Fourth, generate ready canisters and deploy all other ones:
+   Fourth, deploy all canisters and generate image:
 
    ```bash
-   dfx generate && dfx deploy
+   dfx deploy && dfx generate 
    ```
 
    Fifth, redeploy `ic_siwe_provider` with additional arguments:
@@ -145,7 +145,7 @@ command:
    )'
    ```
 
-   To ensure the front-end works with the canisters, run:
+   To ensure the front-end works with updated canisters, run:
 
    ```bash
    dfx generate

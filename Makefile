@@ -38,10 +38,8 @@ start:
 	@echo "Creating VetKeys API canister with hardcoded ID and Deploying..."
 	dfx canister create vetkd_system_api --specified-id h6gim-oiaaa-aaaao-a3siq-cai
 	dfx deploy vetkd_system_api
-	@echo "Generating canisters for Front-end..."
-	dfx generate
-	@echo "Deploying the rest of canisters..."
-	dfx deploy
+	@echo "Deploying and Generating canisters for Front-end..."
+	dfx deploy && dfx generate
 	@echo "Redeploying ic_siwe_provider canister with more configurations..."
 	dfx deploy ic_siwe_provider --argument "( \
 		record { \

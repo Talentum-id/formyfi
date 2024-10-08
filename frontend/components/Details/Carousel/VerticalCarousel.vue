@@ -176,7 +176,7 @@
               v-if="newArr[currentIndex].discord?.length"
               action="invite"
               :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-              :action-type="newArr[currentIndex].discord[0].server"
+              :action-type="newArr[currentIndex].discord[0].link"
               :provider="newArr[currentIndex].questionType"
               :provider-id="storedProviderId"
               :title="`Join the ${newArr[currentIndex].discord[0].server}`"
@@ -744,7 +744,6 @@ const handleStorageEvent = (event) => {
   if (event.key === 'providerId') {
     storedProviderId.value = event.newValue || '';
   }
-  console.log(event);
 };
 
 onMounted(() => {
@@ -769,7 +768,6 @@ watch(
   () => storedProviderId.value,
   () => {
     if (storedProviderId.value) {
-      console.log('erase');
       localStorage.removeItem('providerId');
     }
   });

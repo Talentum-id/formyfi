@@ -180,7 +180,8 @@
               :provider="newArr[currentIndex].questionType"
               :provider-id="storedProviderId"
               :title="`Join the ${newArr[currentIndex].discord[0].server}`"
-              :verified="cacheAnswer && !!cacheAnswer.length"
+              :verified="(cacheAnswer && !!cacheAnswer.length) ||
+              Object.keys(newArr[currentIndex].discord[0]).length === newArr[currentIndex].verificationAmount"
               @verify="incrementVerification()"
             />
             <div
@@ -194,7 +195,8 @@
                 :action-type="social.reply"
                 :provider-id="storedProviderId"
                 :provider="newArr[currentIndex].questionType"
-                :verified="cacheAnswer && !!cacheAnswer.length"
+                :verified="(cacheAnswer && !!cacheAnswer.length) ||
+                Object.keys(newArr[currentIndex].twitter[0]).length === newArr[currentIndex].verificationAmount"
                 title="Reply to this post"
                 @verify="incrementVerification()"
               />
@@ -205,7 +207,8 @@
                 :action-type="social.retweet"
                 :provider-id="storedProviderId"
                 :provider="newArr[currentIndex].questionType"
-                :verified="cacheAnswer && !!cacheAnswer.length"
+                :verified="(cacheAnswer && !!cacheAnswer.length) ||
+                Object.keys(newArr[currentIndex].twitter[0]).length === newArr[currentIndex].verificationAmount"
                 title="Retweet this post"
                 @verify="incrementVerification()"
               />
@@ -217,7 +220,8 @@
                 :provider-id="storedProviderId"
                 :provider="newArr[currentIndex].questionType"
                 :title="`Follow ${social.follow}`"
-                :verified="cacheAnswer && !!cacheAnswer.length"
+                :verified="(cacheAnswer && !!cacheAnswer.length) ||
+                Object.keys(newArr[currentIndex].twitter[0]).length === newArr[currentIndex].verificationAmount"
                 @verify="incrementVerification()"
               />
             </div>
@@ -507,6 +511,8 @@ function findCurrentItemIndex() {
 }
 
 const prevSlide = () => {
+  newArr.value[currentIndex.value].verificationAmount = 0;
+
   if (currentIndex.value > 0) {
     currentIndex.value--;
   }

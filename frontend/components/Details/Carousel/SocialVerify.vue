@@ -2,7 +2,7 @@
   <div class="action-button flex h-10">
     <div class="flex py-2 px-4 w-4/5 gap-2 items-center">
       <Icon :name="socialIcon" class="icon-soc" :size="24" />
-      <div>{{ title }}</div>
+      <div @click="navigate()" class="cursor-pointer">{{ title }}</div>
     </div>
     <div class="w-[1px] bg-white h-10"></div>
     <div class="py-2 px-4 w-full text-center cursor-pointer" @click="verify">
@@ -25,6 +25,7 @@
 import Icon from '@/components/Icons/Icon.vue';
 import axiosService from '@/services/axiosService';
 import { ref } from 'vue';
+import { checkIsUri } from '@/util/helpers';
 
 const emits = defineEmits(['verify']);
 
@@ -63,6 +64,11 @@ const counter = ref(0);
 const loading = ref(false);
 const isCompleted = ref(false);
 
+const navigate = () => {
+  if (checkIsUri(props.actionType)) {
+    window.open(props.actionType, '_blank');
+  }
+};
 const verify = () => {
   if (loading.value || isCompleted.value || counter.value !== 0) {
     return;
@@ -92,8 +98,6 @@ const verify = () => {
       }
     })
     .catch(e => {
-      emits('verify');
-      
       console.error(e);
 
       counter.value = 10;

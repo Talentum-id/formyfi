@@ -26,6 +26,16 @@ export const getTaskStatus = (status) => {
   }
 };
 
+export const checkIsUri = data => {
+  try {
+    new URL(data);
+
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export function shortenAddress(address, chars = 4) {
   return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
 }

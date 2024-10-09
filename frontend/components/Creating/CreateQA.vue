@@ -293,7 +293,22 @@
             <!--            </div>-->
           </div>
         </div>
-
+        <div class="line my-8" />
+        <div class="flex justify-between">
+          <div class="section_item">
+            <div class="section_wrapper-title">Logic Branching</div>
+            <div class="upload-requirements">Edit and customise</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <div class="check-btn_title">Required</div>
+            <Switch :checkedProp="branchRequired" @checked="branchRequired = $event" />
+          </div>
+        </div>
+        <LogicBranching
+          :quests="countOfQuestions"
+          v-if="branchRequired"
+          @input="branches = $event"
+        />
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton
@@ -340,14 +355,14 @@ import AddressBlock from '@/components/Creating/AddressBlock.vue';
 import axiosService from '@/services/axiosService';
 import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
 import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
+import LogicBranching from '@/components/Creating/LogicBranching.vue';
 
 const emits = defineEmits('refresh');
 
 const loading = ref(false);
 const isImagesError = ref(false);
-//THX BLOCK
 const thxRequired = ref(false);
-//
+const branchRequired = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
@@ -403,6 +418,7 @@ const thxMessage = ref({
   image: [],
   file: null,
 });
+const branches = ref([]);
 const countOfQuestions = ref([
   {
     question: '',
@@ -679,6 +695,7 @@ const preview = async () => {
     start: Date.parse(startDate.value) / 1000,
     questions: questions,
     ...(thxRequired.value && { thxMessage: thxMessage.value }),
+    ...(branchRequired.value && { branches: branches.value }),
   };
 
   localStorage.previewData = JSON.stringify(obj);
@@ -715,6 +732,7 @@ const saveQA = async () => {
       };
     }),
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
+    branches: branchRequired.value ? [branches.value] : [],
   });
 };
 

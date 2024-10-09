@@ -1,13 +1,22 @@
 <template>
-  <div :class="`custom-select ${mainStyles}`" :tabindex="tabindex" ref="selectContainer">
+  <div
+    :class="`custom-select ${mainStyles}`"
+    :style="{ zIndex: open ? 1000 : 98 }"
+    :tabindex="tabindex"
+    ref="selectContainer"
+  >
     <div class="selected" :class="`${open && 'open'} !${selectedStyle}`" @click="toggle">
       <div :class="`${selectedLabelStyle}`">
-        {{ reduceStringLength(selected.name, stringLengthSelected) }}
+        {{ reduceStringLength(selected.name || 'Select option', stringLengthSelected) }}
       </div>
-      <div v-if="!disabled" class="arrow" :class="`${open && 'flipped'} ${arrowStyle}`"></div>
+      <div
+        v-if="!disabled && selected.name"
+        class="arrow"
+        :class="`${open && 'flipped'} ${arrowStyle}`"
+      ></div>
     </div>
     <div
-      v-if="!disabled"
+      v-if="!disabled && selected.name"
       class="items"
       :class="`${itemsStyles} ${!open && 'selectHide'}`"
       :style="{
@@ -189,7 +198,7 @@ export default {
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-
+  z-index: 1000;
   color: $default;
 }
 
@@ -244,7 +253,7 @@ export default {
   position: absolute;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 1000;
   word-break: break-word;
 }
 hr {

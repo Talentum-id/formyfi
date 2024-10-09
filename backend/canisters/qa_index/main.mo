@@ -136,6 +136,7 @@ actor QAIndex {
                 end = quest.end;
                 questions = quest.questions;
                 thxMessage = quest.thxMessage;
+                branches = quest.branches;
               },
             );
 
@@ -238,6 +239,7 @@ actor QAIndex {
         end = x.end;
         questions = [];
         thxMessage = x.thxMessage;
+        branches = x.branches;
       },
     );
 

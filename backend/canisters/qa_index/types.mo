@@ -40,6 +40,7 @@ module QATypes {
     end : Nat;
     questions : [Question];
     thxMessage : ?ThanksMessage;
+    branches : ?Text;
   };
 
   public type ThanksMessage = {

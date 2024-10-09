@@ -27,7 +27,7 @@ const defaultOptions = {
 };
 
 const createActorFromIdentity = identity => {
-  return createActor(process.env.USER_INDEX_CANISTER_ID, {
+  return createActor(process.env.CANISTER_ID_USER_INDEX, {
     agentOptions: { identity },
   });
 };

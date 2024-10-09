@@ -10,7 +10,7 @@ import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProvi
 import axiosService from '@/services/axiosService';
 
 const createActorFromIdentity = identity => {
-  return createActor(process.env.QA_INDEX_CANISTER_ID, {
+  return createActor(process.env.CANISTER_ID_QA_INDEX, {
     agentOptions: { identity },
   });
 };

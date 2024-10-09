@@ -7,7 +7,7 @@ import { ic_siws_provider} from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 
 const createActorFromIdentity = identity => {
-  return createActor(process.env.STATS_INDEX_CANISTER_ID, {
+  return createActor(process.env.CANISTER_ID_STATS_INDEX, {
     agentOptions: { identity },
   });
 };

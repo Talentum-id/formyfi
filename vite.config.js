@@ -4,7 +4,6 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import dfxJson from './dfx.json';
 import fs from 'fs';
-import wasm from 'vite-plugin-wasm';
 import topLevelAwait from 'vite-plugin-top-level-await';
 
 require('dotenv').config();
@@ -57,7 +56,6 @@ const internetIdentityUri = isDev
 export default defineConfig({
   plugins: [
     vue(),
-    wasm(),
     topLevelAwait(),
   ],
   resolve: {
@@ -98,5 +96,7 @@ export default defineConfig({
     'process.env.DFX_NETWORK': JSON.stringify(process.env.DFX_NETWORK),
     'process.env.API_URL': JSON.stringify(process.env.API_URL),
     'process.env.AWS_ENDPOINT': JSON.stringify(process.env.AWS_ENDPOINT),
+    'process.env.CANISTER_ID_IC_SIWE_PROVIDER': canisterDefinitions['process.env.IC_SIWE_PROVIDER_CANISTER_ID'],
+    'process.env.CANISTER_ID_IC_SIWS_PROVIDER': canisterDefinitions['process.env.IC_SIWS_PROVIDER_CANISTER_ID'],
   },
 });

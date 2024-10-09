@@ -97,10 +97,12 @@ command:
    dfx deploy vetkd_system_api
    ```
 
-   Fourth, deploy all canisters and generate image:
+   Fourth, generate declarations for SIWS and SIWE provider canisters and deploy all canisters:
 
    ```bash
-   dfx deploy && dfx generate 
+   dfx generate ic_siwe_provider 
+   dfx generate ic_siws_provider
+   dfx deploy 
    ```
 
    Fifth, redeploy `ic_siwe_provider` with additional arguments:

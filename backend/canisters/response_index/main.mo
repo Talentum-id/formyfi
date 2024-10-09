@@ -435,7 +435,7 @@ actor ResponseIndex {
 
   let vetkd_system_api : VETKD_SYSTEM_API = actor ("h6gim-oiaaa-aaaao-a3siq-cai");
 
-  public shared ({ caller }) func symmetricKeyVerification() : async Text {
+  public shared func symmetricKeyVerification() : async Text {
     let { public_key } = await vetkd_system_api.vetkd_public_key({
       canister_id = null;
       derivation_path = Array.make(Text.encodeUtf8("response_symmetric_key"));

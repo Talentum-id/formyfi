@@ -248,7 +248,6 @@
               <div class="upload-requirements">Edit and customise</div>
             </div>
             <div class="check-btn_wrapper">
-              <div class="check-btn_title">Required</div>
               <Switch :checkedProp="thxRequired" @checked="thxRequired = $event" />
             </div>
           </div>
@@ -300,7 +299,6 @@
             <div class="upload-requirements">Edit and customise</div>
           </div>
           <div class="check-btn_wrapper">
-            <div class="check-btn_title">Required</div>
             <Switch :checkedProp="branchRequired" @checked="branchRequired = $event" />
           </div>
         </div>
@@ -684,7 +682,7 @@ const preview = async () => {
   });
 
   const questions = await Promise.all(questionsPromises);
-
+  console.log(branches.value, 123);
   const obj = {
     title: questionName.value,
     description: description.value,
@@ -695,7 +693,7 @@ const preview = async () => {
     start: Date.parse(startDate.value) / 1000,
     questions: questions,
     ...(thxRequired.value && { thxMessage: thxMessage.value }),
-    ...(branchRequired.value && { branches: branches.value }),
+    branches: branchRequired.value ? branches.value : '',
   };
 
   localStorage.previewData = JSON.stringify(obj);
@@ -703,6 +701,8 @@ const preview = async () => {
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
+  console.log(branches.value, 123);
+
   return await qaStore.storeQA({
     title: questionName.value,
     description: description.value,
@@ -732,7 +732,7 @@ const saveQA = async () => {
       };
     }),
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
-    branches: branchRequired.value ? [branches.value] : [],
+    branches: branchRequired.value ? branches.value : '',
   });
 };
 

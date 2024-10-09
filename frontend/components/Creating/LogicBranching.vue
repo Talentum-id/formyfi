@@ -7,12 +7,13 @@
       >
         <div class="relative flex gap-2 w-fit">
           <div class="arrow" :class="`${branch.open && 'flipped'}`"></div>
-          <div class="w-full ml-6 text-[#38405B] text-lg">Logic {{ idx + 1 }}</div>
+          <div class="w-full ml-8 text-[#38405B] text-lg">Logic {{ idx + 1 }}</div>
         </div>
         <img
           src="@/assets/icons/delete.svg"
           @click="deleteBranch(idx)"
           alt=""
+          class="cursor-pointer"
           :class="{ 'blur-custom': branches.length === 1 }"
         />
       </div>
@@ -26,9 +27,15 @@
             @input="branch.data.type = $event"
             :tabindex="2"
           />
-          <Select
+          <MultiSelect
             v-if="branch.data.quest.type === 'multiple'"
             :options="questsAnswers(branch.data.quest)"
+            @input="branch.data.choice = $event"
+            :tabindex="3"
+          />
+          <Select
+            v-if="branch.data.quest.type === 'rate'"
+            :options="questsRates(branch.data.quest)"
             @input="branch.data.choice = $event"
             :tabindex="3"
           />
@@ -54,10 +61,12 @@ import { useFocusWithin } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 import Select from '@/components/Select.vue';
 import { getListByType } from '@/constants/branchTypes';
+import MultiSelect from '@/components/Creating/MultiSelectBase.vue';
 
 const targetBranches = ref();
 
 const { focused } = useFocusWithin(targetBranches);
+const emit = defineEmits(['input']);
 
 const open = ref(false);
 const props = defineProps({
@@ -80,6 +89,14 @@ const questsAnswers = (quest) => {
       return { id: index, name: answer.answer };
     })
     .filter((item) => item.name);
+};
+
+const questsRates = (quest) => {
+  const currentQuest = props.quests.find((item) => item.question === quest?.name);
+  console.log(Array.from({ length: currentQuest?.parameters?.max }, (_, index) => index));
+  return Array.from({ length: currentQuest?.parameters?.max }, (_, index) => index).map((rate) => {
+    return { id: rate, name: rate + 1 };
+  });
 };
 const branches = ref([
   {
@@ -116,7 +133,7 @@ watch(focused, (focused) => {
   });
 
   if (!focused) {
-    emit('input', data);
+    emit('input', JSON.stringify(data));
   }
 });
 
@@ -136,11 +153,12 @@ const deleteBranch = (index) => {
   left: 5px;
   border: none;
   transition: transform 0.2s;
+  transform: rotate(270deg);
   background: url('@/assets/images/select.svg') no-repeat;
 }
 
 .arrow.flipped {
-  transform: rotate(180deg);
+  transform: rotate(0deg);
 }
 
 .add-talent-btn {

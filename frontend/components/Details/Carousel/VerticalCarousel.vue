@@ -23,7 +23,7 @@
               width="160"
             ></CustomImage>
           </div>
-
+          {{ newArr[currentIndex] }}
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
           <div class="question-description" v-if="newArr[currentIndex].description">
             {{ newArr[currentIndex].description }}
@@ -180,8 +180,11 @@
               :provider="newArr[currentIndex].questionType"
               :provider-id="storedProviderId"
               :title="`Join the ${newArr[currentIndex].discord[0].server}`"
-              :verified="(cacheAnswer && !!cacheAnswer.length) ||
-              Object.keys(newArr[currentIndex].discord[0]).length === newArr[currentIndex].verificationAmount"
+              :verified="
+                (cacheAnswer && !!cacheAnswer.length) ||
+                Object.keys(newArr[currentIndex].discord[0]).length ===
+                  newArr[currentIndex].verificationAmount
+              "
               @verify="incrementVerification()"
             />
             <div
@@ -195,8 +198,11 @@
                 :action-type="social.reply"
                 :provider-id="storedProviderId"
                 :provider="newArr[currentIndex].questionType"
-                :verified="(cacheAnswer && !!cacheAnswer.length) ||
-                Object.keys(newArr[currentIndex].twitter[0]).length === newArr[currentIndex].verificationAmount"
+                :verified="
+                  (cacheAnswer && !!cacheAnswer.length) ||
+                  Object.keys(newArr[currentIndex].twitter[0]).length ===
+                    newArr[currentIndex].verificationAmount
+                "
                 title="Reply to this post"
                 @verify="incrementVerification()"
               />
@@ -207,8 +213,11 @@
                 :action-type="social.retweet"
                 :provider-id="storedProviderId"
                 :provider="newArr[currentIndex].questionType"
-                :verified="(cacheAnswer && !!cacheAnswer.length) ||
-                Object.keys(newArr[currentIndex].twitter[0]).length === newArr[currentIndex].verificationAmount"
+                :verified="
+                  (cacheAnswer && !!cacheAnswer.length) ||
+                  Object.keys(newArr[currentIndex].twitter[0]).length ===
+                    newArr[currentIndex].verificationAmount
+                "
                 title="Retweet this post"
                 @verify="incrementVerification()"
               />
@@ -220,8 +229,11 @@
                 :provider-id="storedProviderId"
                 :provider="newArr[currentIndex].questionType"
                 :title="`Follow ${social.follow}`"
-                :verified="(cacheAnswer && !!cacheAnswer.length) ||
-                Object.keys(newArr[currentIndex].twitter[0]).length === newArr[currentIndex].verificationAmount"
+                :verified="
+                  (cacheAnswer && !!cacheAnswer.length) ||
+                  Object.keys(newArr[currentIndex].twitter[0]).length ===
+                    newArr[currentIndex].verificationAmount
+                "
                 @verify="incrementVerification()"
               />
             </div>
@@ -298,8 +310,7 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
   visible: {
     default: false,
@@ -400,7 +411,10 @@ const disableBtn = computed(() => {
     ['twitter', 'discord'].indexOf(currentQuestion.questionType) !== -1 &&
     !!currentQuestion[currentQuestion.questionType].length
   ) {
-    return currentQuestion.verificationAmount < Object.keys(currentQuestion[currentQuestion.questionType][0]).length;
+    return (
+      currentQuestion.verificationAmount <
+      Object.keys(currentQuestion[currentQuestion.questionType][0]).length
+    );
   }
 
   return !(!currentQuestion.required || answer || additional || files);
@@ -776,7 +790,8 @@ watch(
     if (storedProviderId.value) {
       localStorage.removeItem('providerId');
     }
-  });
+  },
+);
 </script>
 <style lang="scss">
 .layout {
@@ -817,8 +832,9 @@ watch(
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings: 'dlig' on,
-      'ss04' on;
+      font-feature-settings:
+        'dlig' on,
+        'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
@@ -974,9 +990,10 @@ watch(
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $section-title;
 }
 
@@ -987,9 +1004,10 @@ watch(
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $secondary;
   text-align: center;
 }

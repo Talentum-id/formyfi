@@ -41,9 +41,10 @@
 </template>
 
 <script>
-import { onMounted, ref, onBeforeMount } from 'vue';
+import { onMounted, ref, onBeforeMount, watch } from 'vue';
 import { reduceStringLength } from '@/util/helpers';
 import Icon from '@/components/Icons/Icon.vue';
+import { useFocusWithin } from '@vueuse/core';
 
 export default {
   name: 'Select',
@@ -129,10 +130,10 @@ export default {
     const selected = ref(props.default || (props.options.length > 0 ? props.options[0] : null));
     const open = ref(false);
     const selectContainer = ref(null);
-
     const toggle = () => {
       open.value = !open.value;
     };
+    const { focused } = useFocusWithin(selectContainer);
 
     const selectOption = (option) => {
       selected.value = option;
@@ -145,6 +146,21 @@ export default {
         open.value = false;
       }
     };
+    watch(
+      () => props.default,
+      (value) => {
+        console.log(value);
+        if (value) {
+          selected.value = value;
+        }
+      },
+    );
+
+    watch(focused, (focused) => {
+      if (!focused) {
+        open.value = false;
+      }
+    });
 
     onBeforeMount(() => {
       emit('input', selected.value);

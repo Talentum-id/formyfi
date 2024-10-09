@@ -20,13 +20,13 @@
         <div class="title">When</div>
         <Select :options="questsList" @input="branch.data.quest = $event" :tabindex="1" />
         <Select
-          v-if="questsAnswers(branch.data.quest).length > 0"
-          :options="types"
+          :default="getListByType(branch.data.quest.type)[0]"
+          :options="getListByType(branch.data.quest.type)"
           @input="branch.data.type = $event"
           :tabindex="2"
         />
         <Select
-          v-if="questsAnswers(branch.data.quest).length > 0"
+          v-if="branch.data.quest.type === 'multiple'"
           :options="questsAnswers(branch.data.quest)"
           @input="branch.data.choice = $event"
           :tabindex="3"
@@ -51,6 +51,7 @@ import { useFocusWithin } from '@vueuse/core';
 
 import { computed, ref, watch } from 'vue';
 import Select from '@/components/Select.vue';
+import { getListByType } from '@/constants/branchTypes';
 
 const target = ref();
 
@@ -63,17 +64,14 @@ const props = defineProps({
     default: null,
   },
 });
-const types = ref([
-  { id: 1, name: 'is' },
-  { id: 2, name: 'is not ' },
-  { id: 3, name: 'is any of' },
-  { id: 4, name: 'is none of' },
-]);
+const rerender = ref(false);
 const questsList = computed(() =>
   props.quests.map((item, index) => {
-    return { id: index, name: item.question };
+    console.log(item);
+    return { id: index, name: item.question, type: item.type.type };
   }),
 );
+
 const questsAnswers = (quest) => {
   return props.quests
     .find((item) => item.question === quest?.name)
@@ -87,7 +85,7 @@ const branches = ref([
     open: false,
     data: {
       quest: questsList?.value[0],
-      type: types?.value[0],
+      type: getListByType('open')[0],
       choice: questsAnswers(questsList?.value[0]),
       step: questsList?.value[1],
     },
@@ -99,7 +97,7 @@ const addBranch = () => {
     open: false,
     data: {
       quest: questsList?.value[0],
-      type: types?.value[0],
+      type: getListByType('open')[0],
       choice: questsAnswers(questsList?.value[0]),
       step: questsList?.value[1],
     },
@@ -114,6 +112,11 @@ watch(focused, (focused) => {
     );
   }
 });
+
+function rerendering() {
+  rerender.value = true;
+  rerender.value = false;
+}
 
 const deleteBranch = (index) => {
   if (branches.value.length > 1) {

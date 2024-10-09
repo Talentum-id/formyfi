@@ -1,49 +1,51 @@
 <template>
-  <div class="flex flex-col gap-8" v-for="(branch, idx) in branches" :key="idx" ref="target">
-    <div
-      class="p-2 rounded-lg flex justify-between relative bg-[#E9ECF2] border border-[#d7dce5]"
-      @click="branch.open = !branch.open"
-    >
-      <div class="relative flex gap-2 w-fit">
-        <div class="arrow" :class="`${branch.open && 'flipped'}`"></div>
-        <div class="w-full ml-6 text-[#38405B] text-lg">Logic {{ idx + 1 }}</div>
-      </div>
-      <img
-        src="@/assets/icons/delete.svg"
-        @click="deleteBranch(idx)"
-        alt=""
-        :class="{ 'blur-custom': branches.length === 1 }"
-      />
-    </div>
-    <div v-if="branch.open" class="flex flex-col gap-8">
-      <div class="flex flex-col gap-3">
-        <div class="title">When</div>
-        <Select :options="questsList" @input="branch.data.quest = $event" :tabindex="1" />
-        <Select
-          :default="getListByType(branch.data.quest.type)[0]"
-          :options="getListByType(branch.data.quest.type)"
-          @input="branch.data.type = $event"
-          :tabindex="2"
-        />
-        <Select
-          v-if="branch.data.quest.type === 'multiple'"
-          :options="questsAnswers(branch.data.quest)"
-          @input="branch.data.choice = $event"
-          :tabindex="3"
-        />
-      </div>
-      <div class="flex flex-col gap-3">
-        <div>
-          <div class="title">Then</div>
-          <div class="subtitle">Show this question</div>
+  <div ref="targetBranches" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-8" v-for="(branch, idx) in branches" :key="idx">
+      <div
+        class="p-2 rounded-lg flex justify-between relative bg-[#E9ECF2] border border-[#d7dce5]"
+        @click="branch.open = !branch.open"
+      >
+        <div class="relative flex gap-2 w-fit">
+          <div class="arrow" :class="`${branch.open && 'flipped'}`"></div>
+          <div class="w-full ml-6 text-[#38405B] text-lg">Logic {{ idx + 1 }}</div>
         </div>
-        <Select :options="questsList" @input="branch.data.step = $event" />
+        <img
+          src="@/assets/icons/delete.svg"
+          @click="deleteBranch(idx)"
+          alt=""
+          :class="{ 'blur-custom': branches.length === 1 }"
+        />
+      </div>
+      <div v-if="branch.open" class="flex flex-col gap-8">
+        <div class="flex flex-col gap-3">
+          <div class="title">When</div>
+          <Select :options="questsList" @input="branch.data.quest = $event" :tabindex="1" />
+          <Select
+            :default="getListByType(branch.data.quest.type)[0]"
+            :options="getListByType(branch.data.quest.type)"
+            @input="branch.data.type = $event"
+            :tabindex="2"
+          />
+          <Select
+            v-if="branch.data.quest.type === 'multiple'"
+            :options="questsAnswers(branch.data.quest)"
+            @input="branch.data.choice = $event"
+            :tabindex="3"
+          />
+        </div>
+        <div class="flex flex-col gap-3">
+          <div>
+            <div class="title">Then</div>
+            <div class="subtitle">Show this question</div>
+          </div>
+          <Select :options="questsList" @input="branch.data.step = $event" />
+        </div>
       </div>
     </div>
-  </div>
-  <div class="add-talent-btn" @click="addBranch">
-    <img src="@/assets/icons/add.svg" alt="" />
-    <span>Add Branch</span>
+    <div class="add-talent-btn" @click="addBranch">
+      <img src="@/assets/icons/add.svg" alt="" />
+      <span>Add Branch</span>
+    </div>
   </div>
 </template>
 <script setup>
@@ -53,9 +55,9 @@ import { computed, ref, watch } from 'vue';
 import Select from '@/components/Select.vue';
 import { getListByType } from '@/constants/branchTypes';
 
-const target = ref();
+const targetBranches = ref();
 
-const { focused } = useFocusWithin(target);
+const { focused } = useFocusWithin(targetBranches);
 
 const open = ref(false);
 const props = defineProps({
@@ -64,10 +66,9 @@ const props = defineProps({
     default: null,
   },
 });
-const rerender = ref(false);
+
 const questsList = computed(() =>
   props.quests.map((item, index) => {
-    console.log(item);
     return { id: index, name: item.question, type: item.type.type };
   }),
 );
@@ -105,18 +106,19 @@ const addBranch = () => {
 };
 
 watch(focused, (focused) => {
+  const data = branches.value.map((branch) => {
+    return {
+      quest: branch.data.quest.name,
+      type: branch.data.type.name,
+      choice: branch.data.choice?.name,
+      step: branch.data.step.name,
+    };
+  });
+
   if (!focused) {
-    emit(
-      'input',
-      branches.value.map((branch) => branch.data),
-    );
+    emit('input', data);
   }
 });
-
-function rerendering() {
-  rerender.value = true;
-  rerender.value = false;
-}
 
 const deleteBranch = (index) => {
   if (branches.value.length > 1) {

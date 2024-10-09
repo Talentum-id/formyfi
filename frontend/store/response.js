@@ -10,7 +10,7 @@ import axiosService from '@/services/axiosService';
 import { CryptoService } from '@/services/crypto';
 
 const createActorFromIdentity = identity => {
-  return createActor(process.env.RESPONSE_INDEX_CANISTER_ID, {
+  return createActor(process.env.CANISTER_ID_RESPONSE_INDEX, {
     agentOptions: { identity },
   });
 };

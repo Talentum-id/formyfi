@@ -41,7 +41,7 @@ const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name, _value]) =
 const canisterDefinitions = Object.entries(canisterIds).reduce(
   (acc, [key, val]) => ({
     ...acc,
-    [`process.env.${key.toUpperCase()}_CANISTER_ID`]:
+    [`process.env.CANISTER_ID_${key.toUpperCase()}`]:
       isDev || isPlayground ? JSON.stringify(val[network]) : JSON.stringify(val.ic),
   }),
   {},
@@ -49,7 +49,7 @@ const canisterDefinitions = Object.entries(canisterIds).reduce(
 
 const internetIdentityUri = isDev
   ? `http://localhost:${DFX_PORT}/?canisterId=${JSON.parse(
-    canisterDefinitions['process.env.INTERNET_IDENTITY_CANISTER_ID'],
+    canisterDefinitions['process.env.CANISTER_ID_INTERNET_IDENTITY'],
   )}`
   : 'https://identity.ic0.app';
 
@@ -96,7 +96,5 @@ export default defineConfig({
     'process.env.DFX_NETWORK': JSON.stringify(process.env.DFX_NETWORK),
     'process.env.API_URL': JSON.stringify(process.env.API_URL),
     'process.env.AWS_ENDPOINT': JSON.stringify(process.env.AWS_ENDPOINT),
-    'process.env.CANISTER_ID_IC_SIWE_PROVIDER': canisterDefinitions['process.env.IC_SIWE_PROVIDER_CANISTER_ID'],
-    'process.env.CANISTER_ID_IC_SIWS_PROVIDER': canisterDefinitions['process.env.IC_SIWS_PROVIDER_CANISTER_ID'],
   },
 });

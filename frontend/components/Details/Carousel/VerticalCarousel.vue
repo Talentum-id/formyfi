@@ -653,7 +653,7 @@ const checkUserIdentity = async () => {
 const nextSlide = async () => {
   if (cacheAnswer.value || isPreview.value || step.value > props.items.length - 1) {
     if (currentIndex.value < props.items.length - 1) {
-      branchCheck();
+      await branchCheck();
     } else {
       await closeModal();
     }
@@ -664,50 +664,7 @@ const nextSlide = async () => {
   }
 
   await counterStore.setValue(currentIndex.value);
-  if (currentIndex.value < props.items.length - 1) {
-    branchCheck();
-  } else {
-    result.value = newArr.value.map((item) => {
-      let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
-      let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
-
-      if (item.myAnswers.length) {
-        const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
-
-        if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
-          item.myAnswers.push(item.myAnswer);
-        }
-
-        answerIsCorrect = true;
-        answer = JSON.stringify(item.myAnswers);
-
-        if (correctAnswers.length) {
-          answerIsCorrect =
-            item.myAnswers.every((value) => correctAnswers.indexOf(value) !== -1) &&
-            item.myAnswers.length === correctAnswers.length;
-        }
-      }
-
-      return {
-        isCorrect: answerIsCorrect,
-        answer,
-        file: item.answerFile.length ? item.answerFile : '',
-        isOpen: isOpenQuestion.value || !!item.myAnswer,
-      };
-    });
-
-    try {
-      if (!hasUser.value) {
-        await checkUserIdentity();
-      }
-      await loadImages();
-      await storeResponseAndClose();
-    } catch (e) {
-      loading.value = false;
-      handleErrorModal();
-      console.error(e);
-    }
-  }
+  await branchCheck();
 };
 const connect = async () => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -798,7 +755,7 @@ watch(
   },
 );
 
-const branchCheck = () => {
+const branchCheck = async () => {
   const questHasBranches = props.branches?.filter(
     (item) => item.quest === newArr.value[currentIndex.value]?.question,
   );
@@ -810,13 +767,57 @@ const branchCheck = () => {
         newArr.value[currentIndex.value].answer || newArr.value[currentIndex.value].myAnswers,
         branch.choice,
       );
+
       if (nextStep) {
         currentIndex.value = props.items.findIndex((item) => item.question === branch.step);
         return;
       }
     }
   }
-  currentIndex.value++;
+  if (currentIndex.value < props.items.length - 1) {
+    currentIndex.value++;
+  } else {
+    result.value = newArr.value.map((item) => {
+      let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
+      let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
+
+      if (item.myAnswers.length) {
+        const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
+
+        if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
+          item.myAnswers.push(item.myAnswer);
+        }
+
+        answerIsCorrect = true;
+        answer = JSON.stringify(item.myAnswers);
+
+        if (correctAnswers.length) {
+          answerIsCorrect =
+            item.myAnswers.every((value) => correctAnswers.indexOf(value) !== -1) &&
+            item.myAnswers.length === correctAnswers.length;
+        }
+      }
+
+      return {
+        isCorrect: answerIsCorrect,
+        answer,
+        file: item.answerFile.length ? item.answerFile : '',
+        isOpen: isOpenQuestion.value || !!item.myAnswer,
+      };
+    });
+
+    try {
+      if (!hasUser.value) {
+        await checkUserIdentity();
+      }
+      await loadImages();
+      await storeResponseAndClose();
+    } catch (e) {
+      loading.value = false;
+      handleErrorModal();
+      console.error(e);
+    }
+  }
 };
 </script>
 <style lang="scss">

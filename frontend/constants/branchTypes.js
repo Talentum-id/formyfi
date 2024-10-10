@@ -57,3 +57,30 @@ export const getListByType = (type) => {
       ];
   }
 };
+export const getRuleForCurrentType = (type, value, choise) => {
+  switch (type) {
+    case 'is empty': {
+      return !value;
+    }
+    case 'is not empty': {
+      return !!value;
+    }
+    case 'is': {
+      return (
+        choise.filter((item) => value.every((val) => val === item.name)).length === choise.length
+      );
+    }
+    case 'is not': {
+      return !choise.filter((item) => value.some((val) => val === item.name)).length;
+    }
+    case 'is any of': {
+      return choise.filter((item) => value.some((val) => val === item.name)).length;
+    }
+    case 'is none of': {
+      return !choise.filter((item) => value.some((val) => val === item.name)).length;
+    }
+    default: {
+      return false;
+    }
+  }
+};

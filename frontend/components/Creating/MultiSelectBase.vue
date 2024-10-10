@@ -44,7 +44,7 @@ export default {
     const open = ref(false);
     const selectedItems = ref(props.modelValue);
 
-    const isSelected = (option) => selectedItems.value.includes(option.name);
+    const isSelected = (option) => selectedItems.value.includes(option);
     const selectContainer = ref(null);
     const { focused } = useFocusWithin(selectContainer);
 
@@ -54,7 +54,8 @@ export default {
       } else {
         selectedItems.value.push(option);
       }
-      emit('update:modelValue', selectedItems.value);
+      console.log(selectedItems.value);
+      emit('input', selectedItems.value);
     };
 
     const toggleDropdown = () => {

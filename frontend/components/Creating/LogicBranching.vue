@@ -27,6 +27,7 @@
             @input="branch.data.type = $event"
             :tabindex="2"
           />
+          {{ branch.data.choice }}
           <MultiSelect
             v-if="branch.data.quest.type === 'multiple'"
             :options="questsAnswers(branch.data.quest)"
@@ -78,7 +79,7 @@ const props = defineProps({
 
 const questsList = computed(() =>
   props.quests.map((item, index) => {
-    return { id: index, name: item.question, type: item.type.type };
+    return { id: index, name: item.question, type: item.type?.type };
   }),
 );
 
@@ -93,7 +94,6 @@ const questsAnswers = (quest) => {
 
 const questsRates = (quest) => {
   const currentQuest = props.quests.find((item) => item.question === quest?.name);
-  console.log(Array.from({ length: currentQuest?.parameters?.max }, (_, index) => index));
   return Array.from({ length: currentQuest?.parameters?.max }, (_, index) => index).map((rate) => {
     return { id: rate, name: rate + 1 };
   });
@@ -104,7 +104,7 @@ const branches = ref([
     data: {
       quest: questsList?.value[0],
       type: getListByType('open')[0],
-      choice: questsAnswers(questsList?.value[0]),
+      choice: [],
       step: questsList?.value[1],
     },
   },
@@ -116,22 +116,23 @@ const addBranch = () => {
     data: {
       quest: questsList?.value[0],
       type: getListByType('open')[0],
-      choice: questsAnswers(questsList?.value[0]),
+      choice: [],
       step: questsList?.value[1],
     },
   });
 };
 
 watch(focused, (focused) => {
+  console.log(branches.value);
   const data = branches.value.map((branch) => {
     return {
       quest: branch.data.quest.name,
       type: branch.data.type.name,
-      choice: branch.data.choice?.name,
+      choice: branch.data.choice,
       step: branch.data.step.name,
     };
   });
-
+  console.log(data);
   if (!focused) {
     emit('input', JSON.stringify(data));
   }

@@ -24,6 +24,7 @@
           :items="data.questions"
           :share-link="data.shareLink"
           :answers="answers"
+          :branches="branches"
           :thank-you-message="data.thxMessage"
         />
       </template>
@@ -43,15 +44,18 @@ const step = computed(() => counterStore.getStep);
 const props = defineProps({
   data: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
 });
 const showQuestion = ref(false);
 const currentItem = ref(null);
 const answers = computed(() => useResponseStore().getResponse);
 const isAvailable = computed(() => Date.now() > Number(props.data.start) * 1000);
-
+const branches = computed(() => {
+  if (props.data.branches?.length > 0) {
+    return JSON.parse(props.data.branches);
+  }
+});
 onMounted(() => {
   props.data.questions.forEach((item) => {
     if (item.verificationAmount === undefined) {
@@ -90,8 +94,9 @@ const openQuestion = (item) => {
     .description {
       color: $primary-text;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings: 'dlig' on,
-      'ss04' on;
+      font-feature-settings:
+        'dlig' on,
+        'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;

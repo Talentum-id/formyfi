@@ -57,55 +57,18 @@ command:
 
 4. Deploy the canisters:
 
-   First, deploy the `ic_siwe_provider` canister:
+   First, create vetkd_system_api canister with hardcoded ID:
 
    ```bash
-   dfx deploy ic_siwe_provider --argument $'(
-     record {
-       domain = "127.0.0.1";
-       uri = "http://127.0.0.1:3000";
-       salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
-       chain_id = opt 1;
-       scheme = opt "http";
-       statement = opt "Login to the app";
-       sign_in_expires_in = opt 2592000000000000;
-       session_expires_in = opt 2592000000000000;
-     }
-   )'
-   ```
-
-   Second, deploy the `ic_siws_provider` canister:
-   ```bash
-   dfx deploy ic_siws_provider --argument $'(
-    record {
-      domain = "127.0.0.1";
-      uri = "http://127.0.0.1:3000";
-      salt = "WjcIMw9vpXTcpSD/uGtOZmLLGbYCKVe6njceNLqKjt4=";
-      chain_id = opt "mainnet"; 
-      scheme = opt "http";
-      statement = opt "Login to the app";
-      sign_in_expires_in = opt 2592000000000000;
-      session_expires_in = opt 2592000000000000;
-    }
-   )'
-   ```
-
-   Third, deploy Internet Identity, create VetKeys API canister with hard-coded ID and deploy it too:
-   ```bash
-   dfx deploy internet_identity --argument '(null)'
    dfx canister create vetkd_system_api --specified-id h6gim-oiaaa-aaaao-a3siq-cai
-   dfx deploy vetkd_system_api
    ```
 
-   Fourth, generate declarations for SIWS and SIWE provider canisters and deploy all canisters:
-
+   Second, create the remaining canisters:
    ```bash
-   dfx generate ic_siwe_provider 
-   dfx generate ic_siws_provider
-   dfx deploy 
+	dfx canister create --all
    ```
 
-   Fifth, redeploy `ic_siwe_provider` with additional arguments:
+   Third, deploy `ic_siwe_provider` and `ic_siws_provider` canisters with runtime arguments:
 
    ```bash
    dfx deploy ic_siwe_provider --argument $'(
@@ -124,11 +87,6 @@ command:
         };
     }
    )'
-   ```
-
-   Finally, redeploy `ic_siws_provider` with additional arguments:
-
-   ```bash
    dfx deploy ic_siws_provider --argument $'(
     record {
       domain = "127.0.0.1";
@@ -147,10 +105,10 @@ command:
    )'
    ```
 
-   To ensure the front-end works with updated canisters, run:
-
+   Fourth, deploy canisters and generate:
    ```bash
-   dfx generate
+   dfx deploy internet_identity --argument '(null)'
+   dfx deploy && dfx generate
    ```
 
    After deployment, you’ll receive URIs for the canisters. Open the URI for the assets canister to view the local DApp

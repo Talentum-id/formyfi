@@ -27,7 +27,6 @@
             @input="branch.data.type = $event"
             :tabindex="2"
           />
-          {{ branch.data.choice }}
           <MultiSelect
             v-if="branch.data.quest.type === 'multiple'"
             :options="questsAnswers(branch.data.quest)"

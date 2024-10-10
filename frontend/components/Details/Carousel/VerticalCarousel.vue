@@ -23,7 +23,6 @@
               width="160"
             ></CustomImage>
           </div>
-          {{ branches }}
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
           <div class="question-description" v-if="newArr[currentIndex].description">
             {{ newArr[currentIndex].description }}

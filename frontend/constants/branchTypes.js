@@ -60,8 +60,13 @@ export const getListByType = (type) => {
 export const getRuleForCurrentType = (type, value, choise) => {
   switch (type) {
     case 'is empty': {
-      console.log(value);
       return !value || !value.length;
+    }
+    case 'true': {
+      return choise.name === value;
+    }
+    case 'false': {
+      return choise.name !== value;
     }
     case 'is not empty': {
       return !!value && value.length;
@@ -85,6 +90,12 @@ export const getRuleForCurrentType = (type, value, choise) => {
     }
     case 'not equal': {
       return +choise.name !== +value;
+    }
+    case 'contains': {
+      return value;
+    }
+    case 'does not contain': {
+      return value;
     }
     default: {
       return false;

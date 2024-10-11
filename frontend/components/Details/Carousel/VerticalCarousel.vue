@@ -768,12 +768,14 @@ const branchCheck = async () => {
       );
 
       if (nextStep) {
+        newArr.value[currentIndex.value].passed = true;
         currentIndex.value = props.items.findIndex((item) => item.question === branch.step);
         return;
       }
     }
   }
-  if (currentIndex.value < props.items.length - 1) {
+  if (currentIndex.value < props.items.length - 1 && !newArr.value.every((item) => item.passed)) {
+    newArr.value[currentIndex.value].passed = true;
     currentIndex.value++;
   } else {
     result.value = newArr.value.map((item) => {

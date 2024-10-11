@@ -39,13 +39,23 @@
             @input="branch.data.choice = $event"
             :tabindex="3"
           />
+          <Select
+            v-if="branch.data.quest.type === 'quiz'"
+            :options="questsAnswers(branch.data.quest)"
+            @input="branch.data.choice = $event"
+            :tabindex="3"
+          />
         </div>
         <div class="flex flex-col gap-3">
           <div>
             <div class="title">Then</div>
             <div class="subtitle">Show this question</div>
           </div>
-          <Select :options="questsList" @input="branch.data.step = $event" />
+          <Select
+            :default="questsList[1]"
+            :options="questsList"
+            @input="branch.data.step = $event"
+          />
         </div>
       </div>
     </div>

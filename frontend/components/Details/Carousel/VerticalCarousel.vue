@@ -759,7 +759,11 @@ const branchCheck = async () => {
     (item) => item.quest === newArr.value[currentIndex.value]?.question,
   );
 
-  if (questHasBranches && questHasBranches.length > 0) {
+  if (
+    questHasBranches &&
+    questHasBranches.length > 0 &&
+    !newArr.value.every((item) => item.passed)
+  ) {
     for (const branch of questHasBranches) {
       const nextStep = getRuleForCurrentType(
         branch.type.trim(),
@@ -854,6 +858,9 @@ const branchCheck = async () => {
       font-style: normal;
       font-weight: 500;
       line-height: 40px; /* 125% */
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .question-description {

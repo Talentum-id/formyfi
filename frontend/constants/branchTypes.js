@@ -69,11 +69,18 @@ export const getRuleForCurrentType = (type, value, choise) => {
     }
     case 'is': {
       return (
-        choise.filter((item) => value.every((val) => val === item.name)).length === choise.length
+        (choise.length &&
+          choise.filter((item) => value.every((val) => val === item.name)).length ===
+            choise.length) ||
+        choise.name === value
       );
     }
     case 'is not': {
-      return !choise.filter((item) => value.some((val) => val === item.name)).length;
+      return (
+        (choise.length &&
+          !choise.filter((item) => value.every((val) => val === item.name)).length) ||
+        choise.name !== value
+      );
     }
     case 'is any of': {
       return choise.filter((item) => value.some((val) => val === item.name)).length;

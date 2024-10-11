@@ -57,12 +57,12 @@ onMounted(async () => {
   if (!isPreview.value) {
     await userStore
       .findUser(props.data.owner)
-      .then(res => {
+      .then((res) => {
         if (res.length) {
           qaAuthor.value = res[0];
         }
       })
-      .catch(e => console.error(e));
+      .catch((e) => console.error(e));
 
     banner.value = await readFile(props.data.image);
   } else {
@@ -98,7 +98,9 @@ onMounted(async () => {
       font-style: normal;
       font-weight: 500;
       line-height: 64px;
-      max-width: 800px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .counter-info {

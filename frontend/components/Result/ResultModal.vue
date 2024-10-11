@@ -68,9 +68,8 @@ const isAdditionalAnswer = (answer, variants) => {
 };
 
 const isAdditionalMultipleAnswer = (answer, variants) => {
-  const variantAnswers = variants.map(({answer}) => answer);
-  const additionalAnswer = JSON.parse(answer)
-    .find(item => variantAnswers.indexOf(item) === -1);
+  const variantAnswers = variants.map(({ answer }) => answer);
+  const additionalAnswer = JSON.parse(answer).find((item) => variantAnswers.indexOf(item) === -1);
 
   if (additionalAnswer !== undefined) {
     return additionalAnswer;
@@ -146,7 +145,10 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
                 is-correct
               />
             </div>
-            <div class="flex flex-col gap-[16px] w-full" v-else-if="question.questionType === 'multiple'">
+            <div
+              class="flex flex-col gap-[16px] w-full"
+              v-else-if="question.questionType === 'multiple'"
+            >
               <Variant
                 v-for="i in question.answers"
                 :key="i"
@@ -166,12 +168,16 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
             <div class="w-full" v-else>
               <Variant
                 v-if="question.questionType === 'address'"
-                :text="answers[idx].answer ? Object.values(JSON.parse(answers[idx].answer)).join(', ') : 'No Answer'"
+                :text="
+                  answers[idx].answer
+                    ? Object.values(JSON.parse(answers[idx].answer)).join(', ')
+                    : 'No Answer'
+                "
                 :is-correct="!!answers[idx].answer || answers[idx].isCorrect"
               />
               <Variant
                 v-else-if="question.questionType === 'date'"
-                :text="(new Date(answers[idx].answer * 1000)).toDateString()"
+                :text="new Date(answers[idx].answer * 1000).toDateString()"
                 :is-correct="!!answers[idx].answer || answers[idx].isCorrect"
               />
               <Variant
@@ -181,7 +187,7 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
               />
             </div>
           </div>
-          <div v-if="answers[idx].file">
+          <div v-if="answers[idx]?.file">
             <CustomImage :image="answerFiles[idx]" width="160" heigth="160" />
           </div>
         </ResultCard>
@@ -197,7 +203,7 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
 
   .required {
     color: $red;
-    font-size: .8em;
+    font-size: 0.8em;
   }
 
   .header {

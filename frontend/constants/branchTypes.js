@@ -33,10 +33,8 @@ export const getListByType = (type) => {
       ];
     case 'email':
       return [
-        { id: 1, name: 'contains' },
-        { id: 2, name: 'does not contain' },
-        { id: 3, name: 'is' },
-        { id: 4, name: 'is not' },
+        { id: 1, name: 'is empty' },
+        { id: 2, name: 'is not empty' },
       ];
     case 'link':
       return [
@@ -47,8 +45,6 @@ export const getListByType = (type) => {
       return [
         { id: 1, name: 'is empty' },
         { id: 2, name: 'is not empty' },
-        { id: 3, name: 'contains' },
-        { id: 4, name: 'does not contain' },
       ];
     default:
       return [

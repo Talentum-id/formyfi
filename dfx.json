@@ -7,7 +7,8 @@
     },
     "user_index": {
       "dependencies": [
-        "stats_index"
+        "stats_index",
+        "metrics_index"
       ],
       "main": "backend/canisters/user_index/main.mo",
       "type": "motoko"
@@ -19,18 +20,31 @@
       "main": "backend/canisters/qa_index/main.mo",
       "type": "motoko"
     },
+    "form_index": {
+      "dependencies": [
+        "metrics_index"
+      ],
+      "main": "backend/canisters/qa_index/form.mo",
+      "type": "motoko"
+    },
     "response_index": {
       "dependencies": [
         "vetkd_system_api",
         "user_index",
         "qa_index",
-        "stats_index"
+        "form_index",
+        "stats_index",
+        "metrics_index"
       ],
       "main": "backend/canisters/response_index/main.mo",
       "type": "motoko"
     },
     "stats_index": {
       "main": "backend/canisters/stats_index/main.mo",
+      "type": "motoko"
+    },
+    "metrics_index": {
+      "main": "backend/canisters/stats_index/metrics.mo",
       "type": "motoko"
     },
     "assets": {
@@ -41,8 +55,10 @@
         "internet_identity",
         "user_index",
         "qa_index",
+        "form_index",
         "response_index",
-        "stats_index"
+        "stats_index",
+        "metrics_index"
       ],
       "frontend": {
         "entrypoint": "dist/index.html"

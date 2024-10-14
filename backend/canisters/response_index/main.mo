@@ -111,14 +111,9 @@ actor ResponseIndex {
             for (answer in answers.vals()) {
               let sanitizedAnswer = Text.trim(answer.answer, #char ' ');
 
-              if (sanitizedAnswer == "" and questions[index].required == true) {
-                throw Error.reject("Required questions should be answered");
-              };
-
               if (sanitizedAnswer != "") {
                 answersCount += 1;
               };
-
 
               index += 1;
             };

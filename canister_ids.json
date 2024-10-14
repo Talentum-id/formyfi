@@ -2,11 +2,17 @@
   "assets": {
     "ic": "w7hhw-giaaa-aaaap-abu4q-cai"
   },
+  "form_index": {
+    "ic": "jn3q6-uaaaa-aaaap-akoiq-cai"
+  },
   "ic_siwe_provider": {
     "ic": "6uxaf-pqaaa-aaaao-a3prq-cai"
   },
   "ic_siws_provider": {
     "ic": "7zpqj-gyaaa-aaaao-a3qtq-cai"
+  },
+  "metrics_index": {
+    "ic": "jey3c-ciaaa-aaaap-akoja-cai"
   },
   "qa_index": {
     "ic": "pva35-bqaaa-aaaap-abwaa-cai"

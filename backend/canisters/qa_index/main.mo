@@ -2,6 +2,7 @@ import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Error "mo:base/Error";
 import Float "mo:base/Float";
+import FormIndex "canister:form_index";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Map "mo:base/HashMap";
@@ -115,6 +116,14 @@ actor QAIndex {
     };
 
     shareLinks.put(data.shareLink, identity);
+  };
+
+  public func transferQAEntries() : async () {
+    await FormIndex.storeQAEntries(Iter.toArray(QAs.entries()));
+  };
+
+  public func transferShareLinkEntries() : async () {
+    await FormIndex.storeShareLinkEntries(Iter.toArray(shareLinks.entries()));
   };
 
   public func incrementParticipants(shareLink : Text) : async () {

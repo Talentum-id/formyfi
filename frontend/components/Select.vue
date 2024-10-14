@@ -149,7 +149,6 @@ export default {
     watch(
       () => props.default,
       (value) => {
-        console.log(value);
         if (value) {
           selected.value = value;
         }

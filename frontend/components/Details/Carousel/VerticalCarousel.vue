@@ -172,7 +172,7 @@
             </BaseButton>
             <SocialVerify
               class="mt-4"
-              v-if="newArr[currentIndex].discord?.length"
+              v-if="newArr[currentIndex].discord?.length && !!newArr[currentIndex].answer"
               action="invite"
               :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
               :action-type="newArr[currentIndex].discord[0].link"
@@ -191,7 +191,7 @@
               v-for="social in newArr[currentIndex].twitter"
             >
               <SocialVerify
-                v-if="social.reply"
+                v-if="social.reply && !!newArr[currentIndex].answer"
                 action="reply"
                 :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
                 :action-type="social.reply"
@@ -206,7 +206,7 @@
                 @verify="incrementVerification()"
               />
               <SocialVerify
-                v-if="social.retweet"
+                v-if="social.retweet && !!newArr[currentIndex].answer"
                 action="retweet"
                 :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
                 :action-type="social.retweet"
@@ -221,7 +221,7 @@
                 @verify="incrementVerification()"
               />
               <SocialVerify
-                v-if="social.follow"
+                v-if="social.follow && !!newArr[currentIndex].answer"
                 action="follow"
                 :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
                 :action-type="social.follow"
@@ -309,7 +309,8 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => {
+    },
   },
   visible: {
     default: false,
@@ -416,7 +417,7 @@ const disableBtn = computed(() => {
   ) {
     return (
       currentQuestion.verificationAmount <
-      Object.keys(currentQuestion[currentQuestion.questionType][0]).length
+      Object.values(currentQuestion[currentQuestion.questionType][0]).filter(item => !!item.length).length
     );
   }
 
@@ -454,8 +455,10 @@ const getDataByType = (type) => {
     case 'twitter':
       return {
         icon: 'Twitter-Default',
-        title: newArr.value[currentIndex.value].answer || 'Connect X',
-        fn: () => connectSocial(type),
+        title: !!newArr.value[currentIndex.value].answer.length
+          ? `Disconnect ${newArr.value[currentIndex.value].answer}`
+          : 'Connect X',
+        fn: () => newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connectSocial(type),
         info: {
           title: 'What is your X username?',
           description: 'Please verify your account by clicking the button below.',
@@ -464,8 +467,10 @@ const getDataByType = (type) => {
     case 'discord':
       return {
         icon: 'Discord-Default',
-        title: newArr.value[currentIndex.value].answer || 'Connect Discord',
-        fn: () => connectSocial(type),
+        title: !!newArr.value[currentIndex.value].answer.length
+          ? `Disconnect (${newArr.value[currentIndex.value].answer})`
+          : 'Connect Discord',
+        fn: () => newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connectSocial(type),
         info: {
           title: 'What is your Discord handle?',
           description: 'Please verify your account by clicking the button below.',
@@ -474,8 +479,10 @@ const getDataByType = (type) => {
     case 'wallet':
       return {
         icon: 'Wallet-Default',
-        title: newArr.value[currentIndex.value].answer || 'Connect Wallet',
-        fn: () => connect(),
+        title: !!newArr.value[currentIndex.value].answer
+          ? `Disconnect ${newArr.value[currentIndex.value].answer}`
+          : 'Connect Wallet',
+        fn: () => newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connect(),
         info: {
           title: 'What is your wallet address?',
           description:
@@ -490,6 +497,9 @@ const connectSocial = async (provider) => {
   if (!newArr.value[currentIndex.value].answer) {
     await useAuthStore().connectSocial(provider);
   }
+};
+const disconnectSocial = async () => {
+  newArr.value[currentIndex.value].answer = '';
 };
 onMounted(async () => {
   if (newArr.value[currentIndex.value].verificationAmount === undefined) {
@@ -867,9 +877,8 @@ const branchCheck = async () => {
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings:
-        'dlig' on,
-        'ss04' on;
+      font-feature-settings: 'dlig' on,
+      'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
@@ -1025,10 +1034,9 @@ const branchCheck = async () => {
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $section-title;
 }
 
@@ -1039,10 +1047,9 @@ const branchCheck = async () => {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings:
-    'tnum' on,
-    'lnum' on,
-    'zero' on;
+  font-feature-settings: 'tnum' on,
+  'lnum' on,
+  'zero' on;
   color: $secondary;
   text-align: center;
 }

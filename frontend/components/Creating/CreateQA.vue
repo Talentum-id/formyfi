@@ -460,9 +460,9 @@ const validationCheck = computed(() => {
   ) {
     errorMessage.value = 'Some fields are empty or incorrect';
     return false;
-  } else {
-    return true;
   }
+
+  return true;
 });
 const bannerImage = ref(null);
 const showError = ref(false);

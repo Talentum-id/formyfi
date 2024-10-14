@@ -12,8 +12,8 @@
       <span v-else-if="loading">
         . . .
       </span>
-      <span class="text-green-600" v-else-if="verified || isCompleted">
-        Done
+      <span class="" v-else-if="verified || isCompleted">
+        <Icon class="checked-icon" name="Tik" :size="24" />
       </span>
       <span v-else class="text-bold">
         {{ counter }}
@@ -65,8 +65,14 @@ const loading = ref(false);
 const isCompleted = ref(false);
 
 const navigate = () => {
-  if (checkIsUri(props.actionType)) {
-    window.open(props.actionType, '_blank');
+  const {action, actionType, provider} = props;
+
+  if (action === 'follow' && provider === 'twitter') {
+    window.open(`https://x.com/${actionType}`, '_blank');
+  }
+
+  if (checkIsUri(actionType)) {
+    window.open(actionType, '_blank');
   }
 };
 const verify = () => {

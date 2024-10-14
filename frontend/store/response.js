@@ -54,15 +54,17 @@ export const useResponseStore = defineStore('response', {
         const owner = useAuthStore().getPrincipal;
         const key = `${owner}-${param.shareLink}`;
 
-        const encryptedAnswer = await this.crypto.encrypt(
-          key,
-          owner,
-          JSON.stringify(params),
-        );
+        const encryptedAnswer = !!param.answer.length
+          ? await this.crypto.encrypt(
+            key,
+            owner,
+            JSON.stringify(params),
+          )
+          : null;
 
         return {
           ...param,
-          encryptedAnswer: [encryptedAnswer],
+          encryptedAnswer: encryptedAnswer ? [encryptedAnswer] : [],
           owner: [owner],
         };
       }))

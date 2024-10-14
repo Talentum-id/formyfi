@@ -96,5 +96,6 @@ export default defineConfig({
     'process.env.DFX_NETWORK': JSON.stringify(process.env.DFX_NETWORK),
     'process.env.API_URL': JSON.stringify(process.env.API_URL),
     'process.env.AWS_ENDPOINT': JSON.stringify(process.env.AWS_ENDPOINT),
+    'process.env.DISCORD_BOT_CONNECT_URL': JSON.stringify(process.env.DISCORD_BOT_CONNECT_URL),
   },
 });

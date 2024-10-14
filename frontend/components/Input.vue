@@ -1,5 +1,9 @@
 <template>
-  <div class="input" :class="{ small: type === 'small', symbol, isError }">
+  <div class="input" :class="{
+      small: type === 'small',
+      symbol,
+      'isError': isError && valueEntered
+    }">
     <div v-if="!withoutName" class="name">{{ name }}</div>
     <div v-if="symbol" class="symbol" :class="{ small: type === 'small' }">
       <span>{{ symbol }}</span>
@@ -17,7 +21,7 @@
       :placeholder="placeholder"
     />
     <div v-if="!rule && touched" class="error-message">Please enter your {{ name }}.</div>
-    <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>
+    <div v-if="errorText && isError && valueEntered" class="error-message">{{ errorText }}</div>
   </div>
 </template>
 
@@ -55,10 +59,13 @@ export default {
   data() {
     return {
       touched: false,
+      valueEntered: false,
     };
   },
   methods: {
     updateValue(event) {
+      this.valueEntered = true;
+
       const newValue = event.target.value;
       this.$emit('update:modelValue', newValue);
     },

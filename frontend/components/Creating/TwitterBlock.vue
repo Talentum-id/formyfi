@@ -1,7 +1,7 @@
 <template>
   <hr />
   <form class="flex flex-col gap-3" ref="target">
-    <span> Question Settings </span>
+    <span> Question Gates </span>
     <div class="check-btn_wrapper">
       <div class="check-btn_title">Encourage follow</div>
       <Switch :checkedProp="requiredFollow" @checked="requiredFollow = $event" />
@@ -25,7 +25,7 @@
         placeholder="Tweet URLs"
         v-model="twitter.reply"
         :isError="!twitter.reply"
-        errorText="Tweet URLs is Required"
+        errorText="Tweet URLs is not valid"
       />
     </div>
     <div class="check-btn_wrapper">
@@ -38,7 +38,7 @@
         placeholder="Tweet URLs"
         v-model="twitter.retweet"
         :isError="!twitter.retweet"
-        errorText="Tweet URLs is Required"
+        errorText="Tweet URLs is not valid"
       />
     </div>
   </form>
@@ -48,6 +48,7 @@ import Switch from '@/components/Creating/Switch.vue';
 import { ref, watch } from 'vue';
 import Input from '@/components/Input.vue';
 import { useFocusWithin } from '@vueuse/core';
+
 const requiredReply = ref(false);
 const requiredFollow = ref(false);
 const requiredRetweet = ref(false);
@@ -77,6 +78,16 @@ watch(
 watch(focused, (focused) => {
   if (!focused) {
     emit('input', twitter.value);
+
+    const twitterUrlRegex = /^(https?:\/\/)?(www\.)?(twitter\.com|x\.com)(\/.*)?$/i;
+
+    if (!twitterUrlRegex.test(twitter.value.reply)) {
+      twitter.value.reply = '';
+    }
+
+    if (!twitterUrlRegex.test(twitter.value.retweet)) {
+      twitter.value.retweet = '';
+    }
   }
 });
 </script>

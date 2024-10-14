@@ -54,7 +54,6 @@ export default {
       } else {
         selectedItems.value.push(option);
       }
-      console.log(selectedItems.value);
       emit('input', selectedItems.value);
     };
 

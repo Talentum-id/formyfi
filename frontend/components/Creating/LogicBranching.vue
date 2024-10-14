@@ -136,7 +136,6 @@ const addBranch = () => {
 };
 
 watch(focused, (focused) => {
-  console.log(branches.value);
   const data = branches.value.map((branch) => {
     return {
       quest: branch.data.quest.name,
@@ -145,7 +144,6 @@ watch(focused, (focused) => {
       step: branch.data.step.name,
     };
   });
-  console.log(data);
   if (!focused) {
     emit('input', JSON.stringify(data));
   }

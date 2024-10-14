@@ -143,7 +143,7 @@ watch(max, value => {
     />
     <span v-if="regexFailed" class="invalid-feedback">{{ failedMessage }}</span>
     <hr />
-    <div class="title">Question Settings</div>
+    <div class="title">Question Gates</div>
     <Select :options="options" @input="setOption" :stringLength="66" :stringLengthSelected="66" />
     <div class="flex items-center gap-x-4">
       <div class="flex items-center gap-2 mt-2">

@@ -27,24 +27,28 @@
             @input="branch.data.type = $event"
             :tabindex="2"
           />
-          <MultiSelect
-            v-if="branch.data.quest.type === 'multiple'"
-            :options="questsAnswers(branch.data.quest)"
-            @input="branch.data.choice = $event"
-            :tabindex="3"
-          />
-          <Select
-            v-if="branch.data.quest.type === 'rate'"
-            :options="questsRates(branch.data.quest)"
-            @input="branch.data.choice = $event"
-            :tabindex="3"
-          />
-          <Select
-            v-if="branch.data.quest.type === 'quiz'"
-            :options="questsAnswers(branch.data.quest)"
-            @input="branch.data.choice = $event"
-            :tabindex="3"
-          />
+          <div
+            v-if="branch.data.type.name !== 'is not empty' && branch.data.type.name !== 'is empty'"
+          >
+            <MultiSelect
+              v-if="branch.data.quest.type === 'multiple'"
+              :options="questsAnswers(branch.data.quest)"
+              @input="branch.data.choice = $event"
+              :tabindex="3"
+            />
+            <Select
+              v-if="branch.data.quest.type === 'rate'"
+              :options="questsRates(branch.data.quest)"
+              @input="branch.data.choice = $event"
+              :tabindex="3"
+            />
+            <Select
+              v-if="branch.data.quest.type === 'quiz'"
+              :options="questsAnswers(branch.data.quest)"
+              @input="branch.data.choice = $event"
+              :tabindex="3"
+            />
+          </div>
         </div>
         <div class="flex flex-col gap-3">
           <div>

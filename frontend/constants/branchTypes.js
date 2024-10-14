@@ -7,49 +7,49 @@ export const getListByType = (type) => {
       ];
     case 'quiz':
       return [
-        { id: 1, name: 'true' },
-        { id: 2, name: 'false ' },
+        { id: 3, name: 'true' },
+        { id: 4, name: 'false ' },
       ];
     case 'multiple':
       return [
-        { id: 1, name: 'is' },
-        { id: 2, name: 'is not ' },
-        { id: 3, name: 'is any of' },
-        { id: 4, name: 'is none of' },
+        { id: 5, name: 'is' },
+        { id: 6, name: 'is not ' },
+        { id: 7, name: 'is any of' },
+        { id: 8, name: 'is none of' },
       ];
     case 'rate':
       return [
-        { id: 1, name: 'is empty' },
-        { id: 2, name: 'is not empty' },
-        { id: 3, name: 'equal' },
-        { id: 4, name: 'not equal' },
+        { id: 9, name: 'is empty' },
+        { id: 10, name: 'is not empty' },
+        { id: 11, name: 'equal' },
+        { id: 12, name: 'not equal' },
       ];
     case 'number':
       return [
-        { id: 1, name: 'is empty' },
-        { id: 2, name: 'is not empty' },
-        { id: 3, name: 'equal' },
-        { id: 4, name: 'not equal' },
+        { id: 13, name: 'is empty' },
+        { id: 14, name: 'is not empty' },
+        { id: 15, name: 'equal' },
+        { id: 16, name: 'not equal' },
       ];
     case 'email':
       return [
-        { id: 1, name: 'is empty' },
-        { id: 2, name: 'is not empty' },
+        { id: 17, name: 'is empty' },
+        { id: 18, name: 'is not empty' },
       ];
     case 'link':
       return [
-        { id: 1, name: 'is empty' },
-        { id: 2, name: 'is not empty' },
+        { id: 19, name: 'is empty' },
+        { id: 20, name: 'is not empty' },
       ];
     case 'address':
       return [
-        { id: 1, name: 'is empty' },
-        { id: 2, name: 'is not empty' },
+        { id: 21, name: 'is empty' },
+        { id: 22, name: 'is not empty' },
       ];
     default:
       return [
-        { id: 1, name: 'is empty' },
-        { id: 2, name: 'is not empty' },
+        { id: 23, name: 'is empty' },
+        { id: 24, name: 'is not empty' },
       ];
   }
 };

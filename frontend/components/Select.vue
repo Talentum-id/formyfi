@@ -147,10 +147,14 @@ export default {
       }
     };
     watch(
-      () => props.default,
-      (value) => {
-        if (value) {
-          selected.value = value;
+      () => props.options,
+      (newValue, old) => {
+        if (arraysEqual(old, newValue)) {
+          return;
+        }
+
+        if (newValue && newValue.length) {
+          selected.value = newValue[0];
         }
       },
     );
@@ -160,6 +164,10 @@ export default {
         open.value = false;
       }
     });
+
+    function arraysEqual(arr1, arr2) {
+      return JSON.stringify(arr1) === JSON.stringify(arr2);
+    }
 
     onBeforeMount(() => {
       emit('input', selected.value);
@@ -242,6 +250,7 @@ export default {
 .arrow.flipped {
   transform: rotate(180deg);
 }
+
 .first {
   display: flex;
   align-items: center;
@@ -249,6 +258,7 @@ export default {
   padding: 4px 8px;
   font-size: 14px;
 }
+
 .custom-select .items {
   background: $white;
   cursor: pointer;
@@ -271,15 +281,18 @@ export default {
   z-index: 1000;
   word-break: break-word;
 }
+
 hr {
   margin: 8px 0;
   color: #dad9f7;
 }
+
 .custom-select .items div {
   color: $default;
   cursor: pointer;
   user-select: none;
   padding: 4px 8px;
+
   &:not(:first-child) {
     margin-top: 8px;
   }
@@ -298,6 +311,7 @@ hr {
   height: 4px;
   width: 4px;
 }
+
 ::-webkit-scrollbar-thumb:horizontal {
 }
 </style>

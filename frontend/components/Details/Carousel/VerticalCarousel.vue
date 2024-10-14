@@ -448,7 +448,11 @@ const isOpenQuestion = computed(() => {
 });
 const step = computed(() => counterStore.getStep);
 const incrementVerification = () => {
-  newArr.value[currentIndex.value].verificationAmount += 1;
+  if (newArr.value[currentIndex.value].questionType === 'discord') {
+    newArr.value[currentIndex.value].verificationAmount += 2;
+  } else {
+    newArr.value[currentIndex.value].verificationAmount += 1;
+  }
 };
 const getDataByType = (type) => {
   switch (type) {

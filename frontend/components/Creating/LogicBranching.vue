@@ -125,7 +125,7 @@ const branches = ref([
 
 const addBranch = () => {
   branches.value.push({
-    open: false,
+    open: true,
     data: {
       quest: questsList?.value[0],
       type: getListByType('open')[0],
@@ -136,15 +136,17 @@ const addBranch = () => {
 };
 
 watch(focused, (focused) => {
-  const data = branches.value.map((branch) => {
-    return {
-      quest: branch.data.quest.name,
-      type: branch.data.type.name,
-      choice: branch.data.choice,
-      step: branch.data.step.name,
-    };
-  });
-  if (!focused) {
+  const data = branches.value
+    .map((branch) => {
+      return {
+        quest: branch.data.quest.name,
+        type: branch.data.type.name,
+        choice: branch.data.choice,
+        step: branch.data.step.name,
+      };
+    })
+    ?.filter((el) => el);
+  if (!focused && data) {
     emit('input', JSON.stringify(data));
   }
 });

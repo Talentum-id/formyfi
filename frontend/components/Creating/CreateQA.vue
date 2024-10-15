@@ -729,7 +729,7 @@ const saveQA = async () => {
       };
     }),
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
-    branches: branchRequired.value ? [branches.value] : [],
+    branches: branchRequired.value && branches.value ? [branches.value] : [],
   });
 };
 

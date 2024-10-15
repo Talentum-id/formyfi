@@ -9,11 +9,16 @@
     <div v-if="required" class="flex flex-col gap-6">
       <div class="my-2 flex justify-between items-start">
         <div>
-          <p class="text-bold">Connect your Discord server</p>
+          <p v-if="!botConnected" class="text-bold">
+            Connect your Discord server
+          </p>
+          <p v-else>
+            FormyFi bot is connected
+          </p>
           <p class="text-xs leading-4">(If connection disrupts, Respondents will be unable to pass the Gate)</p>
         </div>
         <SocialConnect
-          class="w-[148px] cursor-pointer"
+          class="w-[150px] cursor-pointer"
           :data="{
             icon: 'Discord-Default',
             title: botConnected ? 'Disconnect' : 'Connect bot'

@@ -12,7 +12,7 @@
         placeholder="Username "
         v-model="twitter.follow"
         :isError="!twitter.follow"
-        errorText="Username is Required"
+        errorText="Username is not valid"
       />
     </div>
     <div class="check-btn_wrapper">
@@ -80,6 +80,15 @@ watch(focused, (focused) => {
     emit('input', twitter.value);
 
     const twitterUrlRegex = /^(https?:\/\/)?(www\.)?(twitter\.com|x\.com)(\/.*)?$/i;
+    const twitterUsernameRegex = /^[A-Za-z0-9_]{1,15}$/;
+
+    if (twitter.value.follow.charAt(0) === '@') {
+      twitter.value.follow = twitter.value.follow.slice(1, twitter.value.follow.length);
+    }
+
+    if (!twitterUsernameRegex.test(twitter.value.follow)) {
+      twitter.value.follow = '';
+    }
 
     if (!twitterUrlRegex.test(twitter.value.reply)) {
       twitter.value.reply = '';

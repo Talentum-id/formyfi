@@ -71,7 +71,7 @@
       <div class="section_wrapper">
         <div class="section_wrapper-title flex gap-6">
           Questions
-          <TooltipIcon tooltipText="tooltipText" />
+          <!--          <TooltipIcon tooltipText="tooltipText" />-->
         </div>
         <div class="section_wrapper-subtitle">
           Create up to 30 questions. <br />
@@ -146,7 +146,7 @@
                   label="Allow respondent to add file"
                   @check="question.fileAllowed = $event"
                 />
-                <TooltipIcon tooltipText="tooltipText" />
+                <!--                <TooltipIcon tooltipText="tooltipText" />-->
               </div>
               <TwitterBlock
                 v-if="question.type?.id === 3"
@@ -192,7 +192,7 @@
                       label="Allow own answer"
                       @check="question.openAnswerAllowed = $event"
                     />
-                    <TooltipIcon tooltipText="tooltipText" />
+                    <!--                    <TooltipIcon tooltipText="tooltipText" />-->
                   </div>
                 </div>
               </div>
@@ -230,7 +230,7 @@
                     label="Allow own answer"
                     @check="question.openAnswerAllowed = $event"
                   ></Checkbox>
-                  <TooltipIcon tooltipText="tooltipText" />
+                  <!--                  <TooltipIcon tooltipText="tooltipText" />-->
                 </div>
               </div>
             </div>
@@ -333,7 +333,6 @@ import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import Input from '@/components/Input.vue';
 import { transformDate, addDaysToDate } from '@/util/helpers';
-import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
@@ -1149,7 +1148,7 @@ export default defineComponent({
       width: 125px;
 
       background: $default;
-      box-shadow: 0px 2px 8px rgba(26, 29, 41, 0.24);
+      box-shadow: 0 2px 8px rgba(26, 29, 41, 0.24);
       border-radius: 8px;
       padding: 4px 8px;
       font-size: 12px;
@@ -1160,7 +1159,6 @@ export default defineComponent({
       font-family: $default_font;
       font-style: normal;
       font-weight: 500;
-      font-size: 12px;
       line-height: 16px;
       letter-spacing: 0.014em;
       font-feature-settings:

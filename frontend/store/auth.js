@@ -146,6 +146,11 @@ export const useAuthStore = defineStore('auth', {
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
       const agent = identity ? new HttpAgent({ identity }) : null;
+
+      if (agent !== null) {
+        await agent.syncTime();
+      }
+
       const actor = identity ? createActorFromIdentity(identity) : null;
       const principal = identity ? await agent.getPrincipal() : null;
 

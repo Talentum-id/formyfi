@@ -113,7 +113,7 @@ const questsRates = (quest) => {
 };
 const branches = ref([
   {
-    open: false,
+    open: true,
     data: {
       quest: questsList?.value[0],
       type: getListByType('open')[0],

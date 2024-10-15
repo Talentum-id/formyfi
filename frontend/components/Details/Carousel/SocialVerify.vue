@@ -1,17 +1,13 @@
 <template>
   <div class="action-button flex h-10">
-    <div class="flex py-2 px-4 w-4/5 gap-2 items-center">
+    <div class="flex py-2 px-4 w-4/5 gap-2 items-center" @click="navigate()">
       <Icon :name="socialIcon" class="icon-soc" :size="24" />
-      <div @click="navigate()" class="cursor-pointer">{{ title }}</div>
+      <div class="cursor-pointer">{{ title }}</div>
     </div>
     <div class="w-[1px] bg-white h-10"></div>
     <div class="py-2 px-4 w-full text-center cursor-pointer" @click="verify">
-      <span v-if="!loading && !isCompleted && !verified && counter === 0">
-        Verify
-      </span>
-      <span v-else-if="loading">
-        . . .
-      </span>
+      <span v-if="!loading && !isCompleted && !verified && counter === 0"> Verify </span>
+      <span v-else-if="loading"> . . . </span>
       <span class="" v-else-if="verified || isCompleted">
         <Icon class="checked-icon" name="Tik" :size="24" />
       </span>
@@ -65,7 +61,7 @@ const loading = ref(false);
 const isCompleted = ref(false);
 
 const navigate = () => {
-  const {action, actionType, provider} = props;
+  const { action, actionType, provider } = props;
 
   if (action === 'follow' && provider === 'twitter') {
     window.open(`https://x.com/${actionType}`, '_blank');
@@ -82,11 +78,12 @@ const verify = () => {
 
   loading.value = true;
 
-  axiosService.post(`${process.env.API_URL}social-verification/${props.provider}`, {
-    provider_id: props.providerId,
-    action: props.action,
-    source: props.actionType,
-  })
+  axiosService
+    .post(`${process.env.API_URL}social-verification/${props.provider}`, {
+      provider_id: props.providerId,
+      action: props.action,
+      source: props.actionType,
+    })
     .then(({ data }) => {
       isCompleted.value = data.result;
 
@@ -103,7 +100,7 @@ const verify = () => {
         emits('verify');
       }
     })
-    .catch(e => {
+    .catch((e) => {
       console.error(e);
 
       counter.value = 10;
@@ -115,7 +112,7 @@ const verify = () => {
         }
       }, 1000);
     })
-    .finally(() => loading.value = false);
+    .finally(() => (loading.value = false));
 };
 </script>
 <style scoped lang="scss">

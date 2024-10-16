@@ -50,7 +50,10 @@ export const useResponseStore = defineStore('response', {
 
       this.crypto = new CryptoService(this.actor);
     },
-    async storeResponse(params) {
+    async storeResponse(params, attempts = 0) {
+      // We need to keep attempt counter, since with runtime authorization on form submission,
+      // response are submitted successfully from 2nd attempt
+      const cleanParams = {...params};
       await Promise.all(
         params.answers.map(async (param) => {
           const owner = useAuthStore().getPrincipal ?? param.owner;
@@ -77,9 +80,12 @@ export const useResponseStore = defineStore('response', {
 
           await this.fetchResponse(params.shareLink);
         })
-        .catch((e) => {
-          console.log(e);
-          throw e;
+        .catch(async (e) => {
+          if(attempts === 0) {
+            await this.storeResponse(cleanParams, 1);
+          } else {
+            console.error(e);
+          }
         });
     },
     async getQAResponses(shareLink, params) {

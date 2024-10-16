@@ -10,7 +10,7 @@ const authStore = useAuthStore();
 const router = useRouter();
 const emit = defineEmits(['success', 'reject']);
 
-const reloadingProviders = ['siwe', 'siws'];
+const reloadingProviders = ['siwe'];
 const form = ref({
   username: '',
   fullName: '',
@@ -27,9 +27,8 @@ onMounted(async () => {
         await authStore.setUser(res[0]);
         if (!useAuthStore().isQuest) {
           await router.push('/');
-
           if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
-            //await window.location.reload();
+            await window.location.reload();
           }
         }
         emit('success');

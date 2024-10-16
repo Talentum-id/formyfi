@@ -833,19 +833,27 @@ const branchCheck = async () => {
       };
     });
 
-    try {
-      if (!hasUser.value) {
-        await checkUserIdentity();
-      }
-      await loadImages();
-      await storeResponseAndClose();
-    } catch (e) {
+    await submitResponse();
+  }
+};
+const submitResponse = async (identityValidationAttempt = 0) => {
+  try {
+    if (!hasUser.value) {
+      await checkUserIdentity();
+    }
+  } catch (e) {
+    if (identityValidationAttempt === 0) {
+      await submitResponse(1);
+    } else {
       loading.value = false;
       handleErrorModal();
       console.error(e);
     }
   }
-};
+
+  await loadImages();
+  await storeResponseAndClose();
+}
 </script>
 <style lang="scss">
 .layout {

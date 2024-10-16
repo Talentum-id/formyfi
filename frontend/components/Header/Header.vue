@@ -52,13 +52,14 @@ export default {
   },
   setup() {
     const showTooltips = ref(false);
+    const menu = ref(null);
+
     const router = useRouter();
     const authStore = useAuthStore();
     const { disconnect } = useDisconnect();
 
     const user = computed(() => authStore.getProfileData);
 
-    const menu = ref(null);
     const goHome = () => {
       router.push('/');
     };

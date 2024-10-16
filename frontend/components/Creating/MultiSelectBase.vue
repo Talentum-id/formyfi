@@ -1,5 +1,5 @@
 <template>
-  <div class="multi-select" @trigger="open = false" @click="toggleDropdown" ref="selectContainer">
+  <div class="multi-select" @click="toggleDropdown" ref="selectContainer">
     <div class="selected">
       {{
         selectedItems.length > 0
@@ -11,8 +11,8 @@
     <transition name="dropdown">
       <div class="items" v-if="open">
         <div
-          v-for="(option, i) in options"
-          :key="i"
+          v-for="option in options"
+          :key="option.id"
           @click.stop="toggleOption(option)"
           :class="{ 'item-selected': isSelected(option) }"
         >
@@ -36,34 +36,32 @@ export default {
     },
     modelValue: {
       type: Array,
-      required: false,
       default: () => [],
     },
   },
   setup(props, { emit }) {
     const open = ref(false);
-    const selectedItems = ref(props.modelValue);
+    const selectContainer = ref(null);
 
     const isSelected = (option) => selectedItems.value.includes(option);
-    const selectContainer = ref(null);
-    const { focused } = useFocusWithin(selectContainer);
-
+    const selectedItems = ref([]);
     const toggleOption = (option) => {
-      if (isSelected(option)) {
-        selectedItems.value = selectedItems.value.filter((item) => item.name !== option.name);
+      const index = selectedItems.value.findIndex((item) => item.id === option.id);
+      if (index !== -1) {
+        selectedItems.value.splice(index, 1);
       } else {
         selectedItems.value.push(option);
       }
-      emit('input', selectedItems.value);
+      emit('update:modelValue', selectedItems.value);
     };
 
     const toggleDropdown = () => {
       open.value = !open.value;
     };
-    watch(focused, (focused) => {
-      if (!focused) {
-        open.value = false;
-      }
+
+    const { focused } = useFocusWithin(selectContainer);
+    watch(focused, (newFocused) => {
+      if (!newFocused) open.value = false;
     });
 
     return {
@@ -85,7 +83,7 @@ export default {
   position: relative;
   display: inline-block;
   user-select: none;
-  border: 1px solid $default-border;
+  border: 1px solid #dcdcdc;
   border-radius: 8px;
 }
 
@@ -93,56 +91,38 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  background: $white;
-  border: 1px solid $default-badge-border;
+  background: #fff;
+  border: 1px solid #e1e1e1;
   border-radius: 8px;
   cursor: pointer;
   user-select: none;
-  font-family: 'Basis Grotesque Pro';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
   padding: 4px 8px;
-
   color: #38405b;
 }
 
 .items {
   position: absolute;
-  background: $white;
+  background: #fff;
   cursor: pointer;
   user-select: none;
-  font-family: 'Basis Grotesque Pro';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 20px;
-  color: $default;
-  overflow: hidden;
-  border-right: 1px solid $default-badge-border;
-  border-left: 1px solid $default-badge-border;
-  border-bottom: 1px solid $default-badge-border;
+  overflow-y: auto;
+  border: 1px solid #e1e1e1;
   border-radius: 0 0 4px 4px;
   max-height: 200px;
   width: 100%;
-
-  overflow-y: auto;
   z-index: 10;
 }
 
 .items div {
   padding: 4px 8px;
-
-  color: $default;
+  color: #38405b;
 }
 
 .items div:hover,
 .items div.item-selected {
-  background-color: $default-border;
-  color: $default;
+  background-color: #f0f0f0;
 }
+
 .dropdown-enter-active,
 .dropdown-leave-active {
   transition: all 0.2s ease;
@@ -164,10 +144,6 @@ export default {
 }
 
 .arrow-up {
-  background: url('@/assets/images/select.svg');
-  background-repeat: no-repeat;
   transform: rotate(180deg);
-  width: 12px;
-  height: 7px;
 }
 </style>

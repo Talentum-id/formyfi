@@ -418,7 +418,7 @@ const thxMessage = ref({
 const branches = ref([]);
 const countOfQuestions = ref([
   {
-    id: 0,
+    id: uuidv4(),
     question: '',
     questionType: '',
     fileAllowed: false,
@@ -494,7 +494,7 @@ const handleImageError = (event) => {
 const addQuestion = () => {
   if (countOfQuestions.value.length < 30) {
     countOfQuestions.value.push({
-      id: countOfQuestions.value.length,
+      id: uuidv4(),
       question: '',
       questionType: '',
       fileAllowed: false,

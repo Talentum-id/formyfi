@@ -6,7 +6,7 @@
       @change="handleFileUpload"
       ref="fileInput"
       style="display: none"
-      accept="image/*"
+      accept="jpeg, png, jpg, gif, svg"
     />
     <div
       v-if="!banner && !image"
@@ -36,6 +36,7 @@
 import Icon from '@/components/Icons/Icon.vue';
 import Alert from '@/components/Alert.vue';
 import { ref } from 'vue';
+import { ElUpload } from 'element-plus';
 
 const props = defineProps({
   banner: {
@@ -66,6 +67,7 @@ const handleFileUpload = () => {
 
   const maxSizeInMB = 1;
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+  const formats = ['jpeg', 'png', 'jpg', 'gif', 'svg'];
 
   if (file.size > maxSizeInBytes) {
     image.value = null;
@@ -79,6 +81,17 @@ const handleFileUpload = () => {
     return;
   }
 
+  if (formats.every((type) => file.type.indexOf(type) === -1)) {
+    image.value = null;
+    noImage.value = true;
+
+    errorMessage.value = 'Incorrect format fot banner!';
+    showError.value = true;
+
+    setTimeout(() => (showError.value = false), 3000);
+
+    return;
+  }
   if (file) {
     const reader = new FileReader();
 

@@ -6,7 +6,7 @@
       @change="handleFileUpload"
       ref="fileInput"
       style="display: none"
-      accept="jpeg, png, jpg, gif, svg"
+      accept=".jpeg, .png, .jpg, .gif, .svg"
     />
     <div
       v-if="!banner && !image"

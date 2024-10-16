@@ -53,7 +53,7 @@ export const useResponseStore = defineStore('response', {
     async storeResponse(params) {
       await Promise.all(
         params.answers.map(async (param) => {
-          const owner = param.owner;
+          const owner = useAuthStore().getPrincipal ?? param.owner;
           const key = `${owner}-${param.shareLink}`;
 
           const encryptedAnswer = !!param.answer.length

@@ -51,8 +51,9 @@ export default {
     const open = ref(false);
     const selectContainer = ref(null);
 
-    const isSelected = (option) => selectedItems.value.includes(option);
     const selectedItems = ref([]);
+    const isSelected = (option) => selectedItems.value.find((item) => item.id === option.id);
+
     const toggleOption = (option) => {
       const index = selectedItems.value.findIndex((item) => item.id === option.id);
       if (index !== -1) {
@@ -60,7 +61,7 @@ export default {
       } else {
         selectedItems.value.push(option);
       }
-      emit('update:modelValue', selectedItems.value);
+      emit('input', selectedItems.value);
     };
 
     const toggleDropdown = () => {

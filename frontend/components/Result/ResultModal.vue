@@ -153,8 +153,12 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
                 v-for="i in question.answers"
                 :key="i"
                 :text="i.answer"
-                :is-correct="JSON.parse(answers[idx].answer).indexOf(i.answer) !== -1"
-                :is-incorrect="JSON.parse(answers[idx].answer).indexOf(i.answer) === -1"
+                :is-correct="
+                  answers[idx].answer && JSON.parse(answers[idx].answer).indexOf(i.answer) !== -1
+                "
+                :is-incorrect="
+                  answers[idx].answer && JSON.parse(answers[idx].answer).indexOf(i.answer) === -1
+                "
               />
               <Variant
                 v-if="

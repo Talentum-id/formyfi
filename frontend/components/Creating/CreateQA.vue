@@ -27,13 +27,13 @@
         />
       </div>
       <div class="section_wrapper">
-        <div class="section_wrapper-title">Quest Name</div>
+        <div class="section_wrapper-title">Q&A title</div>
         <Input
           v-model="questionName"
           name=""
-          placeholder="Enter the quest name"
+          placeholder="Enter Q&A title"
           :isError="!questionName && touched"
-          errorText="Enter the quest name"
+          errorText="Enter Q&A title"
         />
       </div>
       <div class="section_wrapper">
@@ -557,7 +557,7 @@ const setStartDate = (event) => {
 };
 
 const touched = ref(false);
-const statusMessage = ref('Publish Quest');
+const statusMessage = ref('Publish Q&A');
 
 function uuidv4() {
   return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>

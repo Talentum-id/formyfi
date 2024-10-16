@@ -5,12 +5,12 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { computed, onMounted, ref } from 'vue';
 import { modal } from '@/mixins/modal';
+import { reloadingProviders } from '@/constants/reloadingProviders';
 
 const authStore = useAuthStore();
 const router = useRouter();
 const emit = defineEmits(['success', 'reject']);
 
-const reloadingProviders = ['siwe'];
 const form = ref({
   username: '',
   fullName: '',

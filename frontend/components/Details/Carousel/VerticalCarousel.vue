@@ -339,6 +339,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'success']);
 const authStore = useAuthStore();
 const show = ref(false);
+const isGuest = ref(false);
 const questionFiles = ref([]);
 const answerFiles = ref([]);
 const currentIndex = ref(findCurrentItemIndex());
@@ -598,6 +599,7 @@ const loadImages = () => {
 import error from '@/assets/icons/modal/error.vue';
 import SocialVerify from '@/components/Details/Carousel/SocialVerify.vue';
 import { getRuleForCurrentType } from '@/constants/branchTypes';
+import { reloadingProviders } from '@/constants/reloadingProviders';
 
 const handleSuccessModal = async () => {
   const { thankYouMessage } = props;
@@ -618,7 +620,13 @@ const handleSuccessModal = async () => {
     type: 'success',
     actionText: 'Great!',
     customImg,
-    fn: () => modal.emit('closeModal', {}),
+    fn: () => {
+      if (isGuest.value && reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
+        window.location.reload();
+      } else {
+        modal.emit('closeModal', {});
+      }
+    },
   });
 };
 const handleErrorModal = () => {
@@ -837,17 +845,18 @@ const branchCheck = async () => {
   }
 };
 const submitResponse = async (identityValidationAttempt = 0) => {
-  try {
-    if (!hasUser.value) {
+  if (!hasUser.value) {
+    isGuest.value = true;
+    try {
       await checkUserIdentity();
-    }
-  } catch (e) {
-    if (identityValidationAttempt === 0) {
-      await submitResponse(1);
-    } else {
-      loading.value = false;
-      handleErrorModal();
-      console.error(e);
+    } catch (e) {
+      if (identityValidationAttempt === 0) {
+        await submitResponse(1);
+      } else {
+        loading.value = false;
+        handleErrorModal();
+        console.error(e);
+      }
     }
   }
 

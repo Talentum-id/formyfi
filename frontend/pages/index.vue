@@ -149,7 +149,7 @@ const requestsRows = computed(
       shareLink: {
         component: Link,
         props: {
-          text: `${window.location.href}form/${item.shareLink}`,
+          text: `${window.location.origin}/form/${item.shareLink}`,
           size: 12,
           value: item.shareLink,
         },

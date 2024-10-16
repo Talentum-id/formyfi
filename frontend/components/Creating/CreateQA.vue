@@ -80,7 +80,7 @@
         <div
           class="section_wrapper rewards-type"
           v-for="(question, index) in countOfQuestions"
-          :key="index"
+          :key="question.id"
         >
           <div class="section_wrapper-title head-control">
             Questions #{{ index + 1 }}
@@ -418,6 +418,7 @@ const thxMessage = ref({
 const branches = ref([]);
 const countOfQuestions = ref([
   {
+    id: 0,
     question: '',
     questionType: '',
     fileAllowed: false,
@@ -493,6 +494,7 @@ const handleImageError = (event) => {
 const addQuestion = () => {
   if (countOfQuestions.value.length < 30) {
     countOfQuestions.value.push({
+      id: countOfQuestions.value.length,
       question: '',
       questionType: '',
       fileAllowed: false,

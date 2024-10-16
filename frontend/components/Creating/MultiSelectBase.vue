@@ -1,5 +1,10 @@
 <template>
-  <div class="multi-select" @click="toggleDropdown" ref="selectContainer">
+  <div
+    class="custom-select"
+    @click="toggleDropdown"
+    ref="selectContainer"
+    :style="{ zIndex: open ? 1000 : 98 }"
+  >
     <div class="selected">
       {{
         selectedItems.length > 0
@@ -17,6 +22,7 @@
           :class="{ 'item-selected': isSelected(option) }"
         >
           {{ option.name }}
+          <icon icon="Tik" v-show="isSelected(option)" :size="20"></icon>
         </div>
       </div>
     </transition>
@@ -26,9 +32,11 @@
 <script>
 import { ref, watch } from 'vue';
 import { useFocusWithin } from '@vueuse/core';
+import Icon from '@/components/Icons/Icon.vue';
 
 export default {
   name: 'MultiSelect',
+  components: { Icon },
   props: {
     options: {
       type: Array,
@@ -77,73 +85,138 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.multi-select {
-  width: 100%;
-  cursor: pointer;
+.custom-select {
   position: relative;
-  display: inline-block;
-  user-select: none;
-  border: 1px solid #dcdcdc;
+  max-width: 100%;
+  text-align: left;
+  outline: none;
+  z-index: 98;
+  line-height: 47px;
   border-radius: 8px;
 }
 
-.selected {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #e1e1e1;
+.custom-select .selected {
+  background: $white;
+  border: 1px solid $default-badge-border;
   border-radius: 8px;
   cursor: pointer;
   user-select: none;
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
   padding: 4px 8px;
-  color: #38405b;
+  color: $transparent-active-text;
 }
 
-.items {
+.custom-select .selected.open {
+  background: $white;
+  border: 1px solid $default-border;
+  cursor: pointer;
+  user-select: none;
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  z-index: 1000;
+  color: $default;
+}
+
+.custom-select .selected:after {
   position: absolute;
-  background: #fff;
-  cursor: pointer;
-  user-select: none;
-  overflow-y: auto;
-  border: 1px solid #e1e1e1;
-  border-radius: 0 0 4px 4px;
-  max-height: 200px;
-  width: 100%;
-  z-index: 10;
-}
-
-.items div {
-  padding: 4px 8px;
-  color: #38405b;
-}
-
-.items div:hover,
-.items div.item-selected {
-  background-color: #f0f0f0;
-}
-
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter,
-.dropdown-leave-to {
-  max-height: 0;
-  opacity: 0;
+  content: '';
+  top: 12px;
+  right: 1em;
+  width: 12px;
+  height: 7px;
+  border: none;
 }
 
 .arrow {
-  background: url('@/assets/images/select.svg');
-  background-repeat: no-repeat;
-  transition: transform 0.2s;
-  margin-right: 5px;
+  position: absolute;
+  content: '';
+  top: 12px;
+  right: 1em;
   width: 12px;
   height: 7px;
+  border: none;
+  transition: transform 0.2s;
+  background: url('@/assets/images/select.svg') no-repeat;
 }
 
-.arrow-up {
+.arrow.flipped {
   transform: rotate(180deg);
+}
+
+.first {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.custom-select .items {
+  background: $white;
+  cursor: pointer;
+  user-select: none;
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 8px;
+  margin-top: 5px;
+  padding: 8px;
+  line-height: 20px;
+  color: $default;
+  max-height: 200px;
+  overflow: auto;
+  border: 1px solid $default-badge-border;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  word-break: break-word;
+}
+
+hr {
+  margin: 8px 0;
+  color: #dad9f7;
+}
+
+.custom-select .items div {
+  color: $default;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 8px;
+
+  &:not(:first-child) {
+    margin-top: 8px;
+  }
+}
+
+.custom-select .items div:hover {
+  background-color: $default-border;
+  border-radius: 8px;
+}
+
+.selectHide {
+  display: none;
+}
+
+::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+}
+
+.item-selected {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 </style>

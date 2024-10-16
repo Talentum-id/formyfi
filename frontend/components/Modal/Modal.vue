@@ -6,7 +6,7 @@
       </div>
       <div class="modal">
         <div v-if="customImg">
-          <img :src="customImg" :alt="title" class="rounded h-20 w-20">
+          <img :src="customImg" :alt="title" class="rounded !h-40 !w-40" />
         </div>
         <component v-else :is="getIcon(type)" />
         <span class="title">{{ title }}</span>

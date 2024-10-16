@@ -192,7 +192,6 @@ export default {
   outline: none;
   z-index: 98;
   line-height: 47px;
-  border: 1px solid $default-border;
   border-radius: 8px;
 }
 

@@ -309,8 +309,7 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {
-    },
+    default: () => {},
   },
   visible: {
     default: false,
@@ -417,7 +416,9 @@ const disableBtn = computed(() => {
   ) {
     return (
       currentQuestion.verificationAmount <
-      Object.values(currentQuestion[currentQuestion.questionType][0]).filter(item => !!item.length).length
+      Object.values(currentQuestion[currentQuestion.questionType][0]).filter(
+        (item) => !!item.length,
+      ).length
     );
   }
 
@@ -462,7 +463,8 @@ const getDataByType = (type) => {
         title: !!newArr.value[currentIndex.value].answer.length
           ? `Disconnect ${newArr.value[currentIndex.value].answer}`
           : 'Connect X',
-        fn: () => newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connectSocial(type),
+        fn: () =>
+          newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connectSocial(type),
         info: {
           title: 'What is your X username?',
           description: 'Please verify your account by clicking the button below.',
@@ -474,7 +476,8 @@ const getDataByType = (type) => {
         title: !!newArr.value[currentIndex.value].answer.length
           ? `Disconnect (${newArr.value[currentIndex.value].answer})`
           : 'Connect Discord',
-        fn: () => newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connectSocial(type),
+        fn: () =>
+          newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connectSocial(type),
         info: {
           title: 'What is your Discord handle?',
           description: 'Please verify your account by clicking the button below.',
@@ -486,7 +489,7 @@ const getDataByType = (type) => {
         title: !!newArr.value[currentIndex.value].answer
           ? `Disconnect ${newArr.value[currentIndex.value].answer}`
           : 'Connect Wallet',
-        fn: () => newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connect(),
+        fn: () => (newArr.value[currentIndex.value].answer !== '' ? disconnectSocial() : connect()),
         info: {
           title: 'What is your wallet address?',
           description:
@@ -642,16 +645,21 @@ const handleLoadingFilesModal = () => {
   });
 };
 const storeResponseAndClose = async () => {
-  await handleLoadingModal();
-  await responseStore.storeResponse({
-    filled: realTime.value,
-    shareLink: props.shareLink,
-    answers: result.value,
-    owner: authStore.getPrincipal,
-  });
-  await counterStore.setValue(props.items.length);
-  await closeModal();
-  await handleSuccessModal();
+  try {
+    await handleLoadingModal();
+    await responseStore.storeResponse({
+      filled: realTime.value,
+      shareLink: props.shareLink,
+      answers: result.value,
+      owner: authStore.getPrincipal,
+    });
+    await counterStore.setValue(props.items.length);
+    await closeModal();
+    await handleSuccessModal();
+  } catch (e) {
+    console.log(e);
+    handleErrorModal();
+  }
 };
 const closeModal = async () => {
   await emit('close');
@@ -881,8 +889,9 @@ const branchCheck = async () => {
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
-      font-feature-settings: 'dlig' on,
-      'ss04' on;
+      font-feature-settings:
+        'dlig' on,
+        'ss04' on;
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
@@ -1038,9 +1047,10 @@ const branchCheck = async () => {
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $section-title;
 }
 
@@ -1051,9 +1061,10 @@ const branchCheck = async () => {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
   color: $secondary;
   text-align: center;
 }

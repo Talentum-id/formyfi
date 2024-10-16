@@ -41,7 +41,7 @@ const props = defineProps({
   visible: { type: Boolean, default: false },
   title: { type: String, default: '' },
   width: { type: Number, default: '' },
-  top: { type: Number, default: window.innerHeight / 2 - 200 },
+  top: { type: Number, default: window.innerHeight / 2 - 250 },
   customHeight: { type: Number, default: 'fit-content' },
   maxHeight: { type: Number, default: 'auto' },
   rightCustom: { type: Number, default: null },

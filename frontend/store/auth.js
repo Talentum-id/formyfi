@@ -26,7 +26,7 @@ const defaultOptions = {
   },
 };
 
-const createActorFromIdentity = identity => {
+const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_USER_INDEX, {
     agentOptions: { identity },
   });
@@ -359,21 +359,20 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async saveProfile(data) {
-      return await this.actor
-        ?.updateMe(
-          {
-            identity: process.env.DFX_ASSET_PRINCIPAL,
-            character: localStorage.extraCharacter,
-          },
-          {
-            provider: localStorage.authenticationProvider,
-            fullName: data.fullName,
-            username: data.username,
-            avatar: data.avatar,
-            forms_created: data.forms_created,
-            banner: data.banner,
-          },
-        );
+      return await this.actor?.updateMe(
+        {
+          identity: process.env.DFX_ASSET_PRINCIPAL,
+          character: localStorage.extraCharacter,
+        },
+        {
+          provider: localStorage.authenticationProvider,
+          fullName: data.fullName,
+          username: data.username,
+          avatar: data.avatar,
+          forms_created: data.forms_created,
+          banner: data.banner,
+        },
+      );
     },
     async connectSocial(provider) {
       axiosService
@@ -404,5 +403,6 @@ export const useAuthStore = defineStore('auth', {
     getUser: ({ user }) => user,
     getProfileData: ({ profile }) => profile,
     getUsersList: ({ usersList }) => usersList,
+    getAuthState: (state) => state.isAuthenticated,
   },
 });

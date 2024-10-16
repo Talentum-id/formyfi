@@ -10,10 +10,7 @@ const authStore = useAuthStore();
 const router = useRouter();
 const emit = defineEmits(['success', 'reject']);
 
-const reloadingProviders = [
-  'siwe',
-  'siws',
-];
+const reloadingProviders = ['siwe', 'siws'];
 const form = ref({
   username: '',
   fullName: '',
@@ -25,20 +22,19 @@ const errors = ref({
 
 onMounted(async () => {
   try {
-    await authStore.actor?.findUser(authStore.getPrincipal)
-      .then(async (res) => {
-        if (res.length) {
-          await authStore.setUser(res[0]);
-          if (!useAuthStore().isQuest) {
-            await router.push('/');
+    await authStore.actor?.findUser(authStore.getPrincipal).then(async (res) => {
+      if (res.length) {
+        await authStore.setUser(res[0]);
+        if (!useAuthStore().isQuest) {
+          await router.push('/');
 
-            if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
-              await window.location.reload();
-            }
+          if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
+            //await window.location.reload();
           }
-          emit('success');
         }
-      });
+        emit('success');
+      }
+    });
   } catch (e) {
     emit('reject');
   }
@@ -74,14 +70,13 @@ const createAccount = () => {
       if (!useAuthStore().isQuest) {
         await router.push('/');
         modal.emit('closeModal', {});
+        if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
+          await window.location.reload();
+        }
       }
 
       localStorage.isAuthenticated = true;
       emit('success');
-
-      if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
-        await window.location.reload();
-      }
     })
     .catch((error) => {
       modal.emit('closeModal', {});

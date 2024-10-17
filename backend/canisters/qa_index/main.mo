@@ -42,6 +42,10 @@ actor QAIndex {
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
   let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
 
+  public query func getFormsAmount() : async Nat {
+    shareLinks.size();
+  };
+
   public query func list(params : FetchParams) : async List {
     if (params.identity == "") {
       throw Error.reject("Identity is not specified");

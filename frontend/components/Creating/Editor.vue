@@ -39,7 +39,7 @@ const props = defineProps({
   description: { type: String, default: '' },
   placeholder: {
     type: String,
-    default: 'Enter the task description',
+    default: 'Enter Q&A description',
   },
   textClass: { type: String, default: null },
 });

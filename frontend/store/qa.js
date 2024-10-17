@@ -24,6 +24,7 @@ export const useQAStore = defineStore('qa', {
     list: [],
     loaded: false,
     loadedQA: false,
+    stats: 0,
   }),
   actions: {
     async init() {
@@ -45,6 +46,11 @@ export const useQAStore = defineStore('qa', {
         this.identity = useAuthStore().getIdentity;
         this.actor = this.identity ? createActorFromIdentity(this.identity) : qa_index;
       }
+    },
+    async fetchStats(){
+      return this.actor?.getFormsAmount()
+        .then(res => this.stats = res)
+        .catch(e => console.error(e));
     },
     async storeQA(params) {
       return await this.actor?.store(params, {
@@ -145,6 +151,7 @@ export const useQAStore = defineStore('qa', {
     },
   },
   getters: {
+    getStats: ({ stats }) => stats,
     getList: (state) => state.list,
     getQA: (state) => state.qa,
     getLoadingStatusList: (state) => state.loaded,

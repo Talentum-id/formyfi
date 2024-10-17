@@ -41,6 +41,10 @@ actor FormIndex {
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
   let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
 
+  public query func getFormsAmount() : async Nat {
+    shareLinks.size();
+  };
+
   public func storeQAEntries(entries : [(Text, [QA])]) : async () {
     QAEntries := entries;
   };

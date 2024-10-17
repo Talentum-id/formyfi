@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, useRoute } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import App from '@/pages/index.vue';
 import Responses from '@/pages/responses.vue';
 import MyResponses from '@/pages/my-responses.vue';
@@ -8,6 +8,7 @@ import quest from '@/pages/quest.vue';
 import Preview from '@/pages/preview.vue';
 import Profile from '@/pages/profile.vue';
 import Leaderboard from '@/pages/leaderboard.vue';
+import Stats from '@/pages/stats.vue';
 import { useAuthStore } from '@/store/auth';
 
 const routes = [
@@ -53,6 +54,15 @@ const routes = [
     component: Profile,
     meta: {
       title: `Profile`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/stats',
+    name: 'stats',
+    component: Stats,
+    meta: {
+      title: `Statistics`,
       requiresAuth: true,
     },
   },

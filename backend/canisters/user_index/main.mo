@@ -1,3 +1,4 @@
+import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Map "mo:base/HashMap";
 import Iter "mo:base/Iter";
@@ -9,8 +10,9 @@ import Types "./types";
 import Utils "utils";
 
 actor UserIndex {
-  type UserData = Types.UserData;
+  let SUPERADMIN = "darkcoder";
 
+  type UserData = Types.UserData;
   type ProfileData = {
     user : UserData;
     stats : ?StatsTypes.Data;
@@ -18,9 +20,14 @@ actor UserIndex {
 
   stable var userEntries : [(Text, UserData)] = [];
   stable var usernameEntries : [(Text, Text)] = [];
+  stable var adminUsernames : [Text] = [];
 
   let users = Map.fromIter<Text, UserData>(userEntries.vals(), 1000, Text.equal, Text.hash);
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
+
+  public query func getUsersAmount() : async Nat {
+    users.size();
+  };
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
     let { provider; fullName; username; avatar; banner } = data;
@@ -73,6 +80,56 @@ actor UserIndex {
     Buffer.toArray(data);
   };
 
+  public query func fetchAdmins() : async [Text] {
+    if (Array.find<Text>(adminUsernames, func x = x == SUPERADMIN) == null) {
+      let adminsBuffer = Buffer.fromArray<Text>(adminUsernames);
+      adminsBuffer.add(SUPERADMIN);
+
+      adminUsernames := Buffer.toArray(adminsBuffer);
+    };
+
+    adminUsernames;
+  };
+
+  public shared ({ caller }) func addAdmin(username : Text, character : Utils.Character) : async () {
+    let identity = await Utils.authenticate(caller, true, character);
+    await checkAdminRights(identity);
+
+    if (await findUsername(username)) {
+      switch (Array.find<Text>(adminUsernames, func x = x == username)) {
+        case null {
+          var usernamesBuffer = Buffer.fromArray<Text>(adminUsernames);
+          usernamesBuffer.add(username);
+
+          adminUsernames := Buffer.toArray(usernamesBuffer);
+        };
+        case (?_) throw Error.reject("Username is already an Admin");
+      };
+    } else {
+      throw Error.reject("This username does not exist");
+    };
+  };
+
+  public shared ({ caller }) func deleteAdmin(username : Text, character : Utils.Character) : async () {
+    let identity = await Utils.authenticate(caller, true, character);
+    await checkAdminRights(identity);
+
+    if (username == SUPERADMIN) {
+      throw Error.reject("This username is super-admin and cannot be removed");
+    };
+
+    if (await findUsername(username)) {
+      switch (Array.find<Text>(adminUsernames, func x = x == username)) {
+        case null throw Error.reject("Username is already an Admin");
+        case (?_) {
+          adminUsernames := Array.filter<Text>(adminUsernames, func x = x != username);
+        };
+      };
+    } else {
+      throw Error.reject("This username does not exist");
+    };
+  };
+
   public func incrementFormsCreated(identity : Text) : async () {
     switch (users.get(identity)) {
       case null return;
@@ -117,6 +174,10 @@ actor UserIndex {
       case (?user) {
         users.put(identity, data);
 
+        if (user.username == SUPERADMIN) {
+          throw Error.reject(SUPERADMIN # " is only super-admin, hence username cannot be updated");
+        };
+
         if (user.username != data.username) {
           let existingUsername = await findUsername(data.username);
 
@@ -124,6 +185,15 @@ actor UserIndex {
 
           usernames.delete(user.username);
           usernames.put(data.username, identity);
+
+          if (Array.find<Text>(adminUsernames, func x = x == user.username) != null) {
+            adminUsernames := Array.filter<Text>(adminUsernames, func x = x != user.username);
+
+            let usernamesBuffer = Buffer.fromArray<Text>(adminUsernames);
+            usernamesBuffer.add(data.username);
+
+            adminUsernames := Buffer.toArray(usernamesBuffer);
+          };
         };
 
         users.get(identity);
@@ -154,6 +224,23 @@ actor UserIndex {
       usernames.delete(key);
     };
 
+    adminUsernames := [];
+  };
+
+  public query func checkAdminRights(identity : Text) : async () {
+    switch (users.get(identity)) {
+      case null {
+        throw Error.reject("You don't have an Admin rights");
+      };
+      case (?callerData) {
+        if (
+          Array.find<Text>(adminUsernames, func x = x == callerData.username) == null and
+          callerData.username != SUPERADMIN
+        ) {
+          throw Error.reject("You don't have an Admin rights");
+        };
+      };
+    };
   };
 
   system func preupgrade() {

@@ -37,6 +37,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => {
     return {
       actor: null,
+      admins: [],
       authClient: null,
       isReady: false,
       isAuthenticated: false,
@@ -45,6 +46,7 @@ export const useAuthStore = defineStore('auth', {
       user: null,
       isQuest: false,
       profile: null,
+      stats: 0,
       usersList: null,
     };
   },
@@ -275,6 +277,28 @@ export const useAuthStore = defineStore('auth', {
       await router.push('/login');
       window.location.reload();
     },
+    async fetchStats() {
+      return await this.actor?.getUsersAmount()
+        .then(res => this.stats = res)
+        .catch(e => console.error(e));
+    },
+    async fetchAdmins() {
+      return await this.actor?.fetchAdmins()
+        .then(res => this.admins = res)
+        .catch(e => console.error(e));
+    },
+    async addAdmin(username) {
+      return await this.actor?.addAdmin(username, {
+        character: localStorage.extraCharacter,
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+      });
+    },
+    async deleteAdmin(username) {
+      return await this.actor?.deleteAdmin(username, {
+        character: localStorage.extraCharacter,
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+      });
+    },
     register({ username, fullName }) {
       const provider = localStorage.authenticationProvider;
 
@@ -398,6 +422,8 @@ export const useAuthStore = defineStore('auth', {
     },
   },
   getters: {
+    getAdmins: ({ admins }) => admins,
+    getStats: ({ stats }) => stats,
     getIdentity: ({ identity }) => identity,
     getPrincipal: ({ principal }) => localStorage.extraCharacter || principal?.toText() || null,
     getUser: ({ user }) => user,

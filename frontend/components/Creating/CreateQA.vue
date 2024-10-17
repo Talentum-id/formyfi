@@ -39,7 +39,7 @@
       <div class="section_wrapper">
         <div class="section_wrapper-title">Description</div>
         <div class="section_wrapper-subtitle">
-          These are the instructions to complete the quest.
+          These are the instructions to complete Q&A.
         </div>
         <Editor
           :description="description"
@@ -276,7 +276,7 @@
             <div class="section_wrapper">
               <div class="section_wrapper-title">Description</div>
               <div class="section_wrapper-subtitle">
-                These are the instructions to complete the quest.
+                These are the instructions to complete Q&A.
               </div>
               <TextArea placeholder="Description (optional)" v-model="thxMessage.description" />
             </div>

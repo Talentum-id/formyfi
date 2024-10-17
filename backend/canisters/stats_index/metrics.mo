@@ -24,6 +24,15 @@ actor StatsIndex {
   let stats = Map.fromIter<Text, StatsData>(statsEntries.vals(), 1000, Text.equal, Text.hash);
   let statsPerProject = Map.fromIter<Text, [ProjectStatsData]>(statsPerProjectEntries.vals(), 1000, Text.equal, Text.hash);
 
+  public func storePerProjectStats(perProjectEntries : [(Text, [ProjectStatsData])]) : async () {
+    statsPerProjectEntries := perProjectEntries;
+  };
+
+  public func storeStats(entries : [(Text, StatsData)], statsInGeneral : [GeneralStatsData]) : async () {
+    statsEntries := entries;
+    generalStats := statsInGeneral;
+  };
+
   public query func list(params : Params) : async List {
     var data = generalStats;
     let { page; pageSize } = params;

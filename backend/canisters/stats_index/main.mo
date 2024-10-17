@@ -5,6 +5,7 @@ import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Map "mo:base/HashMap";
 import Nat "mo:base/Nat";
+import MetricsIndex "canister:metrics_index";
 import Text "mo:base/Text";
 import Types "/types";
 
@@ -23,6 +24,14 @@ actor StatsIndex {
   let FORMS_CREATED_POINTS = 5;
   let stats = Map.fromIter<Text, StatsData>(statsEntries.vals(), 1000, Text.equal, Text.hash);
   let statsPerProject = Map.fromIter<Text, [ProjectStatsData]>(statsPerProjectEntries.vals(), 1000, Text.equal, Text.hash);
+
+  public func transferPerProject() : async () {
+    await MetricsIndex.storePerProjectStats(Iter.toArray(statsPerProject.entries()));
+  };
+
+  public func transferStats() : async () {
+    await MetricsIndex.storeStats(Iter.toArray(stats.entries()), generalStats);
+  };
 
   public query func list(params : Params) : async List {
     var data = generalStats;

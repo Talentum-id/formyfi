@@ -4,7 +4,7 @@ import Map "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Error "mo:base/Error";
 import StatsTypes "../stats_index/types";
-import StatsIndex "canister:stats_index";
+import MetricsIndex "canister:metrics_index";
 import Text "mo:base/Text";
 import Types "./types";
 import Utils "utils";
@@ -159,7 +159,7 @@ actor UserIndex {
     switch (users.get(identity)) {
       case null throw Error.reject(Utils.DEFAULT_ERROR);
       case (?user) {
-        let stats = await StatsIndex.findStats(identity);
+        let stats = await MetricsIndex.findStats(identity);
 
         { user; stats };
       };

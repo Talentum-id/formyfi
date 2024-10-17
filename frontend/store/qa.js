@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createActor, qa_index } from '~/qa_index';
+import { createActor, form_index } from '~/form_index';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
 import router from '@/router';
@@ -10,7 +10,7 @@ import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProvi
 import axiosService from '@/services/axiosService';
 
 const createActorFromIdentity = identity => {
-  return createActor(process.env.CANISTER_ID_QA_INDEX, {
+  return createActor(process.env.CANISTER_ID_FORM_INDEX, {
     agentOptions: { identity },
   });
 };
@@ -44,7 +44,7 @@ export const useQAStore = defineStore('qa', {
         }
       } else {
         this.identity = useAuthStore().getIdentity;
-        this.actor = this.identity ? createActorFromIdentity(this.identity) : qa_index;
+        this.actor = this.identity ? createActorFromIdentity(this.identity) : form_index;
       }
     },
     async fetchStats(){

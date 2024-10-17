@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createActor, stats_index } from '~/stats_index';
+import { createActor, metrics_index } from '~/metrics_index';
 import { useAuthStore } from '@/store/auth';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
@@ -7,7 +7,7 @@ import { ic_siws_provider} from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 
 const createActorFromIdentity = identity => {
-  return createActor(process.env.CANISTER_ID_STATS_INDEX, {
+  return createActor(process.env.CANISTER_ID_METRICS_INDEX, {
     agentOptions: { identity },
   });
 };
@@ -39,7 +39,7 @@ export const useStatsStore = defineStore('stats', {
         }
       } else {
         this.identity = useAuthStore().getIdentity;
-        this.actor = this.identity ? createActorFromIdentity(this.identity) : stats_index;
+        this.actor = this.identity ? createActorFromIdentity(this.identity) : metrics_index;
       }
     },
     async findStatistics() {

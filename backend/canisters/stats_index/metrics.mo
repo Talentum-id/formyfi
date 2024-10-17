@@ -8,7 +8,7 @@ import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Types "/types";
 
-actor StatsIndex {
+actor MetricsIndex {
   type GeneralStatsData = Types.GeneralData;
   type List = Types.ListResult;
   type Params = Types.FetchParams;

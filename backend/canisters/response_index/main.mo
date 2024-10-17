@@ -12,8 +12,8 @@ import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Types "/types";
-import QAIndex "canister:qa_index";
-import StatsIndex "canister:stats_index";
+import FormIndex "canister:form_index";
+import MetricsIndex "canister:metrics_index";
 import Utils "../user_index/utils";
 import UserIndex "canister:user_index";
 
@@ -94,7 +94,7 @@ actor ResponseIndex {
     let { shareLink; answers } = data;
     let responseIdentifier = identity # "-" # shareLink;
 
-    switch (await QAIndex.show(shareLink)) {
+    switch (await FormIndex.show(shareLink)) {
       case null throw Error.reject("Q&A not found");
       case (?qa) {
         let questions = qa.quest.questions;
@@ -120,7 +120,7 @@ actor ResponseIndex {
 
             responses.put(responseIdentifier, answers);
 
-            StatsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
+            MetricsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
 
             ignore saveAuthorQA(identity, data, qa.quest.title);
           };
@@ -163,7 +163,7 @@ actor ResponseIndex {
   public shared ({ caller }) func export(shareLink : Text, character : Utils.Character) : async ExportResponse {
     let identity = await Utils.authenticate(caller, true, character);
 
-    switch (await QAIndex.show(shareLink)) {
+    switch (await FormIndex.show(shareLink)) {
       case null throw Error.reject("Q&A does not exist");
       case (?qa) {
         let { quest; owner } = qa;
@@ -256,7 +256,7 @@ actor ResponseIndex {
       };
     };
 
-    ignore QAIndex.incrementParticipants(shareLink);
+    ignore FormIndex.incrementParticipants(shareLink);
   };
 
   func filter(authors : [Author], params : FetchParams) : List {

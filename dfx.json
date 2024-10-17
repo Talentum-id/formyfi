@@ -7,17 +7,9 @@
     },
     "user_index": {
       "dependencies": [
-        "stats_index",
         "metrics_index"
       ],
       "main": "backend/canisters/user_index/main.mo",
-      "type": "motoko"
-    },
-    "qa_index": {
-      "dependencies": [
-        "stats_index"
-      ],
-      "main": "backend/canisters/qa_index/main.mo",
       "type": "motoko"
     },
     "form_index": {
@@ -31,16 +23,10 @@
       "dependencies": [
         "vetkd_system_api",
         "user_index",
-        "qa_index",
         "form_index",
-        "stats_index",
         "metrics_index"
       ],
       "main": "backend/canisters/response_index/main.mo",
-      "type": "motoko"
-    },
-    "stats_index": {
-      "main": "backend/canisters/stats_index/main.mo",
       "type": "motoko"
     },
     "metrics_index": {
@@ -54,10 +40,8 @@
         "ic_siws_provider",
         "internet_identity",
         "user_index",
-        "qa_index",
         "form_index",
         "response_index",
-        "stats_index",
         "metrics_index"
       ],
       "frontend": {

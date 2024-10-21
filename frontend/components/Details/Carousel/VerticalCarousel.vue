@@ -283,8 +283,6 @@ import LastEmptyItem from '@/components/Details/Carousel/LastEmptyItem.vue';
 import FirstEmptyItem from '@/components/Details/Carousel/FirstEmptyItem.vue';
 import CurrentItem from '@/components/Details/Carousel/CurrentItem.vue';
 import QuizProgress from '@/components/Details/QuizProgress.vue';
-import IsCorrectMessage from '@/components/Details/IsCorrectMessage.vue';
-import IsIncorrectMessage from '@/components/Details/IsIncorrectMessage.vue';
 import QuizProgressTitle from '@/components/Details/QuizProgressTitle.vue';
 import CustomImage from '@/components/CustomImage.vue';
 import BaseModal from '@/components/BaseModal.vue';
@@ -292,7 +290,6 @@ import Login from '@/components/Auth/Login.vue';
 import { createTemplatePromise } from '@vueuse/core';
 import SignUp from '@/components/Auth/SignUp.vue';
 import Icon from '@/components/Icons/Icon.vue';
-import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
 import Rating from '@/components/Details/Carousel/Rating.vue';
 import NumberBlock from '@/components/Details/Carousel/NumberBlock.vue';
 import EmailBlock from '@/components/Details/Carousel/EmailBlock.vue';
@@ -621,7 +618,10 @@ const handleSuccessModal = async () => {
     actionText: 'Great!',
     customImg,
     fn: () => {
-      if (isGuest.value && reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
+      if (
+        isGuest.value &&
+        reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1
+      ) {
         window.location.reload();
       } else {
         modal.emit('closeModal', {});
@@ -795,6 +795,11 @@ const branchCheck = async () => {
     !newArr.value.every((item) => item.passed)
   ) {
     for (const branch of questHasBranches) {
+      const itsFinal = branch.finalStep;
+      if (itsFinal) {
+        await finishQuest();
+        return;
+      }
       const nextStep = getRuleForCurrentType(
         branch.type.trim(),
         newArr.value[currentIndex.value].answer || newArr.value[currentIndex.value].myAnswers,
@@ -812,37 +817,40 @@ const branchCheck = async () => {
     newArr.value[currentIndex.value].passed = true;
     currentIndex.value++;
   } else {
-    result.value = newArr.value.map((item) => {
-      let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
-      let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
+    await finishQuest();
+  }
+};
+const finishQuest = async () => {
+  result.value = newArr.value.map((item) => {
+    let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
+    let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
 
-      if (item.myAnswers.length) {
-        const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
+    if (item.myAnswers.length) {
+      const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
 
-        if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
-          item.myAnswers.push(item.myAnswer);
-        }
-
-        answerIsCorrect = true;
-        answer = JSON.stringify(item.myAnswers);
-
-        if (correctAnswers.length) {
-          answerIsCorrect =
-            item.myAnswers.every((value) => correctAnswers.indexOf(value) !== -1) &&
-            item.myAnswers.length === correctAnswers.length;
-        }
+      if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
+        item.myAnswers.push(item.myAnswer);
       }
 
-      return {
-        isCorrect: answerIsCorrect,
-        answer,
-        file: item.answerFile.length ? item.answerFile : '',
-        isOpen: isOpenQuestion.value || !!item.myAnswer,
-      };
-    });
+      answerIsCorrect = true;
+      answer = JSON.stringify(item.myAnswers);
 
-    await submitResponse();
-  }
+      if (correctAnswers.length) {
+        answerIsCorrect =
+          item.myAnswers.every((value) => correctAnswers.indexOf(value) !== -1) &&
+          item.myAnswers.length === correctAnswers.length;
+      }
+    }
+
+    return {
+      isCorrect: answerIsCorrect,
+      answer,
+      file: item.answerFile.length ? item.answerFile : '',
+      isOpen: isOpenQuestion.value || !!item.myAnswer,
+    };
+  });
+
+  await submitResponse();
 };
 const submitResponse = async (identityValidationAttempt = 0) => {
   if (!hasUser.value) {
@@ -862,7 +870,7 @@ const submitResponse = async (identityValidationAttempt = 0) => {
 
   await loadImages();
   await storeResponseAndClose();
-}
+};
 </script>
 <style lang="scss">
 .layout {

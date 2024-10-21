@@ -47,7 +47,6 @@ import BaseTable from '@/components/Table/BaseTable.vue';
 import Rank from '@/components/Table/Rank.vue';
 import Talent from '@/components/Table/Talent.vue';
 import Select from '@/components/Select.vue';
-import { readFile } from '@/util/helpers';
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -71,6 +70,8 @@ const requestsColumns = computed(() => {
       width: '50%',
     },
     { prop: 'completed', label: 'Completed Forms', width: '70%' },
+    { prop: 'created', label: 'Forms Created', width: '70%' },
+    { prop: 'invited', label: 'Referrals Invited', width: '70%' },
   ];
 });
 
@@ -96,6 +97,7 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length || !users.value?.length) {
       return [];
     }
+    console.log(originalArray);
     return originalArray.map((item, index) => ({
       isTop: Number(pagination.value.current_page) === 1 && index <= 2,
       rank: {
@@ -122,6 +124,12 @@ const requestsRows = computed(
       completed: {
         content: Number(item.forms_completed),
       },
+      created: {
+        content: item.forms_created ? Number(item.forms_created) : '0',
+      },
+      invited: {
+        content: item.invited ? Number(item.invited) : '0',
+      },
     }));
   },
   { deep: true },
@@ -135,7 +143,7 @@ onMounted(async () => {
   }
 });
 
-const nextPage = async page => {
+const nextPage = async (page) => {
   currentPage.value = await page;
 
   if (tableType.value === 'all') {
@@ -143,7 +151,7 @@ const nextPage = async page => {
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
   }
-}
+};
 const sortTasks = async (prop, direction) => {
   if (!loaded) return;
   await router.push({ query: Object.assign({}, route.query, { page: 1 }) });

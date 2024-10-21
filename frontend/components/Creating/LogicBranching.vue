@@ -61,6 +61,7 @@
             @input="branch.data.step = $event"
           />
         </div>
+        <Checkbox label="End of Q&A for user" @check="branch.data.finalStep = $event" />
       </div>
     </div>
     <div class="add-talent-btn" @click="addBranch">
@@ -76,6 +77,7 @@ import { computed, ref, watch } from 'vue';
 import Select from '@/components/Select.vue';
 import { getListByType } from '@/constants/branchTypes';
 import MultiSelect from '@/components/Creating/MultiSelectBase.vue';
+import Checkbox from '@/components/Creating/Checkbox.vue';
 
 const targetBranches = ref();
 
@@ -119,6 +121,7 @@ const branches = ref([
       type: getListByType('open')[0],
       choice: [],
       step: questsList?.value[1],
+      finalStep: false,
     },
   },
 ]);
@@ -131,6 +134,7 @@ const addBranch = () => {
       type: getListByType('open')[0],
       choice: [],
       step: questsList?.value[1],
+      finalStep: false,
     },
   });
 };
@@ -143,6 +147,7 @@ watch(focused, (focused) => {
         type: branch.data.type.name,
         choice: branch.data.choice,
         step: branch.data.step.name,
+        finalStep: branch.data.finalStep,
       };
     })
     ?.filter((el) => el);

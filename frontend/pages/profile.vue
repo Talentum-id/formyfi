@@ -5,17 +5,14 @@
       <div class="naming w-full">
         <AvatarUploader :avatar="user.avatarUri" />
         <div class="info">
-          <InputName
-            v-model="name"
-            :placeholder="user.username"
-            @input="setName()"
-          />
+          <InputName v-model="name" :placeholder="user.username" @input="setName()" />
         </div>
       </div>
       <div class="info-block">
         <div class="content">
           <div class="info-cards">
             <StatCardSmall
+              @click="router.push('my-responses')"
               title="Forms Completed"
               icon="Tasks"
               :value="stats.forms_completed"
@@ -24,6 +21,7 @@
               title="Forms Created"
               icon="Tik-Tik"
               :value="stats.forms_created"
+              @click="router.push('/')"
             />
           </div>
           <div class="container">
@@ -46,64 +44,63 @@
   <Alert :message="error" type="error" v-if="error.trim().length > 0" />
 </template>
 <script setup>
-  import BannerUploader from '@/components/Profile/BannerUploader.vue';
-  import AvatarUploader from '@/components/Profile/AvatarUploader.vue';
-  import InputName from '@/components/Profile/InputName.vue';
-  import { ref, computed, onMounted } from 'vue';
-  import Default from '@/layouts/default.vue';
-  import Badge from '@/components/Badge.vue';
-  import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
-  import { useAuthStore } from '@/store/auth';
-  import { useDebounceFn } from '@vueuse/core';
-  import { useStatsStore } from '@/store/stats';
-  import Input from '@/components/Input.vue';
-  import Alert from '@/components/Alert.vue';
+import BannerUploader from '@/components/Profile/BannerUploader.vue';
+import AvatarUploader from '@/components/Profile/AvatarUploader.vue';
+import InputName from '@/components/Profile/InputName.vue';
+import { ref, computed, onMounted } from 'vue';
+import Default from '@/layouts/default.vue';
+import Badge from '@/components/Badge.vue';
+import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
+import { useAuthStore } from '@/store/auth';
+import { useDebounceFn } from '@vueuse/core';
+import { useStatsStore } from '@/store/stats';
+import Alert from '@/components/Alert.vue';
+import { useRouter } from 'vue-router';
 
-  const authStore = useAuthStore();
-  const statsStore = useStatsStore();
+const authStore = useAuthStore();
+const statsStore = useStatsStore();
 
-  const stats = computed(() => statsStore.getStatistics);
-  const user = computed(() => authStore.getProfileData);
+const router = useRouter();
 
-  let name = ref('');
-  const error = ref('');
+const stats = computed(() => statsStore.getStatistics);
+const user = computed(() => authStore.getProfileData);
 
-  onMounted(async () => {
-    await statsStore.findStatistics();
-  });
+let name = ref('');
+const error = ref('');
 
-  const setName = useDebounceFn(
-    async () => {
-      const validatedName = name.value.trim().toLowerCase();
-      const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
+onMounted(async () => {
+  await statsStore.findStatistics();
+});
 
-      if (validatedName.length < 4 || validatedName.length > 18) {
-        error.value = 'Username should have from 4 to 18 characters';
+const setName = useDebounceFn(async () => {
+  const validatedName = name.value.trim().toLowerCase();
+  const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
 
-        return;
-      }
+  if (validatedName.length < 4 || validatedName.length > 18) {
+    error.value = 'Username should have from 4 to 18 characters';
 
-      if (!alphaNumericWithDot.test(validatedName)) {
-        error.value = 'Username can only consist of alphanumeric characters and dot';
-      } else {
-        error.value = '';
-        name.value = validatedName;
+    return;
+  }
 
-        await authStore.saveProfile({
-          fullName: user.value.fullName,
-          username: name.value,
-          avatar: user.value.avatar,
-          banner: user.value.banner,
-          forms_created: user.value.forms_created,
-        });
+  if (!alphaNumericWithDot.test(validatedName)) {
+    error.value = 'Username can only consist of alphanumeric characters and dot';
+  } else {
+    error.value = '';
+    name.value = validatedName;
 
-        await authStore.getProfile();
-      }
+    await authStore.saveProfile({
+      fullName: user.value.fullName,
+      username: name.value,
+      avatar: user.value.avatar,
+      banner: user.value.banner,
+      forms_created: user.value.forms_created,
+    });
 
-      setTimeout(() => error.value = '', 3000);
-    },
-    2500,
-  );
+    await authStore.getProfile();
+  }
+
+  setTimeout(() => (error.value = ''), 3000);
+}, 2500);
 </script>
 
 <style scoped lang="scss">

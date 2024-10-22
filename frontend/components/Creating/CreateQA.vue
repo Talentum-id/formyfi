@@ -16,7 +16,7 @@
       <div class="section_wrapper">
         <div class="section_wrapper-title">Cover Image</div>
         <div class="upload-requirements">
-          Recommended size — 480 x 760 px. PNG, JPEG. Maximum 1 MB.
+          Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
         </div>
         <TaskBannerUploader
           :setImage="setTaskBanner"
@@ -123,7 +123,7 @@
               </div>
               <CustomUpload
                 v-else
-                :imagesFiles="question.image"
+                :files="question.image"
                 @images="question.image = $event"
                 @changeError="handleImageError"
               />
@@ -258,7 +258,7 @@
                 Recommended size — 480 x 760 px. PNG, JPEG. Maximum 1 MB.
               </div>
               <CustomUpload
-                :imagesFiles="thxMessage.image"
+                :files="thxMessage.image"
                 @images="thxMessage.image = $event"
                 @changeError="handleImageError"
               />
@@ -353,6 +353,7 @@ import axiosService from '@/services/axiosService';
 import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
 import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
 import LogicBranching from '@/components/Creating/LogicBranching.vue';
+import { image,video, audio } from '@/constants/fileCategories';
 
 const emits = defineEmits('refresh');
 

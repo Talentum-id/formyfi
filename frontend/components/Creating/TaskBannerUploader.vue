@@ -20,7 +20,7 @@
       <div v-if="isEditingActive" class="overlay">
         <div class="requirements">
           <span class="requirements__title">
-            Recommended size — 480 x 760 px. PNG, JPEG. Maximum 1 MB.
+            Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
           </span>
         </div>
         <div class="controllers">
@@ -65,7 +65,7 @@ const errorMessage = ref('');
 const handleFileUpload = () => {
   const file = fileInput.value.files[0];
 
-  const maxSizeInMB = 1;
+  const maxSizeInMB = 5;
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
   const formats = ['jpeg', 'png', 'jpg', 'gif', 'svg'];
 
@@ -73,7 +73,7 @@ const handleFileUpload = () => {
     image.value = null;
     noImage.value = true;
 
-    errorMessage.value = "The file size can't be more than 1 MB";
+    errorMessage.value = `The file size can't be more than ${maxSizeInMB} MB`;
     showError.value = true;
 
     setTimeout(() => (showError.value = false), 3000);

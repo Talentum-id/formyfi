@@ -79,7 +79,7 @@
 
               <CustomUpload
                 v-if="disableUploader"
-                :imagesFiles="newArr[currentIndex].answerFile"
+                :files="newArr[currentIndex].answerFile"
                 @images="newArr[currentIndex].answerFile = $event"
               ></CustomUpload>
               <div
@@ -602,7 +602,7 @@ const handleSuccessModal = async () => {
   const { thankYouMessage } = props;
 
   let title = 'Q&A Form Submitted';
-  let message = 'Your request sent successfully';
+  let message = 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!';
   let customImg = null;
 
   if (thankYouMessage) {

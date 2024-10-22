@@ -7,18 +7,18 @@
     :on-remove="handleRemove"
     :limit="1"
     :auto-upload="false"
-    accept=".jpeg, .png, .jpg, .gif, .svg"
+    :accept="fileExtensions[image]"
     :class="{
       'hide-upload': fileList.length >= 1,
     }"
   >
-    <template #default v-if="imagesFiles.length < 1">
+    <template #default v-if="files.length < 1">
       <div class="flex items-center gap-2">
         <el-button class="add flex items-center gap-2">
           Add File <img src="@/assets/icons/add.svg" alt="" />
         </el-button>
         <TooltipIcon
-          tooltipText="Allowed formats: .png, .jpg, .svg, .mvk, .mp4, .mov, .webm, .wmv. File size 10 mb max."
+          :tooltipText="`Allowed formats: ${fileExtensions[image]}. File size 5 mb max.`"
         />
       </div>
     </template>
@@ -61,21 +61,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, toRef, watch } from 'vue';
+import { ref, reactive, toRef, watch, computed } from 'vue';
 import 'element-plus/dist/index.css';
 import { ElDialog, ElUpload } from 'element-plus';
 import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
+import {
+  image,
+  fileExtensions
+} from '@/constants/fileCategories';
 
 const props = defineProps({
-  imagesFiles: { type: Array, default: null },
+  files: {
+    type: Array,
+    default: null,
+  },
 });
-const fileList = ref(props.imagesFiles);
+const fileList = ref(props.files);
 
 const emit = defineEmits(['images', 'changeError', 'remove']);
+const filesPropRef = toRef(props, 'files');
 
-const imagesFilesPropRef = toRef(props, 'imagesFiles');
-
-watch(imagesFilesPropRef, (value) => {
+watch(filesPropRef, (value) => {
   if (value && value.length) {
     fileList.value = value;
   }
@@ -100,15 +106,18 @@ const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
 
 const checkImageSize = () => {
+  const maxSizeInMB = 5;
+  const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
   if (!fileList.value.length) {
     isShowFileError.isError = false;
     isShowFileError.message = '';
   } else {
     for (const file of fileList.value) {
-      if (file && file.size) {
-        if ((file && file.raw.size / 1000000 > 1) || (file && file.size / 1000000 > 1)) {
+      if (file && (file.size || file.raw)) {
+        if (file.raw.size > maxSizeInBytes || file.size > maxSizeInBytes) {
           isShowFileError.isError = true;
-          isShowFileError.message = "The file size can't be more than 1 MB";
+          isShowFileError.message = `The file size can't be more than ${maxSizeInMB} MB`;
           handleRemove(file);
           emit('changeError', isShowFileError.isError);
 
@@ -137,6 +146,7 @@ function extractName(filename) {
   }
   return null;
 }
+
 const checkIfFilePdf = (file) => {
   // return file.raw.type.indexOf('pdf') !== -1;
   return file.name.indexOf('pdf') !== -1;
@@ -172,10 +182,12 @@ const handlePictureCardPreview = async (uploadFile) => {
   justify-content: center;
   align-items: center;
 }
+
 .el-upload-list--picture-card .el-upload-list__item {
   display: flex;
   align-items: center;
 }
+
 .hide-upload {
   margin-top: -35px;
 
@@ -185,13 +197,16 @@ const handlePictureCardPreview = async (uploadFile) => {
     display: none;
   }
 }
+
 .invalid-image {
   display: none;
   color: $red;
 }
+
 .d-block {
   display: block;
 }
+
 .icon-wrapper {
   display: flex;
   justify-content: center;
@@ -201,6 +216,7 @@ const handlePictureCardPreview = async (uploadFile) => {
   background: #f5f5fd;
   border-radius: 24px;
 }
+
 .uploaded-pdf-file-gray {
   background: $default-badge-border;
   position: absolute;
@@ -214,6 +230,7 @@ const handlePictureCardPreview = async (uploadFile) => {
   flex-direction: column;
   gap: 16px;
   font-family: $default_font;
+
   .name {
     color: #38405b;
     text-align: center;
@@ -227,6 +244,7 @@ const handlePictureCardPreview = async (uploadFile) => {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
   .type {
     color: $colabs-bg;
     text-align: center;
@@ -254,6 +272,7 @@ const handlePictureCardPreview = async (uploadFile) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
   img {
     width: 16px;
     height: 16px;
@@ -273,6 +292,7 @@ const handlePictureCardPreview = async (uploadFile) => {
   width: 120px;
   height: 120px;
 }
+
 .uploader-wrapper {
   width: 120px;
   height: 120px;

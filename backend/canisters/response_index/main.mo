@@ -32,6 +32,7 @@ actor ResponseIndex {
   stable var authorsViaQAEntries : [(Text, [Author])] = [];
   stable var qasViaAuthorEntries : [(Text, [QA])] = [];
   stable var responseEntries : [(Text, [Answer])] = [];
+  stable var anonymousEntriesCount : Nat = 0;
 
   let qasViaAuthor = Map.fromIter<Text, [QA]>(qasViaAuthorEntries.vals(), 1000, Text.equal, Text.hash);
   let authorsViaQA = Map.fromIter<Text, [Author]>(authorsViaQAEntries.vals(), 1000, Text.equal, Text.hash);
@@ -84,15 +85,14 @@ actor ResponseIndex {
   };
 
   public shared ({ caller }) func store(data : Data, character : Utils.Character) : async () {
-    let identity = await Utils.authenticate(caller, false, character);
+    let identity = await Utils.authenticate(caller, true, character);
     let user = await UserIndex.findUser(identity);
+    let { shareLink; answers } = data;
+    var responseIdentifier = identity # "-" # shareLink;
 
     if (user == null) {
-      throw Error.reject("Unregistered users cannot complete forms");
+      responseIdentifier := identity # Nat.toText(anonymousEntriesCount) # "-" # shareLink;
     };
-
-    let { shareLink; answers } = data;
-    let responseIdentifier = identity # "-" # shareLink;
 
     switch (await FormIndex.show(shareLink)) {
       case null throw Error.reject("Q&A not found");
@@ -120,9 +120,13 @@ actor ResponseIndex {
 
             responses.put(responseIdentifier, answers);
 
-            MetricsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
-
-            ignore saveAuthorQA(identity, data, qa.quest.title);
+            if (user != null) {
+              MetricsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
+              ignore saveAuthorQA(identity, data, qa.quest.title);
+            } else {
+              ignore saveAuthorQA(identity # Nat.toText(anonymousEntriesCount), data, qa.quest.title);
+              anonymousEntriesCount += 1;
+            };
           };
           case (?answers) {
             throw Error.reject("The user already completed this Q&A");
@@ -214,7 +218,7 @@ actor ResponseIndex {
   private func saveAuthorQA(identity : Text, data : Data, title : Text) : async () {
     let { shareLink; filled } = data;
     let username = switch (await UserIndex.findUser(identity)) {
-      case null "Undefined";
+      case null "guest";
       case (?user) user.username;
     };
 

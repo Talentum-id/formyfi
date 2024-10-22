@@ -58,7 +58,7 @@ onMounted(async () => {
     await userStore
       .findUser(props.data.owner)
       .then((res) => {
-        if (res.length) {
+        if (res !== undefined && res.length) {
           qaAuthor.value = res[0];
         }
       })

@@ -59,14 +59,14 @@ export const useResponseStore = defineStore('response', {
           const owner = useAuthStore().getPrincipal ?? param.owner;
           const key = `${owner}-${param.shareLink}`;
 
-          const encryptedAnswer = !!param.answer.length
+          const encryptedAnswer = !!param.answer.length && owner !== undefined
             ? await this.crypto.encrypt(key, owner, JSON.stringify(params))
             : null;
 
           return {
             ...param,
             encryptedAnswer: encryptedAnswer ? [encryptedAnswer] : [],
-            owner: [owner],
+            owner: owner ? [owner] : [],
           };
         }),
       )
@@ -75,7 +75,7 @@ export const useResponseStore = defineStore('response', {
 
           await this.actor?.store(params, {
             identity: process.env.DFX_ASSET_PRINCIPAL,
-            character: localStorage.extraCharacter,
+            character: localStorage.extraCharacter || '',
           });
 
           await this.fetchResponse(params.shareLink);
@@ -102,6 +102,10 @@ export const useResponseStore = defineStore('response', {
       }
 
       this.loaded = false;
+
+      if (identity === null) {
+        return;
+      }
 
       await this.actor
         ?.show({ identity, shareLink })

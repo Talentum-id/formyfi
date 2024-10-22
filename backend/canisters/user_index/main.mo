@@ -33,8 +33,8 @@ actor UserIndex {
     let { provider; fullName; username; avatar; banner } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
-    if (username.size() == 0 or fullName.size() == 0) {
-      throw Error.reject("Username and Full name cannot be empty");
+    if (username.size() == 0) {
+      throw Error.reject("Username cannot be empty");
     };
 
     if (username.size() < 4 or username.size() > 18) {

@@ -57,7 +57,7 @@ const sortColumn = ref('');
 const tableType = ref('project');
 const leaderboardStore = useStatsStore();
 const projectOptions = ref([
-  { name: 'My Project', id: 0, type: 'project' },
+  { name: 'My Forms', id: 0, type: 'project' },
   { name: 'Formyfi', id: 1, type: 'all' },
 ]);
 const requestsColumns = computed(() => {
@@ -113,7 +113,7 @@ const requestsRows = computed(
       user: {
         component: Talent,
         props: {
-          text: users.value[index]?.fullName,
+          text: users.value[index]?.fullName.trim() || users.value[index]?.username,
           img: users.value[index]?.avatar ?? null,
           big: true,
         },

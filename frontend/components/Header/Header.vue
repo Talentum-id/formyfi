@@ -15,7 +15,7 @@
 
         <div class="user-info">
           <span>{{ user.username }}</span>
-          <span class="fullname">{{ user.fullName }} </span>
+          <span class="fullname">{{ user.fullName.trim() || 'Guest' }} </span>
         </div>
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>

@@ -12,8 +12,8 @@ const router = useRouter();
 const emit = defineEmits(['success', 'reject']);
 
 const form = ref({
+  fullName: ' ',
   username: '',
-  fullName: '',
   loading: false,
 });
 const errors = ref({
@@ -41,10 +41,6 @@ onMounted(async () => {
 
 const validationError = computed(() => {
   const username = form.value.username.trim();
-
-  if (form.value.fullName.trim() === '' || username === '') {
-    return true;
-  }
 
   if (username.length < 4 || username.length > 24) {
     return true;
@@ -142,12 +138,6 @@ const handleErrorModal = () => {
         :error-text="errors.username.trim()"
         :is-error="!!errors.username.trim().length"
         @focusout="validateUsername()"
-      />
-      <Input
-        name="Name & Surname"
-        placeholder="Enter your name and surname"
-        class="name"
-        v-model="form.fullName"
       />
       <VButton @click="createAccount()" :disabled="validationError || form.loading">
         <span class="create">{{ form.loading ? 'Loading...' : 'Create' }}</span>

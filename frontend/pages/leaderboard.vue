@@ -97,7 +97,6 @@ const requestsRows = computed(
     if (!originalArray || !originalArray?.length || !users.value?.length) {
       return [];
     }
-    console.log(originalArray);
     return originalArray.map((item, index) => ({
       isTop: Number(pagination.value.current_page) === 1 && index <= 2,
       rank: {
@@ -125,7 +124,7 @@ const requestsRows = computed(
         content: Number(item.forms_completed),
       },
       created: {
-        content: item.forms_created ? Number(item.forms_created) : '0',
+        content: Number(users.value[index].forms_created),
       },
       invited: {
         content: item.invited ? Number(item.invited) : '0',

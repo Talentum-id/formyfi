@@ -372,8 +372,7 @@ export const useAuthStore = defineStore('auth', {
             }
 
             return {
-              fullName: user.fullName,
-              username: user.username,
+              ...user,
               avatar,
             };
           }),

@@ -602,7 +602,8 @@ const handleSuccessModal = async () => {
   const { thankYouMessage } = props;
 
   let title = 'Q&A Form Submitted';
-  let message = 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!';
+  let message =
+    'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!';
   let customImg = null;
 
   if (thankYouMessage) {
@@ -795,11 +796,6 @@ const branchCheck = async () => {
     !newArr.value.every((item) => item.passed)
   ) {
     for (const branch of questHasBranches) {
-      const itsFinal = branch.finalStep;
-      if (itsFinal) {
-        await finishQuest();
-        return;
-      }
       const nextStep = getRuleForCurrentType(
         branch.type.trim(),
         newArr.value[currentIndex.value].answer || newArr.value[currentIndex.value].myAnswers,
@@ -809,9 +805,17 @@ const branchCheck = async () => {
       if (nextStep) {
         newArr.value[currentIndex.value].passed = true;
         currentIndex.value = props.items.findIndex((item) => item.question === branch.step);
+        const itsFinal = branch.finalStep;
+        if (itsFinal) {
+          newArr.value[currentIndex.value].finalStep = true;
+        }
         return;
       }
     }
+  }
+  if (newArr.value[currentIndex.value].finalStep) {
+    await finishQuest();
+    return;
   }
   if (currentIndex.value < props.items.length - 1 && !newArr.value.every((item) => item.passed)) {
     newArr.value[currentIndex.value].passed = true;

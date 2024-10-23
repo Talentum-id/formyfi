@@ -41,6 +41,7 @@ module QATypes {
     questions : [Question];
     thxMessage : ?ThanksMessage;
     branches : ?Text;
+    refCodePoints : ?Nat;
   };
 
   public type ThanksMessage = {

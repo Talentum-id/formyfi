@@ -149,6 +149,7 @@ actor FormIndex {
                 questions = quest.questions;
                 thxMessage = quest.thxMessage;
                 branches = quest.branches;
+                refCodePoints = quest.refCodePoints;
               },
             );
 
@@ -252,6 +253,7 @@ actor FormIndex {
         questions = [];
         thxMessage = x.thxMessage;
         branches = x.branches;
+        refCodePoints = x.refCodePoints;
       },
     );
 

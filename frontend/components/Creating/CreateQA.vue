@@ -38,9 +38,7 @@
       </div>
       <div class="section_wrapper">
         <div class="section_wrapper-title">Description</div>
-        <div class="section_wrapper-subtitle">
-          These are the instructions to complete Q&A.
-        </div>
+        <div class="section_wrapper-subtitle">These are the instructions to complete Q&A.</div>
         <Editor
           :description="description"
           @update="setDescription"
@@ -280,17 +278,22 @@
               </div>
               <TextArea placeholder="Description (optional)" v-model="thxMessage.description" />
             </div>
-            <!--            <div class="section_wrapper">-->
-            <!--              <div class="check-btn_wrapper">-->
-            <!--                <div class="section_wrapper-title">Reff Link</div>-->
-            <!--                <Switch :checkedProp="thxRequired" @checked="thxRequired = $event" />-->
-            <!--              </div>-->
-            <!--            </div>-->
-            <!--            <div class="section_wrapper">-->
-            <!--              <div class="section_wrapper-title">Referral Bonus Points</div>-->
-            <!--              <Input withoutName class="w-[136px]" placeholder="Number" v-model="thxNumber" />-->
-            <!--            </div>-->
           </div>
+        </div>
+        <div class="line my-8" />
+
+        <div class="flex justify-between">
+          <div class="section_item">
+            <div class="section_wrapper-title">Reff Link</div>
+            <div class="upload-requirements">Edit and customise</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <Switch :checkedProp="refCode" @checked="refCode = $event" />
+          </div>
+        </div>
+        <div class="section_wrapper" v-if="refCode">
+          <div class="section_wrapper-title">Referral Bonus Points</div>
+          <NumberInput withoutName class="w-[136px]" placeholder="Number" v-model="refCodePoints" />
         </div>
         <div class="line my-8" />
         <div class="flex justify-between">
@@ -353,7 +356,7 @@ import axiosService from '@/services/axiosService';
 import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
 import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
 import LogicBranching from '@/components/Creating/LogicBranching.vue';
-import { image,video, audio } from '@/constants/fileCategories';
+import NumberInput from '@/components/NumberInput.vue';
 
 const emits = defineEmits('refresh');
 
@@ -361,6 +364,7 @@ const loading = ref(false);
 const isImagesError = ref(false);
 const thxRequired = ref(false);
 const branchRequired = ref(false);
+const refCode = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
@@ -469,6 +473,7 @@ const bannerImage = ref(null);
 const showError = ref(false);
 const questionName = ref('');
 const description = ref('');
+const refCodePoints = ref(5);
 const setDescription = (event) => {
   description.value = event;
 };
@@ -686,6 +691,7 @@ const preview = async () => {
   const questions = await Promise.all(questionsPromises);
   const obj = {
     title: questionName.value,
+    refCodePoints: refCode.value ? [refCodePoints.value] : [],
     description: description.value,
     image: banner,
     participants: 0,
@@ -704,6 +710,7 @@ const preview = async () => {
 const saveQA = async () => {
   return await qaStore.storeQA({
     title: questionName.value,
+    refCodePoints: refCode.value ? [refCodePoints.value] : [],
     description: description.value,
     image: bannerImage.value,
     participants: 0,

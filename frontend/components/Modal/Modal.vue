@@ -11,6 +11,17 @@
         <component v-else :is="getIcon(type)" />
         <span class="title">{{ title }}</span>
         <span class="message">{{ message }}</span>
+        <div v-if="refBonusData && refBonusData.link" class="w-full text-center">
+          <span class="text-center text-2xl title"
+            >Earn more points +{{ refBonusData.bonus }} per invite</span
+          >
+          <Link
+            class="bg-white mt-4"
+            :text="refBonusData.link"
+            :value="refBonusData.link"
+            :size="30"
+          ></Link>
+        </div>
         <div class="action" v-if="showActionBtn" @click="handleAction()">
           {{ actionText }}
         </div>
@@ -27,8 +38,10 @@ import warning from '@/assets/icons/modal/warning.vue';
 import success from '@/assets/icons/modal/success.vue';
 import error from '@/assets/icons/modal/error.vue';
 import loading from '@/assets/icons/modal/loading.vue';
+import Link from '@/components/Table/Link.vue';
 const visible = ref(false);
 const title = ref('');
+const refBonusData = ref(null);
 const message = ref('');
 const actionText = ref('');
 const customImg = ref('');
@@ -66,6 +79,7 @@ const openModal = (data) => {
   type.value = data.type;
   actionText.value = data.actionText;
   customImg.value = data.customImg;
+  refBonusData.value = data.refBonusData;
   action = data.fn;
 };
 const isLoading = computed(() => {

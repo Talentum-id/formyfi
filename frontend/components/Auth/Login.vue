@@ -39,7 +39,7 @@ const callback = async (response) => {
   try {
     await useAuthStore()
       .loginWithGoogle(response.credential)
-      .then((e) => {
+      .then(() => {
         emit('success');
       });
   } catch (e) {
@@ -134,6 +134,13 @@ watch(
     immediate: true,
   },
 );
+
+defineProps({
+  isQuest: {
+    type: Boolean,
+    default: false,
+  },
+});
 </script>
 
 <template>
@@ -173,6 +180,11 @@ watch(
           text: 'signin_with',
         }"
       />
+      <AuthButton @click="emit('skip')" v-if="isQuest">
+        <div class="container">
+          <div class="name-social">Submit the form anonymously</div>
+        </div>
+      </AuthButton>
       <div class="agreement">
         By proceeding, you agree to <span> Terms of Service</span> & <span>Privacy Policy</span>.
       </div>

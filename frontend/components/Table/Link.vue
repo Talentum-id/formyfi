@@ -82,7 +82,7 @@ export default {
   background: transparent;
   padding: 4px 8px;
   border-radius: 6px;
-  width: fit-content;
+  width: 100%;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -96,7 +96,7 @@ export default {
     font-family: $default_font;
     font-style: normal;
     color: $default;
-
+    width: 100%;
     font-weight: 500;
     font-size: 12px;
     line-height: 16px;
@@ -118,7 +118,7 @@ export default {
   min-width: 170px;
   width: fit-content;
   background: $default;
-  box-shadow: 0px 2px 8px rgba(26, 29, 41, 0.24);
+  box-shadow: 0 2px 8px rgba(26, 29, 41, 0.24);
   border-radius: 8px;
   padding: 4px 8px;
   z-index: 9999999;

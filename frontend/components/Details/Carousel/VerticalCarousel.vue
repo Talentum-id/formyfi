@@ -259,6 +259,8 @@
         <Login
           @success="hasUser ? resolve(true) : (showSignUp = true)"
           @reject="reject(null)"
+          @skip="resolve(true)"
+          is-quest
           v-if="!showSignUp"
         ></Login>
         <SignUp v-else @success="resolve(true)" @reject="reject(null)"></SignUp>
@@ -330,6 +332,10 @@ const props = defineProps({
   },
   thankYouMessage: {
     type: Object,
+    default: null,
+  },
+  refCodePoints: {
+    type: Array,
     default: null,
   },
 });
@@ -600,16 +606,23 @@ import { reloadingProviders } from '@/constants/reloadingProviders';
 
 const handleSuccessModal = async () => {
   const { thankYouMessage } = props;
+  const { refCodePoints } = props;
 
   let title = 'Q&A Form Submitted';
   let message =
     'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!';
   let customImg = null;
-
+  let refBonusData = {};
   if (thankYouMessage) {
     title = thankYouMessage.title;
     message = thankYouMessage.description || message;
     customImg = await readFile(thankYouMessage.file);
+  }
+
+  if (refCodePoints?.length > 0 && authStore.getPrincipal) {
+    console.log(refCodePoints, authStore.getPrincipal);
+    refBonusData.link = `${window.location.origin}/form/${props.shareLink}?ref-code=${authStore.getPrincipal}`;
+    refBonusData.bonus = Number(refCodePoints[0]);
   }
 
   modal.emit('openModal', {
@@ -618,6 +631,7 @@ const handleSuccessModal = async () => {
     type: 'success',
     actionText: 'Great!',
     customImg,
+    refBonusData,
     fn: () => {
       if (
         isGuest.value &&

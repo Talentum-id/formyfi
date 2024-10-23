@@ -26,6 +26,7 @@
           :answers="answers"
           :branches="branches"
           :thank-you-message="data.thxMessage"
+          :ref-code-points="data.refCodePoints"
         />
       </template>
     </div>

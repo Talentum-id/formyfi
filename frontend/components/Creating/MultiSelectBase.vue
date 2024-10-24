@@ -220,4 +220,8 @@ hr {
   display: flex;
   justify-content: space-between;
 }
+
+.arrow-up {
+  transform: rotate(180deg);
+}
 </style>

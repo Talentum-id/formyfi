@@ -695,6 +695,8 @@ const checkUserIdentity = async () => {
   show.value = false;
 };
 const nextSlide = async () => {
+  storedValue.value = storedProviderId.value = '';
+
   if (cacheAnswer.value || isPreview.value || step.value > props.items.length - 1) {
     if (currentIndex.value < props.items.length - 1) {
       await branchCheck();
@@ -773,6 +775,9 @@ const handleStorageEvent = (event) => {
 };
 
 onMounted(() => {
+  localStorage.removeItem('socialInfo');
+  localStorage.removeItem('providerId');
+
   window.addEventListener('storage', handleStorageEvent);
 });
 

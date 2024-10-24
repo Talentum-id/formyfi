@@ -18,6 +18,10 @@ onUnmounted(() => {
 onMounted(() => {
   if (!props.data) {
     useRouter().push('/');
+  } else {
+    // remove deprecated social info for social connect and verification successful handling
+    localStorage.removeItem('socialInfo');
+    localStorage.removeItem('providerId');
   }
 });
 </script>

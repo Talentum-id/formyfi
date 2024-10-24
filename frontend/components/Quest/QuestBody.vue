@@ -64,7 +64,6 @@ onMounted(() => {
       item.verificationAmount = 0;
     }
   });
-  console.log(props.data);
 });
 
 const openQuestion = (item) => {

@@ -176,9 +176,7 @@ export function formatFutureDate(dateStr) {
     day: 'numeric',
   });
 
-  const formattedDate = formatter.format(date);
-
-  return formattedDate;
+  return formatter.format(date);
 }
 
 export function formatDate(date) {

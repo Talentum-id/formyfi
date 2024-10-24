@@ -23,6 +23,7 @@
           :current-item="currentItem"
           :items="data.questions"
           :share-link="data.shareLink"
+          :quest="data"
           :answers="answers"
           :branches="branches"
           :thank-you-message="data.thxMessage"
@@ -63,6 +64,7 @@ onMounted(() => {
       item.verificationAmount = 0;
     }
   });
+  console.log(props.data);
 });
 
 const openQuestion = (item) => {

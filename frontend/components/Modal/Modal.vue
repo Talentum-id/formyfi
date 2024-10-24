@@ -22,6 +22,9 @@
             :size="30"
           ></Link>
         </div>
+        <div v-if="isEmail" class="flex flex-col gap-4 w-full">
+          <Input placeholder="Email me a copy of my responses at" v-model="email"></Input>
+        </div>
         <div class="action" v-if="showActionBtn" @click="handleAction()">
           {{ actionText }}
         </div>
@@ -39,20 +42,27 @@ import success from '@/assets/icons/modal/success.vue';
 import error from '@/assets/icons/modal/error.vue';
 import loading from '@/assets/icons/modal/loading.vue';
 import Link from '@/components/Table/Link.vue';
+import Input from '@/components/Input.vue';
 const visible = ref(false);
+const isEmail = ref(false);
 const title = ref('');
 const refBonusData = ref(null);
 const message = ref('');
+const email = ref('');
 const actionText = ref('');
 const customImg = ref('');
 const type = ref('');
 let action = null;
+let sendEmail = null;
 
 const closeModal = () => {
   visible.value = false;
 };
 const handleAction = () => {
   if (action && typeof action === 'function') {
+    if (isEmail.value && email.value) {
+      sendEmail(email.value);
+    }
     action();
   }
   closeModal();
@@ -80,7 +90,9 @@ const openModal = (data) => {
   actionText.value = data.actionText;
   customImg.value = data.customImg;
   refBonusData.value = data.refBonusData;
+  isEmail.value = data.isEmail;
   action = data.fn;
+  sendEmail = data.sendEmail;
 };
 const isLoading = computed(() => {
   return type.value === 'loading';
@@ -88,6 +100,7 @@ const isLoading = computed(() => {
 const showActionBtn = computed(() => {
   return !isLoading.value && action;
 });
+
 modal.on('openModal', openModal);
 modal.on('closeModal', closeModal);
 </script>

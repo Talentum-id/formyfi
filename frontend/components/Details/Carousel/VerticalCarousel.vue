@@ -338,6 +338,10 @@ const props = defineProps({
     type: Array,
     default: null,
   },
+  quest: {
+    type: Object,
+    default: null,
+  },
 });
 const emit = defineEmits(['close', 'success']);
 const authStore = useAuthStore();
@@ -618,7 +622,6 @@ const handleSuccessModal = async () => {
     message = thankYouMessage.description || message;
     customImg = await readFile(thankYouMessage.file);
   }
-
   if (refCodePoints?.length > 0 && authStore.getPrincipal) {
     console.log(refCodePoints, authStore.getPrincipal);
     refBonusData.link = `${window.location.origin}/form/${props.shareLink}?ref-code=${authStore.getPrincipal}`;
@@ -632,6 +635,7 @@ const handleSuccessModal = async () => {
     actionText: 'Great!',
     customImg,
     refBonusData,
+    isEmail: true,
     fn: () => {
       if (
         isGuest.value &&
@@ -641,6 +645,19 @@ const handleSuccessModal = async () => {
       } else {
         modal.emit('closeModal', {});
       }
+    },
+    sendEmail: (email) => {
+      console.log(props.quest);
+      axiosService
+        .post(`${process.env.API_URL}responses/dispatch`, {
+          email: email,
+          quest: props.quest,
+          answers: result.value,
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((e) => console.error(e));
     },
   });
 };
@@ -751,18 +768,8 @@ function onClose() {
   showSignUp.value = false;
 }
 
-watch(currentIndex, (value) => {
-  setCachedAnswer(value);
-  rerender();
-});
-
 const storedProviderId = ref(localStorage.providerId || '');
 const storedValue = ref(localStorage.socialInfo || '');
-
-watchEffect(() => {
-  storedProviderId.value = localStorage.providerId || '';
-  storedValue.value = localStorage.socialInfo || '';
-});
 
 const handleStorageEvent = (event) => {
   if (event.key === 'socialInfo') {
@@ -785,6 +792,16 @@ onBeforeUnmount(() => {
   window.removeEventListener('storage', handleStorageEvent);
 });
 
+watchEffect(() => {
+  storedProviderId.value = localStorage.providerId || '';
+  storedValue.value = localStorage.socialInfo || '';
+});
+
+watchEffect(() => {
+  storedProviderId.value = localStorage.providerId || '';
+  storedValue.value = localStorage.socialInfo || '';
+});
+
 watch(
   () => storedValue.value,
   () => {
@@ -803,6 +820,11 @@ watch(
     }
   },
 );
+
+watch(currentIndex, (value) => {
+  setCachedAnswer(value);
+  rerender();
+});
 
 const branchCheck = async () => {
   const questHasBranches = props.branches?.filter(

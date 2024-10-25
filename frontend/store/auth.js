@@ -359,9 +359,9 @@ export const useAuthStore = defineStore('auth', {
         const users = await this.actor?.getUsers(list);
 
         this.usersList = await Promise.all(
-          users.map(async (item) => {
-            let user = item[0];
+          users.map(async ({ user, stats }) => {
             let avatar = null;
+            let stat = stats[0] || null;
 
             if (user?.avatar?.[0]) {
               try {
@@ -374,6 +374,8 @@ export const useAuthStore = defineStore('auth', {
             return {
               ...user,
               avatar,
+              forms_completed: Number(stat?.forms_completed || 0),
+              forms_created: Number(stat?.forms_created || 0)
             };
           }),
         );

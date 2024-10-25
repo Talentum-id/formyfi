@@ -70,11 +70,20 @@ actor UserIndex {
     users.get(identity);
   };
 
-  public query func getUsers(identities : [Text]) : async [?UserData] {
-    let data = Buffer.fromArray<?UserData>([]);
+  public shared func getUsers(identities : [Text]) : async [ProfileData] {
+    let data = Buffer.fromArray<ProfileData>([]);
 
     for (identity in identities.vals()) {
-      data.add(users.get(identity));
+      switch (users.get(identity)) {
+        case null {
+          ignore null;
+        };
+        case (?user) {
+          let stats = await MetricsIndex.findStats(identity);
+
+          data.add({ user; stats });
+        };
+      };
     };
 
     Buffer.toArray(data);
@@ -127,25 +136,6 @@ actor UserIndex {
       };
     } else {
       throw Error.reject("This username does not exist");
-    };
-  };
-
-  public func incrementFormsCreated(identity : Text) : async () {
-    switch (users.get(identity)) {
-      case null return;
-      case (?user) {
-        users.put(
-          identity,
-          {
-            provider = user.provider;
-            fullName = user.fullName;
-            username = user.username;
-            avatar = user.avatar;
-            banner = user.banner;
-            forms_created = user.forms_created + 1;
-          },
-        );
-      };
     };
   };
 

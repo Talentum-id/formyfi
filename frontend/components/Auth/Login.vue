@@ -10,6 +10,9 @@ import { useConnect, useChainId, useAccount, useDisconnect, useSignMessage } fro
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
+import { PostMessageTransport } from '@slide-computer/signer-web';
+import { PlugTransport } from '@slide-computer/signer-transport-plug';
+import { createAccountsPermissionScope, Signer } from '@slide-computer/signer';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -73,7 +76,34 @@ const logout = async () => {
   await disconnect();
   await authStore.logout();
 };
+const checkNFID = async () => {
+  const transport = new PostMessageTransport({
+    url: 'https://nfid.one/rpc',
+  });
 
+  const signer = new Signer({ transport });
+
+  if (transport.connection && !transport.connection.connected) {
+    await transport.connection.connect();
+  }
+  const accounts = await signer.accounts();
+  const channel = await transport.establishChannel();
+  console.log(channel);
+
+  await authStore.generateWeb3WalletIdentity(accounts[0], 'NFID');
+};
+const checkPLUG = async () => {
+  const transport = new PlugTransport();
+
+  const signer = new Signer({ transport });
+
+  if (transport.connection && !transport.connection.connected) {
+    await transport.connection.connect();
+  }
+  const accounts = await signer.accounts();
+
+  console.log(signer);
+};
 const hasAuthToken = computed(() => authStore.getAuthState);
 
 watch(hasAuthToken, () => {
@@ -168,6 +198,17 @@ defineProps({
           </div>
         </AuthButton>
       </template>
+
+      <AuthButton @click="checkNFID">
+        <div class="container">
+          <div class="name-social">NFID</div>
+        </div>
+      </AuthButton>
+      <AuthButton @click="checkPLUG">
+        <div class="container">
+          <div class="name-social">PLUG</div>
+        </div>
+      </AuthButton>
       <WalletMultiButton />
       <hr />
       <GoogleLogin
@@ -185,6 +226,7 @@ defineProps({
           <div class="name-social">Submit the form anonymously</div>
         </div>
       </AuthButton>
+
       <div class="agreement">
         By proceeding, you agree to <span> Terms of Service</span> & <span>Privacy Policy</span>.
       </div>

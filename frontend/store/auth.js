@@ -278,14 +278,16 @@ export const useAuthStore = defineStore('auth', {
       window.location.reload();
     },
     async fetchStats() {
-      return await this.actor?.getUsersAmount()
-        .then(res => this.stats = res)
-        .catch(e => console.error(e));
+      return await this.actor
+        ?.getUsersAmount()
+        .then((res) => (this.stats = res))
+        .catch((e) => console.error(e));
     },
     async fetchAdmins() {
-      return await this.actor?.fetchAdmins()
-        .then(res => this.admins = res)
-        .catch(e => console.error(e));
+      return await this.actor
+        ?.fetchAdmins()
+        .then((res) => (this.admins = res))
+        .catch((e) => console.error(e));
     },
     async addAdmin(username) {
       return await this.actor?.addAdmin(username, {
@@ -375,7 +377,7 @@ export const useAuthStore = defineStore('auth', {
               ...user,
               avatar,
               forms_completed: Number(stat?.forms_completed || 0),
-              forms_created: Number(stat?.forms_created || 0)
+              forms_created: Number(stat?.forms_created || 0),
             };
           }),
         );
@@ -418,7 +420,7 @@ export const useAuthStore = defineStore('auth', {
       this.actor = actor;
       this.principal = this.identity ? await agent.getPrincipal() : null;
       this.isAuthenticated = true;
-
+      console.log(this.identity);
       this.setAuthenticationStorage(true, provider);
     },
   },

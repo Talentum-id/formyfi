@@ -148,7 +148,7 @@ export const useAuthStore = defineStore('auth', {
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
       const agent = identity ? new HttpAgent({ identity }) : null;
-
+      console.log(identity);
       if (agent !== null) {
         await agent.syncTime();
       }
@@ -165,6 +165,7 @@ export const useAuthStore = defineStore('auth', {
       await useQAStore().init();
       await useResponseStore().init();
       await useStatsStore().init();
+      console.log(5);
     },
     async loginWithII() {
       if (this.authClient === null) {
@@ -421,7 +422,18 @@ export const useAuthStore = defineStore('auth', {
       this.principal = this.identity ? await agent.getPrincipal() : null;
       this.isAuthenticated = true;
       console.log(this.identity);
+      console.log(this.principal);
       this.setAuthenticationStorage(true, provider);
+    },
+    async setCustomUser(par) {
+      this.identity = par.identity;
+      this.actor = par.actor;
+
+      this.isAuthenticated = true;
+      this.setAuthenticationStorage(this.isAuthenticated, 'NFID');
+      console.log(1321321);
+      await this.initStores();
+      await router.push('/sign-up');
     },
   },
   getters: {

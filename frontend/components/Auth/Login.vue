@@ -13,6 +13,8 @@ import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
 import { PostMessageTransport } from '@slide-computer/signer-web';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { createAccountsPermissionScope, Signer } from '@slide-computer/signer';
+import { createActor } from '~/user_index/index';
+import { generateIdentityFromPrincipal } from '@/util/helpers';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -77,6 +79,22 @@ const logout = async () => {
   await authStore.logout();
 };
 const checkNFID = async () => {
+  const defaultOptions = {
+    createOptions: {
+      idleOptions: {
+        disableIdle: true,
+      },
+    },
+    loginOptions: {
+      identityProvider: process.env.II_URI,
+      maxTimeToLive: BigInt(process.env.II_LIFETIME),
+    },
+  };
+  const createActorFromIdentity = (identity) => {
+    return createActor(process.env.CANISTER_ID_FORM_INDEX, {
+      agentOptions: { identity },
+    });
+  };
   const transport = new PostMessageTransport({
     url: 'https://nfid.one/rpc',
   });
@@ -87,10 +105,17 @@ const checkNFID = async () => {
     await transport.connection.connect();
   }
   const accounts = await signer.accounts();
-  const channel = await transport.establishChannel();
-  console.log(channel);
+  const identity = generateIdentityFromPrincipal(accounts[0].owner);
+  const actor = identity ? createActorFromIdentity(identity) : null;
+  authStore.setCustomUser({ identity: identity, actor: actor });
+  //
+  // const delegation = await signer.delegation({
+  //   publicKey: process.env.II_URI,
+  //   maxTimeToLive: BigInt(process.env.II_LIFETIME),
+  // });
+  //console.log(delegation);
 
-  await authStore.generateWeb3WalletIdentity(accounts[0], 'NFID');
+  //await authStore.generateWeb3WalletIdentity(accounts[0].owner, 'NFID');
 };
 const checkPLUG = async () => {
   const transport = new PlugTransport();
@@ -102,7 +127,7 @@ const checkPLUG = async () => {
   }
   const accounts = await signer.accounts();
 
-  console.log(signer);
+  console.log(accounts);
 };
 const hasAuthToken = computed(() => authStore.getAuthState);
 

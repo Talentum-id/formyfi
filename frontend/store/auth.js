@@ -1,18 +1,21 @@
+import router from '@/router';
+import axiosService from '@/services/axiosService';
 import { defineStore } from 'pinia';
 import { AuthClient } from '@dfinity/auth-client';
 import { createActor, user_index } from '~/user_index';
-import router from '@/router';
 import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
 import { decodeCredential } from 'vue3-google-login';
 import { useStatsStore } from '@/store/stats';
-import axiosService from '@/services/axiosService';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
+import { PostMessageTransport } from '@slide-computer/signer-web';
+import { Signer } from '@slide-computer/signer';
+import { SignerClient } from '@slide-computer/signer-client';
 
 const defaultOptions = {
   createOptions: {
@@ -46,6 +49,7 @@ export const useAuthStore = defineStore('auth', {
       user: null,
       isQuest: false,
       profile: null,
+      signerClient: null,
       stats: 0,
       usersList: null,
     };
@@ -61,12 +65,14 @@ export const useAuthStore = defineStore('auth', {
         await this.initSIWE();
       } else if (authenticationProvider === 'siws') {
         await this.initSIWS();
+      } else if (authenticationProvider === 'nfid'){
+        await this.initNFID();
       } else {
         await this.initWeb2Auth();
       }
 
       if (this.isAuthenticated) {
-        await this.findUser(this.getPrincipal)
+        await this.findUser(this.principal)
           .then(async (res) => {
             await this.initStores();
 
@@ -147,8 +153,32 @@ export const useAuthStore = defineStore('auth', {
 
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
+      await this.initIdentityDependencies(identity, isAuthenticated);
+    },
+    async initNFID() {
+      const transport = new PostMessageTransport({
+        url: process.env.NFID_URL,
+      });
+      const signer = new Signer({
+        transport,
+      });
+      const baseIdentity = Ed25519KeyIdentity.generate();
+
+      const signerClient = await SignerClient.create({
+        signer,
+        identity: baseIdentity,
+        idleOptions: defaultOptions.createOptions,
+      });
+
+      this.signerClient = signerClient;
+
+      const isAuthenticated = signerClient.isAuthenticated();
+      const identity = isAuthenticated ? signerClient.getIdentity() : null;
+      await this.initIdentityDependencies(identity, isAuthenticated);
+    },
+    async initIdentityDependencies(identity, isAuthenticated){
       const agent = identity ? new HttpAgent({ identity }) : null;
-      console.log(identity);
+
       if (agent !== null) {
         await agent.syncTime();
       }
@@ -165,7 +195,6 @@ export const useAuthStore = defineStore('auth', {
       await useQAStore().init();
       await useResponseStore().init();
       await useStatsStore().init();
-      console.log(5);
     },
     async loginWithII() {
       if (this.authClient === null) {
@@ -186,6 +215,32 @@ export const useAuthStore = defineStore('auth', {
           this.principal = this.identity ? await agent.getPrincipal() : null;
 
           this.setAuthenticationStorage(this.isAuthenticated, 'ii');
+
+          await this.initStores();
+
+          if (!this.isQuest) {
+            await router.push('/sign-up');
+          }
+        },
+      });
+    },
+    async loginWithNFID() {
+      if (this.signerClient === null) {
+        await this.initNFID();
+      }
+
+      const signerClient = toRaw(this.signerClient);
+
+      await signerClient.login({
+        maxTimeToLive: BigInt(process.env.II_LIFETIME),
+        onSuccess: async () => {
+          this.isAuthenticated = signerClient.isAuthenticated();
+          this.identity = this.isAuthenticated ? signerClient.getIdentity() : null;
+          const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
+          this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
+          this.principal = this.identity ? await agent.getPrincipal() : null;
+
+          this.setAuthenticationStorage(this.isAuthenticated, 'nfid');
 
           await this.initStores();
 
@@ -265,8 +320,10 @@ export const useAuthStore = defineStore('auth', {
     },
     async logout() {
       const authClient = toRaw(this.authClient);
+      const signerClient = toRaw(this.signerClient);
 
       await authClient?.logout();
+      await signerClient?.logout();
 
       this.setAuthenticationStorage(false);
 
@@ -354,6 +411,9 @@ export const useAuthStore = defineStore('auth', {
         })
         .then(async ({ user }) => await this.setUser(user));
     },
+    async findUserByUsername(string) {
+      return this.actor?.findUsername(string);
+    },
     async findUser(principal) {
       return this.actor?.findUser(principal);
     },
@@ -421,19 +481,8 @@ export const useAuthStore = defineStore('auth', {
       this.actor = actor;
       this.principal = this.identity ? await agent.getPrincipal() : null;
       this.isAuthenticated = true;
-      console.log(this.identity);
-      console.log(this.principal);
-      this.setAuthenticationStorage(true, provider);
-    },
-    async setCustomUser(par) {
-      this.identity = par.identity;
-      this.actor = par.actor;
 
-      this.isAuthenticated = true;
-      this.setAuthenticationStorage(this.isAuthenticated, 'NFID');
-      console.log(1321321);
-      await this.initStores();
-      await router.push('/sign-up');
+      this.setAuthenticationStorage(true, provider);
     },
   },
   getters: {
@@ -444,6 +493,6 @@ export const useAuthStore = defineStore('auth', {
     getUser: ({ user }) => user,
     getProfileData: ({ profile }) => profile,
     getUsersList: ({ usersList }) => usersList,
-    getAuthState: (state) => state.isAuthenticated,
+    getAuthState: ({ isAuthenticated }) => isAuthenticated,
   },
 });

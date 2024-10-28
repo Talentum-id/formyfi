@@ -22,7 +22,7 @@ const errors = ref({
 
 onMounted(async () => {
   try {
-    await authStore.actor?.findUser(authStore.getPrincipal).then(async (res) => {
+    await authStore.findUser(authStore.getPrincipal).then(async (res) => {
       if (res.length) {
         await authStore.setUser(res[0]);
         if (!useAuthStore().isQuest) {
@@ -96,8 +96,7 @@ const validateUsername = () => {
   if (!alphaNumericWithDot.test(form.value.username)) {
     errors.value.username = 'Username can only consist of alphanumeric characters and dot';
   } else {
-    authStore.actor
-      ?.findUsername(form.value.username)
+    authStore.findUserByUsername(form.value.username)
       .then((status) => {
         if (status) {
           errors.value.username = 'This username already exists';

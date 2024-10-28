@@ -10,11 +10,8 @@ import { useConnect, useChainId, useAccount, useDisconnect, useSignMessage } fro
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
-import { PostMessageTransport } from '@slide-computer/signer-web';
 import { PlugTransport } from '@slide-computer/signer-transport-plug';
 import { createAccountsPermissionScope, Signer } from '@slide-computer/signer';
-import { createActor } from '~/user_index/index';
-import { generateIdentityFromPrincipal } from '@/util/helpers';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -78,49 +75,19 @@ const logout = async () => {
   await disconnect();
   await authStore.logout();
 };
-const checkNFID = async () => {
-  const defaultOptions = {
-    createOptions: {
-      idleOptions: {
-        disableIdle: true,
-      },
-    },
-    loginOptions: {
-      identityProvider: process.env.II_URI,
-      maxTimeToLive: BigInt(process.env.II_LIFETIME),
-    },
-  };
-  const createActorFromIdentity = (identity) => {
-    return createActor(process.env.CANISTER_ID_FORM_INDEX, {
-      agentOptions: { identity },
-    });
-  };
-  const transport = new PostMessageTransport({
-    url: 'https://nfid.one/rpc',
-  });
-
-  const signer = new Signer({ transport });
-
-  if (transport.connection && !transport.connection.connected) {
-    await transport.connection.connect();
+const connectNFID = async () => {
+  try {
+    await authStore.loginWithNFID();
+  }catch (e) {
+    console.error(e);
+    emit('reject');
   }
-  const accounts = await signer.accounts();
-  const identity = generateIdentityFromPrincipal(accounts[0].owner);
-  const actor = identity ? createActorFromIdentity(identity) : null;
-  authStore.setCustomUser({ identity: identity, actor: actor });
-  //
-  // const delegation = await signer.delegation({
-  //   publicKey: process.env.II_URI,
-  //   maxTimeToLive: BigInt(process.env.II_LIFETIME),
-  // });
-  //console.log(delegation);
-
-  //await authStore.generateWeb3WalletIdentity(accounts[0].owner, 'NFID');
 };
-const checkPLUG = async () => {
+const connectPLUG = async () => {
   const transport = new PlugTransport();
 
   const signer = new Signer({ transport });
+  await signer.requestPermissions(createAccountsPermissionScope());
 
   if (transport.connection && !transport.connection.connected) {
     await transport.connection.connect();
@@ -224,13 +191,15 @@ defineProps({
         </AuthButton>
       </template>
 
-      <AuthButton @click="checkNFID">
+      <AuthButton @click="connectNFID()">
         <div class="container">
-          <div class="name-social">NFID</div>
+          <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />
+          <div class="name-social">Wallet</div>
         </div>
       </AuthButton>
-      <AuthButton @click="checkPLUG">
+      <AuthButton @click="connectPLUG()">
         <div class="container">
+          <img src="@/assets/icons/plug.png" alt="PLUG" class="h-[24px]" />
           <div class="name-social">PLUG</div>
         </div>
       </AuthButton>

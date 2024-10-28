@@ -56,6 +56,10 @@ actor ResponseIndex {
     };
   };
 
+  public query func getResponsesAmount() : async Nat {
+    responses.size();
+  };
+
   public query func listQas(identity : Text, params : FetchParams) : async QAList {
     switch (qasViaAuthor.get(identity)) {
       case null {

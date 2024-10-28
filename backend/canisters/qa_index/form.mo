@@ -45,14 +45,6 @@ actor FormIndex {
     shareLinks.size();
   };
 
-  public func storeQAEntries(entries : [(Text, [QA])]) : async () {
-    QAEntries := entries;
-  };
-
-  public func storeShareLinkEntries(entries : [(Text, Text)]) : async () {
-    shareLinkEntries := entries;
-  };
-
   public query func list(params : FetchParams) : async List {
     if (params.identity == "") {
       throw Error.reject("Identity is not specified");

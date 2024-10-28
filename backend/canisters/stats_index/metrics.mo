@@ -24,15 +24,6 @@ actor MetricsIndex {
   let stats = Map.fromIter<Text, StatsData>(statsEntries.vals(), 1000, Text.equal, Text.hash);
   let statsPerProject = Map.fromIter<Text, [ProjectStatsData]>(statsPerProjectEntries.vals(), 1000, Text.equal, Text.hash);
 
-  public func storePerProjectStats(perProjectEntries : [(Text, [ProjectStatsData])]) : async () {
-    statsPerProjectEntries := perProjectEntries;
-  };
-
-  public func storeStats(entries : [(Text, StatsData)], statsInGeneral : [GeneralStatsData]) : async () {
-    statsEntries := entries;
-    generalStats := statsInGeneral;
-  };
-
   public query func list(params : Params) : async List {
     var data = generalStats;
     let { page; pageSize } = params;
@@ -149,6 +140,7 @@ actor MetricsIndex {
           forms_completed = 0;
           points = FORMS_CREATED_POINTS;
           identity;
+          total_invited = ?0;
         });
 
         generalStats := Buffer.toArray(statistics);
@@ -172,6 +164,7 @@ actor MetricsIndex {
               forms_completed = 0;
               points = FORMS_CREATED_POINTS;
               identity;
+              total_invited = ?0;
             });
 
             generalStats := Buffer.toArray(statistics);
@@ -195,6 +188,7 @@ actor MetricsIndex {
                     points = userStats.points + FORMS_CREATED_POINTS;
                     forms_created = userStats.forms_created + 1;
                     forms_completed = userStats.forms_completed;
+                    total_invited = userStats.total_invited;
                   },
                 );
 
@@ -238,6 +232,7 @@ actor MetricsIndex {
           forms_completed = 1;
           points;
           identity;
+          total_invited = ?0;
         });
 
         generalStats := Buffer.toArray(statistics);
@@ -261,6 +256,7 @@ actor MetricsIndex {
               forms_completed = 1;
               points;
               identity;
+              total_invited = ?0;
             });
 
             generalStats := Buffer.toArray(statistics);
@@ -284,6 +280,7 @@ actor MetricsIndex {
                     points = userStats.points + points;
                     forms_created = userStats.forms_created;
                     forms_completed = userStats.forms_completed + 1;
+                    total_invited = userStats.total_invited;
                   },
                 );
 
@@ -299,7 +296,7 @@ actor MetricsIndex {
   func incrementPointsPerProject(project : Text, identity : Text, points : Nat) : async () {
     switch (statsPerProject.get(project)) {
       case null {
-        statsPerProject.put(project, [{ identity; points; forms_completed = 1 }]);
+        statsPerProject.put(project, [{ identity; points; forms_completed = 1; total_invited = ?0 }]);
       };
       case (?statistics) {
         switch (Array.find<ProjectStatsData>(statistics, func item = item.identity == identity)) {
@@ -310,6 +307,7 @@ actor MetricsIndex {
               identity;
               points;
               forms_completed = 1;
+              total_invited = ?0;
             });
 
             statsPerProject.put(project, Buffer.toArray(statsData));
@@ -332,6 +330,7 @@ actor MetricsIndex {
                     identity;
                     points = userStatsPerProject.points + points;
                     forms_completed = userStatsPerProject.forms_completed + 1;
+                    total_invited = userStatsPerProject.total_invited;
                   },
                 );
 

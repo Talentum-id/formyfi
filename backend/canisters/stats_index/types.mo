@@ -17,6 +17,7 @@ module StatsTypes {
     forms_completed : Nat;
     points : Nat;
     identity : Text;
+    total_invited : ?Nat;
   };
 
   public type ListResult = {
@@ -28,6 +29,7 @@ module StatsTypes {
     identity : Text;
     points : Nat;
     forms_completed : Nat;
+    total_invited : ?Nat;
   };
 
   public type ListResultPerProject = {

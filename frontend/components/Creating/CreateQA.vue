@@ -104,7 +104,8 @@
             </div>
           </div>
           <div class="section_wrapper-subtitle">
-            Determine if the talent must meet certain conditions in order to validate the task
+            Set a descriptive header and outline the criteria the user must meet to complete and
+            answer this question
           </div>
           <Select
             :options="questsTypeItems"

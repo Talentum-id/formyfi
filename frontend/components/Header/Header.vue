@@ -15,7 +15,7 @@
 
         <div class="user-info">
           <span>{{ user.username }}</span>
-          <span class="fullname">{{ user.fullName.trim() || 'Guest' }} </span>
+          <span class="fullname">{{ user.fullName.trim() || 'User' }} </span>
         </div>
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>
@@ -145,9 +145,10 @@ export default {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.014em;
-  font-feature-settings: 'tnum' on,
-  'lnum' on,
-  'zero' on;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
 
   .tooltip-arrow {
     position: absolute;

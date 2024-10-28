@@ -190,7 +190,7 @@ defineProps({
           </div>
         </AuthButton>
       </template>
-
+    <!-- Disabled until ready to deploy to prod
       <AuthButton @click="connectNFID()">
         <div class="container">
           <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />
@@ -203,6 +203,7 @@ defineProps({
           <div class="name-social">PLUG</div>
         </div>
       </AuthButton>
+      -->
       <WalletMultiButton />
       <hr />
       <GoogleLogin

@@ -514,7 +514,11 @@ const connectSocial = async (provider) => {
   }
 };
 const disconnectSocial = async () => {
+  // remove deprecated social info for social connect and verification successful handling
+  localStorage.removeItem('socialInfo');
+  localStorage.removeItem('providerId');
   newArr.value[currentIndex.value].answer = '';
+  storedValue.value = storedProviderId.value = '';
 };
 onMounted(async () => {
   if (newArr.value[currentIndex.value].verificationAmount === undefined) {

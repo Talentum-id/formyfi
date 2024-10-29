@@ -16,10 +16,22 @@
             :size="items.length"
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
-          {{ newArr[currentIndex] }}
-          {{ questionFiles[currentIndex] }}
+
           <div class="flex items-center justify-center" v-if="newArr[currentIndex].file">
+            <video v-if="checkFileFormat(questionFiles[currentIndex], 'video')" controls>
+              <source :src="questionFiles[currentIndex]" type="video/mp4" />
+            </video>
+            <audio
+              class="w-full"
+              controls
+              v-else-if="checkFileFormat(questionFiles[currentIndex], 'audio')"
+            >
+              <source :src="questionFiles[currentIndex]" type="audio/ogg" />
+              <source :src="questionFiles[currentIndex]" type="audio/mp3" />
+              <source :src="questionFiles[currentIndex]" type="audio/mpeg" />
+            </audio>
             <CustomImage
+              v-else
               :image="questionFiles[currentIndex]"
               heigth="160"
               width="160"
@@ -273,7 +285,7 @@
 <script setup>
 import BaseButton from '@/components/BaseButton.vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
-import { readFile } from '@/util/helpers';
+import { checkFileFormat, readFile } from '@/util/helpers';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElCheckboxGroup, ElCheckboxButton, ElRadioGroup, ElRadioButton } from 'element-plus';

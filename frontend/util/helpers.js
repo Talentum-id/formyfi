@@ -26,7 +26,7 @@ export const getTaskStatus = (status) => {
   }
 };
 
-export const checkIsUri = data => {
+export const checkIsUri = (data) => {
   try {
     new URL(data);
 
@@ -412,7 +412,7 @@ export function timestampToString(timestamp) {
   return formattedString;
 }
 
-export const dateTimeToSeconds = datetime => {
+export const dateTimeToSeconds = (datetime) => {
   const date = new Date(datetime);
 
   return Math.floor(date.getTime() / 1000);
@@ -505,9 +505,10 @@ export const generateUint8Array = (str) => {
   return uint8Array;
 };
 
-export const generateIdentityFromPrincipal = principal => Ed25519KeyIdentity.generate(generateUint8Array(principal));
+export const generateIdentityFromPrincipal = (principal) =>
+  Ed25519KeyIdentity.generate(generateUint8Array(principal));
 
-export const readFile = async path => {
+export const readFile = async (path) => {
   let fileHost = process.env.AWS_ENDPOINT;
   let fileUrl = path.replaceAll('//', '/');
 
@@ -524,3 +525,17 @@ export const readFile = async path => {
 
   return URL.createObjectURL(blob);
 };
+export function checkFileFormat(file, format) {
+  let isCurrentType = false;
+  const video = document.createElement('video');
+  video.src = file;
+  video.onloadedmetadata = () => (isCurrentType = format === 'video');
+  video.onerror = () => {
+    const audio = document.createElement('audio');
+    audio.src = file;
+    audio.onloadedmetadata = () => (isCurrentType = format === 'audio');
+    audio.onerror = () => {
+      isCurrentType = false;
+    };
+  };
+}

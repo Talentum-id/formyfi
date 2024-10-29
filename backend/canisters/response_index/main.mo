@@ -222,7 +222,7 @@ actor ResponseIndex {
   private func saveAuthorQA(identity : Text, data : Data, title : Text) : async () {
     let { shareLink; filled } = data;
     let username = switch (await UserIndex.findUser(identity)) {
-      case null "guest";
+      case null "anonymous";
       case (?user) user.username;
     };
 

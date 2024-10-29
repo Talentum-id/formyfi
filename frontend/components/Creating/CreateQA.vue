@@ -120,12 +120,14 @@
               <div v-if="question.type?.info" class="flex-col">
                 <SocialConnect :data="question.type?.info"></SocialConnect>
               </div>
-              <CustomUpload
-                v-else
-                :files="question.image"
-                @images="question.image = $event"
-                @changeError="handleImageError"
-              />
+              <div v-else class="flex items-center gap-4">
+                <CustomUpload
+                  :files="question.image"
+                  @images="question.image = $event"
+                  @changeError="handleImageError"
+                />
+              </div>
+
               <div class="check-btn_wrapper">
                 <div class="check-btn_title">Required</div>
                 <Switch :checkedProp="question.required" @checked="question.required = $event" />
@@ -163,6 +165,7 @@
               <LinkBlock v-if="question.type?.id === 9" :question="question" />
               <DateBlock v-if="question.type?.id === 10" :question="question" />
               <AddressBlock v-if="question.type?.id === 11" :question="question" />
+
               <div v-if="question.type?.id === 2">
                 <div class="section_wrapper-subtitle">
                   Users will be asked to choose answers from listed below.
@@ -357,7 +360,6 @@ import axiosService from '@/services/axiosService';
 import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
 import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
 import LogicBranching from '@/components/Creating/LogicBranching.vue';
-import NumberInput from '@/components/NumberInput.vue';
 
 const emits = defineEmits('refresh');
 

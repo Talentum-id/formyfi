@@ -16,6 +16,8 @@
             :size="items.length"
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
+          {{ newArr[currentIndex] }}
+          {{ questionFiles[currentIndex] }}
           <div class="flex items-center justify-center" v-if="newArr[currentIndex].file">
             <CustomImage
               :image="questionFiles[currentIndex]"

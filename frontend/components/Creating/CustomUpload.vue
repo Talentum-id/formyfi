@@ -7,7 +7,7 @@
     :on-remove="handleRemove"
     :limit="1"
     :auto-upload="false"
-    :accept="fileExtensions[image]"
+    :accept="fileExtensions[video]"
     :class="{
       'hide-upload': fileList.length >= 1,
     }"
@@ -17,26 +17,30 @@
         <el-button class="add flex items-center gap-2">
           Add File <img src="@/assets/icons/add.svg" alt="" />
         </el-button>
-        <TooltipIcon
-          :tooltipText="`Allowed formats: ${fileExtensions[image]}. File size 5 mb max.`"
-        />
+
+        <TooltipIcon :tooltipText="`File size 50 mb max.`" />
       </div>
     </template>
     <template #file="{ file }">
       <div :class="{ 'file-with-error': file.isError }" class="uploader-wrapper" :title="file.name">
+        <video class="el-upload-list__item-thumbnail" alt="" v-if="checkIfFileVideo(file)">
+          <source :src="file.url" type="video/mp4" />
+        </video>
+
         <img
-          v-if="!checkIfFilePdf(file)"
+          v-else-if="checkIfFileAudio(file)"
           class="el-upload-list__item-thumbnail"
-          :src="file.url"
+          src="@/assets/icons/upload/audio-bg.svg"
           alt=""
         />
-
-        <div v-else class="uploaded-pdf-file-gray">
+        <div v-else-if="checkIfFilePdf(file)" class="uploaded-pdf-file-gray">
           <div class="name">
             {{ extractName(file.name) }}
           </div>
           <div class="type">PDF</div>
         </div>
+        <img v-else class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
+
         <span class="el-upload-list__item-actions">
           <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
             <div class="icon-wrapper">
@@ -56,7 +60,15 @@
     {{ isShowFileError.message }}
   </span>
   <ElDialog append-to-body v-model="dialogVisible">
-    <img :src="dialogImageUrl" alt="Preview Image" />
+    <audio class="w-full" controls v-if="checkIfFileAudio(dialogFile)" alt="">
+      <source :src="dialogFile.url" type="audio/ogg" />
+      <source :src="dialogFile.url" type="audio/mp3" />
+      <source :src="dialogFile.url" type="audio/mpeg" />
+    </audio>
+    <video class="w-full" controls alt="" v-else-if="checkIfFileVideo(dialogFile)">
+      <source :src="dialogFile.url" type="video/mp4" />
+    </video>
+    <img :src="dialogFile.url" alt="Preview Image" v-else />
   </ElDialog>
 </template>
 
@@ -65,10 +77,7 @@ import { ref, reactive, toRef, watch, computed } from 'vue';
 import 'element-plus/dist/index.css';
 import { ElDialog, ElUpload } from 'element-plus';
 import TooltipIcon from '@/components/Creating/TooltipIcon.vue';
-import {
-  image,
-  fileExtensions
-} from '@/constants/fileCategories';
+import { image, fileExtensions, video } from '@/constants/fileCategories';
 
 const props = defineProps({
   files: {
@@ -92,6 +101,7 @@ watch(
   (value) => {
     const isValid = checkImageSize();
     if (isValid) {
+      console.log(value);
       emit('images', value);
     }
   },
@@ -102,11 +112,11 @@ const isShowFileError = reactive({
   message: 'error',
 });
 
-const dialogImageUrl = ref('');
+const dialogFile = ref('');
 const dialogVisible = ref(false);
 
 const checkImageSize = () => {
-  const maxSizeInMB = 5;
+  const maxSizeInMB = 50;
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
   if (!fileList.value.length) {
@@ -148,8 +158,13 @@ function extractName(filename) {
 }
 
 const checkIfFilePdf = (file) => {
-  // return file.raw.type.indexOf('pdf') !== -1;
-  return file.name.indexOf('pdf') !== -1;
+  return file.raw.type.indexOf('pdf') !== -1;
+};
+const checkIfFileVideo = (file) => {
+  return file.raw.type.indexOf('video') !== -1;
+};
+const checkIfFileAudio = (file) => {
+  return file.raw.type.indexOf('audio') !== -1;
 };
 
 const handleRemove = (uploadFile, uploadFiles) => {
@@ -170,7 +185,8 @@ const handlePictureCardPreview = async (uploadFile) => {
   // const image = await fetch(uploadFile.url);
   // const imageBlog = await image.blob();
   // const imageURL = URL.createObjectURL(imageBlog);
-  dialogImageUrl.value = uploadFile.url;
+  console.log(uploadFile);
+  dialogFile.value = uploadFile;
   // dialogImageUrl.value = imageURL;
   dialogVisible.value = true;
 };

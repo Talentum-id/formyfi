@@ -125,7 +125,7 @@ const requestsRows = computed(
         content: Number(item.forms_completed),
       },
       created: {
-        content: Number(statsList.value[index][0].forms_created ?? 0),
+        content: statsList.value[index] ? Number(statsList.value[index].forms_created ?? 0) : 0,
       },
       invited: {
         content: item.invited ? Number(item.invited) : '0',
@@ -140,7 +140,6 @@ onMounted(async () => {
     await nextPage(route.query.page);
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
-    await leaderboardStore.fetchStatsList(list.value.data.map(({identity}) => identity));
   }
 });
 
@@ -152,8 +151,6 @@ const nextPage = async (page) => {
   } else {
     await leaderboardStore.getLeaderboardAction(params.value);
   }
-
-  await leaderboardStore.fetchStatsList(list.value.data.map(({identity}) => identity));
 };
 const sortTasks = async (prop, direction) => {
   if (!loaded) return;

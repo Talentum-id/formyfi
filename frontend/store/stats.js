@@ -61,7 +61,7 @@ export const useStatsStore = defineStore('stats', {
     },
     async fetchStatsList(identities) {
       return this.actor?.findUserStats(identities)
-        .then(res => this.statsList = res)
+        .then(res => this.statsList = res.map(data => data[0] ?? {}))
         .catch(e => console.error(e));
     },
     async getLeaderboardAction(params) {
@@ -72,6 +72,7 @@ export const useStatsStore = defineStore('stats', {
           this.leaderboardList = res;
 
           await useAuthStore().getUsers(res.data?.map(({ identity }) => identity));
+          await this.fetchStatsList(res.data?.map(({ identity }) => identity));
         })
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));
@@ -85,6 +86,7 @@ export const useStatsStore = defineStore('stats', {
           this.leaderboardList = res;
 
           await useAuthStore().getUsers(res.data?.map(({ identity }) => identity));
+          await this.fetchStatsList(res.data?.map(({ identity }) => identity));
         })
         .catch((e) => console.error(e))
         .finally(() => (this.loadedList = true));

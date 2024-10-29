@@ -20,6 +20,7 @@ export const useStatsStore = defineStore('stats', {
     loadedList: false,
     leaderboardList: [],
     stats: [],
+    statsList: [],
   }),
   actions: {
     async init() {
@@ -58,6 +59,11 @@ export const useStatsStore = defineStore('stats', {
         })
         .catch(e => console.error(e));
     },
+    async fetchStatsList(identities) {
+      return this.actor?.findUserStats(identities)
+        .then(res => this.statsList = res)
+        .catch(e => console.error(e));
+    },
     async getLeaderboardAction(params) {
       this.loadedList = false;
       await this.actor
@@ -88,5 +94,6 @@ export const useStatsStore = defineStore('stats', {
     getLoadingStatus: (state) => state.loadedList,
     getLeaderboardList: ({ leaderboardList }) => leaderboardList,
     getStatistics: ({ stats }) => stats,
+    getStatsList: ({ statsList }) => statsList,
   },
 });

@@ -16,6 +16,7 @@ import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { PostMessageTransport } from '@slide-computer/signer-web';
 import { Signer } from '@slide-computer/signer';
 import { SignerClient } from '@slide-computer/signer-client';
+import { SignerAgent } from '@slide-computer/signer-agent';
 
 const defaultOptions = {
   createOptions: {
@@ -49,6 +50,7 @@ export const useAuthStore = defineStore('auth', {
       user: null,
       isQuest: false,
       profile: null,
+      signer: null,
       signerClient: null,
       stats: 0,
       usersList: null,
@@ -72,7 +74,7 @@ export const useAuthStore = defineStore('auth', {
       }
 
       if (this.isAuthenticated) {
-        await this.findUser(this.principal)
+        await this.findUser(this.getPrincipal)
           .then(async (res) => {
             await this.initStores();
 
@@ -153,6 +155,7 @@ export const useAuthStore = defineStore('auth', {
 
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
+
       await this.initIdentityDependencies(identity, isAuthenticated);
     },
     async initNFID() {
@@ -162,24 +165,38 @@ export const useAuthStore = defineStore('auth', {
       const signer = new Signer({
         transport,
       });
-      const baseIdentity = Ed25519KeyIdentity.generate();
-
-      const signerClient = await SignerClient.create({
+      let signerClient = await SignerClient.create({
         signer,
-        identity: baseIdentity,
         idleOptions: defaultOptions.createOptions,
       });
 
-      this.signerClient = signerClient;
+      if (signerClient.getIdentity().getPrincipal().isAnonymous()) {
+        signerClient = await SignerClient.create({
+          signer,
+          identity: Ed25519KeyIdentity.generate(),
+          idleOptions: defaultOptions.createOptions,
+        });
+      }
 
       const isAuthenticated = signerClient.isAuthenticated();
       const identity = isAuthenticated ? signerClient.getIdentity() : null;
+
+      this.signer = await signer;
+      this.signerClient = await signerClient;
+
       await this.initIdentityDependencies(identity, isAuthenticated);
     },
     async initIdentityDependencies(identity, isAuthenticated){
-      const agent = identity ? new HttpAgent({ identity }) : null;
+      let agent = identity ? new HttpAgent({ identity }) : null;
 
-      if (agent !== null) {
+      if (this.signer !== null && identity !== null) {
+        agent = await SignerAgent.create({
+          signer: this.signer,
+          account: identity?.getPrincipal(),
+        });
+      }
+
+      if (this.signer === null && agent !== null) {
         await agent.syncTime();
       }
 
@@ -206,14 +223,10 @@ export const useAuthStore = defineStore('auth', {
       await authClient.login({
         ...defaultOptions.loginOptions,
         onSuccess: async () => {
-          this.isAuthenticated = await authClient.isAuthenticated();
-          this.identity = this.isAuthenticated ? authClient.getIdentity() : null;
+          const isAuthenticated = await authClient.isAuthenticated();
+          const identity = this.isAuthenticated ? authClient.getIdentity() : null;
 
-          const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
-
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
-          this.principal = this.identity ? await agent.getPrincipal() : null;
-
+          await this.initIdentityDependencies(identity, isAuthenticated);
           this.setAuthenticationStorage(this.isAuthenticated, 'ii');
 
           await this.initStores();
@@ -234,12 +247,10 @@ export const useAuthStore = defineStore('auth', {
       await signerClient.login({
         maxTimeToLive: BigInt(process.env.II_LIFETIME),
         onSuccess: async () => {
-          this.isAuthenticated = signerClient.isAuthenticated();
-          this.identity = this.isAuthenticated ? signerClient.getIdentity() : null;
-          const agent = this.identity ? new HttpAgent({ identity: this.identity }) : null;
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : null;
-          this.principal = this.identity ? await agent.getPrincipal() : null;
+          const isAuthenticated = signerClient.isAuthenticated();
+          const identity = this.isAuthenticated ? signerClient.getIdentity() : null;
 
+          await this.initIdentityDependencies(identity, isAuthenticated);
           this.setAuthenticationStorage(this.isAuthenticated, 'nfid');
 
           await this.initStores();
@@ -422,9 +433,9 @@ export const useAuthStore = defineStore('auth', {
         const users = await this.actor?.getUsers(list);
 
         this.usersList = await Promise.all(
-          users.map(async ({ user, stats }) => {
+          users.map(async (item) => {
+            let user = item[0];
             let avatar = null;
-            let stat = stats[0] || null;
 
             if (user?.avatar?.[0]) {
               try {
@@ -437,8 +448,6 @@ export const useAuthStore = defineStore('auth', {
             return {
               ...user,
               avatar,
-              forms_completed: Number(stat?.forms_completed || 0),
-              forms_created: Number(stat?.forms_created || 0),
             };
           }),
         );

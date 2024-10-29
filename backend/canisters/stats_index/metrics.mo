@@ -213,6 +213,16 @@ actor MetricsIndex {
     };
   };
 
+  public query func findUserStats(identities : [Text]) : async [?StatsData] {
+    let data = Buffer.fromArray<?StatsData>([]);
+
+    for (identity in identities.vals()) {
+      data.add(stats.get(identity));
+    };
+
+    Buffer.toArray(data);
+  };
+
   func incrementGeneralPoints(identity : Text, points : Nat) : async () {
     switch (stats.get(identity)) {
       case null {

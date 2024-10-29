@@ -70,20 +70,11 @@ actor UserIndex {
     users.get(identity);
   };
 
-  public shared func getUsers(identities : [Text]) : async [ProfileData] {
-    let data = Buffer.fromArray<ProfileData>([]);
+  public query func getUsers(identities : [Text]) : async [?UserData] {
+    let data = Buffer.fromArray<?UserData>([]);
 
     for (identity in identities.vals()) {
-      switch (users.get(identity)) {
-        case null {
-          ignore null;
-        };
-        case (?user) {
-          let stats = await MetricsIndex.findStats(identity);
-
-          data.add({ user; stats });
-        };
-      };
+      data.add(users.get(identity));
     };
 
     Buffer.toArray(data);

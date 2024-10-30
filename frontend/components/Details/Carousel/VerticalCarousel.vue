@@ -598,7 +598,7 @@ const loadImages = () => {
         }
 
         await axiosService
-          .post(`${process.env.API_URL}upload-images`, formData)
+          .post(`${process.env.API_URL}upload-files`, formData)
           .then(({ data }) => {
             let resultIndex = 0;
 

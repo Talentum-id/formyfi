@@ -79,7 +79,7 @@ export default {
             formData.append('files[]', this.image);
             formData.append('paths[]', `/${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/avatar`);
 
-            await axiosService.post(`${process.env.API_URL}upload-images`, formData)
+            await axiosService.post(`${process.env.API_URL}upload-files`, formData)
               .then(({ data }) => avatar = data[0])
               .catch(e => console.error(e));
           }

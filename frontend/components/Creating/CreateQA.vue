@@ -594,7 +594,7 @@ const loadFiles = () => {
         formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
 
         await axiosService
-          .post(`${process.env.API_URL}upload-images`, formData)
+          .post(`${process.env.API_URL}upload-files`, formData)
           .then(({ data }) => (bannerImage.value = data[0]))
           .catch((e) => console.error(e));
 
@@ -614,7 +614,7 @@ const loadFiles = () => {
         }
 
         await axiosService
-          .post(`${process.env.API_URL}upload-images`, formData)
+          .post(`${process.env.API_URL}upload-files`, formData)
           .then(({ data }) => {
             let resultIndex = 0;
 
@@ -636,7 +636,7 @@ const loadFiles = () => {
         formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
 
         await axiosService
-          .post(`${process.env.API_URL}upload-images`, formData)
+          .post(`${process.env.API_URL}upload-files`, formData)
           .then(({ data }) => (thxMessage.value.file = data[0]))
           .catch((e) => console.error(e));
       }

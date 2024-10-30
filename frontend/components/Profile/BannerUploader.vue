@@ -76,7 +76,7 @@ export default {
             formData.append('files[]', this.file);
             formData.append('paths[]', `${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/banner`);
 
-            await axiosService.post(`${process.env.API_URL}upload-images`, formData)
+            await axiosService.post(`${process.env.API_URL}upload-files`, formData)
               .then(({ data }) => banner = data[0])
               .catch(e => console.error(e));
           }

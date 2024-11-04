@@ -9,7 +9,7 @@
     <input
       type="number"
       step="any"
-      :class="{ error: !rule, isDisabled }"
+      :class="{ error: rule, isDisabled }"
       :value="modelValue"
       @input="updateValue"
       :placeholder="placeholder"
@@ -38,7 +38,7 @@ export default {
     },
     rule: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     isDisabled: {
       type: Boolean,

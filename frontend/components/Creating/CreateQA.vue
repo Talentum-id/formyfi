@@ -236,6 +236,15 @@
                 </div>
               </div>
             </div>
+
+            <div class="line my-6" />
+            <div class="section_wrapper-subtitle mb-4">Points Reward</div>
+            <NumberInput
+              class="w-[136px]"
+              placeholder="Points"
+              v-model="question.points"
+              :rule="!question.points && touched"
+            />
           </div>
         </div>
         <div class="add-talent-btn" @click="addQuestion">
@@ -360,6 +369,7 @@ import axiosService from '@/services/axiosService';
 import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
 import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
 import LogicBranching from '@/components/Creating/LogicBranching.vue';
+import NumberInput from '@/components/NumberInput.vue';
 
 const emits = defineEmits('refresh');
 
@@ -433,6 +443,7 @@ const countOfQuestions = ref([
     openAnswerAllowed: false,
     type: null,
     description: '',
+    points: 1,
     file: '',
     image: [],
     parameters: {},
@@ -452,6 +463,7 @@ const thxValidation = computed(() => {
 });
 const validationCheck = computed(() => {
   const questionTitleIsEmpty = countOfQuestions.value.find((item) => !item.question);
+  const questionPointsIsEmpty = countOfQuestions.value.find((item) => !item.points);
   const questionAnswerIsEmpty = countOfQuestions.value.find(
     (item) => item.type?.id === 1 && item.answers.find((el) => !el.answer),
   );
@@ -463,6 +475,7 @@ const validationCheck = computed(() => {
     !startDate.value ||
     !description.value ||
     !!questionTitleIsEmpty ||
+    !!questionPointsIsEmpty ||
     !!questionAnswerIsEmpty ||
     !thxValidation.value
   ) {
@@ -509,6 +522,7 @@ const addQuestion = () => {
       fileAllowed: false,
       openAnswerAllowed: false,
       type: 0,
+      points: 1,
       description: '',
       file: '',
       image: [],
@@ -760,6 +774,7 @@ const resetFields = () => {
       required: false,
       fileAllowed: false,
       openAnswerAllowed: false,
+      points: 1,
       answers: [{ answer: '', isCorrect: false }],
     },
   ];

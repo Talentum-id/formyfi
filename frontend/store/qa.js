@@ -6,8 +6,10 @@ import router from '@/router';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
-import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
+import { externalWeb3IdentityProviders, signerJsIdentityProviders } from '@/constants/externalIdentityProviders';
 import axiosService from '@/services/axiosService';
+import { SignerAgent } from '@slide-computer/signer-agent';
+import { Actor, HttpAgent } from '@dfinity/agent';
 
 const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_FORM_INDEX, {
@@ -43,6 +45,19 @@ export const useQAStore = defineStore('qa', {
           this.identity = identity;
           this.actor = actor;
         }
+      } else if (signerJsIdentityProviders.indexOf(provider) !== -1) {
+        this.identity = useAuthStore().getIdentity;
+
+        const signerAgent = await SignerAgent.create({
+          signer: useAuthStore().getSigner,
+          account: this.identity?.getPrincipal(),
+        });
+
+        const agent = this.identity ? await new HttpAgent({ identity: this.identity, agent: signerAgent }) : null;
+        await agent?.fetchRootKey();
+        await agent?.syncTime();
+
+        this.actor = this.identity ? createActor(process.env.CANISTER_ID_FORM_INDEX, { agent }) : form_index;
       } else {
         this.identity = useAuthStore().getIdentity;
         this.actor = this.identity ? createActorFromIdentity(this.identity) : form_index;

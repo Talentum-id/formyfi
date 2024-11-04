@@ -2,12 +2,14 @@ import { defineStore } from 'pinia';
 import { createActor, submissions_index } from '~/submissions_index';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
-import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
+import { externalWeb3IdentityProviders, signerJsIdentityProviders } from '@/constants/externalIdentityProviders';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import axiosService from '@/services/axiosService';
 import { CryptoService } from '@/services/crypto';
+import { HttpAgent } from '@dfinity/agent';
+import { SignerAgent } from '@slide-computer/signer-agent';
 
 const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_SUBMISSIONS_INDEX, {
@@ -43,6 +45,18 @@ export const useResponseStore = defineStore('response', {
           this.identity = identity;
           this.actor = actor;
         }
+      } else if (signerJsIdentityProviders.indexOf(provider) !== -1) {
+        this.identity = useAuthStore().getIdentity;
+
+        const signerAgent = await SignerAgent.create({
+          signer: useAuthStore().getSigner,
+          account: this.identity?.getPrincipal(),
+        });
+
+        const agent = this.identity ? await new HttpAgent({ identity: this.identity, agent: signerAgent }) : null;
+        await agent?.syncTime();
+
+        this.actor = this.identity ? createActor(process.env.CANISTER_ID_RESPONSE_INDEX, {agent}) : response_index;
       } else {
         this.identity = useAuthStore().getIdentity;
         this.actor = this.identity ? createActorFromIdentity(this.identity) : submissions_index;

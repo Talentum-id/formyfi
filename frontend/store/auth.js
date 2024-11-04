@@ -13,10 +13,11 @@ import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { PostMessageTransport } from '@slide-computer/signer-web';
 import { Signer } from '@slide-computer/signer';
 import { SignerClient } from '@slide-computer/signer-client';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
+import { SignerAgent } from '@slide-computer/signer-agent';
+import { PlugTransport } from '@slide-computer/signer-transport-plug';
 
 const INTERNET_IDENTITY_TITLE = 'Linked';
 const defaultOptions = {
@@ -71,6 +72,8 @@ export const useAuthStore = defineStore('auth', {
         await this.initSIWS();
       } else if (authenticationProvider === 'nfid') {
         await this.initNFID();
+      } else if (authenticationProvider === 'plug') {
+        await this.initPlug();
       } else {
         await this.initWeb2Auth();
       }
@@ -182,62 +185,47 @@ export const useAuthStore = defineStore('auth', {
         this.setAuthenticationStorage(true, 'ii', principal);
       }
     },
-    async initNFID() {
-      const transport = new PostMessageTransport({
-        url: process.env.NFID_URL,
-      });
+    async initPlug() {
+      const transport = new PlugTransport();
       const signer = new Signer({
         transport,
       });
-      let signerClient = await SignerClient.create({
+      const signerClient = await SignerClient.create({
         signer,
-        idleOptions: defaultOptions.createOptions,
+        keyType: 'Ed25519',
       });
-
-      if (signerClient.getIdentity().getPrincipal().isAnonymous()) {
-        signerClient = await SignerClient.create({
-          signer,
-          identity: Ed25519KeyIdentity.generate(),
-          idleOptions: defaultOptions.createOptions,
-        });
-      }
-
       const isAuthenticated = signerClient.isAuthenticated();
       const identity = isAuthenticated ? signerClient.getIdentity() : null;
 
-      this.signer = await signer;
-      this.signerClient = await signerClient;
+      this.signer = signer;
+      this.signerClient = signerClient;
 
-      await this.initIdentityDependencies(identity, isAuthenticated);
+      await this.initSignerIdentityDependencies(identity, isAuthenticated);
     },
-    async initIdentityDependencies(identity, isAuthenticated, isProfile = false) {
+    async initSignerIdentityDependencies(identity, isAuthenticated) {
+      const signerAgent = identity ? await SignerAgent.create({
+        signer: this.signer,
+        account: identity?.getPrincipal(),
+      }) : null;
+      const agent = identity ? await new HttpAgent({ identity, agent: signerAgent }) : null;
+      await agent?.syncTime();
+
+      await this.assignIdentity(identity, agent, isAuthenticated);
+    },
+    async initIdentityDependencies(identity, isAuthenticated) {
       const agent = identity ? new HttpAgent({ identity }) : null;
+      await agent?.syncTime();
 
-      if (agent !== null) {
-        await agent.syncTime();
-      }
-
-      if (isProfile) {
-        await this.actor
-          .addExtraIdentity(
-            (await agent.getPrincipal()).toText(),
-            'ii',
-            {
-              identity: process.env.DFX_ASSET_PRINCIPAL,
-              character: localStorage.extraCharacter,
-            },
-            INTERNET_IDENTITY_TITLE,
-            'ii',
-          )
-          .then(async () => await this.getProfile())
-          .catch((e) => {
-            console.error(e);
-            throw e;
-          });
-
-        return;
-      }
-
+      await this.assignIdentity(identity, agent, isAuthenticated);
+    },
+    async assignIdentity(identity, agent, isAuthenticated) {
+      const actor = identity
+        ? createActor(process.env.CANISTER_ID_USER_INDEX, {
+          agent,
+        })
+        //? createActor(process.env.CANISTER_ID_USER_INDEX, { agent })
+        : null;
+      const principal = identity ? await agent.getPrincipal() : null;
       this.isAuthenticated = isAuthenticated;
       this.identity = identity;
       this.actor = identity ? createActorFromIdentity(identity) : null;
@@ -290,9 +278,9 @@ export const useAuthStore = defineStore('auth', {
         });
       });
     },
-    async loginWithNFID() {
+    async loginWithPlug() {
       if (this.signerClient === null) {
-        await this.initNFID();
+        await this.initPlug();
       }
 
       const signerClient = toRaw(this.signerClient);
@@ -303,8 +291,8 @@ export const useAuthStore = defineStore('auth', {
           const isAuthenticated = signerClient.isAuthenticated();
           const identity = this.isAuthenticated ? signerClient.getIdentity() : null;
 
-          await this.initIdentityDependencies(identity, isAuthenticated);
-          this.setAuthenticationStorage(this.isAuthenticated, 'nfid');
+          await this.initSignerIdentityDependencies(identity, isAuthenticated);
+          this.setAuthenticationStorage(this.isAuthenticated, 'plug');
 
           await this.initStores();
 
@@ -703,6 +691,7 @@ export const useAuthStore = defineStore('auth', {
   },
   getters: {
     getAdmins: ({ admins }) => admins,
+    getSigner: ({ signer }) => signer,
     getStats: ({ stats }) => stats,
     getExtraIdentities: ({ extraIdentities }) => extraIdentities,
     getIdentity: ({ identity }) => identity,

@@ -2,7 +2,7 @@
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import axiosService from '@/services/axiosService';
 import { useAuthStore } from '@/store/auth';
-import { googleLogout } from 'vue3-google-login';
+import { GoogleLogin, googleLogout } from 'vue3-google-login';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import bs58 from 'bs58';
@@ -10,8 +10,6 @@ import { useConnect, useChainId, useAccount, useDisconnect, useSignMessage } fro
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
-import { PlugTransport } from '@slide-computer/signer-transport-plug';
-import { createAccountsPermissionScope, Signer } from '@slide-computer/signer';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -95,13 +93,11 @@ const connectNFID = async () => {
   }
 };
 const connectPLUG = async () => {
-  const transport = new PlugTransport();
-
-  const signer = new Signer({ transport });
-  await signer.requestPermissions(createAccountsPermissionScope());
-
-  if (transport.connection && !transport.connection.connected) {
-    await transport.connection.connect();
+  try {
+    await authStore.loginWithPlug();
+  }catch (e) {
+    console.error(e);
+    emit('reject');
   }
   const accounts = await signer.accounts();
 };
@@ -190,7 +186,7 @@ const props = defineProps({
 
 <template>
   <div class="main">
-    <span class="title">Welcome to Formyfi!</span>
+    <span class="title">Welcome to FormyFi!</span>
     <div class="form-block">
       <AuthButton @click="IIConnect()">
         <div class="container">
@@ -216,7 +212,6 @@ const props = defineProps({
           </div>
         </AuthButton>
       </template>
-      <!-- Disabled until ready to deploy to prod
       <AuthButton @click="connectNFID()">
         <div class="container">
           <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />
@@ -229,7 +224,6 @@ const props = defineProps({
           <div class="name-social">PLUG</div>
         </div>
       </AuthButton>
-      -->
       <WalletMultiButton />
       <hr />
       <GoogleLogin

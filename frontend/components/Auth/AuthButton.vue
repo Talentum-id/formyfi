@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-  <div class="btn" @click="$emit('click')">
+  <div class="btn">
     <slot></slot>
   </div>
 </template>

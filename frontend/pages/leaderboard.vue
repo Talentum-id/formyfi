@@ -128,7 +128,7 @@ const requestsRows = computed(
         content: statsList.value[index] ? Number(statsList.value[index].forms_created ?? 0) : 0,
       },
       invited: {
-        content: item.invited ? Number(item.invited) : '0',
+        content: item.total_invited.length ? Number(item.total_invited[0]) : '0',
       },
     }));
   },

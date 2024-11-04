@@ -293,21 +293,21 @@
             </div>
           </div>
         </div>
-        <!--        <div class="line my-8" />-->
+        <div class="line my-8" />
 
-        <!--        <div class="flex justify-between">-->
-        <!--          <div class="section_item">-->
-        <!--            <div class="section_wrapper-title">Reff Link</div>-->
-        <!--            <div class="upload-requirements">Edit and customise</div>-->
-        <!--          </div>-->
-        <!--          <div class="check-btn_wrapper">-->
-        <!--            <Switch :checkedProp="refCode" @checked="refCode = $event" />-->
-        <!--          </div>-->
-        <!--        </div>-->
-        <!--        <div class="section_wrapper" v-if="refCode">-->
-        <!--          <div class="section_wrapper-title">Referral Bonus Points</div>-->
-        <!--          <NumberInput withoutName class="w-[136px]" placeholder="Number" v-model="refCodePoints" />-->
-        <!--        </div>-->
+        <div class="flex justify-between">
+          <div class="section_item">
+            <div class="section_wrapper-title">Reff Link</div>
+            <div class="upload-requirements">Edit and customise</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <Switch :checkedProp="refCode" @checked="refCode = $event" />
+          </div>
+        </div>
+        <div class="section_wrapper" v-if="refCode">
+          <div class="section_wrapper-title">Referral Bonus Points</div>
+          <NumberInput withoutName class="w-[136px]" placeholder="Number" v-model="refCodePoints" />
+        </div>
         <div class="line my-8" />
         <div class="flex justify-between">
           <div class="section_item">
@@ -708,7 +708,7 @@ const preview = async () => {
   const questions = await Promise.all(questionsPromises);
   const obj = {
     title: questionName.value,
-    refCodePoints: refCode.value ? [refCodePoints.value] : [],
+    refCodePoints: refCode.value ? [parseInt(refCodePoints.value)] : [],
     description: description.value,
     image: banner,
     participants: 0,
@@ -727,7 +727,7 @@ const preview = async () => {
 const saveQA = async () => {
   return await qaStore.storeQA({
     title: questionName.value,
-    refCodePoints: refCode.value ? [refCodePoints.value] : [],
+    refCodePoints: refCode.value ? [parseInt(refCodePoints.value)] : [],
     description: description.value,
     image: bannerImage.value,
     participants: 0,

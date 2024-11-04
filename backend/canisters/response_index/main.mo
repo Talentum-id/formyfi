@@ -140,6 +140,45 @@ actor ResponseIndex {
     };
   };
 
+  public shared ({ caller }) func creditPoints(
+    shareLink : Text,
+    refOwner : Text,
+    character : Utils.Character,
+  ) : async () {
+    let identity = await Utils.authenticate(caller, true, character);
+
+    switch (await FormIndex.show(shareLink)) {
+      case null throw Error.reject("Form is not found");
+      case (?qa) {
+        if (qa.quest.refCodePoints == ?0) {
+          return ignore null;
+        };
+
+        switch (await UserIndex.findByUsername(refOwner)) {
+          case null ignore null;
+          case (?refOwnerIdentity) {
+            let refOwnerResponseIdentifier = refOwnerIdentity # "-" # shareLink;
+
+            switch (responses.get(refOwnerResponseIdentifier)) {
+              case null ignore null;
+              case (?_) {
+                let pointOwnerResponseIdentifier = identity # "-" # shareLink;
+
+                switch (responses.get(pointOwnerResponseIdentifier)) {
+                  case null throw Error.reject("You have not responded to Form");
+                  case (?_) {
+                    await MetricsIndex.addPoints(refOwnerIdentity, qa.quest.refCodePoints);
+                    await MetricsIndex.addInvites(qa.owner, refOwnerIdentity);
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+
   public shared func deleteByShareLink(shareLink : Text) : async [Text] {
     var answerImages = Buffer.fromArray<Text>([]);
 

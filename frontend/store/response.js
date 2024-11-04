@@ -53,7 +53,7 @@ export const useResponseStore = defineStore('response', {
     async storeResponse(params, attempts = 0) {
       // We need to keep attempt counter, since with runtime authorization on form submission,
       // response are submitted successfully from 2nd attempt
-      const cleanParams = {...params};
+      const cleanParams = { ...params };
       await Promise.all(
         params.answers.map(async (param) => {
           const owner = useAuthStore().getPrincipal ?? param.owner;
@@ -81,7 +81,7 @@ export const useResponseStore = defineStore('response', {
           await this.fetchResponse(params.shareLink);
         })
         .catch(async (e) => {
-          if(attempts === 0) {
+          if (attempts === 0) {
             await this.storeResponse(cleanParams, 1);
           } else {
             console.error(e);
@@ -192,6 +192,13 @@ export const useResponseStore = defineStore('response', {
           }
         })
         .catch((e) => console.error(e));
+    },
+    async creditPoints(shareLink, username) {
+      await this.actor.creditPoints(shareLink, username, {
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      })
+        .catch(e => console.error(e));
     },
   },
   getters: {

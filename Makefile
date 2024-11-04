@@ -7,6 +7,8 @@ export $(shell grep -v '^#' .env | xargs)
 start:
 	@echo "Starting DFX..."
 	dfx start --clean --background
+	@echo "Install npm modules..."
+	npm install
 	@echo "Creating VetKeys API canister with hardcoded ID"
 	dfx canister create vetkd_system_api --specified-id h6gim-oiaaa-aaaao-a3siq-cai
 	@echo "Creating the remaining canisters..."

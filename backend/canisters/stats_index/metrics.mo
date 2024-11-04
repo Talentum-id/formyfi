@@ -201,6 +201,159 @@ actor MetricsIndex {
     };
   };
 
+  public func addPoints(identity : Text, earnedPoints : ?Nat) : async () {
+    switch (earnedPoints) {
+      case null ignore null;
+      case (?p) {
+        let points = p;
+        switch (stats.get(identity)) {
+          case null {
+            stats.put(
+              identity,
+              {
+                forms_created = 0;
+                forms_completed = 0;
+                points;
+              },
+            );
+
+            let statistics = Buffer.fromArray<GeneralStatsData>(generalStats);
+
+            statistics.add({
+              forms_created = 0;
+              forms_completed = 0;
+              points;
+              identity;
+              total_invited = ?1;
+            });
+
+            generalStats := Buffer.toArray(statistics);
+          };
+          case (?stat) {
+            stats.put(
+              identity,
+              {
+                forms_created = stat.forms_created;
+                forms_completed = stat.forms_completed;
+                points = stat.points + points;
+              },
+            );
+
+            switch (Array.find<GeneralStatsData>(generalStats, func item = item.identity == identity)) {
+              case null {
+                let statistics = Buffer.fromArray<GeneralStatsData>(generalStats);
+
+                statistics.add({
+                  forms_created = 0;
+                  forms_completed = 0;
+                  points;
+                  identity;
+                  total_invited = ?1;
+                });
+
+                generalStats := Buffer.toArray(statistics);
+              };
+              case (?userStats) {
+                switch (
+                  Array.indexOf<GeneralStatsData>(
+                    userStats,
+                    generalStats,
+                    func(stat1 : GeneralStatsData, stat2 : GeneralStatsData) : Bool = stat1 == stat2,
+                  )
+                ) {
+                  case null ();
+                  case (?index) {
+                    let statsData = Buffer.fromArray<GeneralStatsData>(generalStats);
+                    let total_invited = switch (userStats.total_invited) {
+                      case null ?1;
+                      case (?n) {
+                        let result = n + 1;
+
+                        ?result;
+                      };
+                    };
+
+                    statsData.put(
+                      index,
+                      {
+                        identity = userStats.identity;
+                        points = userStats.points + points;
+                        forms_created = userStats.forms_created;
+                        forms_completed = userStats.forms_completed;
+                        total_invited;
+                      },
+                    );
+
+                    generalStats := Buffer.toArray<GeneralStatsData>(statsData);
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+
+  public func addInvites(project : Text, identity : Text) : async () {
+    switch (statsPerProject.get(project)) {
+      case null {
+        statsPerProject.put(project, [{ identity; points = 0; forms_completed = 0; total_invited = ?1 }]);
+      };
+      case (?statistics) {
+        switch (Array.find<ProjectStatsData>(statistics, func item = item.identity == identity)) {
+          case null {
+            let statsData = Buffer.fromArray<ProjectStatsData>(statistics);
+
+            statsData.add({
+              identity;
+              points = 0;
+              forms_completed = 0;
+              total_invited = ?1;
+            });
+
+            statsPerProject.put(project, Buffer.toArray(statsData));
+          };
+          case (?userStatsPerProject) {
+            switch (
+              Array.indexOf<ProjectStatsData>(
+                userStatsPerProject,
+                statistics,
+                func(stat1 : ProjectStatsData, stat2 : ProjectStatsData) : Bool = stat1 == stat2,
+              )
+            ) {
+              case null ();
+              case (?index) {
+                let statsData = Buffer.fromArray<ProjectStatsData>(statistics);
+                let total_invited = switch (userStatsPerProject.total_invited) {
+                  case null ?1;
+                  case (?result) {
+                    let number = result;
+                    let total = result + 1;
+
+                    ?total;
+                  };
+                };
+
+                statsData.put(
+                  index,
+                  {
+                    identity;
+                    points = userStatsPerProject.points;
+                    forms_completed = userStatsPerProject.forms_completed;
+                    total_invited;
+                  },
+                );
+
+                statsPerProject.put(project, Buffer.toArray(statsData));
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+
   public func incrementFormCompleted(qaOwner : Text, identity : Text, points : Nat) {
     await incrementGeneralPoints(identity, points);
     await incrementPointsPerProject(qaOwner, identity, points);

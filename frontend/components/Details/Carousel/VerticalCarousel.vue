@@ -313,6 +313,10 @@ import LinkBlock from '@/components/Details/Carousel/LinkBlock.vue';
 import DateBlock from '@/components/Details/Carousel/DateBlock.vue';
 import AddressBlock from '@/components/Details/Carousel/AddressBlock.vue';
 import axiosService from '@/services/axiosService';
+import error from '@/assets/icons/modal/error.vue';
+import SocialVerify from '@/components/Details/Carousel/SocialVerify.vue';
+import { getRuleForCurrentType } from '@/constants/branchTypes';
+import { reloadingProviders } from '@/constants/reloadingProviders';
 
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
@@ -621,11 +625,6 @@ const loadImages = () => {
   });
 };
 
-import error from '@/assets/icons/modal/error.vue';
-import SocialVerify from '@/components/Details/Carousel/SocialVerify.vue';
-import { getRuleForCurrentType } from '@/constants/branchTypes';
-import { reloadingProviders } from '@/constants/reloadingProviders';
-
 const handleSuccessModal = async () => {
   const { thankYouMessage } = props;
   const { refCodePoints } = props;
@@ -641,8 +640,7 @@ const handleSuccessModal = async () => {
     customImg = await readFile(thankYouMessage.file);
   }
   if (refCodePoints?.length > 0 && authStore.getPrincipal) {
-    console.log(refCodePoints, authStore.getPrincipal);
-    refBonusData.link = `${window.location.origin}/form/${props.shareLink}?ref-code=${authStore.getPrincipal}`;
+    refBonusData.link = `${window.location.origin}/form/${props.shareLink}?ref-code=${authStore.getUser.username}`;
     refBonusData.bonus = Number(refCodePoints[0]);
   }
 
@@ -712,6 +710,11 @@ const storeResponseAndClose = async () => {
       owner: authStore.getPrincipal,
     });
     await counterStore.setValue(props.items.length);
+
+    if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
+      await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
+    }
+
     await closeModal();
     await handleSuccessModal();
   } catch (e) {

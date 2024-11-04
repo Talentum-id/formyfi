@@ -130,6 +130,13 @@ actor UserIndex {
     };
   };
 
+  public query func findByUsername(username : Text) : async ?Text {
+    switch (usernames.get(username)) {
+      case null null;
+      case (?identity) ?identity;
+    };
+  };
+
   public query func findUsername(username : Text) : async Bool {
     usernames.get(username) != null;
   };

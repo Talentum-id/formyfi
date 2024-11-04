@@ -39,7 +39,7 @@ const props = defineProps({
 .tooltip-checkbox {
   position: absolute;
   display: none;
-  min-width: 120px;
+  min-width: 80px;
   width: fit-content;
   background: $default;
   box-shadow: 0 2px 8px rgba(26, 29, 41, 0.24);

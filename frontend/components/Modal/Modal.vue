@@ -6,7 +6,15 @@
       </div>
       <div class="modal">
         <div v-if="customImg">
-          <img :src="customImg" :alt="title" class="rounded !h-40 !w-40" />
+          <video v-if="isVideo" controls>
+            <source :src="customImg" type="video/mp4" />
+          </video>
+          <audio class="w-full" controls v-else-if="isAudio">
+            <source :src="customImg" type="audio/ogg" />
+            <source :src="customImg" type="audio/mp3" />
+            <source :src="customImg" type="audio/mpeg" />
+          </audio>
+          <CustomImage v-else :image="customImg" heigth="160" width="160"></CustomImage>
         </div>
         <component v-else :is="getIcon(type)" />
         <span class="title">{{ title }}</span>
@@ -19,7 +27,7 @@
             class="bg-white mt-4"
             :text="refBonusData.link"
             :value="refBonusData.link"
-            :size="30"
+            :size="28"
           ></Link>
         </div>
         <div v-if="isEmail" class="flex flex-col gap-4 w-full">
@@ -34,7 +42,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { modal } from '@/mixins/modal';
 import Icon from '@/components/Icons/Icon.vue';
 import warning from '@/assets/icons/modal/warning.vue';
@@ -43,6 +51,8 @@ import error from '@/assets/icons/modal/error.vue';
 import loading from '@/assets/icons/modal/loading.vue';
 import Link from '@/components/Table/Link.vue';
 import Input from '@/components/Input.vue';
+import { checkFileFormat } from '@/util/helpers';
+import CustomImage from '@/components/CustomImage.vue';
 const visible = ref(false);
 const isEmail = ref(false);
 const title = ref('');
@@ -54,6 +64,8 @@ const customImg = ref('');
 const type = ref('');
 let action = null;
 let sendEmail = null;
+const isVideo = ref(false);
+const isAudio = ref(false);
 
 const closeModal = () => {
   visible.value = false;
@@ -82,7 +94,7 @@ const getIcon = (type) => {
       return warning;
   }
 };
-const openModal = (data) => {
+const openModal = async (data) => {
   visible.value = true;
   title.value = data.title;
   message.value = data.message;
@@ -93,7 +105,16 @@ const openModal = (data) => {
   isEmail.value = data.isEmail;
   action = data.fn;
   sendEmail = data.sendEmail;
+
+  await checkFileType();
 };
+const checkFileType = async () => {
+  isVideo.value = await checkFileFormat(customImg.value, 'video');
+  if (!isVideo.value) {
+    isAudio.value = await checkFileFormat(customImg.value, 'audio');
+  }
+};
+
 const isLoading = computed(() => {
   return type.value === 'loading';
 });

@@ -84,7 +84,7 @@ export default {
   border-radius: 6px;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   cursor: pointer;
   border: 1px solid $default-badge-border;
   font-feature-settings:
@@ -102,7 +102,7 @@ export default {
     line-height: 16px;
     /* identical to box height, or 133% */
 
-    text-align: center;
+    text-align: left;
     letter-spacing: 0.014em;
     &.deadline {
       color: $red;

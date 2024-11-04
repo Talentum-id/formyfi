@@ -17,15 +17,14 @@
             :current-step="currentIndex + 1"
           ></QuizProgressTitle>
 
-          <div class="flex items-center justify-center" v-if="newArr[currentIndex].file">
-            <video v-if="checkFileFormat(questionFiles[currentIndex], 'video')" controls>
+          <div
+            class="flex items-center justify-center"
+            v-if="newArr[currentIndex].file && questionFiles[currentIndex]"
+          >
+            <video v-if="isVideo" controls>
               <source :src="questionFiles[currentIndex]" type="video/mp4" />
             </video>
-            <audio
-              class="w-full"
-              controls
-              v-else-if="checkFileFormat(questionFiles[currentIndex], 'audio')"
-            >
+            <audio class="w-full" controls v-else-if="isAudio">
               <source :src="questionFiles[currentIndex]" type="audio/ogg" />
               <source :src="questionFiles[currentIndex]" type="audio/mp3" />
               <source :src="questionFiles[currentIndex]" type="audio/mpeg" />
@@ -568,6 +567,8 @@ onMounted(async () => {
       answerFiles.value[index] = null;
     }
   }
+
+  await checkFileType();
 });
 
 function findCurrentItemIndex() {
@@ -677,6 +678,7 @@ const handleSuccessModal = async () => {
     },
   });
 };
+
 const handleErrorModal = () => {
   modal.emit('openModal', {
     title: 'Error Message',
@@ -841,10 +843,13 @@ watch(
     }
   },
 );
+const isVideo = ref(false);
+const isAudio = ref(false);
 
-watch(currentIndex, (value) => {
+watch(currentIndex, async (value) => {
+  await checkFileType();
   setCachedAnswer(value);
-  rerender();
+  await rerender();
 });
 
 const branchCheck = async () => {
@@ -937,6 +942,17 @@ const submitResponse = async (identityValidationAttempt = 0) => {
   await loadImages();
   await storeResponseAndClose();
 };
+const checkFileType = async () => {
+  isVideo.value = await checkFileFormat(questionFiles.value[currentIndex.value], 'video');
+  if (!isVideo.value) {
+    isAudio.value = await checkFileFormat(questionFiles.value[currentIndex.value], 'audio');
+  }
+};
+watch(currentIndex, async () => {
+  isVideo.value = false;
+  isAudio.value = false;
+  await checkFileType();
+});
 </script>
 <style lang="scss">
 .layout {

@@ -78,7 +78,7 @@ const logout = async () => {
 const connectNFID = async () => {
   try {
     await authStore.loginWithNFID();
-  }catch (e) {
+  } catch (e) {
     console.error(e);
     emit('reject');
   }
@@ -105,16 +105,25 @@ watch(hasAuthToken, () => {
 watch(
   isConnected,
   async (value) => {
-    if (value) {
-      const message = await authStore.prepareSIWELogin(address.value);
+    try {
+      if (value) {
+        const message = await authStore.prepareSIWELogin(address.value);
 
-      if (message === null) {
-        await logout();
-      } else {
-        await signMessageAsync({ message })
-          .then(async (signature) => await authStore.loginWithSIWE(address.value, signature))
-          .catch(async () => await logout());
+        if (message === null) {
+          await logout();
+        } else {
+          await signMessageAsync({ message })
+            .then(async (signature) => await authStore.loginWithSIWE(address.value, signature))
+            .catch(async () => {
+              if (!props.isQuest) {
+                await logout();
+              }
+              emit('reject');
+            });
+        }
       }
+    } catch {
+      emit('reject');
     }
   },
   {
@@ -125,31 +134,35 @@ watch(
 watch(
   connected,
   async (value) => {
-    if (value) {
-      const walletAddress = publicKey.value.toBase58();
-      let siwsMessage = await authStore.prepareSIWSLogin(walletAddress);
+    try {
+      if (value) {
+        const walletAddress = publicKey.value.toBase58();
+        let siwsMessage = await authStore.prepareSIWSLogin(walletAddress);
 
-      if (siwsMessage === null) {
-        await logout();
-      } else {
-        const encodedMessage = new TextEncoder().encode(
-          `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-            `${siwsMessage.address}\n\n` +
-            `${siwsMessage.statement}\n\n` +
-            `URI: ${siwsMessage.uri}\n` +
-            `Version: ${siwsMessage.version}\n` +
-            `Chain ID: ${siwsMessage.chain_id}\n` +
-            `Nonce: ${siwsMessage.nonce}\n` +
-            `Issued At: ${new Date(Number(siwsMessage.issued_at / 1_000_000n)).toISOString()}\n` +
-            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / 1_000_000n)).toISOString()}`,
-        );
+        if (siwsMessage === null) {
+          await logout();
+        } else {
+          const encodedMessage = new TextEncoder().encode(
+            `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
+              `${siwsMessage.address}\n\n` +
+              `${siwsMessage.statement}\n\n` +
+              `URI: ${siwsMessage.uri}\n` +
+              `Version: ${siwsMessage.version}\n` +
+              `Chain ID: ${siwsMessage.chain_id}\n` +
+              `Nonce: ${siwsMessage.nonce}\n` +
+              `Issued At: ${new Date(Number(siwsMessage.issued_at / 1_000_000n)).toISOString()}\n` +
+              `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / 1_000_000n)).toISOString()}`,
+          );
 
-        const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
+          const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
 
-        await authStore
-          .loginWithSIWS(walletAddress, bs58.encode(signature))
-          .catch((e) => console.error(e));
+          await authStore
+            .loginWithSIWS(walletAddress, bs58.encode(signature))
+            .catch((e) => console.error(e));
+        }
       }
+    } catch {
+      emit('reject');
     }
   },
   {
@@ -157,7 +170,7 @@ watch(
   },
 );
 
-defineProps({
+const props = defineProps({
   isQuest: {
     type: Boolean,
     default: false,
@@ -190,7 +203,7 @@ defineProps({
           </div>
         </AuthButton>
       </template>
-    <!-- Disabled until ready to deploy to prod
+      <!-- Disabled until ready to deploy to prod
       <AuthButton @click="connectNFID()">
         <div class="container">
           <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />

@@ -127,8 +127,8 @@ const params = computed(() => {
     page: parseInt(currentPage.value) || 1,
     pageSize: 10,
     sortBy: {
-      key: sort.value.sortKey || '',
-      value: sort.value.sortType || '',
+      key: sort.value.sortKey || 'start',
+      value: sort.value.sortType || 'desc',
     },
   };
 });
@@ -221,8 +221,8 @@ const fetchFullList = async () => {
         search: '',
         pageSize: pagination.value.total,
         sortBy: {
-          key: '',
-          value: '',
+          key: 'start',
+          value: 'desc',
         },
       })
       .then((res) => {

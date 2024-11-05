@@ -101,7 +101,6 @@ watch(
   (value) => {
     const isValid = checkImageSize();
     if (isValid) {
-      console.log(value);
       emit('images', value);
     }
   },
@@ -185,7 +184,6 @@ const handlePictureCardPreview = async (uploadFile) => {
   // const image = await fetch(uploadFile.url);
   // const imageBlog = await image.blob();
   // const imageURL = URL.createObjectURL(imageBlog);
-  console.log(uploadFile);
   dialogFile.value = uploadFile;
   // dialogImageUrl.value = imageURL;
   dialogVisible.value = true;

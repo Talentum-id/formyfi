@@ -124,7 +124,7 @@ const addAdmin = async () => {
         addingAdminUsername.value = '';
       })
       .catch((e) => {
-        console.log(e)
+        console.error(e)
         modal.emit('openModal', {
           title: 'Bad request',
           message: 'Username may not exist, is Admin already or You have not Admin rights',
@@ -153,7 +153,7 @@ const removeAdmin = async () => {
         deletingAdminUsername.value = '';
       })
       .catch((e) => {
-        console.log(e)
+        console.error(e)
         modal.emit('openModal', {
           title: 'Bad Request',
           message: 'Username may not exist, is not Admin yet, cannot be deleted or You have no Admin rights',

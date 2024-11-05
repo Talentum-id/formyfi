@@ -659,15 +659,11 @@ const handleSuccessModal = async () => {
       }
     },
     sendEmail: (email) => {
-      console.log(props.quest);
       axiosService
         .post(`${process.env.API_URL}responses/dispatch`, {
           email: email,
           quest: props.quest,
           answers: result.value,
-        })
-        .then((res) => {
-          console.log(res);
         })
         .catch((e) => console.error(e));
     },
@@ -715,7 +711,7 @@ const storeResponseAndClose = async () => {
     await closeModal();
     await handleSuccessModal();
   } catch (e) {
-    console.log(e);
+    console.error(e);
     handleErrorModal();
   }
 };

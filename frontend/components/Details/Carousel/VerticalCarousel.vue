@@ -894,8 +894,9 @@ const branchCheck = async () => {
 const finishQuest = async () => {
   result.value = newArr.value.map((item) => {
     let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
-    let answerIsCorrect = isOpenQuestion.value || noCorrectAnswers.value || !!isCorrect.value;
-
+    const isOpenQuestion = item.questionType === 'open';
+    let answerIsCorrect = isOpenQuestion || noCorrectAnswers.value || !!isCorrect.value;
+    console.log(answerIsCorrect);
     if (item.myAnswers.length) {
       const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
 
@@ -912,7 +913,6 @@ const finishQuest = async () => {
           item.myAnswers.length === correctAnswers.length;
       }
     }
-
     return {
       isCorrect: answerIsCorrect,
       answer,

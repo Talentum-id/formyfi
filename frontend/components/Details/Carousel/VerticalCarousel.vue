@@ -450,17 +450,12 @@ const disableBtn = computed(() => {
   return !(!currentQuestion.required || answer || additional || files);
 });
 const isPreview = computed(() => route.name === 'preview');
-const noCorrectAnswers = computed(() => {
-  return newArr.value[currentIndex.value].answers.every((el) => !el.isCorrect);
-});
-const isCorrect = computed(() => {
-  return newArr.value[currentIndex.value].answers.find(
-    (item) => newArr.value[currentIndex.value].answer === item.answer && item.isCorrect,
-  );
-});
-const correctItem = computed(() => {
-  return newArr.value[currentIndex.value].answers.find((item) => item.isCorrect);
-});
+const noCorrectAnswers = (item) => {
+  return item.answers.every((el) => !el.isCorrect);
+};
+const isCorrect = (item) => {
+  return item.answers.every((el) => item.answer === el.answer && el.isCorrect);
+};
 const disableUploader = computed(() => {
   return (
     newArr.value[currentIndex.value].fileAllowed &&
@@ -895,10 +890,11 @@ const finishQuest = async () => {
   result.value = newArr.value.map((item) => {
     let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
     const isOpenQuestion = item.questionType === 'open';
-    let answerIsCorrect = isOpenQuestion || noCorrectAnswers.value || !!isCorrect.value;
-    console.log(answerIsCorrect);
+    let answerIsCorrect = isOpenQuestion || noCorrectAnswers(item) || !!isCorrect(item);
     if (item.myAnswers.length) {
-      const correctAnswers = item.answers.filter(({ isCorrect }) => isCorrect);
+      const correctAnswers = item.answers
+        .filter(({ isCorrect }) => isCorrect)
+        .map(({ answer }) => answer);
 
       if (item.myAnswer !== undefined && item.myAnswer.trim() !== '') {
         item.myAnswers.push(item.myAnswer);
@@ -909,15 +905,16 @@ const finishQuest = async () => {
 
       if (correctAnswers.length) {
         answerIsCorrect =
-          item.myAnswers.every((value) => correctAnswers.indexOf(value) !== -1) &&
+          item.myAnswers.every((value) => correctAnswers.some((el) => el === value)) &&
           item.myAnswers.length === correctAnswers.length;
       }
     }
+
     return {
       isCorrect: answerIsCorrect,
       answer,
       file: item.answerFile.length ? item.answerFile : '',
-      isOpen: isOpenQuestion.value || !!item.myAnswer,
+      isOpen: isOpenQuestion || !!item.myAnswer,
     };
   });
 

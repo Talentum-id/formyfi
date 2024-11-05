@@ -236,7 +236,6 @@
                 </div>
               </div>
             </div>
-
             <div class="line my-6" />
             <div class="section_wrapper-subtitle mb-4">Points Reward</div>
             <NumberInput
@@ -750,6 +749,7 @@ const saveQA = async () => {
             isCorrect,
           };
         }),
+        points: [parseInt(item.points)],
         twitter: Object.keys(item.twitter).length ? [item.twitter] : [],
         discord: Object.keys(item.discord).length ? [item.discord] : [],
       };

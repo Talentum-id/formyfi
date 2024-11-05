@@ -115,8 +115,11 @@ actor ResponseIndex {
             for (answer in answers.vals()) {
               let sanitizedAnswer = Text.trim(answer.answer, #char ' ');
 
-              if (sanitizedAnswer != "") {
-                answersCount += 1;
+              if (sanitizedAnswer != "" and answer.isCorrect == true) {
+                answersCount += switch (qa.quest.questions[index].points) {
+                  case null 1;
+                  case (?number) number;
+                };
               };
 
               index += 1;
@@ -168,7 +171,7 @@ actor ResponseIndex {
                   case null throw Error.reject("You have not responded to Form");
                   case (?_) {
                     await MetricsIndex.addPoints(refOwnerIdentity, qa.quest.refCodePoints);
-                    await MetricsIndex.addInvites(qa.owner, refOwnerIdentity);
+                    await MetricsIndex.addPointsPerProject(qa.owner, refOwnerIdentity, qa.quest.refCodePoints);
                   };
                 };
               };

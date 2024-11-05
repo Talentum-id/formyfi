@@ -295,10 +295,15 @@ actor MetricsIndex {
     };
   };
 
-  public func addInvites(project : Text, identity : Text) : async () {
+  public func addPointsPerProject(project : Text, identity : Text, pointsAddition: ?Nat) : async () {
+    let points = switch(pointsAddition) {
+      case null 0;
+      case (?result) result;
+    };
+
     switch (statsPerProject.get(project)) {
       case null {
-        statsPerProject.put(project, [{ identity; points = 0; forms_completed = 0; total_invited = ?1 }]);
+        statsPerProject.put(project, [{ identity; points; forms_completed = 0; total_invited = ?1 }]);
       };
       case (?statistics) {
         switch (Array.find<ProjectStatsData>(statistics, func item = item.identity == identity)) {
@@ -307,7 +312,7 @@ actor MetricsIndex {
 
             statsData.add({
               identity;
-              points = 0;
+              points;
               forms_completed = 0;
               total_invited = ?1;
             });
@@ -339,7 +344,7 @@ actor MetricsIndex {
                   index,
                   {
                     identity;
-                    points = userStatsPerProject.points;
+                    points = userStatsPerProject.points + points;
                     forms_completed = userStatsPerProject.forms_completed;
                     total_invited;
                   },

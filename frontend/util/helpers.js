@@ -539,7 +539,6 @@ export function checkFileFormat(file, format) {
         resolve(format === 'audio');
       };
       audio.onerror = () => {
-        console.log(123);
         resolve(false);
       };
     };

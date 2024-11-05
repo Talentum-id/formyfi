@@ -28,6 +28,7 @@ module QATypes {
     parameters : ?Text;
     twitter : ?TwitterVerification;
     discord : ?DiscordVerification;
+    points: ?Nat;
   };
 
   public type QA = {

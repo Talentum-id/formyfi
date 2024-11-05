@@ -30,7 +30,7 @@ const defaultOptions = {
   },
 };
 
-const createActorFromIdentity = (identity) => {
+const createActorFromIdentity = identity => {
   return createActor(process.env.CANISTER_ID_USER_INDEX, {
     agentOptions: { identity },
   });
@@ -187,26 +187,16 @@ export const useAuthStore = defineStore('auth', {
       await this.initIdentityDependencies(identity, isAuthenticated);
     },
     async initIdentityDependencies(identity, isAuthenticated){
-      let agent = identity ? new HttpAgent({ identity }) : null;
+      const agent = identity ? new HttpAgent({ identity }) : null;
 
-      if (this.signer !== null && identity !== null) {
-        agent = await SignerAgent.create({
-          signer: this.signer,
-          account: identity?.getPrincipal(),
-        });
-      }
-
-      if (this.signer === null && agent !== null) {
+      if (agent !== null) {
         await agent.syncTime();
       }
 
-      const actor = identity ? createActorFromIdentity(identity) : null;
-      const principal = identity ? await agent.getPrincipal() : null;
-
       this.isAuthenticated = isAuthenticated;
       this.identity = identity;
-      this.actor = actor;
-      this.principal = principal;
+      this.actor = identity ? createActorFromIdentity(identity) : null;
+      this.principal = identity ? await agent.getPrincipal() : null;
     },
     async initStores() {
       await useQAStore().init();
@@ -224,7 +214,7 @@ export const useAuthStore = defineStore('auth', {
         ...defaultOptions.loginOptions,
         onSuccess: async () => {
           const isAuthenticated = await authClient.isAuthenticated();
-          const identity = this.isAuthenticated ? authClient.getIdentity() : null;
+          const identity = isAuthenticated ? authClient.getIdentity() : null;
 
           await this.initIdentityDependencies(identity, isAuthenticated);
           this.setAuthenticationStorage(this.isAuthenticated, 'ii');

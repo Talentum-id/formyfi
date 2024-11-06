@@ -1,4 +1,8 @@
 module UserTypes {
+  public type ExtraIdentity = {
+    primaryIdentity: Text;
+    provider: Text;
+  };
   public type UserData = {
     provider : Text;
     fullName : Text;
@@ -6,5 +10,6 @@ module UserTypes {
     avatar : ?Text;
     banner : ?Text;
     forms_created : Nat;
+    extraIdentities: ?[Text];
   };
 };

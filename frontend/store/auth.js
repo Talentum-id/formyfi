@@ -364,7 +364,7 @@ export const useAuthStore = defineStore('auth', {
       const provider = localStorage.authenticationProvider;
 
       return this.actor?.register(
-        { username, fullName, provider, avatar: [], banner: [], forms_created: 0 },
+        { username, fullName, provider, avatar: [], banner: [], forms_created: 0, extraIdentities: [] },
         {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,

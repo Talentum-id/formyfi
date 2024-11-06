@@ -11,19 +11,24 @@ import Utils "utils";
 
 actor UserIndex {
   let SUPERADMIN = "darkcoder";
+  let DEFAULT_IDENTITY_INCORRECT_INDEX = 100001;
 
+  type ExtraIdentity = Types.ExtraIdentity;
   type UserData = Types.UserData;
   type ProfileData = {
     user : UserData;
     stats : ?StatsTypes.Data;
+    extraIdentities : [?ExtraIdentity];
   };
 
   stable var userEntries : [(Text, UserData)] = [];
   stable var usernameEntries : [(Text, Text)] = [];
   stable var adminUsernames : [Text] = [];
+  stable var extraIdentityEntries : [(Text, ExtraIdentity)] = [];
 
   let users = Map.fromIter<Text, UserData>(userEntries.vals(), 1000, Text.equal, Text.hash);
   let usernames = Map.fromIter<Text, Text>(usernameEntries.vals(), 1000, Text.equal, Text.hash);
+  let extraIdentities = Map.fromIter<Text, ExtraIdentity>(extraIdentityEntries.vals(), 1000, Text.equal, Text.hash);
 
   public query func getUsersAmount() : async Nat {
     users.size();
@@ -55,6 +60,7 @@ actor UserIndex {
               username;
               avatar;
               forms_created = 0;
+              extraIdentities = ?[];
             },
           );
           usernames.put(username, identity);
@@ -148,8 +154,125 @@ actor UserIndex {
       case null throw Error.reject(Utils.DEFAULT_ERROR);
       case (?user) {
         let stats = await MetricsIndex.findStats(identity);
+        let extraIdentities = switch (user.extraIdentities) {
+          case null [];
+          case (?userIdentities) await getExtraIdentities(userIdentities);
+        };
 
-        { user; stats };
+        { user; stats; extraIdentities };
+      };
+    };
+  };
+
+  public shared ({ caller }) func addExtraIdentity(
+    extraIdentity : Text,
+    extraProvider : Text,
+    character : Utils.Character,
+  ) : async () {
+    let identity = await Utils.authenticate(caller, false, character);
+
+    switch (extraIdentities.get(extraIdentity)) {
+      case null {
+        switch (users.get(identity)) {
+          case null throw Error.reject("User does not exist");
+          case (?user) {
+            let { provider; fullName; username; avatar; banner } = user;
+            let userIdentities = switch (user.extraIdentities) {
+              case null Buffer.fromArray<Text>([]);
+              case (?identities) Buffer.fromArray<Text>(identities);
+            };
+
+            if (Buffer.contains<Text>(userIdentities, extraIdentity, Text.equal)) {
+              throw Error.reject("This identity is already attached");
+            };
+
+            userIdentities.add(extraIdentity);
+            users.put(
+              identity,
+              {
+                provider;
+                fullName;
+                banner;
+                username;
+                avatar;
+                forms_created = 0;
+                extraIdentities = ?Buffer.toArray(userIdentities);
+              },
+            );
+            extraIdentities.put(
+              extraIdentity,
+              {
+                primaryIdentity = identity;
+                provider = extraProvider;
+              },
+            );
+          };
+        };
+      };
+      case (?_) {
+        throw Error.reject("This identity is already attached");
+      };
+    };
+  };
+
+  public query func getExtraIdentities(identities : [Text]) : async [?ExtraIdentity] {
+    let data = Buffer.fromArray<?ExtraIdentity>([]);
+
+    for (identity in identities.vals()) {
+      data.add(extraIdentities.get(identity));
+    };
+
+    Buffer.toArray(data);
+  };
+
+  public shared ({ caller }) func deleteExtraIdentity(extraIdentity : Text, character : Utils.Character) : async () {
+    let identity = await Utils.authenticate(caller, false, character);
+
+    switch (extraIdentities.get(extraIdentity)) {
+      case null ignore null;
+      case (?userIdentity) {
+        switch (users.get(identity)) {
+          case null throw Error.reject("User does not exist");
+          case (?user) {
+            var index = DEFAULT_IDENTITY_INCORRECT_INDEX;
+            let { provider; fullName; username; avatar; banner } = user;
+            let userIdentities = switch (user.extraIdentities) {
+              case null Buffer.fromArray<Text>([]);
+              case (?identities) {
+                switch (Array.indexOf<Text>(extraIdentity, identities, Text.equal)) {
+                  case null ignore null;
+                  case (?extraIdentityIndex) {
+                    index := extraIdentityIndex;
+                  };
+                };
+
+                Buffer.fromArray<Text>(identities);
+              };
+            };
+
+            if (
+              index == DEFAULT_IDENTITY_INCORRECT_INDEX or
+              userIdentity.primaryIdentity != identity
+            ) {
+              throw Error.reject("This identity belongs to another user");
+            };
+
+            ignore userIdentities.remove(index);
+            users.put(
+              identity,
+              {
+                provider;
+                fullName;
+                banner;
+                username;
+                avatar;
+                forms_created = 0;
+                extraIdentities = ?Buffer.toArray(userIdentities);
+              },
+            );
+            extraIdentities.delete(extraIdentity);
+          };
+        };
       };
     };
   };
@@ -200,6 +323,10 @@ actor UserIndex {
       pairs := "(" # key # ", " # value # ") " # pairs;
     };
 
+    for ((key, value) in extraIdentities.entries()) {
+      pairs := "(" # key # ", " # value.primaryIdentity # ") " # pairs;
+    };
+
     return pairs;
   };
 
@@ -234,10 +361,12 @@ actor UserIndex {
   system func preupgrade() {
     userEntries := Iter.toArray(users.entries());
     usernameEntries := Iter.toArray(usernames.entries());
+    extraIdentityEntries := Iter.toArray(extraIdentities.entries());
   };
 
   system func postupgrade() {
     userEntries := [];
     usernameEntries := [];
+    extraIdentityEntries := [];
   };
 };

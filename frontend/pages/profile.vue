@@ -39,22 +39,24 @@
               @connect="connector.fn()"
               :key="connector.id"
               :hide-remove="true"
-            ></SocialTag
-            ><WalletMultiButton id="test" />
+            ></SocialTag>
+            <div v-show="false" class="w-0 h-0">
+              <WalletMultiButton />
+            </div>
             <GoogleLogin
+              ref="googleLogin"
               :callback="callback"
               :buttonConfig="{
-                logo_alignment: 'center',
-                width: '392px',
-                shape: 'pill',
-                text: 'signin_with',
+                scope: 'profile email',
+                width: 240,
+                height: 37,
               }"
             />
           </div>
         </div>
         <div class="sidebar">
           <div class="points">
-            <span>Points</span> <span> {{ stats.points }} QP</span>
+            <span>Points</span> <span> {{ stats.points ?? 0 }} QP</span>
           </div>
         </div>
       </div>
@@ -105,7 +107,10 @@ onMounted(async () => {
   disconnect();
   await statsStore.findStatistics();
 });
-
+function triggerClick() {
+  console.log(document.querySelector('.swv-button-trigger'));
+  document.querySelector('.swv-button-trigger').click();
+}
 const setName = useDebounceFn(async () => {
   const validatedName = name.value.trim().toLowerCase();
   const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
@@ -163,6 +168,15 @@ const socialButtons = computed(
       name: 'Internet Identity',
       value: null,
       fn: () => authStore.loginWithII(true),
+      noRemove: true,
+    },
+    {
+      id: 2,
+      icon: 'Wallet-Default',
+      status: null,
+      name: 'Solana Wallets',
+      value: null,
+      fn: () => triggerClick(),
       noRemove: true,
     },
   ],

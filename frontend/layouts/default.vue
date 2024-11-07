@@ -2,7 +2,7 @@
   <div class="main-wrapper" v-if="!loading && isDesktop">
     <Header :open="toggleSidebar" />
     <div class="main-content" :class="{ open: sidebarOpen, mobile: isMobile() }">
-      <Sidebar v-if="useAuthStore().isAuthenticated" :open="toggleSidebar" :isOpen="sidebarOpen" />
+      <Sidebar v-if="isAuthenticated" :open="toggleSidebar" :isOpen="sidebarOpen" />
       <div
         class="children-content"
         :class="{ open: sidebarOpen && useAuthStore().isAuthenticated }"
@@ -27,6 +27,10 @@ import { useAuthStore } from '@/store/auth';
 const isDesktop = computed(
   () => window.innerWidth > 1330 || (localStorage.scale !== 'false' && localStorage.scale),
 );
+
+const isAuthenticated = computed(() => {
+  return useAuthStore().getAuthState;
+});
 </script>
 <script>
 import windowSizeMixin from '@/mixins/windowSizeMixin';

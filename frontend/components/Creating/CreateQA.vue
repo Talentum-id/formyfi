@@ -347,7 +347,7 @@ import Answer from '@/components/Creating/Answer.vue';
 import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import Input from '@/components/Input.vue';
-import { transformDate, addDaysToDate } from '@/util/helpers';
+import { transformDate, addDaysToDate, chunkData } from '@/util/helpers';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
@@ -614,32 +614,42 @@ const loadFiles = () => {
         index++;
       }
 
+      let filePaths = [];
+      let files = [];
       if (countOfQuestions.value.some(({ image }) => !!image.length)) {
-        const formData = new FormData();
-
         for (const item of countOfQuestions.value) {
           if (item.image.length) {
-            formData.append('files[]', item.image[0].raw);
-            formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+            files.push(item.image[0].raw);
+            filePaths.push(`/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
 
             index++;
           }
         }
 
-        await axiosService
-          .post(`${process.env.API_URL}upload-files`, formData)
-          .then(({ data }) => {
-            let resultIndex = 0;
+        const chunkedPaths = chunkData(filePaths);
+        const chunkedFiles = chunkData(files);
+        let uploadFilePaths = [];
 
-            for (const item of countOfQuestions.value) {
-              if (item.image.length) {
-                item.file = data[resultIndex];
+        for (let i = 0; i < chunkedPaths.length; i++) {
+          const formData = new FormData();
 
-                resultIndex++;
-              }
-            }
-          })
-          .catch((e) => console.error(e));
+          chunkedPaths[i].forEach(path => formData.append('paths[]', path));
+          chunkedFiles[i].forEach(file => formData.append('files[]', file));
+
+          await axiosService
+            .post(`${process.env.API_URL}upload-files`, formData)
+            .then(({ data }) => uploadFilePaths = [...uploadFilePaths, ...data])
+            .catch((e) => console.error(e));
+        }
+
+        let resultIndex = 0;
+        for (const item of countOfQuestions.value) {
+          if (item.image.length) {
+            item.file = uploadFilePaths[resultIndex];
+
+            resultIndex++;
+          }
+        }
       }
 
       if (thxMessage.value.image.length > 0 && thxRequired.value) {

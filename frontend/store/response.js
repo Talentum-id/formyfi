@@ -51,6 +51,8 @@ export const useResponseStore = defineStore('response', {
       this.crypto = new CryptoService(this.actor);
     },
     async storeResponse(params, attempts = 0) {
+      const { refCode } = params;
+      delete params.refCode;
       // We need to keep attempt counter, since with runtime authorization on form submission,
       // response are submitted successfully from 2nd attempt
       const cleanParams = { ...params };
@@ -73,7 +75,7 @@ export const useResponseStore = defineStore('response', {
         .then(async (result) => {
           params.answers = result;
 
-          await this.actor?.store(params, {
+          await this.actor?.store(params, refCode, {
             identity: process.env.DFX_ASSET_PRINCIPAL,
             character: localStorage.extraCharacter || '',
           });
@@ -192,13 +194,6 @@ export const useResponseStore = defineStore('response', {
           }
         })
         .catch((e) => console.error(e));
-    },
-    async creditPoints(shareLink, username) {
-      await this.actor.creditPoints(shareLink, username, {
-        identity: process.env.DFX_ASSET_PRINCIPAL,
-        character: localStorage.extraCharacter,
-      })
-        .catch(e => console.error(e));
     },
   },
   getters: {

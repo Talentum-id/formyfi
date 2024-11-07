@@ -284,7 +284,7 @@
 <script setup>
 import BaseButton from '@/components/BaseButton.vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
-import { checkFileFormat, readFile } from '@/util/helpers';
+import { checkFileFormat, chunkData, readFile } from '@/util/helpers';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElCheckboxGroup, ElCheckboxButton, ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -582,35 +582,42 @@ const loadImages = () => {
     try {
       handleLoadingFilesModal();
 
-      let index = currentIndex.value;
-
-      const formData = new FormData();
-
       if (result.value.some(({ file }) => !!file.length)) {
+        let index = currentIndex.value;
+        let filePaths = [];
+        let files = [];
+
         for (const item of result.value) {
           if (item.file) {
-            formData.append('files[]', item.file?.[0].raw);
-            formData.append(
-              'paths[]',
-              `/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`,
-            );
+            files.push(item.file?.[0].raw);
+            filePaths.push(`/${process.env.DFX_NETWORK}/responses/${realTime.value}/${index}`);
           }
         }
 
-        await axiosService
-          .post(`${process.env.API_URL}upload-files`, formData)
-          .then(({ data }) => {
-            let resultIndex = 0;
+        const chunkedPaths = chunkData(filePaths);
+        const chunkedFiles = chunkData(files);
+        let uploadFilePaths = [];
 
-            for (const item of result.value) {
-              if (item.file) {
-                item.file = data[resultIndex];
+        for (let i = 0; i < chunkedPaths.length; i++) {
+          const formData = new FormData();
 
-                resultIndex++;
-              }
-            }
-          })
-          .catch((e) => console.error(e));
+          chunkedPaths[i].forEach(path => formData.append('paths[]', path));
+          chunkedFiles[i].forEach(file => formData.append('files[]', file));
+
+          await axiosService
+            .post(`${process.env.API_URL}upload-files`, formData)
+            .then(({ data }) => uploadFilePaths = [...uploadFilePaths, ...data])
+            .catch((e) => console.error(e));
+        }
+
+        let resultIndex = 0;
+        for (const item of result.value) {
+          if (item.file) {
+            item.file = uploadFilePaths[resultIndex];
+
+            resultIndex++;
+          }
+        }
       }
 
       resolve();
@@ -696,17 +703,24 @@ const handleLoadingFilesModal = () => {
 const storeResponseAndClose = async () => {
   try {
     await handleLoadingModal();
+    let refCode = '';
+
+    if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
+      refCode = route.query['ref-code'].trim();
+    }
+
     await responseStore.storeResponse({
       filled: realTime.value,
       shareLink: props.shareLink,
       answers: result.value,
       owner: authStore.getPrincipal,
+      refCode,
     });
     await counterStore.setValue(props.items.length);
 
-    if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
-      await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
-    }
+    // if () {
+    //   await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
+    // }
 
     await closeModal();
     await handleSuccessModal();

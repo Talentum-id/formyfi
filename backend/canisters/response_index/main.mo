@@ -10,6 +10,7 @@ import Map "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
+import QATypes "../qa_index/types";
 import Text "mo:base/Text";
 import Types "/types";
 import FormIndex "canister:form_index";
@@ -27,6 +28,7 @@ actor ResponseIndex {
   type List = Types.ListResult;
   type QAList = Types.QAListResult;
   type QA = Types.QA;
+  type QAData = QATypes.ShowQAResult;
   type ResponseParams = Types.QAResponseParams;
 
   stable var authorsViaQAEntries : [(Text, [Author])] = [];
@@ -88,7 +90,7 @@ actor ResponseIndex {
     };
   };
 
-  public shared ({ caller }) func store(data : Data, character : Utils.Character) : async () {
+  public shared ({ caller }) func store(data : Data, refCode : Text, character : Utils.Character) : async () {
     let identity = await Utils.authenticate(caller, true, character);
     let user = await UserIndex.findUser(identity);
     let { shareLink; answers } = data;
@@ -129,6 +131,11 @@ actor ResponseIndex {
 
             if (user != null) {
               MetricsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
+
+              if (refCode != "") {
+                await creditPoints(identity, qa, refCode);
+              };
+
               ignore saveAuthorQA(identity, data, qa.quest.title);
             } else {
               ignore saveAuthorQA(identity # Nat.toText(anonymousEntriesCount), data, qa.quest.title);
@@ -143,37 +150,30 @@ actor ResponseIndex {
     };
   };
 
-  public shared ({ caller }) func creditPoints(
-    shareLink : Text,
+  private func creditPoints(
+    identity : Text,
+    qa : QAData,
     refOwner : Text,
-    character : Utils.Character,
   ) : async () {
-    let identity = await Utils.authenticate(caller, true, character);
+    if (qa.quest.refCodePoints == ?0) {
+      return ignore null;
+    };
 
-    switch (await FormIndex.show(shareLink)) {
-      case null throw Error.reject("Form is not found");
-      case (?qa) {
-        if (qa.quest.refCodePoints == ?0) {
-          return ignore null;
-        };
+    switch (await UserIndex.findByUsername(refOwner)) {
+      case null ignore null;
+      case (?refOwnerIdentity) {
+        let refOwnerResponseIdentifier = refOwnerIdentity # "-" # qa.quest.shareLink;
 
-        switch (await UserIndex.findByUsername(refOwner)) {
+        switch (responses.get(refOwnerResponseIdentifier)) {
           case null ignore null;
-          case (?refOwnerIdentity) {
-            let refOwnerResponseIdentifier = refOwnerIdentity # "-" # shareLink;
+          case (?_) {
+            let pointOwnerResponseIdentifier = identity # "-" # qa.quest.shareLink;
 
-            switch (responses.get(refOwnerResponseIdentifier)) {
-              case null ignore null;
+            switch (responses.get(pointOwnerResponseIdentifier)) {
+              case null throw Error.reject("You have not responded to Form");
               case (?_) {
-                let pointOwnerResponseIdentifier = identity # "-" # shareLink;
-
-                switch (responses.get(pointOwnerResponseIdentifier)) {
-                  case null throw Error.reject("You have not responded to Form");
-                  case (?_) {
-                    await MetricsIndex.addPoints(refOwnerIdentity, qa.quest.refCodePoints);
-                    await MetricsIndex.addPointsPerProject(qa.owner, refOwnerIdentity, qa.quest.refCodePoints);
-                  };
-                };
+                await MetricsIndex.addPoints(refOwnerIdentity, qa.quest.refCodePoints);
+                await MetricsIndex.addPointsPerProject(qa.owner, refOwnerIdentity, qa.quest.refCodePoints);
               };
             };
           };

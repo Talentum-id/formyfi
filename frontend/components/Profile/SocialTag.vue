@@ -17,7 +17,13 @@
     ></Icon>
   </span>
   <span v-else class="tag" @click="$emit('connect')">
-    <Icon class="icon" :icon="data.icon" :size="24"></Icon>
+    <Icon
+      v-if="data.icon.includes('-Default') || data.icon === 'Google'"
+      class="icon"
+      :icon="data.icon"
+      :size="24"
+    ></Icon>
+    <img v-else class="custom-icon" :src="data.icon" alt="" />
     Connect {{ capitalizedName }}
   </span>
 </template>
@@ -34,6 +40,10 @@ export default {
       default: false,
     },
     data: {
+      type: Object,
+      default: () => {},
+    },
+    connector: {
       type: Object,
       default: () => {},
     },

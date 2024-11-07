@@ -20,6 +20,10 @@ actor UserIndex {
     stats : ?StatsTypes.Data;
     extraIdentities : [?ExtraIdentity];
   };
+  type UserDataByExtraIdentity = {
+    identity : Text;
+    user : ?UserData;
+  };
 
   stable var userEntries : [(Text, UserData)] = [];
   stable var usernameEntries : [(Text, Text)] = [];
@@ -74,6 +78,18 @@ actor UserIndex {
 
   public query func findUser(identity : Text) : async ?UserData {
     users.get(identity);
+  };
+
+  public query func findByExtraIdentity(identity : Text) : async ?UserDataByExtraIdentity {
+    switch (extraIdentities.get(identity)) {
+      case null null;
+      case (?extraIdentity) {
+        let identity = extraIdentity.primaryIdentity;
+        let user = users.get(identity);
+
+        ?{ identity; user };
+      };
+    };
   };
 
   public query func getUsers(identities : [Text]) : async [?UserData] {

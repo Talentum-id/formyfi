@@ -448,7 +448,20 @@ export const useAuthStore = defineStore('auth', {
       return this.actor?.findUsername(string);
     },
     async findUser(principal) {
-      return this.actor?.findUser(principal);
+      let user = this.actor?.findUser(principal);
+      if (user === null) {
+        let userByIdentity = this.actor?.findByExtraIdentity(principal);
+
+        if (userByIdentity.user !== null) {
+          user = userByIdentity.user;
+        }
+
+        if (user !== null) {
+          await this.initIdentityDependencies(userByIdentity.identity, true);
+        }
+      }
+
+      return user;
     },
     async getUsers(list) {
       try {

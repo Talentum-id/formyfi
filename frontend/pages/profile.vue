@@ -32,6 +32,16 @@
             <span>Pricing Plan</span>
             <Badge text="Free" type="claim" transparent />
           </div>
+          <div class="flex gap-2 is-text flex-wrap w-[90%]">
+            <SocialTag
+              v-for="i in socialButtons"
+              :data="i"
+              @connect="i.fn()"
+              @remove="i.rm()"
+              :key="i.id"
+              :hide-remove="i.noRemove"
+            ></SocialTag>
+          </div>
         </div>
         <div class="sidebar">
           <div class="points">
@@ -56,6 +66,8 @@ import { useDebounceFn } from '@vueuse/core';
 import { useStatsStore } from '@/store/stats';
 import Alert from '@/components/Alert.vue';
 import { useRouter } from 'vue-router';
+import SocialTag from '@/components/Profile/SocialTag.vue';
+import { shortenAddress } from '@/util/helpers';
 
 const authStore = useAuthStore();
 const statsStore = useStatsStore();
@@ -101,6 +113,101 @@ const setName = useDebounceFn(async () => {
 
   setTimeout(() => (error.value = ''), 3000);
 }, 2500);
+
+const canRemoveSocial = (socialName) => {};
+
+const socialButtons = computed(
+  () => [
+    {
+      id: 2,
+      icon: getSocialName('google') ? 'Google' : 'Email-Default',
+      status: getSocialName('google') || '',
+      name: 'google',
+      value: getSocialName('google') ? getSocialName('google').name : '',
+      fn: () => connectSocial('google'),
+      rm: () => {},
+      noRemove: !canRemoveSocial('google'),
+    },
+    {
+      id: 3,
+      icon: 'Twitter-Default',
+      status: getSocialName('twitter'),
+      name: 'twitter',
+      value: getSocialName('twitter')?.name,
+      fn: () => connectSocial('twitter'),
+      rm: () => removeSocial('twitter'),
+      noRemove: !canRemoveSocial('twitter'),
+    },
+    {
+      id: 4,
+      icon: 'Discord-Default',
+      status: getSocialName('discord'),
+      name: 'discord',
+      value: getSocialName('discord')?.name,
+      fn: () => connectSocial('discord'),
+      rm: () => removeSocial('discord'),
+      noRemove: !canRemoveSocial('discord'),
+    },
+    {
+      id: 5,
+      icon: 'Telegram-Default',
+      status: getSocialName('telegram'),
+      name: 'telegram',
+      value: getSocialName('telegram')?.name,
+      fn: () => connectSocial('telegram'),
+      rm: () => removeSocial('telegram'),
+      noRemove: !canRemoveSocial('telegram'),
+    },
+    {
+      id: 7,
+      icon: 'Reddit-Default',
+      status: getSocialName('reddit'),
+      name: 'reddit',
+      value: getSocialName('reddit')?.name,
+      fn: () => connectSocial('reddit'),
+      rm: () => removeSocial('reddit'),
+      noRemove: !canRemoveSocial('reddit'),
+    },
+    {
+      id: 8,
+      icon: 'YouTube-Default',
+      status: getSocialName('youtube'),
+      name: 'youtube channel',
+      value: getSocialName('youtube')?.name,
+      fn: () => connectSocial('youtube'),
+      rm: () => removeSocial('youtube'),
+      noRemove: false,
+    },
+    {
+      id: 9,
+      icon: 'Facebook-Default',
+      status: getSocialName('facebook'),
+      name: 'facebook',
+      value: getSocialName('facebook')?.name,
+      fn: () => connectSocial('facebook'),
+      rm: () => removeSocial('facebook'),
+      noRemove: !canRemoveSocial('facebook'),
+    },
+    {
+      id: 6,
+      icon: 'Wallet-Default',
+      status: '123',
+      name: 'Wallet',
+      value: '123' ? shortenAddress('123') : null,
+      fn: () => {},
+      rm: () => {},
+      noRemove: true,
+    },
+  ],
+  { dependsOn: [] },
+);
+
+const getSocialName = (social) => {
+  return null;
+};
+
+async function connectSocial(socialName) {}
+async function removeSocial(socialName) {}
 </script>
 
 <style scoped lang="scss">

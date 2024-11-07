@@ -108,7 +108,6 @@ onMounted(async () => {
   await statsStore.findStatistics();
 });
 function triggerClick() {
-  console.log(document.querySelector('.swv-button-trigger'));
   document.querySelector('.swv-button-trigger').click();
 }
 const setName = useDebounceFn(async () => {

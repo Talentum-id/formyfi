@@ -172,7 +172,7 @@ actor ResponseIndex {
             switch (responses.get(pointOwnerResponseIdentifier)) {
               case null throw Error.reject("You have not responded to Form");
               case (?_) {
-                await MetricsIndex.addPoints(refOwnerIdentity, qa.quest.refCodePoints);
+                await MetricsIndex.addPoints(refOwnerIdentity, ?1);
                 await MetricsIndex.addPointsPerProject(qa.owner, refOwnerIdentity, qa.quest.refCodePoints);
               };
             };

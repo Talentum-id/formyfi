@@ -43,6 +43,7 @@ export const useAuthStore = defineStore('auth', {
       actor: null,
       admins: [],
       authClient: null,
+      extraIdentities: [],
       isReady: false,
       isAuthenticated: false,
       identity: null,
@@ -79,6 +80,7 @@ export const useAuthStore = defineStore('auth', {
             await this.initStores();
 
             if (res.length) {
+              await this.fetchExtraIdentities(res[0].extraIdentities ?? []);
               await this.setUser(res[0]);
             } else {
               this.isAuthenticated = false;
@@ -192,17 +194,18 @@ export const useAuthStore = defineStore('auth', {
       if (agent !== null) {
         await agent.syncTime();
       }
+
       if (isProfile) {
         this.actor
           .addExtraIdentity((await agent.getPrincipal()).toText(), 'ii', {
             identity: process.env.DFX_ASSET_PRINCIPAL,
             character: localStorage.extraCharacter,
           })
-          .then(async () => {
-            await this.getProfile();
-          });
+          .then(async () => await this.getProfile());
+
         return;
       }
+
       this.isAuthenticated = isAuthenticated;
       this.identity = identity;
       this.actor = identity ? createActorFromIdentity(identity) : null;
@@ -301,9 +304,9 @@ export const useAuthStore = defineStore('auth', {
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
         await this.generateWeb3WalletIdentity(principal, 'siwe', isProfile);
-        if (isProfile) {
-          return;
-        }
+
+        if (isProfile) return;
+
         localStorage.setItem('address', address);
 
         await this.initStores();
@@ -329,9 +332,9 @@ export const useAuthStore = defineStore('auth', {
         const { Ok: principal } = await ic_siws_provider.get_principal(address);
 
         await this.generateWeb3WalletIdentity(principal, 'siws', isProfile);
-        if (isProfile) {
-          return;
-        }
+
+        if (isProfile) return;
+
         localStorage.setItem('address', address);
 
         await this.initStores();
@@ -365,6 +368,16 @@ export const useAuthStore = defineStore('auth', {
         ?.getUsersAmount()
         .then((res) => (this.stats = res))
         .catch((e) => console.error(e));
+    },
+    async fetchExtraIdentities(identities) {
+      let extraIdentities = identities;
+      if (identities.length !== 0) {
+        extraIdentities = identities[0];
+      }
+
+      await this.actor.getExtraIdentities(extraIdentities)
+        .then(data => this.extraIdentities = data.map(item => item[0]))
+        .catch(e => console.error(e));
     },
     async fetchAdmins() {
       return await this.actor
@@ -415,7 +428,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('address');
       }
     },
-    async setUser(user = null) {
+    async setUser(user = null, extraIdentities = []) {
       if (user == null) {
         this.profile = null;
         this.user = null;
@@ -432,6 +445,14 @@ export const useAuthStore = defineStore('auth', {
           user.bannerUri = null;
         }
 
+        if (user.extraIdentities.length) {
+          user.extraIdentities = user.extraIdentities[0];
+        }
+
+        if (extraIdentities.length) {
+          this.extraIdentities = extraIdentities.map(item => item[0]);
+        }
+
         this.profile = user;
         this.user = user;
       }
@@ -442,7 +463,7 @@ export const useAuthStore = defineStore('auth', {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })
-        .then(async ({ user }) => await this.setUser(user));
+        .then(async ({ user, extraIdentities }) => await this.setUser(user, extraIdentities));
     },
     async findUserByUsername(string) {
       return this.actor?.findUsername(string);
@@ -520,17 +541,17 @@ export const useAuthStore = defineStore('auth', {
 
       const agent = identity ? new HttpAgent({ identity }) : null;
       const actor = identity ? createActorFromIdentity(identity) : null;
+
       if (isProfile) {
         this.actor
           .addExtraIdentity((await agent.getPrincipal()).toText(), provider, {
             identity: process.env.DFX_ASSET_PRINCIPAL,
             character: localStorage.extraCharacter,
           })
-          .then(async () => {
-            await this.getProfile();
-          });
+          .then(async () => await this.getProfile());
         return;
       }
+
       this.identity = identity;
       this.actor = actor;
       this.principal = this.identity ? await agent.getPrincipal() : null;
@@ -542,6 +563,7 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     getAdmins: ({ admins }) => admins,
     getStats: ({ stats }) => stats,
+    getExtraIdentities: ({ extraIdentities }) => extraIdentities,
     getIdentity: ({ identity }) => identity,
     getPrincipal: ({ principal }) => localStorage.extraCharacter || principal?.toText() || null,
     getUser: ({ user }) => user,

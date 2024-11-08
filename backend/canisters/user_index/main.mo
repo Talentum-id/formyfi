@@ -332,15 +332,15 @@ actor UserIndex {
     var pairs = "";
 
     for ((key, value) in users.entries()) {
-      pairs := "(" # key # ", " # value.username # ", " # value.fullName # ") " # pairs;
+      pairs := pairs # "(" # key # " -- " # value.username # " -- " # value.fullName # ") \n\n";
     };
 
     for ((key, value) in usernames.entries()) {
-      pairs := "(" # key # ", " # value # ") " # pairs;
+      pairs := pairs # "(" # key # " -- " # value # ") \n\n";
     };
 
     for ((key, value) in extraIdentities.entries()) {
-      pairs := "(" # key # ", " # value.primaryIdentity # ") " # pairs;
+      pairs := pairs # "(" # key # " -- " # value.primaryIdentity # " -- " # value.provider # ") \n\n";
     };
 
     return pairs;
@@ -353,6 +353,10 @@ actor UserIndex {
 
     for ((key, value) in usernames.entries()) {
       usernames.delete(key);
+    };
+
+    for ((key, value) in extraIdentities.entries()) {
+      extraIdentities.delete(key);
     };
 
     adminUsernames := [];

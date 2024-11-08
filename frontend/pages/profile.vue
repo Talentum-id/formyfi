@@ -40,7 +40,7 @@
               @remove="connector.rm()"
               :key="connector.id"
               :hide-remove="true"
-            ></SocialTag>
+            />
             <div v-show="false" class="w-0 h-0">
               <WalletMultiButton />
             </div>

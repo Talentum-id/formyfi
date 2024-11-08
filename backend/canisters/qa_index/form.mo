@@ -288,11 +288,11 @@ actor FormIndex {
     var pairs = "";
 
     for ((key, value) in QAs.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+      pairs := pairs # "(" # key # " -- " # debug_show (value) # ")\n\n";
     };
 
     for ((key, value) in shareLinks.entries()) {
-      pairs := "(" # key # ", " # value # ") " # pairs;
+      pairs := pairs # "(" # key # " -- " # value # ")\n\n";
     };
 
     return pairs;

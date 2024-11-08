@@ -39,7 +39,7 @@ actor UserIndex {
   };
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
-    let { provider; fullName; username; avatar; banner } = data;
+    let { provider; fullName; username; avatar; banner; title } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0) {
@@ -65,6 +65,7 @@ actor UserIndex {
               avatar;
               forms_created = 0;
               extraIdentities = ?[];
+              title;
             },
           );
           usernames.put(username, identity);
@@ -111,6 +112,31 @@ actor UserIndex {
     };
 
     adminUsernames;
+  };
+
+  public shared ({ caller }) func addTitle(title : Text, character : Utils.Character) : async () {
+    let identity = await Utils.authenticate(caller, false, character);
+
+    switch (users.get(identity)) {
+      case null ignore null;
+      case (?user) {
+        let { provider; fullName; username; avatar; banner; extraIdentities; forms_created } = user;
+
+        users.put(
+          identity,
+          {
+            provider;
+            fullName;
+            banner;
+            username;
+            avatar;
+            forms_created;
+            extraIdentities;
+            title = ?title;
+          },
+        );
+      };
+    };
   };
 
   public shared ({ caller }) func addAdmin(username : Text, character : Utils.Character) : async () {
@@ -184,6 +210,8 @@ actor UserIndex {
     extraIdentity : Text,
     extraProvider : Text,
     character : Utils.Character,
+    identityTitle : Text,
+    connector : Text,
   ) : async () {
     let identity = await Utils.authenticate(caller, false, character);
 
@@ -192,7 +220,7 @@ actor UserIndex {
         switch (users.get(identity)) {
           case null throw Error.reject("User does not exist");
           case (?user) {
-            let { provider; fullName; username; avatar; banner } = user;
+            let { provider; fullName; username; avatar; banner; title } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
               case (?identities) Buffer.fromArray<Text>(identities);
@@ -213,13 +241,16 @@ actor UserIndex {
                 avatar;
                 forms_created = 0;
                 extraIdentities = ?Buffer.toArray(userIdentities);
+                title;
               },
             );
             extraIdentities.put(
               extraIdentity,
               {
                 primaryIdentity = identity;
+                title = identityTitle;
                 provider = extraProvider;
+                connector;
               },
             );
           };
@@ -251,7 +282,7 @@ actor UserIndex {
           case null throw Error.reject("User does not exist");
           case (?user) {
             var index = DEFAULT_IDENTITY_INCORRECT_INDEX;
-            let { provider; fullName; username; avatar; banner } = user;
+            let { provider; fullName; username; avatar; banner; title } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
               case (?identities) {
@@ -284,6 +315,7 @@ actor UserIndex {
                 avatar;
                 forms_created = 0;
                 extraIdentities = ?Buffer.toArray(userIdentities);
+                title;
               },
             );
             extraIdentities.delete(extraIdentity);
@@ -332,15 +364,15 @@ actor UserIndex {
     var pairs = "";
 
     for ((key, value) in users.entries()) {
-      pairs := pairs # "(" # key # " -- " # value.username # " -- " # value.fullName # ") \n\n";
+      pairs := pairs # "(" # key # " -- " # value.username # " -- " # value.fullName # ")\n\n";
     };
 
     for ((key, value) in usernames.entries()) {
-      pairs := pairs # "(" # key # " -- " # value # ") \n\n";
+      pairs := pairs # "(" # key # " -- " # value # ")\n\n";
     };
 
     for ((key, value) in extraIdentities.entries()) {
-      pairs := pairs # "(" # key # " -- " # value.primaryIdentity # " -- " # value.provider # ") \n\n";
+      pairs := pairs # "(" # key # " -- " # value.primaryIdentity # " -- " # value.provider # ")\n\n";
     };
 
     return pairs;

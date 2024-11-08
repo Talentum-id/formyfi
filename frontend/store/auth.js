@@ -16,8 +16,9 @@ import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { PostMessageTransport } from '@slide-computer/signer-web';
 import { Signer } from '@slide-computer/signer';
 import { SignerClient } from '@slide-computer/signer-client';
-import { SignerAgent } from '@slide-computer/signer-agent';
+import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 
+const INTERNET_IDENTITY_TITLE = 'Account linked';
 const defaultOptions = {
   createOptions: {
     idleOptions: {
@@ -105,15 +106,19 @@ export const useAuthStore = defineStore('auth', {
 
       this.isReady = true;
     },
-    async initSIWE() {
-      const address = localStorage.getItem('address');
+    async initSIWE(walletAddress = null) {
+      const address = walletAddress ?? localStorage.getItem('address');
 
       if (address) {
+        if (walletAddress !== null) {
+          localStorage.setItem('address', walletAddress);
+        }
+
         try {
           const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
           if (principal !== undefined) {
-            await this.generateWeb3WalletIdentity(principal, 'siwe');
+            await this.generateWeb3WalletIdentity(principal, 'siwe', address);
           }
         } catch (e) {
           console.error(e);
@@ -124,15 +129,19 @@ export const useAuthStore = defineStore('auth', {
         await this.logout();
       }
     },
-    async initSIWS() {
-      const address = localStorage.getItem('address');
+    async initSIWS(walletAddress = null) {
+      const address = walletAddress ?? localStorage.getItem('address');
 
       if (address) {
+        if (walletAddress !== null) {
+          localStorage.setItem('address', walletAddress);
+        }
+
         try {
           const { Ok: principal } = await ic_siws_provider.get_principal(address);
 
           if (principal !== undefined) {
-            await this.generateWeb3WalletIdentity(principal, 'siws');
+            await this.generateWeb3WalletIdentity(principal, 'siws', address);
           }
         } catch (e) {
           console.error(e);
@@ -200,8 +209,9 @@ export const useAuthStore = defineStore('auth', {
           .addExtraIdentity((await agent.getPrincipal()).toText(), 'ii', {
             identity: process.env.DFX_ASSET_PRINCIPAL,
             character: localStorage.extraCharacter,
-          })
-          .then(async () => await this.getProfile());
+          }, INTERNET_IDENTITY_TITLE)
+          .then(async () => await this.getProfile())
+          .catch(e => console.error(e));
 
         return;
       }
@@ -271,7 +281,7 @@ export const useAuthStore = defineStore('auth', {
           .addExtraIdentity(email, 'google', {
             identity: process.env.DFX_ASSET_PRINCIPAL,
             character: localStorage.extraCharacter,
-          })
+          }, email)
           .then(async () => {
             await this.getProfile();
           });
@@ -303,7 +313,7 @@ export const useAuthStore = defineStore('auth', {
 
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
-        await this.generateWeb3WalletIdentity(principal, 'siwe', isProfile);
+        await this.generateWeb3WalletIdentity(principal, 'siwe', address, isProfile);
 
         if (isProfile) return;
 
@@ -331,7 +341,7 @@ export const useAuthStore = defineStore('auth', {
 
         const { Ok: principal } = await ic_siws_provider.get_principal(address);
 
-        await this.generateWeb3WalletIdentity(principal, 'siws', isProfile);
+        await this.generateWeb3WalletIdentity(principal, 'siws', address, isProfile);
 
         if (isProfile) return;
 
@@ -398,14 +408,27 @@ export const useAuthStore = defineStore('auth', {
         identity: process.env.DFX_ASSET_PRINCIPAL,
       });
     },
-    register({ username, fullName }) {
+    getTitleByProvider() {
       const provider = localStorage.authenticationProvider;
+      let title = INTERNET_IDENTITY_TITLE;
 
+      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
+        title = localStorage.getItem('address');
+      }
+
+      if (provider === 'google') {
+        title = this.getPrincipal;
+      }
+
+      return title.toString();
+    },
+    register({ username, fullName }) {
       return this.actor?.register(
         {
           username,
           fullName,
-          provider,
+          title: [this.getTitleByProvider()],
+          provider: localStorage.authenticationProvider,
           avatar: [],
           banner: [],
           forms_created: 0,
@@ -434,6 +457,17 @@ export const useAuthStore = defineStore('auth', {
         this.profile = null;
         this.user = null;
       } else {
+        if (!user.title.length) {
+          const title = this.getTitleByProvider();
+          await this.actor.addTitle(title, {
+            character: localStorage.extraCharacter,
+            identity: process.env.DFX_ASSET_PRINCIPAL,
+          });
+
+          user.title = [title];
+        }
+
+        user.title = user.title[0];
         if (user.avatar.length) {
           user.avatarUri = await readFile(user.avatar[0]);
         } else {
@@ -469,17 +503,23 @@ export const useAuthStore = defineStore('auth', {
     async findUserByUsername(string) {
       return this.actor?.findUsername(string);
     },
-    async findUser(principal) {
-      let user = this.actor?.findUser(principal);
-      if (user === null) {
-        let userByIdentity = this.actor?.findByExtraIdentity(principal);
-
-        if (userByIdentity.user !== null) {
-          user = userByIdentity.user;
-        }
-
-        if (user !== null) {
-          await this.initIdentityDependencies(userByIdentity.identity, true);
+    async findUser(principal, isLoginProcess = true) {
+      let user = await this.actor?.findUser(principal);
+      if (!user.length && isLoginProcess) {
+        let userByIdentity = await this.actor?.findByExtraIdentity(principal);
+        if (!!userByIdentity.length && [null, []].indexOf(userByIdentity[0]?.user) === -1) {
+          user = userByIdentity[0].user;
+          const identityUser = user[0];
+          if (identityUser.provider === 'google') {
+            localStorage.extraCharacter = identityUser.title[0];
+            await this.initWeb2Auth();
+          } else if (identityUser.provider === 'siwe') {
+            await this.initSIWE(identityUser.title[0]);
+          } else if (identityUser.provider === 'siws') {
+            await this.initSIWS(identityUser.title[0]);
+          } else {
+            //
+          }
         }
       }
 
@@ -487,6 +527,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async getUsers(list) {
       try {
+        console.log(list);
         const users = await this.actor?.getUsers(list);
 
         this.usersList = await Promise.all(
@@ -537,7 +578,7 @@ export const useAuthStore = defineStore('auth', {
         })
         .catch((e) => console.error(e));
     },
-    async generateWeb3WalletIdentity(principal, provider, isProfile = false) {
+    async generateWeb3WalletIdentity(principal, provider, address, isProfile = false) {
       const identity = generateIdentityFromPrincipal(principal);
 
       const agent = identity ? new HttpAgent({ identity }) : null;
@@ -548,7 +589,7 @@ export const useAuthStore = defineStore('auth', {
           .addExtraIdentity((await agent.getPrincipal()).toText(), provider, {
             identity: process.env.DFX_ASSET_PRINCIPAL,
             character: localStorage.extraCharacter,
-          })
+          }, address)
           .then(async () => await this.getProfile());
         return;
       }

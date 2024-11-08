@@ -22,19 +22,23 @@ const errors = ref({
 
 onMounted(async () => {
   try {
-    await authStore.findUser(authStore.getPrincipal).then(async (res) => {
-      if (res.length) {
-        await authStore.setUser(res[0]);
-        if (!useAuthStore().isQuest) {
-          await router.push('/');
-          if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
-            await window.location.reload();
+    await authStore.findUser(authStore.getPrincipal)
+      .then(async (res) => {
+        if (res.length) {
+          await authStore.fetchExtraIdentities(res[0].extraIdentities ?? []);
+          await authStore.setUser(res[0]);
+
+          if (!useAuthStore().isQuest) {
+            await router.push('/');
+            if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
+              await window.location.reload();
+            }
           }
+          emit('success');
         }
-        emit('success');
-      }
-    });
+      });
   } catch (e) {
+    console.error(e);
     emit('reject');
   }
 });

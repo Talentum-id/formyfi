@@ -39,12 +39,12 @@
               @connect="connector.fn()"
               @remove="connector.rm()"
               :key="connector.id"
-              :hide-remove="true"
             />
             <div v-show="false" class="w-0 h-0">
               <WalletMultiButton />
             </div>
             <GoogleLogin
+              v-if="!getExtraIdentity('google')"
               ref="googleLogin"
               :callback="callback"
               :buttonConfig="{
@@ -158,26 +158,35 @@ const socialButtons = computed(
         fn: () => {
           connect({ connector, chainId });
         },
-        rm: () => removeProvider(),
+        rm: () => removeProvider(getExtraIdentity(connector.name)),
       };
     }),
     {
       id: 1,
       icon: dfinityIcon,
-      status: null,
+      status: getExtraIdentity('ii'),
       name: 'Internet Identity',
       value: null,
       fn: () => authStore.loginWithII(true),
-      rm: () => removeProvider(),
+      rm: () => removeProvider(getExtraIdentity('ii')),
     },
     {
       id: 2,
       icon: 'Wallet-Default',
-      status: null,
+      status: getExtraIdentity('siws'),
       name: 'Solana Wallets',
       value: null,
       fn: () => triggerClick(),
-      rm: () => removeProvider(),
+      rm: () => removeProvider(getExtraIdentity('siws')),
+    },
+    getExtraIdentity('google') && {
+      id: 3,
+      icon: 'Google',
+      status: getExtraIdentity('google'),
+      name: 'Google',
+      value: null,
+      fn: () => {},
+      rm: () => removeProvider(getExtraIdentity('google')),
     },
   ],
   { dependsOn: [] },
@@ -235,12 +244,18 @@ watch(
   },
 );
 
+const getExtraIdentities = computed(() => useAuthStore().getExtraIdentities);
+
+const getExtraIdentity = (provider) => {
+  return getExtraIdentities.value.find((identity) => identity.provider === provider);
+};
 const callback = async (response) => {
   await useAuthStore().loginWithGoogle(response.credential, true);
 };
 
-const removeProvider = async () => {
-  console.log(123);
+const removeProvider = async (provider) => {
+  console.log(provider);
+  await useAuthStore().removeExtraIdentity(provider);
 };
 </script>
 

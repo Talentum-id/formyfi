@@ -375,9 +375,10 @@ export const useAuthStore = defineStore('auth', {
         extraIdentities = identities[0];
       }
 
-      await this.actor.getExtraIdentities(extraIdentities)
-        .then(data => this.extraIdentities = data.map(item => item[0]))
-        .catch(e => console.error(e));
+      await this.actor
+        .getExtraIdentities(extraIdentities)
+        .then((data) => (this.extraIdentities = data.map((item) => item[0])))
+        .catch((e) => console.error(e));
     },
     async fetchAdmins() {
       return await this.actor
@@ -450,7 +451,7 @@ export const useAuthStore = defineStore('auth', {
         }
 
         if (extraIdentities.length) {
-          this.extraIdentities = extraIdentities.map(item => item[0]);
+          this.extraIdentities = extraIdentities.map((item) => item[0]);
         }
 
         this.profile = user;
@@ -558,6 +559,15 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = true;
 
       this.setAuthenticationStorage(true, provider);
+    },
+    async removeExtraIdentity(provider) {
+      console.log(provider);
+      await this.actor
+        .deleteExtraIdentity(provider.primaryIdentity, {
+          identity: process.env.DFX_ASSET_PRINCIPAL,
+          character: localStorage.extraCharacter,
+        })
+        .then(async () => await this.getProfile());
     },
   },
   getters: {

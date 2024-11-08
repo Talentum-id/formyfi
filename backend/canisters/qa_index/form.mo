@@ -1,6 +1,6 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
-import Error "mo:base/Error";
+import Debug "mo:base/Debug";
 import Float "mo:base/Float";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
@@ -47,7 +47,7 @@ actor FormIndex {
 
   public query func list(params : FetchParams) : async List {
     if (params.identity == "") {
-      throw Error.reject("Identity is not specified");
+      Debug.trap("Identity is not specified");
     };
 
     switch (QAs.get(params.identity)) {
@@ -93,13 +93,13 @@ actor FormIndex {
     let identity = await Utils.authenticate(caller, false, character);
 
     if (not (validate(data))) {
-      throw Error.reject("Please, fill required fields!");
+      Debug.trap("Please, fill required fields!");
     };
 
     let shareLinkExists = await show(data.shareLink);
 
     if (shareLinkExists != null) {
-      throw Error.reject("This share link already exists!");
+      Debug.trap("This share link already exists!");
     };
 
     switch (QAs.get(identity)) {

@@ -93,8 +93,6 @@ const connectPLUG = async () => {
     await transport.connection.connect();
   }
   const accounts = await signer.accounts();
-
-  console.log(accounts);
 };
 const hasAuthToken = computed(() => authStore.getAuthState);
 

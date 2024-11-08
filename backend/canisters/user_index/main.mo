@@ -1,8 +1,8 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
+import Debug "mo:base/Debug";
 import Map "mo:base/HashMap";
 import Iter "mo:base/Iter";
-import Error "mo:base/Error";
 import StatsTypes "../stats_index/types";
 import MetricsIndex "canister:metrics_index";
 import Text "mo:base/Text";
@@ -43,15 +43,15 @@ actor UserIndex {
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0) {
-      throw Error.reject("Username cannot be empty");
+      Debug.trap("Username cannot be empty");
     };
 
     if (username.size() < 4 or username.size() > 18) {
-      throw Error.reject("Username should have from 4 to 18 characters.");
+      Debug.trap("Username should have from 4 to 18 characters.");
     };
 
     if (await findUsername(username)) {
-      throw Error.reject("This username already exists");
+      Debug.trap("This username already exists");
     } else {
       switch (users.get(identity)) {
         case null {
@@ -151,10 +151,10 @@ actor UserIndex {
 
           adminUsernames := Buffer.toArray(usernamesBuffer);
         };
-        case (?_) throw Error.reject("Username is already an Admin");
+        case (?_) Debug.trap("Username is already an Admin");
       };
     } else {
-      throw Error.reject("This username does not exist");
+      Debug.trap("This username does not exist");
     };
   };
 
@@ -163,18 +163,18 @@ actor UserIndex {
     await checkAdminRights(identity);
 
     if (username == SUPERADMIN) {
-      throw Error.reject("This username is super-admin and cannot be removed");
+      Debug.trap("This username is super-admin and cannot be removed");
     };
 
     if (await findUsername(username)) {
       switch (Array.find<Text>(adminUsernames, func x = x == username)) {
-        case null throw Error.reject("Username is already an Admin");
+        case null Debug.trap("Username is already an Admin");
         case (?_) {
           adminUsernames := Array.filter<Text>(adminUsernames, func x = x != username);
         };
       };
     } else {
-      throw Error.reject("This username does not exist");
+      Debug.trap("This username does not exist");
     };
   };
 
@@ -193,7 +193,7 @@ actor UserIndex {
     let identity = await Utils.authenticate(caller, false, character);
 
     switch (users.get(identity)) {
-      case null throw Error.reject(Utils.DEFAULT_ERROR);
+      case null Debug.trap(Utils.DEFAULT_ERROR);
       case (?user) {
         let stats = await MetricsIndex.findStats(identity);
         let extraIdentities = switch (user.extraIdentities) {
@@ -218,8 +218,12 @@ actor UserIndex {
     switch (extraIdentities.get(extraIdentity)) {
       case null {
         switch (users.get(identity)) {
-          case null throw Error.reject("User does not exist");
+          case null Debug.trap("User does not exist");
           case (?user) {
+            if (users.get(extraIdentity) != null) {
+              Debug.trap("This identity is already attached");
+            };
+
             let { provider; fullName; username; avatar; banner; title } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
@@ -227,7 +231,7 @@ actor UserIndex {
             };
 
             if (Buffer.contains<Text>(userIdentities, extraIdentity, Text.equal)) {
-              throw Error.reject("This identity is already attached");
+              Debug.trap("This identity is already attached");
             };
 
             userIdentities.add(extraIdentity);
@@ -257,7 +261,7 @@ actor UserIndex {
         };
       };
       case (?_) {
-        throw Error.reject("This identity is already attached");
+        Debug.trap("This identity is already attached");
       };
     };
   };
@@ -279,7 +283,7 @@ actor UserIndex {
       case null ignore null;
       case (?userIdentity) {
         switch (users.get(identity)) {
-          case null throw Error.reject("User does not exist");
+          case null Debug.trap("User does not exist");
           case (?user) {
             var index = DEFAULT_IDENTITY_INCORRECT_INDEX;
             let { provider; fullName; username; avatar; banner; title } = user;
@@ -301,7 +305,7 @@ actor UserIndex {
               index == DEFAULT_IDENTITY_INCORRECT_INDEX or
               userIdentity.primaryIdentity != identity
             ) {
-              throw Error.reject("This identity belongs to another user");
+              Debug.trap("This identity belongs to another user");
             };
 
             ignore userIdentities.remove(index);
@@ -329,18 +333,18 @@ actor UserIndex {
     let identity = await Utils.authenticate(caller, false, character);
 
     switch (users.get(identity)) {
-      case null throw Error.reject(Utils.DEFAULT_ERROR);
+      case null Debug.trap(Utils.DEFAULT_ERROR);
       case (?user) {
         users.put(identity, data);
 
         if (user.username == SUPERADMIN) {
-          throw Error.reject(SUPERADMIN # " is only super-admin, hence username cannot be updated");
+          Debug.trap(SUPERADMIN # " is only super-admin, hence username cannot be updated");
         };
 
         if (user.username != data.username) {
           let existingUsername = await findUsername(data.username);
 
-          if (existingUsername) throw Error.reject("This username already exists");
+          if (existingUsername) Debug.trap("This username already exists");
 
           usernames.delete(user.username);
           usernames.put(data.username, identity);
@@ -397,14 +401,14 @@ actor UserIndex {
   public query func checkAdminRights(identity : Text) : async () {
     switch (users.get(identity)) {
       case null {
-        throw Error.reject("You don't have an Admin rights");
+        Debug.trap("You don't have an Admin rights");
       };
       case (?callerData) {
         if (
           Array.find<Text>(adminUsernames, func x = x == callerData.username) == null and
           callerData.username != SUPERADMIN
         ) {
-          throw Error.reject("You don't have an Admin rights");
+          Debug.trap("You don't have an Admin rights");
         };
       };
     };

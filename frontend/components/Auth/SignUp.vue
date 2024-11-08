@@ -30,7 +30,10 @@ onMounted(async () => {
 
           if (!useAuthStore().isQuest) {
             await router.push('/');
-            if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
+            if (
+              (res[0].reload !== undefined && res[0].reload) ||
+              reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1
+            ) {
               await window.location.reload();
             }
           }

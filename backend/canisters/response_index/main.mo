@@ -1,7 +1,7 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import Error "mo:base/Error";
+import Debug "mo:base/Debug";
 import Float "mo:base/Float";
 import Hex "./utils/hex";
 import Int "mo:base/Int";
@@ -101,7 +101,7 @@ actor ResponseIndex {
     };
 
     switch (await FormIndex.show(shareLink)) {
-      case null throw Error.reject("Q&A not found");
+      case null Debug.trap("Q&A not found");
       case (?qa) {
         let questions = qa.quest.questions;
 
@@ -111,7 +111,7 @@ actor ResponseIndex {
             var answersCount = 0;
 
             if (answers.size() != questions.size()) {
-              throw Error.reject("The answers don't match the questions");
+              Debug.trap("The answers don't match the questions");
             };
 
             for (answer in answers.vals()) {
@@ -143,7 +143,7 @@ actor ResponseIndex {
             };
           };
           case (?answers) {
-            throw Error.reject("The user already completed this Q&A");
+            Debug.trap("The user already completed this Q&A");
           };
         };
       };
@@ -170,7 +170,7 @@ actor ResponseIndex {
             let pointOwnerResponseIdentifier = identity # "-" # qa.quest.shareLink;
 
             switch (responses.get(pointOwnerResponseIdentifier)) {
-              case null throw Error.reject("You have not responded to Form");
+              case null Debug.trap("You have not responded to Form");
               case (?_) {
                 await MetricsIndex.addPoints(refOwnerIdentity, ?1);
                 await MetricsIndex.addPointsPerProject(qa.owner, refOwnerIdentity, qa.quest.refCodePoints);
@@ -214,12 +214,12 @@ actor ResponseIndex {
     let identity = await Utils.authenticate(caller, true, character);
 
     switch (await FormIndex.show(shareLink)) {
-      case null throw Error.reject("Q&A does not exist");
+      case null Debug.trap("Q&A does not exist");
       case (?qa) {
         let { quest; owner } = qa;
 
         if (identity != owner) {
-          throw Error.reject("Only Q&A owner can export it");
+          Debug.trap("Only Q&A owner can export it");
         };
 
         let params = {

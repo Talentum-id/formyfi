@@ -58,7 +58,7 @@ const tableType = ref('project');
 const leaderboardStore = useStatsStore();
 const projectOptions = ref([
   { name: 'My Forms', id: 0, type: 'project' },
-  { name: 'Formyfi', id: 1, type: 'all' },
+  { name: 'FormyFi', id: 1, type: 'all' },
 ]);
 const requestsColumns = computed(() => {
   return [

@@ -1,6 +1,6 @@
-import Error "mo:base/Error";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
+import Debug "mo:base/Debug";
 
 module {
   public type Character = {
@@ -19,13 +19,13 @@ module {
     };
 
     if (not (anonymous) and identity != DEFAULT_PRINCIPAL) {
-      throw Error.reject(DEFAULT_ERROR);
+      Debug.trap(DEFAULT_ERROR);
     };
 
     let extraIdentity = Text.trim(character, #char ' ');
 
     if (extraIdentity.size() == 0) {
-      if (anonymous) return Principal.toText(caller) else throw Error.reject(DEFAULT_ERROR);
+      if (anonymous) return Principal.toText(caller) else Debug.trap(DEFAULT_ERROR);
     } else {
       extraIdentity;
     };

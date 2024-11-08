@@ -353,7 +353,6 @@ export const useAuthStore = defineStore('auth', {
         await ic_siws_provider.siws_login(signature, address, new Uint8Array(sessionKey));
 
         const { Ok: principal } = await ic_siws_provider.get_principal(address);
-        console.log(connectorName);
         await this.generateWeb3WalletIdentity(principal, 'siws', address, connectorName);
 
         if (connectorName) return;
@@ -400,7 +399,14 @@ export const useAuthStore = defineStore('auth', {
 
       await this.actor
         .getExtraIdentities(extraIdentities)
-        .then((data) => (this.extraIdentities = data.map((item) => item[0])))
+        .then((data) => (this.extraIdentities = data.map((item, index) => {
+          const identity = extraIdentities[index];
+
+          return {
+            identity,
+            ...item[0],
+          };
+        })))
         .catch((e) => console.error(e));
     },
     async fetchAdmins() {
@@ -511,7 +517,10 @@ export const useAuthStore = defineStore('auth', {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })
-        .then(async ({ user, extraIdentities }) => await this.setUser(user, extraIdentities));
+        .then(async ({ user }) => {
+          await this.fetchExtraIdentities(user.extraIdentities ?? []);
+          await this.setUser(user);
+        });
     },
     async findUserByUsername(string) {
       return this.actor?.findUsername(string);
@@ -524,8 +533,9 @@ export const useAuthStore = defineStore('auth', {
           user = userByIdentity[0].user;
           const identityUser = user[0];
           if (identityUser.provider === 'google') {
-            localStorage.extraCharacter = identityUser.title[0];
-            await this.initWeb2Auth();
+            localStorage.setItem('extraCharacter', identityUser.title[0]);
+            await this.initWeb2Auth(identityUser.provider);
+            this.setAuthenticationStorage(true, identityUser.provider, identityUser.title[0]);
           } else if (identityUser.provider === 'siwe') {
             await this.initSIWE(identityUser.title[0]);
           } else if (identityUser.provider === 'siws') {
@@ -533,6 +543,7 @@ export const useAuthStore = defineStore('auth', {
           } else {
             //
           }
+          user[0].reload = true;
         }
       }
 
@@ -540,7 +551,6 @@ export const useAuthStore = defineStore('auth', {
     },
     async getUsers(list) {
       try {
-        console.log(list);
         const users = await this.actor?.getUsers(list);
 
         this.usersList = await Promise.all(
@@ -621,7 +631,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async removeExtraIdentity(provider) {
       await this.actor
-        .deleteExtraIdentity(provider.title, {
+        .deleteExtraIdentity(provider.identity, {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })

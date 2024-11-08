@@ -37,6 +37,7 @@
               v-for="connector in socialButtons"
               :data="connector"
               @connect="connector.fn()"
+              @remove="connector.rm()"
               :key="connector.id"
               :hide-remove="true"
             ></SocialTag>
@@ -157,7 +158,7 @@ const socialButtons = computed(
         fn: () => {
           connect({ connector, chainId });
         },
-        noRemove: true,
+        rm: () => removeProvider(),
       };
     }),
     {
@@ -167,7 +168,7 @@ const socialButtons = computed(
       name: 'Internet Identity',
       value: null,
       fn: () => authStore.loginWithII(true),
-      noRemove: true,
+      rm: () => removeProvider(),
     },
     {
       id: 2,
@@ -176,7 +177,7 @@ const socialButtons = computed(
       name: 'Solana Wallets',
       value: null,
       fn: () => triggerClick(),
-      noRemove: true,
+      rm: () => removeProvider(),
     },
   ],
   { dependsOn: [] },
@@ -236,6 +237,10 @@ watch(
 
 const callback = async (response) => {
   await useAuthStore().loginWithGoogle(response.credential, true);
+};
+
+const removeProvider = async () => {
+  console.log(123);
 };
 </script>
 

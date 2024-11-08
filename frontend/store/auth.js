@@ -197,21 +197,28 @@ export const useAuthStore = defineStore('auth', {
 
       await this.initIdentityDependencies(identity, isAuthenticated);
     },
-    async initIdentityDependencies(identity, isAuthenticated, isProfile = false) {
+    async initIdentityDependencies(identity, isAuthenticated, connectorName = false) {
       const agent = identity ? new HttpAgent({ identity }) : null;
 
       if (agent !== null) {
         await agent.syncTime();
       }
 
-      if (isProfile) {
+      if (connectorName) {
         this.actor
-          .addExtraIdentity((await agent.getPrincipal()).toText(), 'ii', {
-            identity: process.env.DFX_ASSET_PRINCIPAL,
-            character: localStorage.extraCharacter,
-          }, INTERNET_IDENTITY_TITLE)
+          .addExtraIdentity(
+            (await agent.getPrincipal()).toText(),
+            'ii',
+            {
+              identity: process.env.DFX_ASSET_PRINCIPAL,
+              character: localStorage.extraCharacter,
+            },
+
+            INTERNET_IDENTITY_TITLE,
+            'ii',
+          )
           .then(async () => await this.getProfile())
-          .catch(e => console.error(e));
+          .catch((e) => console.error(e));
 
         return;
       }
@@ -226,7 +233,7 @@ export const useAuthStore = defineStore('auth', {
       await useResponseStore().init();
       await useStatsStore().init();
     },
-    async loginWithII(isProfile = false) {
+    async loginWithII(connectorName = false) {
       if (this.authClient === null) {
         await this.initII();
       }
@@ -239,12 +246,12 @@ export const useAuthStore = defineStore('auth', {
           const isAuthenticated = await authClient.isAuthenticated();
           const identity = isAuthenticated ? authClient.getIdentity() : null;
 
-          await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
+          await this.initIdentityDependencies(identity, isAuthenticated, connectorName);
           this.setAuthenticationStorage(this.isAuthenticated, 'ii');
 
           await this.initStores();
 
-          if (!this.isQuest && !isProfile) {
+          if (!this.isQuest && !connectorName) {
             await router.push('/sign-up');
           }
         },
@@ -274,14 +281,20 @@ export const useAuthStore = defineStore('auth', {
         },
       });
     },
-    async loginWithGoogle(credential, isProfile = false) {
+    async loginWithGoogle(credential, connectorName = false) {
       const { email } = decodeCredential(credential);
-      if (isProfile) {
+      if (connectorName) {
         this.actor
-          .addExtraIdentity(email, 'google', {
-            identity: process.env.DFX_ASSET_PRINCIPAL,
-            character: localStorage.extraCharacter,
-          }, email)
+          .addExtraIdentity(
+            email,
+            'google',
+            {
+              identity: process.env.DFX_ASSET_PRINCIPAL,
+              character: localStorage.extraCharacter,
+            },
+            email,
+            'google',
+          )
           .then(async () => {
             await this.getProfile();
           });
@@ -305,7 +318,7 @@ export const useAuthStore = defineStore('auth', {
 
       return data?.Ok || null;
     },
-    async loginWithSIWE(address, signature, isProfile = false) {
+    async loginWithSIWE(address, signature, connectorName = false) {
       try {
         const sessionKey = Ed25519KeyIdentity.generate().getPublicKey().toDer();
 
@@ -313,9 +326,9 @@ export const useAuthStore = defineStore('auth', {
 
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
 
-        await this.generateWeb3WalletIdentity(principal, 'siwe', address, isProfile);
+        await this.generateWeb3WalletIdentity(principal, 'siwe', address, connectorName);
 
-        if (isProfile) return;
+        if (connectorName) return;
 
         localStorage.setItem('address', address);
 
@@ -333,17 +346,17 @@ export const useAuthStore = defineStore('auth', {
 
       return data?.Ok || null;
     },
-    async loginWithSIWS(address, signature, isProfile = false) {
+    async loginWithSIWS(address, signature, connectorName = false) {
       try {
         const sessionKey = Ed25519KeyIdentity.generate().getPublicKey().toDer();
 
         await ic_siws_provider.siws_login(signature, address, new Uint8Array(sessionKey));
 
         const { Ok: principal } = await ic_siws_provider.get_principal(address);
+        console.log(connectorName);
+        await this.generateWeb3WalletIdentity(principal, 'siws', address, connectorName);
 
-        await this.generateWeb3WalletIdentity(principal, 'siws', address, isProfile);
-
-        if (isProfile) return;
+        if (connectorName) return;
 
         localStorage.setItem('address', address);
 
@@ -578,18 +591,23 @@ export const useAuthStore = defineStore('auth', {
         })
         .catch((e) => console.error(e));
     },
-    async generateWeb3WalletIdentity(principal, provider, address, isProfile = false) {
+    async generateWeb3WalletIdentity(principal, provider, address, connectorName = false) {
       const identity = generateIdentityFromPrincipal(principal);
 
       const agent = identity ? new HttpAgent({ identity }) : null;
       const actor = identity ? createActorFromIdentity(identity) : null;
-
-      if (isProfile) {
+      if (connectorName) {
         this.actor
-          .addExtraIdentity((await agent.getPrincipal()).toText(), provider, {
-            identity: process.env.DFX_ASSET_PRINCIPAL,
-            character: localStorage.extraCharacter,
-          }, address)
+          .addExtraIdentity(
+            (await agent.getPrincipal()).toText(),
+            provider,
+            {
+              identity: process.env.DFX_ASSET_PRINCIPAL,
+              character: localStorage.extraCharacter,
+            },
+            address,
+            connectorName,
+          )
           .then(async () => await this.getProfile());
         return;
       }
@@ -602,9 +620,8 @@ export const useAuthStore = defineStore('auth', {
       this.setAuthenticationStorage(true, provider);
     },
     async removeExtraIdentity(provider) {
-      console.log(provider);
       await this.actor
-        .deleteExtraIdentity(provider.primaryIdentity, {
+        .deleteExtraIdentity(provider.title, {
           identity: process.env.DFX_ASSET_PRINCIPAL,
           character: localStorage.extraCharacter,
         })

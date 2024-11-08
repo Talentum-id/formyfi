@@ -91,6 +91,7 @@ import dfinityIcon from '@/assets/images/dfinity.svg';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
 import { GoogleLogin } from 'vue3-google-login';
 import bs58 from 'bs58';
+import { shortenAddress } from '@/util/helpers';
 
 const authStore = useAuthStore();
 const statsStore = useStatsStore();
@@ -146,52 +147,61 @@ const filteredConnectors = computed(() => {
     ({ name, icon }) => siweConnectors.indexOf(name) !== -1 && icon !== null && icon !== undefined,
   );
 });
-const socialButtons = computed(
-  () => [
-    ...filteredConnectors.value.map((connector) => {
-      return {
-        id: connector.id,
-        icon: connector.icon,
-        status: null,
-        name: connector.name,
-        value: null,
-        fn: () => {
-          connect({ connector, chainId });
-        },
-        rm: () => removeProvider(getExtraIdentity(connector.name)),
-      };
-    }),
-    {
-      id: 1,
-      icon: dfinityIcon,
-      status: getExtraIdentity('ii'),
-      name: 'Internet Identity',
-      value: null,
-      fn: () => authStore.loginWithII(true),
-      rm: () => removeProvider(getExtraIdentity('ii')),
-    },
-    {
-      id: 2,
-      icon: 'Wallet-Default',
-      status: getExtraIdentity('siws'),
-      name: 'Solana Wallets',
-      value: null,
-      fn: () => triggerClick(),
-      rm: () => removeProvider(getExtraIdentity('siws')),
-    },
-    getExtraIdentity('google') && {
-      id: 3,
-      icon: 'Google',
-      status: getExtraIdentity('google'),
-      name: 'Google',
-      value: null,
-      fn: () => {},
-      rm: () => removeProvider(getExtraIdentity('google')),
-    },
-  ],
-  { dependsOn: [] },
-);
+const getExtraIdentities = computed(() => useAuthStore().getExtraIdentities);
 
+const getExtraIdentity = (provider) => {
+  return getExtraIdentities.value.find((identity) => identity.connector === provider);
+};
+const currentConnector = ref('');
+const socialButtons = computed(
+  () =>
+    [
+      ...filteredConnectors.value.map((connector) => {
+        return {
+          id: connector.id,
+          icon: connector.icon,
+          status: getExtraIdentity(connector.name),
+          name: connector.name,
+          value: getExtraIdentity(connector.name)
+            ? shortenAddress(getExtraIdentity(connector.name).title)
+            : false,
+          fn: () => {
+            connect({ connector, chainId });
+            currentConnector.value = connector.name;
+          },
+          rm: () => removeProvider(getExtraIdentity(connector.name)),
+        };
+      }),
+      // {
+      //   id: 1,
+      //   icon: dfinityIcon,
+      //   status: getExtraIdentity('ii'),
+      //   name: 'Internet Identity',
+      //   value: getExtraIdentity('ii') ? shortenAddress(getExtraIdentity('ii').title) : false,
+      //   fn: () => authStore.loginWithII(true),
+      //   rm: () => removeProvider(getExtraIdentity('ii')),
+      // },
+      {
+        id: 2,
+        icon: 'Wallet-Default',
+        status: !!getExtraIdentity('siws'),
+        name: 'Solana Wallets',
+        value: getExtraIdentity('siws') ? shortenAddress(getExtraIdentity('siws').title) : false,
+        fn: () => triggerClick(),
+        rm: () => removeProvider(getExtraIdentity('siws')),
+      },
+      getExtraIdentity('google') && {
+        id: 3,
+        icon: 'Google',
+        status: !!getExtraIdentity('google'),
+        name: 'Google',
+        value: getExtraIdentity('google') ? getExtraIdentity('google').title : false,
+        fn: () => {},
+        rm: () => removeProvider(getExtraIdentity('google')),
+      },
+    ].filter((item) => item),
+  { dependsOn: [getExtraIdentities] },
+);
 watch(
   isConnected,
   async (value) => {
@@ -201,7 +211,8 @@ watch(
         await disconnect();
       } else {
         await signMessageAsync({ message }).then(
-          async (signature) => await authStore.loginWithSIWE(address.value, signature, true),
+          async (signature) =>
+            await authStore.loginWithSIWE(address.value, signature, currentConnector.value),
         );
       }
     }
@@ -234,7 +245,7 @@ watch(
         const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
 
         await authStore
-          .loginWithSIWS(walletAddress, bs58.encode(signature), true)
+          .loginWithSIWS(walletAddress, bs58.encode(signature), 'siws')
           .catch((e) => console.error(e));
       }
     } catch {}
@@ -244,17 +255,11 @@ watch(
   },
 );
 
-const getExtraIdentities = computed(() => useAuthStore().getExtraIdentities);
-
-const getExtraIdentity = (provider) => {
-  return getExtraIdentities.value.find((identity) => identity.provider === provider);
-};
 const callback = async (response) => {
-  await useAuthStore().loginWithGoogle(response.credential, true);
+  await useAuthStore().loginWithGoogle(response.credential, 'google');
 };
 
 const removeProvider = async (provider) => {
-  console.log(provider);
   await useAuthStore().removeExtraIdentity(provider);
 };
 </script>

@@ -56,7 +56,7 @@ const isPreview = computed(() => route.name === 'preview');
 onMounted(async () => {
   if (!isPreview.value) {
     await userStore
-      .findUser(props.data.owner)
+      .findUser(props.data.owner, false)
       .then((res) => {
         if (res !== undefined && res.length) {
           qaAuthor.value = res[0];

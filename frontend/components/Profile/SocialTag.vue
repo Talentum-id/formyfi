@@ -14,7 +14,7 @@
       @click="$emit('remove')"
       icon="Cancel"
       :size="16"
-    ></Icon>
+    />
   </span>
   <span v-else class="tag" @click="$emit('connect')">
     <Icon

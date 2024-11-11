@@ -381,7 +381,7 @@ export const useAuthStore = defineStore('auth', {
       this.identity = this.actor = this.principal = null;
 
       await this.setUser();
-
+      localStorage.clear();
       await router.push('/login');
       window.location.reload();
     },
@@ -399,14 +399,17 @@ export const useAuthStore = defineStore('auth', {
 
       await this.actor
         .getExtraIdentities(extraIdentities)
-        .then((data) => (this.extraIdentities = data.map((item, index) => {
-          const identity = extraIdentities[index];
+        .then(
+          (data) =>
+            (this.extraIdentities = data.map((item, index) => {
+              const identity = extraIdentities[index];
 
-          return {
-            identity,
-            ...item[0],
-          };
-        })))
+              return {
+                identity,
+                ...item[0],
+              };
+            })),
+        )
         .catch((e) => console.error(e));
     },
     async fetchAdmins() {

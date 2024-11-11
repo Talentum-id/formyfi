@@ -456,17 +456,17 @@ export default {
 }
 
 .isTop {
-  border: 1px solid #C6DAFF !important;
-   &:hover {
-    border: 3px solid #EAEAFB !important;
-    background: #E8F0FF !important;
-    .top {
-      background: $white !important;
-      color: #0C102D !important;
-    }
+  border: 1px solid #c6daff !important;
+  &:hover {
+    border: 3px solid #eaeafb !important;
+    background: #e8f0ff !important;
+    //.top {
+    //  background: $white !important;
+    //  color: #0C102D !important;
+    //}
   }
   .top {
-    background: #A4C8FF !important;
+    background: #a4c8ff !important;
     color: $white !important;
   }
 }

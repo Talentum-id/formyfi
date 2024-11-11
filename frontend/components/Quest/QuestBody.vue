@@ -102,6 +102,7 @@ const openQuestion = (item) => {
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
+      word-break: break-all;
       font-weight: 400;
       line-height: 32px;
     }

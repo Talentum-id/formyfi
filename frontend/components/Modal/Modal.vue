@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 import { modal } from '@/mixins/modal';
 import Icon from '@/components/Icons/Icon.vue';
 import warning from '@/assets/icons/modal/warning.vue';
@@ -122,6 +122,14 @@ const showActionBtn = computed(() => {
   return !isLoading.value && action;
 });
 
+watchEffect(() => {
+  if (visible.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+
 modal.on('openModal', openModal);
 modal.on('closeModal', closeModal);
 </script>
@@ -139,6 +147,7 @@ modal.on('closeModal', closeModal);
   justify-content: center;
   .body {
     margin: auto;
+
     .close {
       width: 40px;
       height: 40px;
@@ -155,7 +164,10 @@ modal.on('closeModal', closeModal);
     .modal {
       display: flex;
       width: 480px;
+      max-height: 480px;
       padding: 32px;
+      overflow-y: auto;
+      overflow-x: hidden;
       flex-direction: column;
       align-items: center;
       gap: 24px;

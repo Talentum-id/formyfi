@@ -601,12 +601,12 @@ const loadImages = () => {
         for (let i = 0; i < chunkedPaths.length; i++) {
           const formData = new FormData();
 
-          chunkedPaths[i].forEach(path => formData.append('paths[]', path));
-          chunkedFiles[i].forEach(file => formData.append('files[]', file));
+          chunkedPaths[i].forEach((path) => formData.append('paths[]', path));
+          chunkedFiles[i].forEach((file) => formData.append('files[]', file));
 
           await axiosService
             .post(`${process.env.API_URL}upload-files`, formData)
-            .then(({ data }) => uploadFilePaths = [...uploadFilePaths, ...data])
+            .then(({ data }) => (uploadFilePaths = [...uploadFilePaths, ...data]))
             .catch((e) => console.error(e));
         }
 
@@ -729,6 +729,7 @@ const storeResponseAndClose = async () => {
     handleErrorModal();
   }
 };
+
 const closeModal = async () => {
   await emit('close');
   document.body.style.overflow = '';
@@ -995,8 +996,6 @@ watch(currentIndex, async () => {
       font-weight: 500;
       line-height: 40px; /* 125% */
       max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .question-description {

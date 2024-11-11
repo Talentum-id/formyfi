@@ -243,6 +243,8 @@
               placeholder="Points"
               v-model="question.points"
               :rule="!question.points && touched"
+              :isError="(!question.points || question.points) > 10 && touched"
+              errorText="Question is Required"
             />
           </div>
         </div>
@@ -371,7 +373,7 @@ import LogicBranching from '@/components/Creating/LogicBranching.vue';
 import NumberInput from '@/components/NumberInput.vue';
 
 const emits = defineEmits('refresh');
-
+const MAX_POINTS = 10;
 const loading = ref(false);
 const isImagesError = ref(false);
 const thxRequired = ref(false);
@@ -462,7 +464,9 @@ const thxValidation = computed(() => {
 });
 const validationCheck = computed(() => {
   const questionTitleIsEmpty = countOfQuestions.value.find((item) => !item.question);
-  const questionPointsIsEmpty = countOfQuestions.value.find((item) => !item.points);
+  const questionPointsIsEmptyOrBiggerThenMax = countOfQuestions.value.find(
+    (item) => !item.points || item.points > 10,
+  );
   const questionAnswerIsEmpty = countOfQuestions.value.find(
     (item) => item.type?.id === 1 && item.answers.find((el) => !el.answer),
   );
@@ -474,7 +478,7 @@ const validationCheck = computed(() => {
     !startDate.value ||
     !description.value ||
     !!questionTitleIsEmpty ||
-    !!questionPointsIsEmpty ||
+    !!questionPointsIsEmptyOrBiggerThenMax ||
     !!questionAnswerIsEmpty ||
     !thxValidation.value
   ) {
@@ -633,12 +637,12 @@ const loadFiles = () => {
         for (let i = 0; i < chunkedPaths.length; i++) {
           const formData = new FormData();
 
-          chunkedPaths[i].forEach(path => formData.append('paths[]', path));
-          chunkedFiles[i].forEach(file => formData.append('files[]', file));
+          chunkedPaths[i].forEach((path) => formData.append('paths[]', path));
+          chunkedFiles[i].forEach((file) => formData.append('files[]', file));
 
           await axiosService
             .post(`${process.env.API_URL}upload-files`, formData)
-            .then(({ data }) => uploadFilePaths = [...uploadFilePaths, ...data])
+            .then(({ data }) => (uploadFilePaths = [...uploadFilePaths, ...data]))
             .catch((e) => console.error(e));
         }
 

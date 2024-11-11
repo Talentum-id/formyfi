@@ -37,7 +37,11 @@ export const checkIsUri = (data) => {
 };
 
 export function shortenAddress(address, chars = 4) {
-  return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
+  if (address.length > 10) {
+    return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
+  }
+
+  return address;
 }
 
 export function isMoreThan3Days(now) {

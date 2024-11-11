@@ -172,15 +172,15 @@ const socialButtons = computed(
           rm: () => removeProvider(getExtraIdentity(connector.name)),
         };
       }),
-      // {
-      //   id: 1,
-      //   icon: dfinityIcon,
-      //   status: getExtraIdentity('ii'),
-      //   name: 'Internet Identity',
-      //   value: getExtraIdentity('ii') ? shortenAddress(getExtraIdentity('ii').title) : false,
-      //   fn: () => authStore.loginWithII(true),
-      //   rm: () => removeProvider(getExtraIdentity('ii')),
-      // },
+      {
+        id: 1,
+        icon: dfinityIcon,
+        status: getExtraIdentity('ii'),
+        name: 'Internet Identity',
+        value: getExtraIdentity('ii') ? shortenAddress(getExtraIdentity('ii').title) : false,
+        fn: () => authStore.loginWithII(true),
+        rm: () => removeProvider(getExtraIdentity('ii')),
+      },
       {
         id: 2,
         icon: 'Wallet-Default',
@@ -256,7 +256,7 @@ watch(
 );
 
 const callback = async (response) => {
-  await useAuthStore().loginWithGoogle(response.credential, 'google');
+  await useAuthStore().loginWithGoogle(response.credential, true);
 };
 
 const removeProvider = async (provider) => {

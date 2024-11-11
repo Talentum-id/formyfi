@@ -18,7 +18,7 @@ import { Signer } from '@slide-computer/signer';
 import { SignerClient } from '@slide-computer/signer-client';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 
-const INTERNET_IDENTITY_TITLE = 'Account linked';
+const INTERNET_IDENTITY_TITLE = 'Linked';
 const defaultOptions = {
   createOptions: {
     idleOptions: {
@@ -160,14 +160,14 @@ export const useAuthStore = defineStore('auth', {
       this.isAuthenticated = true;
       this.principal = localStorage.extraCharacter;
     },
-    async initII() {
+    async initII(isProfile = false) {
       const authClient = await AuthClient.create(defaultOptions.createOptions);
       this.authClient = authClient;
 
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
 
-      await this.initIdentityDependencies(identity, isAuthenticated);
+      await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
     },
     async initNFID() {
       const transport = new PostMessageTransport({
@@ -197,14 +197,14 @@ export const useAuthStore = defineStore('auth', {
 
       await this.initIdentityDependencies(identity, isAuthenticated);
     },
-    async initIdentityDependencies(identity, isAuthenticated, connectorName = false) {
+    async initIdentityDependencies(identity, isAuthenticated, isProfile = false) {
       const agent = identity ? new HttpAgent({ identity }) : null;
 
       if (agent !== null) {
         await agent.syncTime();
       }
 
-      if (connectorName) {
+      if (isProfile) {
         this.actor
           .addExtraIdentity(
             (await agent.getPrincipal()).toText(),
@@ -213,7 +213,6 @@ export const useAuthStore = defineStore('auth', {
               identity: process.env.DFX_ASSET_PRINCIPAL,
               character: localStorage.extraCharacter,
             },
-
             INTERNET_IDENTITY_TITLE,
             'ii',
           )
@@ -233,9 +232,9 @@ export const useAuthStore = defineStore('auth', {
       await useResponseStore().init();
       await useStatsStore().init();
     },
-    async loginWithII(connectorName = false) {
+    async loginWithII(isProfile = false) {
       if (this.authClient === null) {
-        await this.initII();
+        await this.initII(isProfile);
       }
 
       const authClient = toRaw(this.authClient);
@@ -246,12 +245,14 @@ export const useAuthStore = defineStore('auth', {
           const isAuthenticated = await authClient.isAuthenticated();
           const identity = isAuthenticated ? authClient.getIdentity() : null;
 
-          await this.initIdentityDependencies(identity, isAuthenticated, connectorName);
-          this.setAuthenticationStorage(this.isAuthenticated, 'ii');
+          await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
 
+          if (isProfile) return;
+
+          this.setAuthenticationStorage(this.isAuthenticated, 'ii');
           await this.initStores();
 
-          if (!this.isQuest && !connectorName) {
+          if (!this.isQuest) {
             await router.push('/sign-up');
           }
         },
@@ -281,9 +282,9 @@ export const useAuthStore = defineStore('auth', {
         },
       });
     },
-    async loginWithGoogle(credential, connectorName = false) {
+    async loginWithGoogle(credential, isProfile = false) {
       const { email } = decodeCredential(credential);
-      if (connectorName) {
+      if (isProfile) {
         this.actor
           .addExtraIdentity(
             email,
@@ -381,7 +382,6 @@ export const useAuthStore = defineStore('auth', {
       this.identity = this.actor = this.principal = null;
 
       await this.setUser();
-      localStorage.clear();
       await router.push('/login');
       window.location.reload();
     },

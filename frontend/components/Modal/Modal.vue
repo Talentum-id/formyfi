@@ -1,58 +1,98 @@
 <template>
-  <div class="modal-container" v-if="visible">
-    <div ref="modalContainer" class="body">
-      <div class="close" @click="closeModal" v-if="!isLoading">
-        <Icon icon="Cancel" :size="24"></Icon>
+  <TransitionRoot appear :show="visible" as="template" :key="'modal-one'">
+    <Dialog as="div" class="relative z-[999999999]" @close="closeModal">
+      <div
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        aria-hidden="true"
+      ></div>
+
+      <div class="fixed inset-0 flex items-center justify-center p-4">
+        <TransitionChild
+          as="div"
+          class="body"
+          enter="ease-out duration-300"
+          enter-from="opacity-0 scale-95"
+          enter-to="opacity-100 scale-100"
+          leave="ease-in duration-200"
+          leave-from="opacity-100 scale-100"
+          leave-to="opacity-0 scale-95"
+        >
+          <DialogPanel class="relative">
+            <!-- Close button -->
+            <div class="close absolute -right-10 -top-10" @click="closeModal" v-if="!isLoading">
+              <Icon icon="Cancel" :size="24" />
+            </div>
+            <!-- Content section -->
+            <div class="modal">
+              <div class="modal-content flex flex-col items-center gap-4">
+                <!-- Media content -->
+                <div v-if="customImg">
+                  <video v-if="isVideo" controls class="w-full">
+                    <source :src="customImg" type="video/mp4" />
+                  </video>
+                  <audio v-else-if="isAudio" controls class="w-full">
+                    <source :src="customImg" type="audio/ogg" />
+                    <source :src="customImg" type="audio/mp3" />
+                  </audio>
+                  <CustomImage v-else :image="customImg" height="160" width="160" />
+                </div>
+
+                <!-- Icon based on type -->
+                <component v-else :is="getIcon(type)" />
+
+                <!-- Title and message -->
+                <span class="title text-lg font-semibold">{{ title }}</span>
+                <span class="message text-sm text-gray-600">{{ message }}</span>
+
+                <!-- Bonus link section -->
+                <div v-if="refBonusData && refBonusData.link" class="w-full text-center mt-4">
+                  <span class="text-center text-lg font-bold"
+                    >Earn more points +{{ refBonusData.bonus }} per invite</span
+                  >
+                  <Link
+                    class="bg-gray-100 mt-2 block"
+                    :text="refBonusData.link"
+                    :value="refBonusData.link"
+                  />
+                </div>
+
+                <!-- Email input -->
+                <div v-if="isEmail" class="w-full mt-4">
+                  <Input placeholder="Email me a copy of my responses at" v-model="email" />
+                </div>
+
+                <!-- Action button -->
+                <button
+                  v-if="showActionBtn"
+                  class="action mt-4 w-full bg-blue-600 text-white rounded-lg py-2 font-medium"
+                  @click="handleAction"
+                >
+                  {{ actionText }}
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </TransitionChild>
       </div>
-      <div class="modal">
-        <div v-if="customImg">
-          <video v-if="isVideo" controls>
-            <source :src="customImg" type="video/mp4" />
-          </video>
-          <audio class="w-full" controls v-else-if="isAudio">
-            <source :src="customImg" type="audio/ogg" />
-            <source :src="customImg" type="audio/mp3" />
-            <source :src="customImg" type="audio/mpeg" />
-          </audio>
-          <CustomImage v-else :image="customImg" heigth="160" width="160"></CustomImage>
-        </div>
-        <component v-else :is="getIcon(type)" />
-        <span class="title">{{ title }}</span>
-        <span class="message">{{ message }}</span>
-        <div v-if="refBonusData && refBonusData.link" class="w-full text-center">
-          <span class="text-center text-2xl title"
-            >Earn more points +{{ refBonusData.bonus }} per invite</span
-          >
-          <Link
-            class="bg-white mt-4"
-            :text="refBonusData.link"
-            :value="refBonusData.link"
-            :size="28"
-          ></Link>
-        </div>
-        <div v-if="isEmail" class="flex flex-col gap-4 w-full">
-          <Input placeholder="Email me a copy of my responses at" v-model="email"></Input>
-        </div>
-        <div class="action" v-if="showActionBtn" @click="handleAction()">
-          {{ actionText }}
-        </div>
-      </div>
-    </div>
-  </div>
+    </Dialog>
+  </TransitionRoot>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watchEffect } from 'vue';
-import { modal } from '@/mixins/modal';
+import { ref, computed, watchEffect } from 'vue';
+import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue';
 import Icon from '@/components/Icons/Icon.vue';
+import CustomImage from '@/components/CustomImage.vue';
+import Link from '@/components/Table/Link.vue';
+import Input from '@/components/Input.vue';
+import { checkFileFormat } from '@/util/helpers';
+import { modal } from '@/mixins/modal';
 import warning from '@/assets/icons/modal/warning.vue';
 import success from '@/assets/icons/modal/success.vue';
 import error from '@/assets/icons/modal/error.vue';
 import loading from '@/assets/icons/modal/loading.vue';
-import Link from '@/components/Table/Link.vue';
-import Input from '@/components/Input.vue';
-import { checkFileFormat } from '@/util/helpers';
-import CustomImage from '@/components/CustomImage.vue';
+
+// Props and state variables
 const visible = ref(false);
 const isEmail = ref(false);
 const title = ref('');
@@ -67,33 +107,25 @@ let sendEmail = null;
 const isVideo = ref(false);
 const isAudio = ref(false);
 
+// Close and action functions
 const closeModal = () => {
   visible.value = false;
 };
 const handleAction = () => {
   if (action && typeof action === 'function') {
-    if (isEmail.value && email.value) {
-      sendEmail(email.value);
-    }
+    if (isEmail.value && email.value) sendEmail(email.value);
     action();
   }
   closeModal();
 };
 
+// Icon component based on type
 const getIcon = (type) => {
-  switch (type) {
-    case 'warning':
-      return warning;
-    case 'success':
-      return success;
-    case 'error':
-      return error;
-    case 'loading':
-      return loading;
-    default:
-      return warning;
-  }
+  const icons = { warning, success, error, loading };
+  return icons[type] || warning;
 };
+
+// Modal open handler
 const openModal = async (data) => {
   visible.value = true;
   title.value = data.title;
@@ -105,34 +137,29 @@ const openModal = async (data) => {
   isEmail.value = data.isEmail;
   action = data.fn;
   sendEmail = data.sendEmail;
-
   await checkFileType();
 };
+
+// File format checker
 const checkFileType = async () => {
   isVideo.value = await checkFileFormat(customImg.value, 'video');
-  if (!isVideo.value) {
-    isAudio.value = await checkFileFormat(customImg.value, 'audio');
-  }
+  if (!isVideo.value) isAudio.value = await checkFileFormat(customImg.value, 'audio');
 };
 
-const isLoading = computed(() => {
-  return type.value === 'loading';
-});
-const showActionBtn = computed(() => {
-  return !isLoading.value && action;
-});
+// Computed properties
+const isLoading = computed(() => type.value === 'loading');
+const showActionBtn = computed(() => !isLoading.value && action);
 
+// Disable scroll when modal is visible
 watchEffect(() => {
-  if (visible.value) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = '';
-  }
+  document.body.style.overflow = visible.value ? 'hidden' : '';
 });
 
+// Listen to open/close events from the modal mixin
 modal.on('openModal', openModal);
 modal.on('closeModal', closeModal);
 </script>
+
 <style scoped lang="scss">
 .modal-container {
   z-index: 999999999;
@@ -142,83 +169,45 @@ modal.on('closeModal', closeModal);
   width: 100vw;
   height: 100vh;
   background: rgba(26, 29, 41, 0.4);
-  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
-  .body {
-    margin: auto;
-
-    .close {
-      width: 40px;
-      height: 40px;
-      border-radius: 24px;
-      background: #f5f7fa;
-      margin-left: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      &:hover {
-        cursor: pointer;
-      }
+}
+.body {
+  margin: auto;
+  .close {
+    width: 40px;
+    height: 40px;
+    border-radius: 24px;
+    background: #f5f7fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      cursor: pointer;
     }
-    .modal {
-      display: flex;
-      width: 480px;
-      max-height: 480px;
-      padding: 32px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      border-radius: 16px;
-      background: #f5f7fa;
-      img {
-        width: 80px;
-        height: 80px;
-      }
-      .title {
-        color: $primary-text;
-        font-variant-numeric: slashed-zero;
-        font-family: $default_font;
-        font-size: 24px;
-        font-style: normal;
-        word-break: break-all;
-
-        font-weight: 500;
-        line-height: 40px; /* 166.667% */
-      }
-      .message {
-        color: $primary-text;
-        text-align: center;
-        font-variant-numeric: lining-nums tabular-nums slashed-zero;
-        font-family: $default_font;
-        font-size: 16px;
-        word-break: break-all;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 24px; /* 150% */
-      }
-      .action {
-        cursor: pointer;
-        width: 100%;
-        display: flex;
-        height: 40px;
-        padding: 7px 12px;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        flex: 1 0 0;
-        border-radius: 8px;
-        background: $blue;
-        color: $white;
-        font-variant-numeric: lining-nums tabular-nums slashed-zero;
-        font-family: $default_font;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 24px; /* 150% */
-      }
+  }
+  .modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 480px;
+    padding: 32px;
+    border-radius: 16px;
+    background: #f5f7fa;
+    .title {
+      color: #333;
+      font-size: 24px;
+      font-weight: 500;
+    }
+    .message {
+      color: #666;
+      text-align: center;
+      font-size: 16px;
+    }
+    .action {
+      font-size: 16px;
+      font-weight: 500;
     }
   }
 }

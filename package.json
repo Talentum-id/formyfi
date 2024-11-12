@@ -14,6 +14,7 @@
     "@dfinity/identity": "2.1.3",
     "@dfinity/principal": "2.1.3",
     "@element-plus/icons-vue": "^2.3.1",
+    "@headlessui/vue": "1.7.13",
     "@mobiscroll/javascript": "^5.22.2",
     "@slide-computer/signer": "^3.6.4",
     "@slide-computer/signer-agent": "^3.6.4",

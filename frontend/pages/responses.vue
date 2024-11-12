@@ -8,17 +8,16 @@
         </div>
         <h1 class="title">Form responses list</h1>
         <div v-if="pagination">
-          <StatCardSmall
-            title="Total responses"
-            icon="Tasks"
-            :value="Number(pagination.total)"
-          />
+          <StatCardSmall title="Total responses" icon="Tasks" :value="Number(pagination.total)" />
         </div>
         <div class="actions" v-if="qa">
           <div class="title">
             For the form
             <router-link :to="`/form/${qa.shareLink}`" class="link"
-              >{{ qa.title }} <img src="@/assets/icons/show.svg" alt=""
+              ><span>
+                {{ qa.title }}
+              </span>
+              <img src="@/assets/icons/show.svg" alt=""
             /></router-link>
           </div>
           <ExportTable
@@ -198,7 +197,7 @@ const fetchFullList = async () => {
       fullList.value = res?.answers.map((item) => {
         let answersObject = item.answers.reduce((acc, el, index) => {
           if (qa.value.questions[index].questionType === 'date' && el.answer.trim() !== '') {
-            el.answer = (new Date(el.answer * 1000)).toDateString();
+            el.answer = new Date(el.answer * 1000).toDateString();
           }
 
           acc[`Question ${index + 1} : ${res.quest.questions[index].question}`] =
@@ -340,6 +339,11 @@ const sortHandle = async (name, type) => {
       font-weight: 500;
       line-height: 24px;
       cursor: pointer;
+      span {
+        max-width: 220px;
+        overflow: clip;
+        text-overflow: ellipsis;
+      }
     }
   }
 }

@@ -1,14 +1,5 @@
 <template>
-  <BaseModal
-    :width="600"
-    :top="10"
-    :rightCustom="10"
-    :bottom="10"
-    customHeight="auto"
-    :visible="true"
-    btnLeft
-    @close="$emit('close')"
-  >
+  <BaseModalNew :visible="true" @close="$emit('close')">
     <div class="create-task_wrapper">
       <div class="title_wrapper">
         <div class="title">Create Q&A</div>
@@ -342,12 +333,11 @@
         </div>
       </div>
     </div>
-    <Alert :message="errorMessage" type="error" v-if="showError"></Alert>
-  </BaseModal>
+  </BaseModalNew>
+  <Alert :message="errorMessage" type="error" v-if="showError"></Alert>
 </template>
 <script setup>
 import { computed, ref, watch } from 'vue';
-import BaseModal from '@/components/BaseModal.vue';
 import Select from '@/components/Select.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
@@ -378,9 +368,10 @@ import TwitterBlock from '@/components/Creating/TwitterBlock.vue';
 import DiscordBlock from '@/components/Creating/DiscordBlock.vue';
 import LogicBranching from '@/components/Creating/LogicBranching.vue';
 import NumberInput from '@/components/NumberInput.vue';
+import BaseModalNew from '@/components/BaseModalNew.vue';
+import { TransitionRoot } from '@headlessui/vue';
 
 const emits = defineEmits('refresh');
-const MAX_POINTS = 10;
 const loading = ref(false);
 const isImagesError = ref(false);
 const thxRequired = ref(false);

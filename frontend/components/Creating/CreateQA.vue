@@ -242,8 +242,8 @@
               class="w-[136px]"
               placeholder="Points"
               v-model="question.points"
-              :rule="!question.points && touched"
-              :isError="(!question.points || question.points) > 10 && touched"
+              :rule="question.points < 1 || question.points > 10"
+              :isError="question.points < 1 || question.points > 10"
               errorText="Points value must be in the range of 1 and 10"
             />
           </div>
@@ -312,7 +312,7 @@
             class="w-[136px]"
             placeholder="Number"
             v-model="refCodePoints"
-            :isError="(refCode && !refCodePoints.points || refCodePoints.points > 10) && touched"
+            :isError="((refCode && !refCodePoints.points) || refCodePoints.points > 10) && touched"
             errorText="Points value must be in the range of 1 and 10"
           />
         </div>
@@ -478,7 +478,7 @@ const validationCheck = computed(() => {
     (item) => item.type?.id === 1 && item.answers.find((el) => !el.answer),
   );
 
-  if (refCode.value && refCodePoints.value < 1 || refCodePoints.value > 10) {
+  if ((refCode.value && refCodePoints.value < 1) || refCodePoints.value > 10) {
     return false;
   }
 

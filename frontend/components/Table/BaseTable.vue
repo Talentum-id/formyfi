@@ -458,8 +458,8 @@ export default {
 .isTop {
   border: 1px solid #c6daff !important;
   &:hover {
-    border: 3px solid #eaeafb !important;
-    background: #e8f0ff !important;
+    // border: 3px solid #eaeafb !important;
+    //background: #e8f0ff !important;
     //.top {
     //  background: $white !important;
     //  color: #0C102D !important;

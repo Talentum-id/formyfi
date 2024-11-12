@@ -990,6 +990,7 @@ watch(currentIndex, async () => {
       color: $primary-text;
       text-align: center;
       font-variant-numeric: slashed-zero;
+      word-break: break-all;
       font-family: $default_font;
       font-size: 32px;
       font-style: normal;
@@ -1009,6 +1010,7 @@ watch(currentIndex, async () => {
       font-size: 20px;
       font-style: normal;
       font-weight: 500;
+      word-break: break-all;
       line-height: 32px; /* 160% */
     }
 

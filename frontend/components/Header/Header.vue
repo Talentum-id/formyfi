@@ -13,9 +13,13 @@
         />
         <img v-else src="@/assets/images/default-avatar.png" alt="" class="cursor-pointer" />
 
-        <div class="user-info">
-          <span>{{ user.username }}</span>
-          <span class="fullname">{{ user.fullName.trim() || 'User' }} </span>
+        <div class="user-info overflow-ellipsis">
+          <div class="max-w-[120px] overflow-x-clip text-ellipsis">
+            {{ user.username }}
+          </div>
+          <span class="fullname max-w-[120px] overflow-x-clip text-ellipsis"
+            >{{ user.fullName.trim() || 'User' }}
+          </span>
         </div>
         <div v-if="showTooltips" id="tooltip-confirmation">
           <div class="tooltip-arrow"></div>

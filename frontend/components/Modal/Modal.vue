@@ -183,6 +183,8 @@ modal.on('closeModal', closeModal);
         font-family: $default_font;
         font-size: 24px;
         font-style: normal;
+        word-break: break-all;
+
         font-weight: 500;
         line-height: 40px; /* 166.667% */
       }
@@ -192,6 +194,7 @@ modal.on('closeModal', closeModal);
         font-variant-numeric: lining-nums tabular-nums slashed-zero;
         font-family: $default_font;
         font-size: 16px;
+        word-break: break-all;
         font-style: normal;
         font-weight: 400;
         line-height: 24px; /* 150% */

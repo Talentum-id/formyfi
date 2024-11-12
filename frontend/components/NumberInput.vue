@@ -17,8 +17,8 @@
       :step="step"
       @keydown="handleKeyDown"
     />
-    <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>
   </div>
+  <div v-if="errorText && isError" class="error-message">{{ errorText }}</div>
 </template>
 
 <script>

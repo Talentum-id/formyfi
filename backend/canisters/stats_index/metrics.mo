@@ -295,8 +295,8 @@ actor MetricsIndex {
     };
   };
 
-  public func addPointsPerProject(project : Text, identity : Text, pointsAddition: ?Nat) : async () {
-    let points = switch(pointsAddition) {
+  public func addPointsPerProject(project : Text, identity : Text, pointsAddition : ?Nat) : async () {
+    let points = switch (pointsAddition) {
       case null 0;
       case (?result) result;
     };
@@ -359,8 +359,8 @@ actor MetricsIndex {
     };
   };
 
-  public func incrementFormCompleted(qaOwner : Text, identity : Text, points : Nat) {
-    await incrementGeneralPoints(identity, points);
+  public func incrementFormCompleted(qaOwner : Text, identity : Text, generalPoints : Nat, points : Nat) {
+    await incrementGeneralPoints(identity, generalPoints);
     await incrementPointsPerProject(qaOwner, identity, points);
   };
 

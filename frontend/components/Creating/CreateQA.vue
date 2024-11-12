@@ -244,7 +244,7 @@
               v-model="question.points"
               :rule="!question.points && touched"
               :isError="(!question.points || question.points) > 10 && touched"
-              errorText="Question is Required"
+              errorText="Points value must be in the range of 1 and 10"
             />
           </div>
         </div>
@@ -307,7 +307,14 @@
         </div>
         <div class="section_wrapper" v-if="refCode">
           <div class="section_wrapper-title">Referral Bonus Points</div>
-          <NumberInput withoutName class="w-[136px]" placeholder="Number" v-model="refCodePoints" />
+          <NumberInput
+            withoutName
+            class="w-[136px]"
+            placeholder="Number"
+            v-model="refCodePoints"
+            :isError="(refCode && !refCodePoints.points || refCodePoints.points > 10) && touched"
+            errorText="Points value must be in the range of 1 and 10"
+          />
         </div>
         <div class="line my-8" />
         <div class="flex justify-between">
@@ -470,6 +477,10 @@ const validationCheck = computed(() => {
   const questionAnswerIsEmpty = countOfQuestions.value.find(
     (item) => item.type?.id === 1 && item.answers.find((el) => !el.answer),
   );
+
+  if (refCode.value && refCodePoints.value < 1 || refCodePoints.value > 10) {
+    return false;
+  }
 
   if (
     !questionName.value ||

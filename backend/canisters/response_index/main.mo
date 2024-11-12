@@ -109,6 +109,7 @@ actor ResponseIndex {
           case null {
             var index = 0;
             var answersCount = 0;
+            var generalPoints = 0;
 
             if (answers.size() != questions.size()) {
               Debug.trap("The answers don't match the questions");
@@ -118,6 +119,7 @@ actor ResponseIndex {
               let sanitizedAnswer = Text.trim(answer.answer, #char ' ');
 
               if (sanitizedAnswer != "" and answer.isCorrect == true) {
+                generalPoints += 1;
                 answersCount += switch (qa.quest.questions[index].points) {
                   case null 1;
                   case (?number) number;
@@ -130,7 +132,7 @@ actor ResponseIndex {
             responses.put(responseIdentifier, answers);
 
             if (user != null) {
-              MetricsIndex.incrementFormCompleted(qa.owner, identity, answersCount);
+              MetricsIndex.incrementFormCompleted(qa.owner, identity, generalPoints, answersCount);
 
               if (refCode != "") {
                 await creditPoints(identity, qa, refCode);

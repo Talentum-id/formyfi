@@ -261,6 +261,7 @@ actor FormIndex {
       end;
       shareLink;
       questions;
+      refCodePoints;
     } = data;
 
     if (
@@ -275,9 +276,26 @@ actor FormIndex {
 
     for (question in questions.vals()) {
       let isValidType = Array.find<Text>(QUESTION_TYPES, func x = x == question.questionType);
+      switch (question.points) {
+        case null ignore null;
+        case (?points) {
+          if (points < 1 or points > 10) {
+            return false;
+          };
+        };
+      };
 
       if (isValidType == null) {
         return false;
+      };
+    };
+
+    switch (refCodePoints) {
+      case null ignore null;
+      case (?points) {
+        if (points < 1 or points > 10) {
+          return false;
+        };
       };
     };
 

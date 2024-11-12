@@ -64,6 +64,7 @@
     </div>
   </Default>
   <Alert :message="error" type="error" v-if="error.trim().length > 0" />
+  <Alert :message="successMessage" type="success" v-if="successMessage.trim().length > 0" />
 </template>
 <script setup>
 import BannerUploader from '@/components/Profile/BannerUploader.vue';
@@ -103,7 +104,9 @@ const user = computed(() => authStore.getProfileData);
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
 
 let name = ref('');
+const loading = ref(false);
 const error = ref('');
+const successMessage = ref('');
 
 onMounted(async () => {
   disconnect();

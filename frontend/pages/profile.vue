@@ -39,6 +39,7 @@
               @connect="connector.fn()"
               @remove="connector.rm()"
               :key="connector.id"
+              :disabled="socialLoading"
               :hide-remove="connector.name === user.connector || (user.connector === 'ii' && connector.name === 'Internet Identity')"
             >
               {{ connector.name }} -- {{ user.connector }}
@@ -108,6 +109,7 @@ const user = computed(() => authStore.getProfileData);
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
 
 let name = ref('');
+const socialLoading = ref(false);
 const loading = ref(false);
 const error = ref('');
 const successMessage = ref('');
@@ -177,19 +179,29 @@ const socialButtons = computed(
               ? shortenAddress(getExtraIdentity(connector.name).title)
               : false,
           fn: async () => {
+            if (socialLoading.value) return;
+
+            socialLoading.value = true;
             try {
               await connectAsync({ connector, chainId });
               currentConnector.value = connector.name;
             } catch {
               invokeErrorAlert();
+            } finally {
+              socialLoading.value = false;
             }
           },
           rm: async () => {
+            if (socialLoading.value) return;
+
+            socialLoading.value = true;
             try {
               await removeProvider(getExtraIdentity(connector.name));
               invokeSuccessAlert();
             } catch {
               invokeErrorAlert();
+            } finally {
+              socialLoading.value = false;
             }
           },
         };
@@ -205,20 +217,30 @@ const socialButtons = computed(
             ? getExtraIdentity('ii').title
             : false,
         fn: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
           try {
             await authStore.loginWithII(true);
             invokeSuccessAlert();
           } catch (e) {
             invokeErrorAlert();
             console.error(e);
+          } finally {
+            socialLoading.value = false;
           }
         },
         rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
           try {
             await removeProvider(getExtraIdentity('ii'));
             invokeSuccessAlert();
           } catch {
             invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
           }
         },
       },
@@ -233,18 +255,28 @@ const socialButtons = computed(
             ? shortenAddress(getExtraIdentity('siws').title)
             : false,
         fn: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
           try {
             await triggerClick();
           } catch {
             invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
           }
         },
         rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
           try {
             await removeProvider(getExtraIdentity('siws'));
             invokeSuccessAlert();
           } catch {
             invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
           }
         },
       },
@@ -261,11 +293,16 @@ const socialButtons = computed(
         fn: async () => {
         },
         rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
           try {
             await removeProvider(getExtraIdentity('google'));
             invokeSuccessAlert();
           } catch {
             invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
           }
         },
       },
@@ -345,11 +382,16 @@ watch(
 );
 
 const callback = async (response) => {
+  if (socialLoading.value) return;
+
+  socialLoading.value = true;
   try {
     await useAuthStore().loginWithGoogle(response.credential, true);
     invokeSuccessAlert();
   } catch {
     invokeErrorAlert();
+  } finally {
+    socialLoading.value = false;
   }
 };
 

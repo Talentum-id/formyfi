@@ -1,5 +1,5 @@
 <template>
-  <span class="tag active" v-if="data.status" @click="goToLink(data.value)">
+  <span class="tag active" :class="{'disabled': disabled}" v-if="data.status" @click="goToLink(data.value)">
     <Icon
       v-if="data.icon.includes('-Default') || data.icon === 'Google'"
       class="icon"
@@ -16,7 +16,7 @@
       :size="16"
     />
   </span>
-  <span v-else class="tag" @click="$emit('connect')">
+  <span v-else class="tag" :class="{'disabled': disabled}" @click="$emit('connect')">
     <Icon
       v-if="data.icon.includes('-Default') || data.icon === 'Google'"
       class="icon"
@@ -35,6 +35,9 @@ export default {
   name: 'SocialTag',
   components: { Icon },
   props: {
+    disabled: {
+      type: Boolean,
+    },
     hideRemove: {
       type: Boolean,
       default: false,
@@ -72,6 +75,8 @@ export default {
       return url;
     },
     goToLink(value) {
+      if (this.disabled) return;
+
       if (this.hrefToLink && value) {
         window.open(this.ensureProtocol(value), '_blank').focus();
       }
@@ -106,6 +111,9 @@ export default {
 }
 .tag.active {
   background: $default-bg;
+}
+.tag.disabled {
+  cursor: not-allowed;
 }
 .icon {
   margin-right: 10px;

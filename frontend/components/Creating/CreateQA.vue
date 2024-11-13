@@ -303,7 +303,7 @@
             class="w-[136px]"
             placeholder="Number"
             v-model="refCodePoints"
-            :isError="((refCode && !refCodePoints.points) || refCodePoints.points > 10) && touched"
+            :isError="(refCode && !refCodePoints) || refCodePoints > 10 || refCodePoints < 1"
             errorText="Points value must be in the range of 1 and 10"
           />
         </div>

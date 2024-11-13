@@ -22,28 +22,33 @@ const errors = ref({
 
 onMounted(async () => {
   try {
-    await authStore.findUser(authStore.getPrincipal)
-      .then(async (res) => {
-        if (res.length) {
-          await authStore.fetchExtraIdentities(res[0].extraIdentities ?? []);
-          await authStore.setUser(res[0]);
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
+    await authStore.findUser(authStore.getPrincipal).then(async (res) => {
+      if (res.length) {
+        await authStore.fetchExtraIdentities(res[0].extraIdentities ?? []);
+        await authStore.setUser(res[0]);
 
-          if (!useAuthStore().isQuest) {
-            await router.push('/');
-            if (
-              (res[0].reload !== undefined && res[0].reload) ||
-              reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1
-            ) {
-              await window.location.reload();
-            }
+        if (!useAuthStore().isQuest) {
+          await router.push('/');
+          if (
+            (res[0].reload !== undefined && res[0].reload) ||
+            reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1
+          ) {
+            await window.location.reload();
           }
-          emit('success');
         }
-      });
+        emit('success');
+      }
+    });
   } catch (e) {
     console.error(e);
     emit('reject');
   }
+  await modal.emit('closeModal', {});
 });
 
 const validationError = computed(() => {
@@ -103,7 +108,8 @@ const validateUsername = () => {
   if (!alphaNumericWithDot.test(form.value.username)) {
     errors.value.username = 'Username can only consist of alphanumeric characters and dot';
   } else {
-    authStore.findUserByUsername(form.value.username)
+    authStore
+      .findUserByUsername(form.value.username)
       .then((status) => {
         if (status) {
           errors.value.username = 'This username already exists';

@@ -32,14 +32,17 @@
             <span>Pricing Plan</span>
             <Badge text="Free" type="claim" transparent />
           </div>
-          <div class="flex gap-2 is-text flex-wrap">
+          <div v-if="user.connector !== 'ii'" class="flex gap-2 is-text flex-wrap">
             <SocialTag
               v-for="connector in socialButtons"
               :data="connector"
               @connect="connector.fn()"
               @remove="connector.rm()"
               :key="connector.id"
-            />
+              :hide-remove="connector.name === user.connector || (user.connector === 'ii' && connector.name === 'Internet Identity')"
+            >
+              {{ connector.name }} -- {{ user.connector }}
+            </SocialTag>
             <div v-show="false" class="w-0 h-0">
               <WalletMultiButton />
             </div>
@@ -83,7 +86,8 @@ import SocialTag from '@/components/Profile/SocialTag.vue';
 import { useAccount, useChainId, useConnect, useDisconnect, useSignMessage } from '@wagmi/vue';
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
-const { connect, connectors } = useConnect();
+
+const { connectAsync, connectors } = useConnect();
 const { address, isConnected } = useAccount();
 const { signMessageAsync } = useSignMessage({ config });
 const chainId = useChainId();
@@ -112,9 +116,11 @@ onMounted(async () => {
   disconnect();
   await statsStore.findStatistics();
 });
+
 function triggerClick() {
   document.querySelector('.swv-button-trigger').click();
 }
+
 const setName = useDebounceFn(async () => {
   const validatedName = name.value.trim().toLowerCase();
   const alphaNumericWithDot = /^[a-zA-Z0-9.]+$/;
@@ -163,59 +169,134 @@ const socialButtons = computed(
         return {
           id: connector.id,
           icon: connector.icon,
-          status: getExtraIdentity(connector.name),
+          status: user.value.connector === connector.name || getExtraIdentity(connector.name),
           name: connector.name,
-          value: getExtraIdentity(connector.name)
-            ? shortenAddress(getExtraIdentity(connector.name).title)
-            : false,
-          fn: () => {
-            connect({ connector, chainId });
-            currentConnector.value = connector.name;
+          value: user.value.connector === connector.name
+            ? shortenAddress(user.value.title)
+            : getExtraIdentity(connector.name)
+              ? shortenAddress(getExtraIdentity(connector.name).title)
+              : false,
+          fn: async () => {
+            try {
+              await connectAsync({ connector, chainId });
+              currentConnector.value = connector.name;
+            } catch {
+              invokeErrorAlert();
+            }
           },
-          rm: () => removeProvider(getExtraIdentity(connector.name)),
+          rm: async () => {
+            try {
+              await removeProvider(getExtraIdentity(connector.name));
+              invokeSuccessAlert();
+            } catch {
+              invokeErrorAlert();
+            }
+          },
         };
       }),
       {
         id: 1,
         icon: dfinityIcon,
-        status: getExtraIdentity('ii'),
+        status: user.value.connector === 'ii' || getExtraIdentity('ii'),
         name: 'Internet Identity',
-        value: getExtraIdentity('ii') ? shortenAddress(getExtraIdentity('ii').title) : false,
-        fn: () => authStore.loginWithII(true),
-        rm: () => removeProvider(getExtraIdentity('ii')),
+        value: user.value.connector === 'ii'
+          ? user.value.title
+          : getExtraIdentity('ii')
+            ? getExtraIdentity('ii').title
+            : false,
+        fn: async () => {
+          try {
+            await authStore.loginWithII(true);
+            invokeSuccessAlert();
+          } catch (e) {
+            invokeErrorAlert();
+            console.error(e);
+          }
+        },
+        rm: async () => {
+          try {
+            await removeProvider(getExtraIdentity('ii'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          }
+        },
       },
       {
         id: 2,
         icon: 'Wallet-Default',
-        status: !!getExtraIdentity('siws'),
+        status: user.value.connector === 'siws' || !!getExtraIdentity('siws'),
         name: 'Solana Wallets',
-        value: getExtraIdentity('siws') ? shortenAddress(getExtraIdentity('siws').title) : false,
-        fn: () => triggerClick(),
-        rm: () => removeProvider(getExtraIdentity('siws')),
+        value: user.value.connector === 'siws'
+          ? shortenAddress(user.value.title)
+          : getExtraIdentity('siws')
+            ? shortenAddress(getExtraIdentity('siws').title)
+            : false,
+        fn: async () => {
+          try {
+            await triggerClick();
+          } catch {
+            invokeErrorAlert();
+          }
+        },
+        rm: async () => {
+          try {
+            await removeProvider(getExtraIdentity('siws'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          }
+        },
       },
       getExtraIdentity('google') && {
         id: 3,
         icon: 'Google',
-        status: !!getExtraIdentity('google'),
+        status: user.value.connector === 'google' || !!getExtraIdentity('google'),
         name: 'Google',
-        value: getExtraIdentity('google') ? getExtraIdentity('google').title : false,
-        fn: () => {},
-        rm: () => removeProvider(getExtraIdentity('google')),
+        value: user.value.connector === 'google'
+          ? user.value.title
+          : getExtraIdentity('google')
+            ? getExtraIdentity('google').title
+            : false,
+        fn: async () => {
+        },
+        rm: async () => {
+          try {
+            await removeProvider(getExtraIdentity('google'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          }
+        },
       },
     ].filter((item) => item),
   { dependsOn: [getExtraIdentities] },
 );
+
+const invokeSuccessAlert = () => {
+  successMessage.value = 'Operation successfully completed';
+
+  setTimeout(() => successMessage.value = '', 3000);
+};
+const invokeErrorAlert = () => {
+  error.value = 'Operation failed. Try again later.';
+
+  setTimeout(() => error.value = '', 3000);
+};
 watch(
   isConnected,
   async (value) => {
     if (value) {
-      const message = await authStore.prepareSIWELogin(address.value);
+      const message =
+        await authStore.prepareSIWELogin(address.value);
       if (message === null) {
         await disconnect();
       } else {
         await signMessageAsync({ message }).then(
           async (signature) =>
-            await authStore.loginWithSIWE(address.value, signature, currentConnector.value),
+            await authStore.loginWithSIWE(address.value, signature, currentConnector.value)
+              .then(() => invokeSuccessAlert())
+              .catch(() => invokeErrorAlert()),
         );
       }
     }
@@ -235,23 +316,28 @@ watch(
 
         const encodedMessage = new TextEncoder().encode(
           `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-            `${siwsMessage.address}\n\n` +
-            `${siwsMessage.statement}\n\n` +
-            `URI: ${siwsMessage.uri}\n` +
-            `Version: ${siwsMessage.version}\n` +
-            `Chain ID: ${siwsMessage.chain_id}\n` +
-            `Nonce: ${siwsMessage.nonce}\n` +
-            `Issued At: ${new Date(Number(siwsMessage.issued_at / 1_000_000n)).toISOString()}\n` +
-            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / 1_000_000n)).toISOString()}`,
+          `${siwsMessage.address}\n\n` +
+          `${siwsMessage.statement}\n\n` +
+          `URI: ${siwsMessage.uri}\n` +
+          `Version: ${siwsMessage.version}\n` +
+          `Chain ID: ${siwsMessage.chain_id}\n` +
+          `Nonce: ${siwsMessage.nonce}\n` +
+          `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
+          `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
         );
 
         const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
 
         await authStore
           .loginWithSIWS(walletAddress, bs58.encode(signature), 'siws')
-          .catch((e) => console.error(e));
+          .then(() => invokeSuccessAlert())
+          .catch((e) => {
+            invokeErrorAlert();
+            console.error(e);
+          });
       }
-    } catch {}
+    } catch {
+    }
   },
   {
     immediate: true,
@@ -259,7 +345,12 @@ watch(
 );
 
 const callback = async (response) => {
-  await useAuthStore().loginWithGoogle(response.credential, true);
+  try {
+    await useAuthStore().loginWithGoogle(response.credential, true);
+    invokeSuccessAlert();
+  } catch {
+    invokeErrorAlert();
+  }
 };
 
 const removeProvider = async (provider) => {
@@ -271,11 +362,13 @@ const removeProvider = async (provider) => {
 .profile {
   display: flex;
   flex-direction: column;
+
   .naming {
     margin-top: 140px;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+
     .info {
       margin-left: 24px;
       display: flex;
@@ -284,12 +377,14 @@ const removeProvider = async (provider) => {
       width: 100%;
     }
   }
+
   .info-block {
     display: flex;
     justify-content: space-between;
     margin-top: 40px;
     margin-bottom: 80px;
     gap: 40px;
+
     .sidebar {
       min-width: 360px;
       width: 100%;
@@ -297,6 +392,7 @@ const removeProvider = async (provider) => {
       flex-direction: column;
       gap: 20px;
       margin-bottom: 40px;
+
       .points {
         display: flex;
         justify-content: space-between;
@@ -308,6 +404,7 @@ const removeProvider = async (provider) => {
         border-radius: 16px;
       }
     }
+
     .content {
       display: flex;
       flex-direction: column;
@@ -318,10 +415,12 @@ const removeProvider = async (provider) => {
       background: $white;
       border: 1px solid $default-border;
       border-radius: 16px;
+
       .info-cards {
         display: flex;
         gap: 16px;
       }
+
       .container {
         display: flex;
         flex-direction: column;

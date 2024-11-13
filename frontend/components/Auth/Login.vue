@@ -39,12 +39,12 @@ const filteredConnectors = computed(() => {
 
 const callback = async (response) => {
   try {
+    localStorage.connector = 'google';
     await useAuthStore()
       .loginWithGoogle(response.credential)
-      .then(() => {
-        emit('success');
-      });
+      .then(() => emit('success'));
   } catch (e) {
+    localStorage.removeItem('connector');
     emit('reject');
   }
 };
@@ -65,12 +65,23 @@ const readCode = () => {
 
 const IIConnect = async () => {
   try {
+    localStorage.connector = 'ii';
     await authStore.loginWithII();
   } catch (e) {
+    localStorage.removeItem('connector');
     emit('reject');
   }
 };
+const connectSIWE = async (connector, chainId) => {
+  localStorage.connector = connector.name;
 
+  try {
+    await connect({ connector, chainId });
+  } catch (e) {
+    localStorage.removeItem('connector');
+    emit('reject');
+  }
+};
 const logout = async () => {
   await disconnect();
   await authStore.logout();
@@ -134,6 +145,7 @@ watch(
   async (value) => {
     try {
       if (value) {
+        localStorage.connector = 'siws';
         const walletAddress = publicKey.value.toBase58();
         let siwsMessage = await authStore.prepareSIWSLogin(walletAddress);
 
@@ -142,14 +154,14 @@ watch(
         } else {
           const encodedMessage = new TextEncoder().encode(
             `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-              `${siwsMessage.address}\n\n` +
-              `${siwsMessage.statement}\n\n` +
-              `URI: ${siwsMessage.uri}\n` +
-              `Version: ${siwsMessage.version}\n` +
-              `Chain ID: ${siwsMessage.chain_id}\n` +
-              `Nonce: ${siwsMessage.nonce}\n` +
-              `Issued At: ${new Date(Number(siwsMessage.issued_at / 1_000_000n)).toISOString()}\n` +
-              `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / 1_000_000n)).toISOString()}`,
+            `${siwsMessage.address}\n\n` +
+            `${siwsMessage.statement}\n\n` +
+            `URI: ${siwsMessage.uri}\n` +
+            `Version: ${siwsMessage.version}\n` +
+            `Chain ID: ${siwsMessage.chain_id}\n` +
+            `Nonce: ${siwsMessage.nonce}\n` +
+            `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
+            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
           );
 
           const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
@@ -187,7 +199,10 @@ const props = defineProps({
         </div>
       </AuthButton>
       <template v-for="connector in filteredConnectors" :key="connector.name">
-        <AuthButton v-if="connector.id !== 'metaMaskSDK'" @click="connect({ connector, chainId })">
+        <AuthButton
+          v-if="connector.id !== 'metaMaskSDK'"
+          @click="connectSIWE(connector, chainId)"
+        >
           <div class="container">
             <img
               v-if="connector.icon"

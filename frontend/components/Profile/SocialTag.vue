@@ -1,5 +1,5 @@
 <template>
-  <span class="tag" v-if="data.status" @click="goToLink(data.value)">
+  <span class="tag active" v-if="data.status" @click="goToLink(data.value)">
     <Icon
       v-if="data.icon.includes('-Default') || data.icon === 'Google'"
       class="icon"
@@ -84,12 +84,12 @@ export default {
 .tag {
   display: flex;
   align-items: center;
-  background: $default-bg;
+  background: $white;
   border: 1px solid $default-badge-border;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   padding: 5px 8px;
-  font-family: 'Basis Grotesque Pro';
+  font-family: $default_font;
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -97,7 +97,15 @@ export default {
   text-align: center;
   font-feature-settings: 'zero' on;
   color: $default;
+  height: 40px;
   width: max-content;
+  transition-duration: .3s;
+}
+.tag:hover {
+  background: $default-bg;
+}
+.tag.active {
+  background: $default-bg;
 }
 .icon {
   margin-right: 10px;

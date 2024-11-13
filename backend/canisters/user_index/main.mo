@@ -39,7 +39,7 @@ actor UserIndex {
   };
 
   public shared ({ caller }) func register(data : UserData, character : Utils.Character) : async ?UserData {
-    let { provider; fullName; username; avatar; banner; title } = data;
+    let { provider; fullName; username; avatar; banner; title; connector } = data;
     let identity = await Utils.authenticate(caller, true, character);
 
     if (username.size() == 0) {
@@ -66,6 +66,7 @@ actor UserIndex {
               forms_created = 0;
               extraIdentities = ?[];
               title;
+              connector;
             },
           );
           usernames.put(username, identity);
@@ -120,7 +121,16 @@ actor UserIndex {
     switch (users.get(identity)) {
       case null ignore null;
       case (?user) {
-        let { provider; fullName; username; avatar; banner; extraIdentities; forms_created } = user;
+        let {
+          provider;
+          fullName;
+          username;
+          avatar;
+          banner;
+          extraIdentities;
+          forms_created;
+          connector;
+        } = user;
 
         users.put(
           identity,
@@ -133,6 +143,33 @@ actor UserIndex {
             forms_created;
             extraIdentities;
             title = ?title;
+            connector;
+          },
+        );
+      };
+    };
+  };
+
+  public shared ({ caller }) func addConnector(connector : Text, character : Utils.Character) : async () {
+    let identity = await Utils.authenticate(caller, false, character);
+
+    switch (users.get(identity)) {
+      case null ignore null;
+      case (?user) {
+        let { provider; fullName; username; avatar; banner; extraIdentities; forms_created; title } = user;
+
+        users.put(
+          identity,
+          {
+            provider;
+            fullName;
+            banner;
+            username;
+            avatar;
+            forms_created;
+            extraIdentities;
+            title;
+            connector = ?connector;
           },
         );
       };
@@ -211,7 +248,7 @@ actor UserIndex {
     extraProvider : Text,
     character : Utils.Character,
     identityTitle : Text,
-    connector : Text,
+    connectorName : Text,
   ) : async () {
     let identity = await Utils.authenticate(caller, false, character);
 
@@ -224,7 +261,7 @@ actor UserIndex {
               Debug.trap("This identity is already attached");
             };
 
-            let { provider; fullName; username; avatar; banner; title } = user;
+            let { provider; fullName; username; avatar; banner; title; forms_created; connector } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
               case (?identities) Buffer.fromArray<Text>(identities);
@@ -243,9 +280,10 @@ actor UserIndex {
                 banner;
                 username;
                 avatar;
-                forms_created = 0;
+                forms_created;
                 extraIdentities = ?Buffer.toArray(userIdentities);
                 title;
+                connector;
               },
             );
             extraIdentities.put(
@@ -254,7 +292,7 @@ actor UserIndex {
                 primaryIdentity = identity;
                 title = identityTitle;
                 provider = extraProvider;
-                connector;
+                connector = connectorName;
               },
             );
           };
@@ -286,7 +324,7 @@ actor UserIndex {
           case null Debug.trap("User does not exist");
           case (?user) {
             var index = DEFAULT_IDENTITY_INCORRECT_INDEX;
-            let { provider; fullName; username; avatar; banner; title } = user;
+            let { provider; fullName; username; avatar; banner; title; connector } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
               case (?identities) {
@@ -320,6 +358,7 @@ actor UserIndex {
                 forms_created = 0;
                 extraIdentities = ?Buffer.toArray(userIdentities);
                 title;
+                connector;
               },
             );
             extraIdentities.delete(extraIdentity);

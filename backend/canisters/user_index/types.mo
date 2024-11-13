@@ -14,5 +14,6 @@ module UserTypes {
     forms_created : Nat;
     extraIdentities : ?[Text];
     title : ?Text;
+    connector: ?Text;
   };
 };

@@ -93,7 +93,10 @@ export const useAuthStore = defineStore('auth', {
               }
             }
           })
-          .catch(async () => await this.logout());
+          .catch(async (e) => {
+            console.error(e);
+            await this.logout();
+          });
       } else {
         if (!this.isQuest && !localStorage.socialProvider) {
           await router.push('/sign-up');
@@ -167,7 +170,9 @@ export const useAuthStore = defineStore('auth', {
       const isAuthenticated = await authClient.isAuthenticated();
       const identity = isAuthenticated ? authClient.getIdentity() : null;
 
-      await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
+      if ((isProfile && isAuthenticated) || !isProfile) {
+        await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
+      }
     },
     async initNFID() {
       const transport = new PostMessageTransport({
@@ -205,7 +210,7 @@ export const useAuthStore = defineStore('auth', {
       }
 
       if (isProfile) {
-        this.actor
+        await this.actor
           .addExtraIdentity(
             (await agent.getPrincipal()).toText(),
             'ii',
@@ -285,7 +290,7 @@ export const useAuthStore = defineStore('auth', {
     async loginWithGoogle(credential, isProfile = false) {
       const { email } = decodeCredential(credential);
       if (isProfile) {
-        this.actor
+        await this.actor
           .addExtraIdentity(
             email,
             'google',
@@ -449,6 +454,7 @@ export const useAuthStore = defineStore('auth', {
         {
           username,
           fullName,
+          connector: [localStorage.connector],
           title: [this.getTitleByProvider()],
           provider: localStorage.authenticationProvider,
           avatar: [],
@@ -472,6 +478,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('extraCharacter');
         localStorage.removeItem('authenticationProvider');
         localStorage.removeItem('address');
+        localStorage.removeItem('connector');
       }
     },
     async setUser(user = null, extraIdentities = []) {
@@ -479,6 +486,19 @@ export const useAuthStore = defineStore('auth', {
         this.profile = null;
         this.user = null;
       } else {
+        if (!user.connector.length) {
+          if (localStorage.connector === undefined) {
+            await this.logout();
+            return;
+          }
+
+          await this.actor.addConnector(localStorage.connector, {
+            character: localStorage.extraCharacter,
+            identity: process.env.DFX_ASSET_PRINCIPAL,
+          });
+          user.connector = [localStorage.connector];
+        }
+
         if (!user.title.length) {
           const title = this.getTitleByProvider();
           await this.actor.addTitle(title, {
@@ -490,6 +510,7 @@ export const useAuthStore = defineStore('auth', {
         }
 
         user.title = user.title[0];
+        user.connector = user.connector[0];
         if (user.avatar.length) {
           user.avatarUri = await readFile(user.avatar[0]);
         } else {
@@ -534,6 +555,7 @@ export const useAuthStore = defineStore('auth', {
         let userByIdentity = await this.actor?.findByExtraIdentity(principal);
         if (!!userByIdentity.length && [null, []].indexOf(userByIdentity[0]?.user) === -1) {
           user = userByIdentity[0].user;
+
           const identityUser = user[0];
           if (identityUser.provider === 'google') {
             localStorage.setItem('extraCharacter', identityUser.title[0]);
@@ -610,7 +632,7 @@ export const useAuthStore = defineStore('auth', {
       const agent = identity ? new HttpAgent({ identity }) : null;
       const actor = identity ? createActorFromIdentity(identity) : null;
       if (connectorName) {
-        this.actor
+        await this.actor
           .addExtraIdentity(
             (await agent.getPrincipal()).toText(),
             provider,

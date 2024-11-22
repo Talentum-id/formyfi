@@ -53,6 +53,7 @@
                     class="bg-gray-100 mt-2 block"
                     :text="refBonusData.link"
                     :value="refBonusData.link"
+                    :size="0"
                   />
                 </div>
 

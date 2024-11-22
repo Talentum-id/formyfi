@@ -222,7 +222,10 @@ export const useAuthStore = defineStore('auth', {
             'ii',
           )
           .then(async () => await this.getProfile())
-          .catch((e) => console.error(e));
+          .catch((e) => {
+            console.error(e);
+            throw e;
+          });
 
         return;
       }
@@ -244,23 +247,39 @@ export const useAuthStore = defineStore('auth', {
 
       const authClient = toRaw(this.authClient);
 
-      await authClient.login({
-        ...defaultOptions.loginOptions,
-        onSuccess: async () => {
-          const isAuthenticated = await authClient.isAuthenticated();
-          const identity = isAuthenticated ? authClient.getIdentity() : null;
+      return new Promise((resolve, reject) => {
+        authClient.login({
+          ...defaultOptions.loginOptions,
+          onSuccess: async () => {
+            try {
+              const isAuthenticated = await authClient.isAuthenticated();
+              const identity = isAuthenticated ? authClient.getIdentity() : null;
 
-          await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
+              await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
 
-          if (isProfile) return;
+              if (isProfile) {
+                await authClient.logout();
+                resolve(true);
+                return;
+              }
 
-          this.setAuthenticationStorage(this.isAuthenticated, 'ii');
-          await this.initStores();
+              this.setAuthenticationStorage(this.isAuthenticated, 'ii');
+              await this.initStores();
 
-          if (!this.isQuest) {
-            await router.push('/sign-up');
-          }
-        },
+              if (!this.isQuest) {
+                await router.push('/sign-up');
+              }
+
+              resolve(true);
+            } catch (error) {
+              reject(error);
+            }
+          },
+          onError: (error) => {
+            reject(error);
+            return false;
+          },
+        });
       });
     },
     async loginWithNFID() {
@@ -345,6 +364,7 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (e) {
         console.error(e);
+        throw e;
       }
     },
     async prepareSIWSLogin(address) {
@@ -372,6 +392,7 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (e) {
         console.error(e);
+        throw e;
       }
     },
     async logout() {

@@ -649,6 +649,9 @@ export const useAuthStore = defineStore('auth', {
           avatar: data.avatar,
           forms_created: data.forms_created,
           banner: data.banner,
+          extraIdentities: [data.extraIdentities],
+          title: [data.title],
+          connector: [data.connector],
         },
       );
     },

@@ -86,6 +86,10 @@ export default {
             username: profileData.username,
             avatar: profileData.avatar,
             banner: [banner],
+            provider: profileData.provider,
+            title: profileData.title,
+            connector: profileData.connector,
+            extraIdentities: profileData.extraIdentities,
             forms_created: profileData.forms_created,
           });
 
@@ -152,6 +156,10 @@ export default {
         avatar: useAuthStore().getProfileData.avatar,
         forms_created: useAuthStore().getProfileData.forms_created,
         banner: [],
+        provider: profileData.provider,
+        title: profileData.title,
+        connector: profileData.connector,
+        extraIdentities: profileData.extraIdentities,
       });
 
       await useAuthStore().getProfile();

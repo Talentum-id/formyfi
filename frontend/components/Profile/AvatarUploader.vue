@@ -89,6 +89,10 @@ export default {
             username: profileData.username,
             avatar: [avatar],
             banner: profileData.banner,
+            provider: profileData.provider,
+            title: profileData.title,
+            connector: profileData.connector,
+            extraIdentities: profileData.extraIdentities,
             forms_created: profileData.forms_created,
           });
 
@@ -150,6 +154,10 @@ export default {
         username: profileData.username,
         avatar: [],
         banner: profileData.banner,
+        provider: profileData.provider,
+        title: profileData.title,
+        connector: profileData.connector,
+        extraIdentities: profileData.extraIdentities,
         forms_created: profileData.forms_created,
       });
 

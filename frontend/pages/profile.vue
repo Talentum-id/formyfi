@@ -144,6 +144,10 @@ const setName = useDebounceFn(async () => {
       username: name.value,
       avatar: user.value.avatar,
       banner: user.value.banner,
+      provider: user.value.provider,
+      title: user.value.title,
+      connector: user.value.connector,
+      extraIdentities: user.value.extraIdentities,
       forms_created: user.value.forms_created,
     });
 

@@ -164,14 +164,22 @@ export const useAuthStore = defineStore('auth', {
       this.principal = localStorage.extraCharacter;
     },
     async initII(isProfile = false) {
-      const authClient = await AuthClient.create(defaultOptions.createOptions);
-      this.authClient = authClient;
+      const principal = localStorage.getItem('extraCharacter');
+      if (principal === undefined || principal === null) {
+        const authClient = await AuthClient.create(defaultOptions.createOptions);
+        this.authClient = authClient;
 
-      const isAuthenticated = await authClient.isAuthenticated();
-      const identity = isAuthenticated ? authClient.getIdentity() : null;
+        const isAuthenticated = await authClient.isAuthenticated();
+        const identity = isAuthenticated ? authClient.getIdentity() : null;
 
-      if ((isProfile && isAuthenticated) || !isProfile) {
-        await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
+        if ((isProfile && isAuthenticated) || !isProfile) {
+          await this.initIdentityDependencies(identity, isAuthenticated, isProfile);
+        }
+      } else {
+        this.isAuthenticated = true;
+        this.identity = null;
+        this.actor = user_index;
+        this.setAuthenticationStorage(true, 'ii', principal);
       }
     },
     async initNFID() {
@@ -496,6 +504,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.authenticationProvider = provider;
       } else if (!localStorage.socialProvider) {
         localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('indirectInternetIdentity');
         localStorage.removeItem('extraCharacter');
         localStorage.removeItem('authenticationProvider');
         localStorage.removeItem('address');
@@ -509,7 +518,7 @@ export const useAuthStore = defineStore('auth', {
       } else {
         if (!user.connector.length) {
           if (localStorage.connector === undefined) {
-            await this.logout();
+            //await this.logout();
             return;
           }
 
@@ -580,14 +589,19 @@ export const useAuthStore = defineStore('auth', {
           const identityUser = user[0];
           if (identityUser.provider === 'google') {
             localStorage.setItem('extraCharacter', identityUser.title[0]);
+            localStorage.setItem('connector', 'google');
             await this.initWeb2Auth(identityUser.provider);
             this.setAuthenticationStorage(true, identityUser.provider, identityUser.title[0]);
           } else if (identityUser.provider === 'siwe') {
+            localStorage.setItem('connector', identityUser.connector[0]);
             await this.initSIWE(identityUser.title[0]);
           } else if (identityUser.provider === 'siws') {
+            localStorage.setItem('connector', 'siws');
             await this.initSIWS(identityUser.title[0]);
           } else {
-            //
+            localStorage.setItem('connector', 'ii');
+            localStorage.setItem('extraCharacter', userByIdentity[0].identity);
+            await this.initII();
           }
           user[0].reload = true;
         }

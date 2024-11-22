@@ -105,7 +105,7 @@ const requestsRows = computed(
         props: {
           value:
             Number(pagination.value.current_page) > 1
-              ? Number(pagination.value.current_page) * (index + 1)
+              ? (params.value.pageSize * (Number(pagination.value.current_page) - 1)) + (index + 1)
               : Number(pagination.value.current_page) + index,
           isTop: Number(pagination.value.current_page) === 1 && index <= 2,
         },

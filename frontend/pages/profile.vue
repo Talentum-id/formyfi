@@ -32,7 +32,7 @@
             <span>Pricing Plan</span>
             <Badge text="Free" type="claim" transparent />
           </div>
-          <div v-if="user.connector !== 'ii'" class="flex gap-2 is-text flex-wrap">
+          <div class="flex gap-2 is-text flex-wrap">
             <SocialTag
               v-for="connector in socialButtons"
               :data="connector"

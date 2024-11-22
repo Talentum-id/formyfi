@@ -79,7 +79,7 @@ import Default from '@/layouts/default.vue';
 import Badge from '@/components/Badge.vue';
 import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
 import { useAuthStore } from '@/store/auth';
-import { useDebounceFn } from '@vueuse/core';
+import { invoke, useDebounceFn } from '@vueuse/core';
 import { useStatsStore } from '@/store/stats';
 import Alert from '@/components/Alert.vue';
 import { useRouter } from 'vue-router';
@@ -161,6 +161,10 @@ const filteredConnectors = computed(() => {
 const getExtraIdentities = computed(() => useAuthStore().getExtraIdentities);
 
 const getExtraIdentity = (provider) => {
+  if (provider === 'google' && user.value.connector === 'google') {
+    return user.value;
+  }
+
   return getExtraIdentities.value.find((identity) => identity.connector === provider);
 };
 const currentConnector = ref('');

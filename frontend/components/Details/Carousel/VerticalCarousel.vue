@@ -987,10 +987,11 @@ watch(currentIndex, async () => {
     padding: 18px 0;
 
     .question-title {
+      word-break: keep-all;
+      white-space: normal;
       color: $primary-text;
       text-align: center;
       font-variant-numeric: slashed-zero;
-      word-break: break-all;
       font-family: $default_font;
       font-size: 32px;
       font-style: normal;
@@ -1000,6 +1001,8 @@ watch(currentIndex, async () => {
     }
 
     .question-description {
+      word-break: keep-all;
+      white-space: normal;
       color: $section-title;
       text-align: center;
       font-variant-numeric: lining-nums tabular-nums ordinal slashed-zero;
@@ -1010,7 +1013,6 @@ watch(currentIndex, async () => {
       font-size: 20px;
       font-style: normal;
       font-weight: 500;
-      word-break: break-all;
       line-height: 32px; /* 160% */
     }
 

@@ -14,29 +14,11 @@
   "metrics_index": {
     "ic": "jey3c-ciaaa-aaaap-akoja-cai"
   },
-  "qa_index": {
-    "ic": "pva35-bqaaa-aaaap-abwaa-cai"
-  },
-  "qa_storage": {
-    "ic": "vwfik-dyaaa-aaaao-a3oma-cai"
-  },
   "response_index": {
     "ic": "dwa32-7aaaa-aaaao-a3b3q-cai"
   },
-  "response_storage": {
-    "ic": "vreo6-oaaaa-aaaao-a3omq-cai"
-  },
-  "stats_index": {
-    "ic": "b42bf-eqaaa-aaaao-a3n3q-cai"
-  },
-  "storage": {
-    "ic": "vufnq-kiaaa-aaaao-a3caa-cai"
-  },
   "user_index": {
     "ic": "wwemk-qaaaa-aaaap-abu5a-cai"
-  },
-  "user_storage": {
-    "ic": "u3lme-mqaaa-aaaao-a3olq-cai"
   },
   "vetkd_system_api": {
     "ic": "h6gim-oiaaa-aaaao-a3siq-cai"

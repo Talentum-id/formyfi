@@ -26,9 +26,9 @@ const content = ref('');
 
 const toolbarOptions = [
   ['bold', 'italic', 'underline'],
-  ['code-block'],
+  ['code-block', 'link'],
   [{ list: 'ordered' }, { list: 'bullet' }],
-  [{ image: { uploadUrl: '/uploadImage' } }],
+
 ];
 
 const emits = defineEmits(['update']);

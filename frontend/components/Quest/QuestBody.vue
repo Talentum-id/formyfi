@@ -2,7 +2,7 @@
   <div class="body-container">
     <div class="section">
       <div class="title">Description</div>
-      <div class="description" v-html="data.description"></div>
+      <div class="description" v-html="wrapLinksInAHrefTag(data.description)"></div>
     </div>
     <div class="section">
       <div class="title">Question List</div>
@@ -39,6 +39,7 @@ import VerticalCarousel from '@/components/Details/Carousel/VerticalCarousel.vue
 import { computed, onMounted, ref } from 'vue';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
+import { wrapLinksInAHrefTag } from '@/util/helpers';
 
 const counterStore = useCounterStore();
 
@@ -75,7 +76,11 @@ const openQuestion = (item) => {
   currentItem.value = item;
 };
 </script>
-<style scoped lang="scss">
+<style lang="scss">
+.generated-link {
+  text-decoration: underline !important;
+}
+
 .body-container {
   display: flex;
   width: 760px;

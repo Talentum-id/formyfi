@@ -37,9 +37,11 @@
             ></CustomImage>
           </div>
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
-          <div class="question-description" v-if="newArr[currentIndex].description">
-            {{ newArr[currentIndex].description }}
-          </div>
+          <div
+            v-if="newArr[currentIndex].description"
+            class="question-description"
+            v-html="wrapLinksInAHrefTag(newArr[currentIndex].description)"
+          />
           <div v-if="getDataByType(newArr[currentIndex].questionType) === 'NOT_SOCIAL'">
             <Rating
               v-if="newArr[currentIndex].questionType === 'rate'"
@@ -284,7 +286,7 @@
 <script setup>
 import BaseButton from '@/components/BaseButton.vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
-import { checkFileFormat, chunkData, readFile } from '@/util/helpers';
+import { checkFileFormat, chunkData, readFile, wrapLinksInAHrefTag } from '@/util/helpers';
 import TextArea from '@/components/Creating/TextArea.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import { ElCheckboxGroup, ElCheckboxButton, ElRadioGroup, ElRadioButton } from 'element-plus';
@@ -1014,6 +1016,10 @@ watch(currentIndex, async () => {
       font-style: normal;
       font-weight: 500;
       line-height: 32px; /* 160% */
+
+      a {
+        text-decoration: underline;
+      }
     }
 
     .answer-textarea {

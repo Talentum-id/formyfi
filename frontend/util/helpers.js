@@ -557,3 +557,12 @@ export const chunkData = (data, size = 3) => {
 
   return chunks;
 };
+
+export const wrapLinksInAHrefTag = text => {
+  const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+
+  return text.replace(
+    urlRegex,
+    url => `<a href="${url}" target="_blank" class="generated-link" rel="noopener noreferrer">${url}</a>`,
+  );
+}

@@ -598,12 +598,6 @@ function uuidv4() {
 const loadFiles = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      await modal.emit('openModal', {
-        title: 'Loading files...',
-        message: 'Please wait for a while',
-        type: 'loading',
-      });
-
       let index = 0;
       const realTime = Math.floor(new Date().getTime() / 1000);
       if (typeof bannerImage.value !== 'string') {
@@ -615,7 +609,9 @@ const loadFiles = () => {
         await axiosService
           .post(`${process.env.API_URL}upload-files`, formData)
           .then(({ data }) => (bannerImage.value = data[0]))
-          .catch((e) => console.error(e));
+          .catch((e) => {
+            throw e;
+          });
 
         index++;
       }
@@ -645,7 +641,9 @@ const loadFiles = () => {
           await axiosService
             .post(`${process.env.API_URL}upload-files`, formData)
             .then(({ data }) => (uploadFilePaths = [...uploadFilePaths, ...data]))
-            .catch((e) => console.error(e));
+            .catch((e) => {
+              throw e;
+            });
         }
 
         let resultIndex = 0;
@@ -667,7 +665,9 @@ const loadFiles = () => {
         await axiosService
           .post(`${process.env.API_URL}upload-files`, formData)
           .then(({ data }) => (thxMessage.value.file = data[0]))
-          .catch((e) => console.error(e));
+          .catch((e) => {
+            throw e;
+          });
       }
 
       resolve();
@@ -797,6 +797,7 @@ const resetFields = () => {
 };
 
 const check = async () => {
+  let uploadFailed = false;
   touched.value = true;
   if (!validationCheck.value) {
     showError.value = true;
@@ -806,7 +807,31 @@ const check = async () => {
 
   loading.value = true;
   try {
+    await modal.emit('openModal', {
+      title: 'Loading files...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
+
     await loadFiles();
+  } catch (err) {
+    uploadFailed = true;
+    console.error(err);
+  } finally {
+    statusMessage.value = 'Publish Quest';
+    loading.value = false;
+  }
+
+  if (uploadFailed) {
+    modal.emit('openModal', {
+      title: 'Files upload failed',
+      message: 'Please, make sure uploaded files meet the requirements!',
+      type: 'error',
+    });
+    return;
+  }
+
+  try {
     await modal.emit('openModal', {
       title: 'Loading data...',
       message: 'Please wait for a while',

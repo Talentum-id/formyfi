@@ -2,7 +2,7 @@
   <div class="body-container">
     <div class="section">
       <div class="title">Description</div>
-      <div class="description" v-html="wrapLinksInAHrefTag(data.description)"></div>
+      <div class="description" v-html="data.description"></div>
     </div>
     <div class="section">
       <div class="title">Question List</div>
@@ -107,9 +107,12 @@ const openQuestion = (item) => {
       font-family: $default_font;
       font-size: 20px;
       font-style: normal;
-      word-break: break-all;
       font-weight: 400;
       line-height: 32px;
+
+      a {
+        text-decoration: underline;
+      }
     }
 
     .title {

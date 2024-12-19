@@ -1,3 +1,4 @@
 [submodule "web2"]
 	path = web2
 	url = https://github.com/Talentum-id/formyfi-web-2.git
+	branch = main

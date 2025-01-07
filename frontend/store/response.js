@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { createActor, response_index } from '~/response_index';
+import { createActor, submissions_index } from '~/submissions_index';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
@@ -10,7 +10,7 @@ import axiosService from '@/services/axiosService';
 import { CryptoService } from '@/services/crypto';
 
 const createActorFromIdentity = (identity) => {
-  return createActor(process.env.CANISTER_ID_RESPONSE_INDEX, {
+  return createActor(process.env.CANISTER_ID_SUBMISSIONS_INDEX, {
     agentOptions: { identity },
   });
 };
@@ -45,7 +45,7 @@ export const useResponseStore = defineStore('response', {
         }
       } else {
         this.identity = useAuthStore().getIdentity;
-        this.actor = this.identity ? createActorFromIdentity(this.identity) : response_index;
+        this.actor = this.identity ? createActorFromIdentity(this.identity) : submissions_index;
       }
 
       this.crypto = new CryptoService(this.actor);

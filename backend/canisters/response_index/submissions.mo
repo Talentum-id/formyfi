@@ -52,6 +52,15 @@ actor SubmissionsIndex {
 		responseEntries := responses;
 	};
 
+	public func storeResponseEntries1(responses : [(Text, [Answer])]) : async () {
+		let responses1Buffer = Buffer.fromArray<(Text,[Answer])>(responseEntries);
+		let responses2Buffer = Buffer.fromArray<(Text,[Answer])>(responses);
+
+		responses1Buffer.append(responses2Buffer);
+
+		responseEntries := Buffer.toArray(responses1Buffer);
+	};
+
 	public func storeAnonymousEntries(total : Nat) : async () {
 		anonymousEntriesCount := total;
 	};

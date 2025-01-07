@@ -12,6 +12,7 @@ import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import QATypes "../qa_index/types";
 import Text "mo:base/Text";
+import List "mo:base/List";
 import SubmissionsIndex "canister:submissions_index";
 import Types "/types";
 import FormIndex "canister:form_index";
@@ -49,8 +50,14 @@ actor ResponseIndex {
     await SubmissionsIndex.storeAuthorQaEntries(Iter.toArray(qasViaAuthor.entries()));
   };
 
-  public func transferResponsesEntries() : async () {
-    await SubmissionsIndex.storeResponseEntries(Iter.toArray(responses.entries()));
+  public func transferResponsesEntries1() : async () {
+    let entries = Iter.toList(responses.entries());
+    let n = responses.size() / 2;
+
+    let (list1, list2) = List.split(n, entries);
+
+    await SubmissionsIndex.storeResponseEntries(List.toArray(list1));
+    await SubmissionsIndex.storeResponseEntries1(List.toArray(list2));
   };
 
   public func transferAnonymousEntries() : async () {

@@ -12,6 +12,7 @@ import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import QATypes "../qa_index/types";
 import Text "mo:base/Text";
+import SubmissionsIndex "canister:submissions_index";
 import Types "/types";
 import FormIndex "canister:form_index";
 import MetricsIndex "canister:metrics_index";
@@ -39,6 +40,22 @@ actor ResponseIndex {
   let qasViaAuthor = Map.fromIter<Text, [QA]>(qasViaAuthorEntries.vals(), 1000, Text.equal, Text.hash);
   let authorsViaQA = Map.fromIter<Text, [Author]>(authorsViaQAEntries.vals(), 1000, Text.equal, Text.hash);
   let responses = Map.fromIter<Text, [Answer]>(responseEntries.vals(), 1000, Text.equal, Text.hash);
+
+  public func transferAuthorsEntries() : async () {
+    await SubmissionsIndex.storeAuthorEntries(Iter.toArray(authorsViaQA.entries()));
+  };
+
+  public func transferAuthorsQaEntries() : async () {
+    await SubmissionsIndex.storeAuthorQaEntries(Iter.toArray(qasViaAuthor.entries()));
+  };
+
+  public func transferResponsesEntries() : async () {
+    await SubmissionsIndex.storeResponseEntries(Iter.toArray(responses.entries()));
+  };
+
+  public func transferAnonymousEntries() : async () {
+    await SubmissionsIndex.storeAnonymousEntries(anonymousEntriesCount);
+  };
 
   public query func list(shareLink : Text, params : FetchParams) : async List {
     switch (authorsViaQA.get(shareLink)) {
@@ -518,15 +535,15 @@ actor ResponseIndex {
     var pairs = "";
 
     for ((key, value) in authorsViaQA.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+      pairs := pairs # "(" # key # ", " # debug_show (value) # ")\n\n";
     };
 
     for ((key, value) in qasViaAuthor.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+      pairs := pairs # "(" # key # ", " # debug_show (value) # ") \n\n";
     };
 
     for ((key, value) in responses.entries()) {
-      pairs := "(" # key # ", " # debug_show (value) # ") " # pairs;
+      pairs := pairs # "(" # key # ", " # debug_show (value) # ") \n\n";
     };
 
     return pairs;

@@ -1,17 +1,20 @@
 import { defineStore } from 'pinia';
 import { createActor, metrics_index } from '~/metrics_index';
 import { useAuthStore } from '@/store/auth';
-import { externalWeb3IdentityProviders, signerJsIdentityProviders } from '@/constants/externalIdentityProviders';
+import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider} from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import { HttpAgent } from '@dfinity/agent';
-import { SignerAgent } from '@slide-computer/signer-agent';
 
 const createActorFromIdentity = identity => {
   return createActor(process.env.CANISTER_ID_METRICS_INDEX, {
     agentOptions: { identity },
   });
+};
+
+const createActorFromAgent = (agent) => {
+  return createActor(process.env.CANISTER_ID_METRICS_INDEX, { agent });
 };
 
 export const useStatsStore = defineStore('stats', {
@@ -40,18 +43,19 @@ export const useStatsStore = defineStore('stats', {
           this.identity = identity;
           this.actor = actor;
         }
-      } else if (signerJsIdentityProviders.indexOf(provider) !== -1) {
-        this.identity = useAuthStore().getIdentity;
-
-        const signerAgent = await SignerAgent.create({
-          signer: useAuthStore().getSigner,
-          account: this.identity?.getPrincipal(),
+      } else if (provider === 'plug') {
+        const identity = useAuthStore().getIdentity;
+        const agent = await HttpAgent.create({
+          identity,
+          host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:4943' : 'https://ic0.app'
         });
 
-        const agent = this.identity ? await new HttpAgent({ identity: this.identity, agent: signerAgent }) : null;
-        await agent?.syncTime();
+        await agent.fetchRootKey().catch(err => {
+          console.warn('Unable to fetch root key. The problem is:', err);
+        });
 
-        this.actor = this.identity ? createActor(process.env.CANISTER_ID_METRICS_INDEX, {agent}) : metrics_index;
+        this.actor = createActorFromAgent(agent);
+        this.identity = identity;
       } else {
         this.identity = useAuthStore().getIdentity;
         this.actor = this.identity ? createActorFromIdentity(this.identity) : metrics_index;

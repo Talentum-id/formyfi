@@ -99,7 +99,6 @@ const connectPLUG = async () => {
     console.error(e);
     emit('reject');
   }
-  const accounts = await signer.accounts();
 };
 const hasAuthToken = computed(() => authStore.getAuthState);
 

@@ -13,11 +13,7 @@ import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { Signer } from '@slide-computer/signer';
-import { SignerClient } from '@slide-computer/signer-client';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
-import { SignerAgent } from '@slide-computer/signer-agent';
-import { PlugTransport } from '@slide-computer/signer-transport-plug';
 
 const INTERNET_IDENTITY_TITLE = 'Linked';
 const defaultOptions = {
@@ -38,6 +34,10 @@ const createActorFromIdentity = (identity) => {
   });
 };
 
+const createActorFromAgent = (agent) => {
+  return createActor(process.env.CANISTER_ID_USER_INDEX, { agent });
+};
+
 export const useAuthStore = defineStore('auth', {
   id: 'auth',
   state: () => {
@@ -53,8 +53,6 @@ export const useAuthStore = defineStore('auth', {
       user: null,
       isQuest: false,
       profile: null,
-      signer: null,
-      signerClient: null,
       stats: 0,
       usersList: null,
     };
@@ -70,8 +68,8 @@ export const useAuthStore = defineStore('auth', {
         await this.initSIWE();
       } else if (authenticationProvider === 'siws') {
         await this.initSIWS();
-      } else if (authenticationProvider === 'nfid') {
-        await this.initNFID();
+      // } else if (authenticationProvider === 'nfid') {
+      //   await this.initNFID();
       } else if (authenticationProvider === 'plug') {
         await this.initPlug();
       } else {
@@ -186,31 +184,26 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async initPlug() {
-      const transport = new PlugTransport();
-      const signer = new Signer({
-        transport,
+      const plug = window?.ic?.plug;
+      if (plug?.agent === undefined) {
+        await this.logout();
+      }
+
+      const identity = await plug?.agent.getDelegationBaseIdentity();
+      const agent = await HttpAgent.create({
+        identity,
+        host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:4943' : 'https://ic0.app'
       });
-      const signerClient = await SignerClient.create({
-        signer,
-        keyType: 'Ed25519',
+
+      await agent.fetchRootKey().catch(err => {
+        console.warn('Unable to fetch root key. The problem is:', err);
       });
-      const isAuthenticated = signerClient.isAuthenticated();
-      const identity = isAuthenticated ? signerClient.getIdentity() : null;
 
-      this.signer = signer;
-      this.signerClient = signerClient;
-
-      await this.initSignerIdentityDependencies(identity, isAuthenticated);
-    },
-    async initSignerIdentityDependencies(identity, isAuthenticated) {
-      const signerAgent = identity ? await SignerAgent.create({
-        signer: this.signer,
-        account: identity?.getPrincipal(),
-      }) : null;
-      const agent = identity ? await new HttpAgent({ identity, agent: signerAgent }) : null;
-      await agent?.syncTime();
-
-      await this.assignIdentity(identity, agent, isAuthenticated);
+      this.actor = createActorFromAgent(agent);
+      this.identity = identity;
+      this.principal = await agent.getPrincipal();
+      this.isAuthenticated = !this.principal.isAnonymous();
+      this.setAuthenticationStorage(this.isAuthenticated, 'plug');
     },
     async initIdentityDependencies(identity, isAuthenticated) {
       const agent = identity ? new HttpAgent({ identity }) : null;
@@ -219,13 +212,6 @@ export const useAuthStore = defineStore('auth', {
       await this.assignIdentity(identity, agent, isAuthenticated);
     },
     async assignIdentity(identity, agent, isAuthenticated) {
-      const actor = identity
-        ? createActor(process.env.CANISTER_ID_USER_INDEX, {
-          agent,
-        })
-        //? createActor(process.env.CANISTER_ID_USER_INDEX, { agent })
-        : null;
-      const principal = identity ? await agent.getPrincipal() : null;
       this.isAuthenticated = isAuthenticated;
       this.identity = identity;
       this.actor = identity ? createActorFromIdentity(identity) : null;
@@ -279,28 +265,43 @@ export const useAuthStore = defineStore('auth', {
       });
     },
     async loginWithPlug() {
-      if (this.signerClient === null) {
-        await this.initPlug();
-      }
+      try {
+        const plug = window?.ic?.plug;
+        if (plug === undefined) {
+          throw new Error('Plug wallet extension not installed');
+        }
 
-      const signerClient = toRaw(this.signerClient);
+        const result = await plug.requestConnect({
+          whitelist: [
+            process.env.CANISTER_ID_USER_INDEX,
+            process.env.CANISTER_ID_FORM_INDEX,
+            process.env.CANISTER_ID_SUBMISSIONS_INDEX,
+            process.env.CANISTER_ID_METRICS_INDEX,
+          ],
+          host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:3000' : 'https://ic0.app'
+        });
 
-      await signerClient.login({
-        maxTimeToLive: BigInt(process.env.II_LIFETIME),
-        onSuccess: async () => {
-          const isAuthenticated = signerClient.isAuthenticated();
-          const identity = this.isAuthenticated ? signerClient.getIdentity() : null;
+        if (result) {
+          localStorage.connector = 'plug';
+          await this.initPlug();
+          if (this.isAuthenticated) {
+            await this.initStores();
 
-          await this.initSignerIdentityDependencies(identity, isAuthenticated);
-          this.setAuthenticationStorage(this.isAuthenticated, 'plug');
-
-          await this.initStores();
-
-          if (!this.isQuest) {
-            await router.push('/sign-up');
+            if (!this.isQuest) {
+              await router.push('/sign-up');
+            }
+          } else {
+            await this.logout();
           }
-        },
-      });
+        } else {
+          console.log('failed', result);
+          //await this.logout();
+        }
+      }
+      catch (e) {
+        console.error(e);
+        // await this.logout();
+      }
     },
     async loginWithGoogle(credential, isProfile = false) {
       const { email } = decodeCredential(credential);
@@ -393,10 +394,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async logout() {
       const authClient = toRaw(this.authClient);
-      const signerClient = toRaw(this.signerClient);
-
       await authClient?.logout();
-      await signerClient?.logout();
 
       this.setAuthenticationStorage(false);
 
@@ -568,7 +566,9 @@ export const useAuthStore = defineStore('auth', {
       return this.actor?.findUsername(string);
     },
     async findUser(principal, isLoginProcess = true) {
+      console.log('find-user', principal);
       let user = await this.actor?.findUser(principal);
+      console.log('user', user);
       if (!user.length && isLoginProcess) {
         let userByIdentity = await this.actor?.findByExtraIdentity(principal);
         if (!!userByIdentity.length && [null, []].indexOf(userByIdentity[0]?.user) === -1) {
@@ -691,7 +691,6 @@ export const useAuthStore = defineStore('auth', {
   },
   getters: {
     getAdmins: ({ admins }) => admins,
-    getSigner: ({ signer }) => signer,
     getStats: ({ stats }) => stats,
     getExtraIdentities: ({ extraIdentities }) => extraIdentities,
     getIdentity: ({ identity }) => identity,

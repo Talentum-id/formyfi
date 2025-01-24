@@ -6,18 +6,12 @@ import router from '@/router';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
-import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import axiosService from '@/services/axiosService';
-import { HttpAgent } from '@dfinity/agent';
 
 const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_FORM_INDEX, {
     agentOptions: { identity },
   });
-};
-
-const createActorFromAgent = (agent) => {
-  return createActor(process.env.CANISTER_ID_FORM_INDEX, { agent });
 };
 
 export const useQAStore = defineStore('qa', {
@@ -35,33 +29,43 @@ export const useQAStore = defineStore('qa', {
     async init() {
       const provider = localStorage.getItem('authenticationProvider');
 
-      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
-        const { Ok: principal } =
-          provider === 'siwe'
-            ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
-            : await ic_siws_provider.get_principal(localStorage.getItem('address'));
-
-        if (principal !== undefined) {
-          const identity = generateIdentityFromPrincipal(principal);
-          const actor = identity ? createActorFromIdentity(identity) : null;
-
-          this.identity = identity;
-          this.actor = actor;
-        }
-      } else if (provider === 'plug') {
-        const plug = window?.ic?.plug;
-        if (plug?.agent === undefined) {
-          await useAuthStore().logout();
-        }
-
-        const principal = await plug?.agent.getPrincipal();
-        const identity = generateIdentityFromPrincipal(principal);
-        this.actor = createActorFromIdentity(identity);
-        this.identity = identity;
-      } else {
-        this.identity = useAuthStore().getIdentity;
-        this.actor = this.identity ? createActorFromIdentity(this.identity) : form_index;
+      switch (provider) {
+        case 'siwe':
+        case 'siws':
+          await this.initWithSIWSOrSIWE(provider);
+          break;
+        case 'plug':
+          await this.initWithPlug();
+          break;
+        default:
+          this.identity = useAuthStore().getIdentity;
+          this.actor = this.identity ? createActorFromIdentity(this.identity) : form_index;
       }
+    },
+    async initWithSIWSOrSIWE(provider){
+      const { Ok: principal } =
+        provider === 'siwe'
+          ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
+          : await ic_siws_provider.get_principal(localStorage.getItem('address'));
+
+      if (principal !== undefined) {
+        const identity = generateIdentityFromPrincipal(principal);
+        const actor = identity ? createActorFromIdentity(identity) : null;
+
+        this.identity = identity;
+        this.actor = actor;
+      }
+    },
+    async initWithPlug() {
+      const plug = window?.ic?.plug;
+      if (plug?.agent === undefined) {
+        await useAuthStore().logout();
+      }
+
+      const principal = await plug?.agent.getPrincipal();
+      const identity = generateIdentityFromPrincipal(principal);
+      this.actor = createActorFromIdentity(identity);
+      this.identity = identity;
     },
     async fetchStats() {
       return this.actor

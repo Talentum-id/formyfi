@@ -376,7 +376,7 @@ actor UserIndex {
       case (?user) {
         users.put(identity, data);
 
-        if (user.username == SUPERADMIN) {
+        if (user.username == SUPERADMIN and data.username != user.username) {
           Debug.trap(SUPERADMIN # " is only super-admin, hence username cannot be updated");
         };
 

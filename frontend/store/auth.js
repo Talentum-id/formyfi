@@ -15,6 +15,13 @@ import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 
+const WHITELIST = [
+  process.env.CANISTER_ID_USER_INDEX,
+  process.env.CANISTER_ID_FORM_INDEX,
+  process.env.CANISTER_ID_SUBMISSIONS_INDEX,
+  process.env.CANISTER_ID_METRICS_INDEX,
+];
+const HOST = process.env.DFX_NETWORK === 'local' ? window.location.origin : 'https://ic0.app';
 const INTERNET_IDENTITY_TITLE = 'Linked';
 const defaultOptions = {
   createOptions: {
@@ -68,8 +75,6 @@ export const useAuthStore = defineStore('auth', {
         await this.initSIWE();
       } else if (authenticationProvider === 'siws') {
         await this.initSIWS();
-      // } else if (authenticationProvider === 'nfid') {
-      //   await this.initNFID();
       } else if (authenticationProvider === 'plug') {
         await this.initPlug();
       } else {
@@ -185,24 +190,30 @@ export const useAuthStore = defineStore('auth', {
     },
     async initPlug() {
       const plug = window?.ic?.plug;
+      const connected = await plug?.isConnected();
+
+      if (plug === undefined) {
+        await this.logout();
+      }
+
+      if (!connected) {
+        await plug.requestConnect({
+          whitelist: WHITELIST,
+          host: HOST,
+        });
+      }
+
       if (plug?.agent === undefined) {
         await this.logout();
       }
 
-      const identity = await plug?.agent.getDelegationBaseIdentity();
-      const agent = await HttpAgent.create({
-        identity,
-        host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:4943' : 'https://ic0.app'
-      });
-
-      await agent.fetchRootKey().catch(err => {
-        console.warn('Unable to fetch root key. The problem is:', err);
-      });
-
-      this.actor = createActorFromAgent(agent);
+      const principal = await plug?.agent.getPrincipal();
+      const identity = generateIdentityFromPrincipal(principal);
+      this.actor = createActorFromIdentity(identity);
       this.identity = identity;
-      this.principal = await agent.getPrincipal();
+      this.principal = identity.getPrincipal();
       this.isAuthenticated = !this.principal.isAnonymous();
+
       this.setAuthenticationStorage(this.isAuthenticated, 'plug');
     },
     async initIdentityDependencies(identity, isAuthenticated) {
@@ -272,13 +283,8 @@ export const useAuthStore = defineStore('auth', {
         }
 
         const result = await plug.requestConnect({
-          whitelist: [
-            process.env.CANISTER_ID_USER_INDEX,
-            process.env.CANISTER_ID_FORM_INDEX,
-            process.env.CANISTER_ID_SUBMISSIONS_INDEX,
-            process.env.CANISTER_ID_METRICS_INDEX,
-          ],
-          host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:3000' : 'https://ic0.app'
+          whitelist: WHITELIST,
+          host: HOST,
         });
 
         if (result) {
@@ -395,6 +401,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       const authClient = toRaw(this.authClient);
       await authClient?.logout();
+      await window?.ic?.plug?.disconnect();
 
       this.setAuthenticationStorage(false);
 
@@ -455,14 +462,18 @@ export const useAuthStore = defineStore('auth', {
       let title = INTERNET_IDENTITY_TITLE;
 
       if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
-        title = localStorage.getItem('address');
+        return localStorage.getItem('address');
+      }
+
+      if (provider === 'plug') {
+        return window.ic?.plug?.accountId;
       }
 
       if (provider === 'google') {
-        title = this.getPrincipal;
+        return this.getPrincipal.toString();
       }
 
-      return title.toString();
+      return title;
     },
     register({ username, fullName }) {
       return this.actor?.register(
@@ -566,9 +577,7 @@ export const useAuthStore = defineStore('auth', {
       return this.actor?.findUsername(string);
     },
     async findUser(principal, isLoginProcess = true) {
-      console.log('find-user', principal);
       let user = await this.actor?.findUser(principal);
-      console.log('user', user);
       if (!user.length && isLoginProcess) {
         let userByIdentity = await this.actor?.findByExtraIdentity(principal);
         if (!!userByIdentity.length && [null, []].indexOf(userByIdentity[0]?.user) === -1) {

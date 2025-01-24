@@ -211,12 +211,12 @@ const props = defineProps({
           </div>
         </AuthButton>
       </template>
-      <AuthButton @click="connectNFID()">
-        <div class="container">
-          <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />
-          <div class="name-social">Wallet</div>
-        </div>
-      </AuthButton>
+<!--      <AuthButton @click="connectNFID()">-->
+<!--        <div class="container">-->
+<!--          <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />-->
+<!--          <div class="name-social">Wallet</div>-->
+<!--        </div>-->
+<!--      </AuthButton>-->
       <AuthButton @click="connectPLUG()">
         <div class="container">
           <img src="@/assets/icons/plug.png" alt="PLUG" class="h-[24px]" />

@@ -49,18 +49,14 @@ export const useQAStore = defineStore('qa', {
           this.actor = actor;
         }
       } else if (provider === 'plug') {
-        const identity = useAuthStore().getIdentity;
-        console.log(identity);
-        const agent = await HttpAgent.create({
-          identity,
-          host: process.env.DFX_NETWORK === 'local' ? 'http://localhost:4943' : 'https://ic0.app'
-        });
+        const plug = window?.ic?.plug;
+        if (plug?.agent === undefined) {
+          await useAuthStore().logout();
+        }
 
-        await agent.fetchRootKey().catch(err => {
-          console.warn('Unable to fetch root key. The problem is:', err);
-        });
-
-        this.actor = createActorFromAgent(agent);
+        const principal = await plug?.agent.getPrincipal();
+        const identity = generateIdentityFromPrincipal(principal);
+        this.actor = createActorFromIdentity(identity);
         this.identity = identity;
       } else {
         this.identity = useAuthStore().getIdentity;

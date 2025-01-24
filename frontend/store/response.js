@@ -2,21 +2,16 @@ import { defineStore } from 'pinia';
 import { createActor, submissions_index } from '~/submissions_index';
 import { useAuthStore } from '@/store/auth';
 import { useCounterStore } from '@/store/index';
-import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import axiosService from '@/services/axiosService';
 import { CryptoService } from '@/services/crypto';
-import { HttpAgent } from '@dfinity/agent';
 
 const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_SUBMISSIONS_INDEX, {
     agentOptions: { identity },
   });
-};
-const createActorFromAgent = (agent) => {
-  return createActor(process.env.CANISTER_ID_SUBMISSIONS_INDEX, { agent });
 };
 
 export const useResponseStore = defineStore('response', {
@@ -34,35 +29,45 @@ export const useResponseStore = defineStore('response', {
     async init() {
       const provider = localStorage.getItem('authenticationProvider');
 
-      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
-        const { Ok: principal } =
-          provider === 'siwe'
-            ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
-            : await ic_siws_provider.get_principal(localStorage.getItem('address'));
-
-        if (principal !== undefined) {
-          const identity = generateIdentityFromPrincipal(principal);
-          const actor = identity ? createActorFromIdentity(identity) : null;
-
-          this.identity = identity;
-          this.actor = actor;
-        }
-      } else if (provider === 'plug') {
-        const plug = window?.ic?.plug;
-        if (plug?.agent === undefined) {
-          await useAuthStore().logout();
-        }
-
-        const principal = await plug?.agent.getPrincipal();
-        const identity = generateIdentityFromPrincipal(principal);
-        this.actor = createActorFromIdentity(identity);
-        this.identity = identity;
-      } else {
-        this.identity = useAuthStore().getIdentity;
-        this.actor = this.identity ? createActorFromIdentity(this.identity) : submissions_index;
+      switch (provider) {
+        case 'siwe':
+        case 'siws':
+          await this.initWithSIWSOrSIWE(provider);
+          break;
+        case 'plug':
+          await this.initWithPlug();
+          break;
+        default:
+          this.identity = useAuthStore().getIdentity;
+          this.actor = this.identity ? createActorFromIdentity(this.identity) : submissions_index;
       }
 
       this.crypto = new CryptoService(this.actor);
+    },
+    async initWithSIWSOrSIWE(provider){
+      const { Ok: principal } =
+        provider === 'siwe'
+          ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
+          : await ic_siws_provider.get_principal(localStorage.getItem('address'));
+
+      if (principal !== undefined) {
+        const identity = generateIdentityFromPrincipal(principal);
+        const actor = identity ? createActorFromIdentity(identity) : null;
+
+        this.identity = identity;
+        this.actor = actor;
+      }
+    },
+    async initWithPlug() {
+      const plug = window?.ic?.plug;
+      if (plug?.agent === undefined) {
+        await useAuthStore().logout();
+      }
+
+      const principal = await plug?.agent.getPrincipal();
+      const identity = generateIdentityFromPrincipal(principal);
+      this.actor = createActorFromIdentity(identity);
+      this.identity = identity;
     },
     async storeResponse(params, attempts = 0) {
       const { refCode } = params;

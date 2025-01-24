@@ -13,7 +13,6 @@ import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { externalWeb3IdentityProviders } from '@/constants/externalIdentityProviders';
 
 const WHITELIST = [
   process.env.CANISTER_ID_USER_INDEX,
@@ -39,10 +38,6 @@ const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_USER_INDEX, {
     agentOptions: { identity },
   });
-};
-
-const createActorFromAgent = (agent) => {
-  return createActor(process.env.CANISTER_ID_USER_INDEX, { agent });
 };
 
 export const useAuthStore = defineStore('auth', {
@@ -300,13 +295,12 @@ export const useAuthStore = defineStore('auth', {
             await this.logout();
           }
         } else {
-          console.log('failed', result);
-          //await this.logout();
+          await this.logout();
         }
       }
       catch (e) {
         console.error(e);
-        // await this.logout();
+        await this.logout();
       }
     },
     async loginWithGoogle(credential, isProfile = false) {
@@ -458,22 +452,17 @@ export const useAuthStore = defineStore('auth', {
       });
     },
     getTitleByProvider() {
-      const provider = localStorage.authenticationProvider;
-      let title = INTERNET_IDENTITY_TITLE;
-
-      if (externalWeb3IdentityProviders.indexOf(provider) !== -1) {
-        return localStorage.getItem('address');
+      switch (localStorage.authenticationProvider) {
+        case 'siwe':
+        case 'siws':
+          return localStorage.getItem('address');
+        case 'plug':
+          return window.ic?.plug?.accountId;
+        case 'google':
+          return this.getPrincipal.toString();
+        default:
+          return INTERNET_IDENTITY_TITLE;
       }
-
-      if (provider === 'plug') {
-        return window.ic?.plug?.accountId;
-      }
-
-      if (provider === 'google') {
-        return this.getPrincipal.toString();
-      }
-
-      return title;
     },
     register({ username, fullName }) {
       return this.actor?.register(

@@ -35,6 +35,8 @@ const filteredConnectors = computed(() => {
   );
 });
 
+const plugConnected = computed(() => window.ic?.plug !== undefined)
+
 const callback = async (response) => {
   try {
     localStorage.connector = 'google';
@@ -217,7 +219,7 @@ const props = defineProps({
 <!--          <div class="name-social">Wallet</div>-->
 <!--        </div>-->
 <!--      </AuthButton>-->
-      <AuthButton @click="connectPLUG()">
+      <AuthButton v-if="plugConnected" @click="connectPLUG()">
         <div class="container">
           <img src="@/assets/icons/plug.png" alt="PLUG" class="h-[24px]" />
           <div class="name-social">PLUG</div>

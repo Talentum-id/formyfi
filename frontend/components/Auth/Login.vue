@@ -10,9 +10,11 @@ import { useConnect, useChainId, useAccount, useDisconnect, useSignMessage } fro
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
+import { useSuiWallet } from '@/composables/useSuiWallet';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
+const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
 
 const { connect, connectors } = useConnect();
 const { address, isConnected } = useAccount();
@@ -34,7 +36,7 @@ const filteredConnectors = computed(() => {
   );
 });
 
-const plugConnected = computed(() => window.ic?.plug !== undefined)
+const plugConnected = computed(() => window.ic?.plug !== undefined);
 
 const callback = async (response) => {
   try {
@@ -113,7 +115,7 @@ const connectNFID = async () => {
 const connectPLUG = async () => {
   try {
     await authStore.loginWithPlug();
-  }catch (e) {
+  } catch (e) {
     console.error(e);
     emit('reject');
   }
@@ -167,14 +169,14 @@ watch(
         } else {
           const encodedMessage = new TextEncoder().encode(
             `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-            `${siwsMessage.address}\n\n` +
-            `${siwsMessage.statement}\n\n` +
-            `URI: ${siwsMessage.uri}\n` +
-            `Version: ${siwsMessage.version}\n` +
-            `Chain ID: ${siwsMessage.chain_id}\n` +
-            `Nonce: ${siwsMessage.nonce}\n` +
-            `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
-            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
+              `${siwsMessage.address}\n\n` +
+              `${siwsMessage.statement}\n\n` +
+              `URI: ${siwsMessage.uri}\n` +
+              `Version: ${siwsMessage.version}\n` +
+              `Chain ID: ${siwsMessage.chain_id}\n` +
+              `Nonce: ${siwsMessage.nonce}\n` +
+              `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
+              `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
           );
 
           const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
@@ -212,10 +214,7 @@ const props = defineProps({
         </div>
       </AuthButton>
       <template v-for="connector in filteredConnectors" :key="connector.name">
-        <AuthButton
-          v-if="connector.id !== 'metaMaskSDK'"
-          @click="connectSIWE(connector, chainId)"
-        >
+        <AuthButton v-if="connector.id !== 'metaMaskSDK'" @click="connectSIWE(connector, chainId)">
           <div class="container">
             <img
               v-if="connector.icon"
@@ -228,13 +227,25 @@ const props = defineProps({
             </div>
           </div>
         </AuthButton>
+        <AuthButton @click="connectSui()">
+          <div class="container">
+            <img src="@/assets/icons/sui.svg" alt="Sui Wallet" class="h-[24px]" />
+            <div class="name-social">Sui Wallet</div>
+          </div>
+        </AuthButton>
+        <AuthButton @click="connectSuiet()">
+          <div class="container">
+            <img src="@/assets/icons/suiet.svg" alt="Suiet Wallet" class="h-[24px]" />
+            <div class="name-social">Suiet</div>
+          </div>
+        </AuthButton>
       </template>
-<!--      <AuthButton @click="connectNFID()">-->
-<!--        <div class="container">-->
-<!--          <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />-->
-<!--          <div class="name-social">Wallet</div>-->
-<!--        </div>-->
-<!--      </AuthButton>-->
+      <!--      <AuthButton @click="connectNFID()">-->
+      <!--        <div class="container">-->
+      <!--          <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />-->
+      <!--          <div class="name-social">Wallet</div>-->
+      <!--        </div>-->
+      <!--      </AuthButton>-->
       <AuthButton v-if="plugConnected" @click="connectPLUG()">
         <div class="container">
           <img src="@/assets/icons/plug.png" alt="PLUG" class="h-[24px]" />
@@ -255,13 +266,13 @@ const props = defineProps({
       />
       <AuthButton @click="loginWithSocial('twitter')">
         <div class="container">
-          <img src="@/assets/icons/x.png" alt="x" class="h-[24px]">
+          <img src="@/assets/icons/x.png" alt="x" class="h-[24px]" />
           <div class="name-social">X</div>
         </div>
       </AuthButton>
       <AuthButton @click="loginWithSocial('discord')">
         <div class="container">
-          <img src="@/assets/icons/discord.png" alt="discord" class="h-[24px]">
+          <img src="@/assets/icons/discord.png" alt="discord" class="h-[24px]" />
           <div class="name-social">Discord</div>
         </div>
       </AuthButton>

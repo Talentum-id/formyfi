@@ -26,7 +26,6 @@ const emit = defineEmits(['success', 'reject']);
 onMounted(() => {
   googleLogout();
   readCode();
-  useAuthStore().setAuthenticationStorage(false);
 });
 
 const filteredConnectors = computed(() => {
@@ -53,11 +52,25 @@ const readCode = () => {
   if (Object.keys(route.query).length > 0) {
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
-      .then((res) => {
-        localStorage.socialInfo = res.data.data.nickname;
-        localStorage.providerId = res.data.data.id;
-        localStorage.removeItem('socialProvider');
-        window.close();
+      .then(async ({ data }) => {
+        const provider = localStorage.socialProvider;
+        const providerId = data.data.id;
+        const nickname = data.data.nickname;
+
+        if (!localStorage.addingExtraSocial) {
+          localStorage.removeItem('socialProvider');
+        }
+        localStorage.socialInfo = nickname;
+
+        if (!localStorage.getItem('socialSignIn')) {
+          localStorage.providerId = providerId;
+          window.close();
+          return;
+        }
+
+        localStorage.removeItem('socialSignIn');
+        localStorage.connector = provider;
+        await useAuthStore().loginWithWeb2(providerId, nickname, provider);
       })
       .catch((e) => console.error(e));
   }
@@ -81,6 +94,9 @@ const connectSIWE = async (connector, chainId) => {
     localStorage.removeItem('connector');
     emit('reject');
   }
+};
+const loginWithSocial = async (provider) => {
+  await useAuthStore().connectSocial(provider, true);
 };
 const logout = async () => {
   await disconnect();
@@ -237,6 +253,18 @@ const props = defineProps({
           text: 'signin_with',
         }"
       />
+      <AuthButton @click="loginWithSocial('twitter')">
+        <div class="container">
+          <img src="@/assets/icons/x.png" alt="x" class="h-[24px]">
+          <div class="name-social">X</div>
+        </div>
+      </AuthButton>
+      <AuthButton @click="loginWithSocial('discord')">
+        <div class="container">
+          <img src="@/assets/icons/discord.png" alt="discord" class="h-[24px]">
+          <div class="name-social">Discord</div>
+        </div>
+      </AuthButton>
       <AuthButton @click="emit('skip')" v-if="isQuest">
         <div class="container">
           <div class="name-social">Submit the form anonymously</div>

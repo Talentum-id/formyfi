@@ -74,9 +74,9 @@ export default {
       }
     };
 
-    const logout = () => {
+    const logout = async () => {
       disconnect();
-      authStore.logout();
+      await authStore.logout();
     };
 
     onMounted(async () => {

@@ -41,6 +41,7 @@ start:
 	)"
 	@echo "Deploying canisters..."
 	dfx deploy internet_identity --argument '(null)'
+	dfx generate
 	dfx deploy
 	@echo "Generating canisters for Front-end..."
 	dfx generate

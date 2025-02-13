@@ -335,6 +335,37 @@ export const useAuthStore = defineStore('auth', {
         await router.push('/sign-up');
       }
     },
+    async loginWithWeb2(id, nickname, provider, isProfile = false) {
+      if (isProfile) {
+        await this.actor
+          .addExtraIdentity(
+            id,
+            provider,
+            {
+              identity: process.env.DFX_ASSET_PRINCIPAL,
+              character: localStorage.extraCharacter,
+            },
+            nickname,
+            provider,
+          )
+          .then(async () => {
+            await this.getProfile();
+          });
+        return;
+      }
+      this.actor = user_index;
+
+      this.setAuthenticationStorage(true, provider, id);
+
+      this.principal = localStorage.extraCharacter;
+      this.isAuthenticated = localStorage.isAuthenticated = true;
+
+      await this.initStores();
+
+      if (!this.isQuest) {
+        await router.push('/sign-up');
+      }
+    },
     async prepareSIWELogin(address) {
       const data = await ic_siwe_provider.siwe_prepare_login(address);
 
@@ -460,6 +491,9 @@ export const useAuthStore = defineStore('auth', {
           return window.ic?.plug?.accountId;
         case 'google':
           return this.getPrincipal.toString();
+        case 'x':
+        case 'discord':
+          return localStorage.socialInfo;
         default:
           return INTERNET_IDENTITY_TITLE;
       }
@@ -481,20 +515,23 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
           identity: process.env.DFX_ASSET_PRINCIPAL,
         },
-      );
+      )
+        .finally(() => localStorage.removeItem('socialInfo'));
     },
     setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
+      console.log(isAuthenticated, provider, character);
       if (isAuthenticated) {
         localStorage.isAuthenticated = isAuthenticated;
         localStorage.extraCharacter = character;
         localStorage.authenticationProvider = provider;
-      } else if (!localStorage.socialProvider) {
+      } else {
         localStorage.removeItem('isAuthenticated');
         localStorage.removeItem('indirectInternetIdentity');
         localStorage.removeItem('extraCharacter');
         localStorage.removeItem('authenticationProvider');
         localStorage.removeItem('address');
         localStorage.removeItem('connector');
+        localStorage.removeItem('socialSignIn');
       }
     },
     async setUser(user = null, extraIdentities = []) {
@@ -504,8 +541,7 @@ export const useAuthStore = defineStore('auth', {
       } else {
         if (!user.connector.length) {
           if (localStorage.connector === undefined) {
-            //await this.logout();
-            return;
+            await this.logout();
           }
 
           await this.actor.addConnector(localStorage.connector, {
@@ -584,6 +620,14 @@ export const useAuthStore = defineStore('auth', {
           } else if (identityUser.provider === 'siws') {
             localStorage.setItem('connector', 'siws');
             await this.initSIWS(identityUser.title[0]);
+          } else if (identityUser.provider === 'twitter') {
+            localStorage.setItem('extraCharacter', identityUser.title[0]);
+            localStorage.setItem('connector', 'twitter');
+            await this.initWeb2Auth();
+          } else if (identityUser.provider === 'discord') {
+            localStorage.setItem('extraCharacter', identityUser.title[0]);
+            localStorage.setItem('connector', 'discord');
+            await this.initWeb2Auth();
           } else {
             localStorage.setItem('connector', 'ii');
             localStorage.setItem('extraCharacter', userByIdentity[0].identity);
@@ -641,12 +685,15 @@ export const useAuthStore = defineStore('auth', {
         },
       );
     },
-    async connectSocial(provider) {
+    async connectSocial(provider, isLogin = false) {
       axiosService
         .get(`${process.env.API_URL}auth/redirect/${provider}`)
         .then((res) => {
           localStorage.socialProvider = provider;
-          window.open(res.data.url, '_blank');
+          window.open(res.data.url, isLogin ? '_self' : '_blank');
+          if (isLogin) {
+            localStorage.socialSignIn = true;
+          }
         })
         .catch((e) => console.error(e));
     },

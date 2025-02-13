@@ -79,30 +79,33 @@ import Default from '@/layouts/default.vue';
 import Badge from '@/components/Badge.vue';
 import StatCardSmall from '@/components/StatCards/StatCardSmall.vue';
 import { useAuthStore } from '@/store/auth';
-import { invoke, useDebounceFn } from '@vueuse/core';
+import { useDebounceFn } from '@vueuse/core';
 import { useStatsStore } from '@/store/stats';
 import Alert from '@/components/Alert.vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import SocialTag from '@/components/Profile/SocialTag.vue';
 import { useAccount, useChainId, useConnect, useDisconnect, useSignMessage } from '@wagmi/vue';
 import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
-
 const { connectAsync, connectors } = useConnect();
 const { address, isConnected } = useAccount();
 const { signMessageAsync } = useSignMessage({ config });
 const chainId = useChainId();
 const { disconnect } = useDisconnect();
 import dfinityIcon from '@/assets/images/dfinity.svg';
+import xIcon from '@/assets/icons/x.png';
+import discordIcon from '@/assets/icons/discord.png';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
 import { GoogleLogin } from 'vue3-google-login';
 import bs58 from 'bs58';
 import { shortenAddress } from '@/util/helpers';
+import axiosService from '@/services/axiosService';
 
 const authStore = useAuthStore();
 const statsStore = useStatsStore();
 
 const router = useRouter();
+const route = useRoute();
 
 const stats = computed(() => statsStore.getStatistics);
 const user = computed(() => authStore.getProfileData);
@@ -113,11 +116,25 @@ const socialLoading = ref(false);
 const loading = ref(false);
 const error = ref('');
 const successMessage = ref('');
+const socialId = ref(localStorage.socialInfo || '');
+const socialProviderId = ref(localStorage.providerId || '');
 
 onMounted(async () => {
+  window.addEventListener('storage', handleStorageEvent);
+
   disconnect();
   await statsStore.findStatistics();
 });
+
+const handleStorageEvent = (event) => {
+  if (event.key === 'socialInfo') {
+    socialId.value = event.newValue || '';
+  }
+
+  if (event.key === 'providerId') {
+    socialProviderId.value = event.newValue || '';
+  }
+};
 
 function triggerClick() {
   document.querySelector('.swv-button-trigger').click();
@@ -314,6 +331,64 @@ const socialButtons = computed(
           }
         },
       },
+      {
+        id: 4,
+        icon: xIcon,
+        status: user.value.connector === 'x' || !!getExtraIdentity('x'),
+        name: 'X',
+        value: user.value.connector === 'x'
+          ? user.value.title
+          : getExtraIdentity('x')
+            ? getExtraIdentity('x').title
+            : false,
+        fn: async () => {
+          localStorage.socialProvider = 'twitter';
+          localStorage.addingExtraSocial = 1;
+          await useAuthStore().connectSocial('twitter');
+        },
+        rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
+          try {
+            await removeProvider(getExtraIdentity('x'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
+          }
+        },
+      },
+      {
+        id: 5,
+        icon: discordIcon,
+        status: user.value.connector === 'discord' || !!getExtraIdentity('discord'),
+        name: 'Discord',
+        value: user.value.connector === 'discord'
+          ? user.value.title
+          : getExtraIdentity('discord')
+            ? getExtraIdentity('discord').title
+            : false,
+        fn: async () => {
+          localStorage.socialProvider = 'discord';
+          localStorage.addingExtraSocial = 1;
+          await useAuthStore().connectSocial('discord');
+        },
+        rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
+          try {
+            await removeProvider(getExtraIdentity('discord'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
+          }
+        },
+      },
     ].filter((item) => item),
   { dependsOn: [getExtraIdentities] },
 );
@@ -328,6 +403,39 @@ const invokeErrorAlert = () => {
 
   setTimeout(() => error.value = '', 3000);
 };
+
+const addWeb2ExtraIdentity = async () => {
+  await useAuthStore().loginWithWeb2(
+    socialProviderId.value,
+    socialId.value,
+    localStorage.socialProvider,
+    true,
+  ).finally(() => {
+    localStorage.removeItem('socialProvider');
+    localStorage.removeItem('addingExtraSocial');
+    localStorage.removeItem('providerId');
+    localStorage.removeItem('socialInfo');
+  });
+}
+
+watch(
+  () => socialId.value,
+  async () => {
+    if (socialId.value && socialProviderId.value) {
+      await addWeb2ExtraIdentity();
+    }
+  },
+);
+
+watch(
+  () => socialProviderId.value,
+  async () => {
+    if (socialId.value && socialProviderId.value) {
+      await addWeb2ExtraIdentity();
+    }
+  },
+);
+
 watch(
   isConnected,
   async (value) => {

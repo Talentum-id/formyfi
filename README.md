@@ -65,7 +65,7 @@ command:
 
    Second, create the remaining canisters:
    ```bash
-	dfx canister create --all
+   dfx canister create --all
    ```
 
    Third, deploy `ic_siwe_provider` and `ic_siws_provider` canisters with runtime arguments:
@@ -108,6 +108,7 @@ command:
    Fourth, deploy canisters and generate:
    ```bash
    dfx deploy internet_identity --argument '(null)'
+   dfx generate
    dfx deploy && dfx generate
    ```
 

@@ -4,11 +4,11 @@
     <div class="info">
       <span> Follow us</span>
       <div class="socials cursor-pointer">
-        <Icon
-          name="Twitter-Default"
-          :size="26"
+        <img
+          src="@/assets/icons/x.png"
           @click="goToSocial('https://twitter.com/formyfi_io')"
-        />
+          alt="x"
+        >
       </div>
     </div>
   </footer>
@@ -51,8 +51,7 @@ export default {
   gap: 30px;
 
   img {
-    width: 16px;
-    height: 14px;
+    height: 24px;
   }
 }
 

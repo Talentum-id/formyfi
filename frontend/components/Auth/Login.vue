@@ -78,6 +78,24 @@ const readCode = () => {
   }
 };
 
+const loginWithSuiet = async () => {
+  await connectSuiet();
+  const address = await getGlobalAddress();
+
+  if (address && address !== 'undefined') {
+    localStorage.connector = 'suiet';
+    await authStore.loginWithSui(getGlobalAddress(), 'suiet');
+  }
+};
+const loginWithSui = async () => {
+  await connectSui();
+  const address = await getGlobalAddress();
+
+  if (address && address !== 'undefined') {
+    localStorage.connector = 'sui';
+    await authStore.loginWithSui(getGlobalAddress(), 'sui');
+  }
+};
 const IIConnect = async () => {
   try {
     localStorage.connector = 'ii';
@@ -103,14 +121,6 @@ const loginWithSocial = async (provider) => {
 const logout = async () => {
   await disconnect();
   await authStore.logout();
-};
-const connectNFID = async () => {
-  try {
-    await authStore.loginWithNFID();
-  } catch (e) {
-    console.error(e);
-    emit('reject');
-  }
 };
 const connectPLUG = async () => {
   try {
@@ -227,25 +237,19 @@ const props = defineProps({
             </div>
           </div>
         </AuthButton>
-        <AuthButton @click="connectSui()">
-          <div class="container">
-            <img src="@/assets/icons/sui.svg" alt="Sui Wallet" class="h-[24px]" />
-            <div class="name-social">Sui Wallet</div>
-          </div>
-        </AuthButton>
-        <AuthButton @click="connectSuiet()">
-          <div class="container">
-            <img src="@/assets/icons/suiet.svg" alt="Suiet Wallet" class="h-[24px]" />
-            <div class="name-social">Suiet</div>
-          </div>
-        </AuthButton>
       </template>
-      <!--      <AuthButton @click="connectNFID()">-->
-      <!--        <div class="container">-->
-      <!--          <img src="@/assets/icons/nfid.svg" alt="NFID" class="h-[24px]" />-->
-      <!--          <div class="name-social">Wallet</div>-->
-      <!--        </div>-->
-      <!--      </AuthButton>-->
+      <AuthButton @click="loginWithSui()">
+        <div class="container">
+          <img src="@/assets/icons/sui.svg" alt="Sui Wallet" class="h-[24px]" />
+          <div class="name-social">Sui Wallet</div>
+        </div>
+      </AuthButton>
+      <AuthButton @click="loginWithSuiet()">
+        <div class="container">
+          <img src="@/assets/icons/suiet.svg" alt="Suiet Wallet" class="h-[24px]" />
+          <div class="name-social">Suiet</div>
+        </div>
+      </AuthButton>
       <AuthButton v-if="plugConnected" @click="connectPLUG()">
         <div class="container">
           <img src="@/assets/icons/plug.png" alt="PLUG" class="h-[24px]" />

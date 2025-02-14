@@ -335,6 +335,37 @@ export const useAuthStore = defineStore('auth', {
         await router.push('/sign-up');
       }
     },
+    async loginWithSui(address, provider, isProfile = false) {
+      if (isProfile) {
+        await this.actor
+          .addExtraIdentity(
+            address,
+            provider,
+            {
+              identity: process.env.DFX_ASSET_PRINCIPAL,
+              character: localStorage.extraCharacter,
+            },
+            address,
+            provider,
+          )
+          .then(async () => {
+            await this.getProfile();
+          });
+        return;
+      }
+      this.actor = user_index;
+
+      this.setAuthenticationStorage(true, provider, address);
+
+      this.principal = localStorage.extraCharacter;
+      this.isAuthenticated = localStorage.isAuthenticated = true;
+
+      await this.initStores();
+
+      if (!this.isQuest) {
+        await router.push('/sign-up');
+      }
+    },
     async loginWithWeb2(id, nickname, provider, isProfile = false) {
       if (isProfile) {
         await this.actor
@@ -519,7 +550,6 @@ export const useAuthStore = defineStore('auth', {
         .finally(() => localStorage.removeItem('socialInfo'));
     },
     setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
-      console.log(isAuthenticated, provider, character);
       if (isAuthenticated) {
         localStorage.isAuthenticated = isAuthenticated;
         localStorage.extraCharacter = character;
@@ -532,6 +562,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('address');
         localStorage.removeItem('connector');
         localStorage.removeItem('socialSignIn');
+        localStorage.removeItem('globalAddress');
       }
     },
     async setUser(user = null, extraIdentities = []) {
@@ -628,6 +659,9 @@ export const useAuthStore = defineStore('auth', {
             localStorage.setItem('extraCharacter', identityUser.title[0]);
             localStorage.setItem('connector', 'discord');
             await this.initWeb2Auth();
+          } else if (identityUser.provider === 'suiet' || identityUser.provider === 'sui') {
+            localStorage.setItem('extraCharacter', identityUser.title[0]);
+            localStorage.setItem('connector', identityUser.provider);
           } else {
             localStorage.setItem('connector', 'ii');
             localStorage.setItem('extraCharacter', userByIdentity[0].identity);

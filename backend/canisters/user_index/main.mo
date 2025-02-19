@@ -67,6 +67,7 @@ actor UserIndex {
               extraIdentities = ?[];
               title;
               connector;
+              zkLoginAddress = data.zkLoginAddress;
             },
           );
           usernames.put(username, identity);
@@ -130,6 +131,7 @@ actor UserIndex {
           extraIdentities;
           forms_created;
           connector;
+          zkLoginAddress;
         } = user;
 
         users.put(
@@ -144,6 +146,7 @@ actor UserIndex {
             extraIdentities;
             title = ?title;
             connector;
+            zkLoginAddress;
           },
         );
       };
@@ -156,7 +159,7 @@ actor UserIndex {
     switch (users.get(identity)) {
       case null ignore null;
       case (?user) {
-        let { provider; fullName; username; avatar; banner; extraIdentities; forms_created; title } = user;
+        let { provider; fullName; username; avatar; banner; extraIdentities; forms_created; title; zkLoginAddress } = user;
 
         users.put(
           identity,
@@ -170,6 +173,7 @@ actor UserIndex {
             extraIdentities;
             title;
             connector = ?connector;
+            zkLoginAddress;
           },
         );
       };
@@ -261,7 +265,7 @@ actor UserIndex {
               Debug.trap("This identity is already attached");
             };
 
-            let { provider; fullName; username; avatar; banner; title; forms_created; connector } = user;
+            let { provider; fullName; username; avatar; banner; title; forms_created; connector; zkLoginAddress } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
               case (?identities) Buffer.fromArray<Text>(identities);
@@ -284,6 +288,7 @@ actor UserIndex {
                 extraIdentities = ?Buffer.toArray(userIdentities);
                 title;
                 connector;
+                zkLoginAddress;
               },
             );
             extraIdentities.put(
@@ -324,7 +329,7 @@ actor UserIndex {
           case null Debug.trap("User does not exist");
           case (?user) {
             var index = DEFAULT_IDENTITY_INCORRECT_INDEX;
-            let { provider; fullName; username; avatar; banner; title; connector } = user;
+            let { provider; fullName; username; avatar; banner; title; connector; zkLoginAddress } = user;
             let userIdentities = switch (user.extraIdentities) {
               case null Buffer.fromArray<Text>([]);
               case (?identities) {
@@ -359,6 +364,7 @@ actor UserIndex {
                 extraIdentities = ?Buffer.toArray(userIdentities);
                 title;
                 connector;
+                zkLoginAddress;
               },
             );
             extraIdentities.delete(extraIdentity);

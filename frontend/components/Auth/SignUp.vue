@@ -92,6 +92,8 @@ const createAccount = () => {
       emit('reject');
     })
     .finally(() => {
+      localStorage.removeItem('zkLoginAddress');
+      localStorage.removeItem('socialInfo');
       form.value.loading = false;
     });
 };

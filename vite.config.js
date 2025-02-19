@@ -89,6 +89,7 @@ export default defineConfig({
   define: {
     ...canisterDefinitions,
     'process.env.II_URI': JSON.stringify(internetIdentityUri),
+    'process.env.SUI_NET_ENV': JSON.stringify(process.env.SUI_NET_ENV),
     'process.env.II_LIFETIME': JSON.stringify(process.env.II_LIFETIME),
     'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production'),
     'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),

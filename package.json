@@ -30,6 +30,7 @@
     "element-plus": "^2.8.4",
     "html2pdf.js": "^0.10.2",
     "idb-keyval": "^6.2.1",
+    "jwt-decode": "^4.0.0",
     "localforage": "^1.10.0",
     "luxon": "^3.5.0",
     "pinia": "^2.2.4",

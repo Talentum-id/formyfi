@@ -11,6 +11,7 @@ import { config } from '@/wagmi.config';
 import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
 import { useSuiWallet } from '@/composables/useSuiWallet';
+import { useZkLogin } from '@/composables/useZkLogin';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -22,6 +23,7 @@ const { disconnect } = useDisconnect();
 const { signMessageAsync } = useSignMessage({ config });
 const chainId = useChainId();
 const route = useRoute();
+const { connectZkLogin, zkLoginAuthorize } = useZkLogin();
 
 const emit = defineEmits(['success', 'reject']);
 
@@ -38,20 +40,9 @@ const filteredConnectors = computed(() => {
 
 const plugConnected = computed(() => window.ic?.plug !== undefined);
 
-const callback = async (response) => {
-  try {
-    localStorage.connector = 'google';
-    await useAuthStore()
-      .loginWithGoogle(response.credential)
-      .then(() => emit('success'));
-  } catch (e) {
-    localStorage.removeItem('connector');
-    emit('reject');
-  }
-};
-
-const readCode = () => {
+const readCode = async () => {
   if (Object.keys(route.query).length > 0) {
+    console.log(route.query);
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then(async ({ data }) => {
@@ -75,6 +66,14 @@ const readCode = () => {
         await useAuthStore().loginWithWeb2(providerId, nickname, provider);
       })
       .catch((e) => console.error(e));
+  }
+
+  const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
+  if (idToken) {
+    const { email, address } = await zkLoginAuthorize(idToken, 'google');
+    if (email && address) {
+      await authStore.loginWithGoogle(email, address);
+    }
   }
 };
 
@@ -258,16 +257,12 @@ const props = defineProps({
       </AuthButton>
       <WalletMultiButton />
       <hr />
-      <GoogleLogin
-        style="margin-top: -4px"
-        :callback="callback"
-        :buttonConfig="{
-          logo_alignment: 'center',
-          width: '392px',
-          shape: 'pill',
-          text: 'signin_with',
-        }"
-      />
+      <AuthButton @click="connectZkLogin('google')">
+        <div class="container">
+          <img src="@/assets/icons/google.png" class="h-[20px]" alt="google" />
+          <div class="name-social">Google</div>
+        </div>
+      </AuthButton>
       <AuthButton @click="loginWithSocial('twitter')">
         <div class="container">
           <img src="@/assets/icons/x.png" alt="x" class="h-[24px]" />

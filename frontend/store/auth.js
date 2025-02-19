@@ -99,8 +99,8 @@ export const useAuthStore = defineStore('auth', {
             await this.logout();
           });
       } else {
-        if (!this.isQuest && !localStorage.socialProvider) {
-          await router.push('/sign-up');
+        if (!this.isQuest && router.currentRoute.value.path !== '/login') {
+          await router.push('/login');
         }
 
         if (this.isQuest) {
@@ -303,8 +303,7 @@ export const useAuthStore = defineStore('auth', {
         await this.logout();
       }
     },
-    async loginWithGoogle(credential, isProfile = false) {
-      const { email } = decodeCredential(credential);
+    async loginWithGoogle(email, address = null, isProfile = false) {
       if (isProfile) {
         await this.actor
           .addExtraIdentity(
@@ -324,6 +323,8 @@ export const useAuthStore = defineStore('auth', {
       }
       this.actor = user_index;
 
+      localStorage.setItem('connector', 'google');
+      localStorage.setItem('zkLoginAddress', address);
       this.setAuthenticationStorage(true, 'google', email);
 
       this.principal = localStorage.extraCharacter;
@@ -530,24 +531,27 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     register({ username, fullName }) {
-      return this.actor?.register(
-        {
-          username,
-          fullName,
-          connector: [localStorage.connector],
-          title: [this.getTitleByProvider()],
-          provider: localStorage.authenticationProvider,
-          avatar: [],
-          banner: [],
-          forms_created: 0,
-          extraIdentities: [],
-        },
-        {
-          character: localStorage.extraCharacter,
-          identity: process.env.DFX_ASSET_PRINCIPAL,
-        },
-      )
-        .finally(() => localStorage.removeItem('socialInfo'));
+      const zkLoginAddress = localStorage.getItem('zkLoginAddress');
+      console.log(zkLoginAddress);
+      return this.actor
+        ?.register(
+          {
+            username,
+            fullName,
+            connector: [localStorage.connector],
+            title: [this.getTitleByProvider()],
+            provider: localStorage.authenticationProvider,
+            avatar: [],
+            banner: [],
+            forms_created: 0,
+            extraIdentities: [],
+            zkLoginAddress: zkLoginAddress ? [zkLoginAddress] : [],
+          },
+          {
+            character: localStorage.extraCharacter,
+            identity: process.env.DFX_ASSET_PRINCIPAL,
+          },
+        );
     },
     setAuthenticationStorage(isAuthenticated, provider = '', character = '') {
       if (isAuthenticated) {
@@ -563,6 +567,8 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('connector');
         localStorage.removeItem('socialSignIn');
         localStorage.removeItem('globalAddress');
+        localStorage.removeItem('socialInfo');
+        localStorage.removeItem('zkLoginAddress');
       }
     },
     async setUser(user = null, extraIdentities = []) {

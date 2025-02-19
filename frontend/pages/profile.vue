@@ -40,7 +40,11 @@
               @remove="connector.rm()"
               :key="connector.id"
               :disabled="socialLoading"
-              :hide-remove="connector.name === user.connector || (user.connector === 'ii' && connector.name === 'Internet Identity')"
+              :hide-remove="
+                connector.name === 'zkLogin' ||
+                connector.name === user.connector ||
+                (user.connector === 'ii' && connector.name === 'Internet Identity')
+              "
             >
               {{ connector.name }} -- {{ user.connector }}
             </SocialTag>
@@ -95,17 +99,16 @@ const { disconnect } = useDisconnect();
 import dfinityIcon from '@/assets/images/dfinity.svg';
 import xIcon from '@/assets/icons/x.png';
 import discordIcon from '@/assets/icons/discord.png';
+import suiIcon from '@/assets/icons/sui.svg';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
 import { GoogleLogin } from 'vue3-google-login';
 import bs58 from 'bs58';
 import { shortenAddress } from '@/util/helpers';
-import axiosService from '@/services/axiosService';
 
 const authStore = useAuthStore();
 const statsStore = useStatsStore();
 
 const router = useRouter();
-const route = useRoute();
 
 const stats = computed(() => statsStore.getStatistics);
 const user = computed(() => authStore.getProfileData);
@@ -198,11 +201,12 @@ const socialButtons = computed(
           icon: connector.icon,
           status: user.value.connector === connector.name || getExtraIdentity(connector.name),
           name: connector.name,
-          value: user.value.connector === connector.name
-            ? shortenAddress(user.value.title)
-            : getExtraIdentity(connector.name)
-              ? shortenAddress(getExtraIdentity(connector.name).title)
-              : false,
+          value:
+            user.value.connector === connector.name
+              ? shortenAddress(user.value.title)
+              : getExtraIdentity(connector.name)
+                ? shortenAddress(getExtraIdentity(connector.name).title)
+                : false,
           fn: async () => {
             if (socialLoading.value) return;
 
@@ -236,11 +240,12 @@ const socialButtons = computed(
         icon: dfinityIcon,
         status: user.value.connector === 'ii' || getExtraIdentity('ii'),
         name: 'Internet Identity',
-        value: user.value.connector === 'ii'
-          ? user.value.title
-          : getExtraIdentity('ii')
-            ? getExtraIdentity('ii').title
-            : false,
+        value:
+          user.value.connector === 'ii'
+            ? user.value.title
+            : getExtraIdentity('ii')
+              ? getExtraIdentity('ii').title
+              : false,
         fn: async () => {
           if (socialLoading.value) return;
 
@@ -274,11 +279,12 @@ const socialButtons = computed(
         icon: 'Wallet-Default',
         status: user.value.connector === 'siws' || !!getExtraIdentity('siws'),
         name: 'Solana Wallets',
-        value: user.value.connector === 'siws'
-          ? shortenAddress(user.value.title)
-          : getExtraIdentity('siws')
-            ? shortenAddress(getExtraIdentity('siws').title)
-            : false,
+        value:
+          user.value.connector === 'siws'
+            ? shortenAddress(user.value.title)
+            : getExtraIdentity('siws')
+              ? shortenAddress(getExtraIdentity('siws').title)
+              : false,
         fn: async () => {
           if (socialLoading.value) return;
 
@@ -310,13 +316,13 @@ const socialButtons = computed(
         icon: 'Google',
         status: user.value.connector === 'google' || !!getExtraIdentity('google'),
         name: 'Google',
-        value: user.value.connector === 'google'
-          ? user.value.title
-          : getExtraIdentity('google')
-            ? getExtraIdentity('google').title
-            : false,
-        fn: async () => {
-        },
+        value:
+          user.value.connector === 'google'
+            ? user.value.title
+            : getExtraIdentity('google')
+              ? getExtraIdentity('google').title
+              : false,
+        fn: async () => {},
         rm: async () => {
           if (socialLoading.value) return;
 
@@ -336,11 +342,12 @@ const socialButtons = computed(
         icon: xIcon,
         status: user.value.connector === 'x' || !!getExtraIdentity('x'),
         name: 'X',
-        value: user.value.connector === 'x'
-          ? user.value.title
-          : getExtraIdentity('x')
-            ? getExtraIdentity('x').title
-            : false,
+        value:
+          user.value.connector === 'x'
+            ? user.value.title
+            : getExtraIdentity('x')
+              ? getExtraIdentity('x').title
+              : false,
         fn: async () => {
           localStorage.socialProvider = 'twitter';
           localStorage.addingExtraSocial = 1;
@@ -365,11 +372,12 @@ const socialButtons = computed(
         icon: discordIcon,
         status: user.value.connector === 'discord' || !!getExtraIdentity('discord'),
         name: 'Discord',
-        value: user.value.connector === 'discord'
-          ? user.value.title
-          : getExtraIdentity('discord')
-            ? getExtraIdentity('discord').title
-            : false,
+        value:
+          user.value.connector === 'discord'
+            ? user.value.title
+            : getExtraIdentity('discord')
+              ? getExtraIdentity('discord').title
+              : false,
         fn: async () => {
           localStorage.socialProvider = 'discord';
           localStorage.addingExtraSocial = 1;
@@ -389,34 +397,41 @@ const socialButtons = computed(
           }
         },
       },
-    ].filter((item) => item),
+      {
+        id: 6,
+        disabled: user.value.zkLoginAddress.length === 0,
+        icon: suiIcon,
+        name: 'zkLogin',
+        status: user.value.zkLoginAddress.length,
+        value: user.value.zkLoginAddress.length ? shortenAddress(user.value.zkLoginAddress[0]) : false,
+        fn: async () => {},
+        rm: async () => {},
+      },
+    ].filter((item) => item && !item.disabled),
   { dependsOn: [getExtraIdentities] },
 );
 
 const invokeSuccessAlert = () => {
   successMessage.value = 'Operation successfully completed';
 
-  setTimeout(() => successMessage.value = '', 3000);
+  setTimeout(() => (successMessage.value = ''), 3000);
 };
 const invokeErrorAlert = () => {
   error.value = 'Operation failed. Try again later.';
 
-  setTimeout(() => error.value = '', 3000);
+  setTimeout(() => (error.value = ''), 3000);
 };
 
 const addWeb2ExtraIdentity = async () => {
-  await useAuthStore().loginWithWeb2(
-    socialProviderId.value,
-    socialId.value,
-    localStorage.socialProvider,
-    true,
-  ).finally(() => {
-    localStorage.removeItem('socialProvider');
-    localStorage.removeItem('addingExtraSocial');
-    localStorage.removeItem('providerId');
-    localStorage.removeItem('socialInfo');
-  });
-}
+  await useAuthStore()
+    .loginWithWeb2(socialProviderId.value, socialId.value, localStorage.socialProvider, true)
+    .finally(() => {
+      localStorage.removeItem('socialProvider');
+      localStorage.removeItem('addingExtraSocial');
+      localStorage.removeItem('providerId');
+      localStorage.removeItem('socialInfo');
+    });
+};
 
 watch(
   () => socialId.value,
@@ -440,14 +455,14 @@ watch(
   isConnected,
   async (value) => {
     if (value) {
-      const message =
-        await authStore.prepareSIWELogin(address.value);
+      const message = await authStore.prepareSIWELogin(address.value);
       if (message === null) {
         await disconnect();
       } else {
         await signMessageAsync({ message }).then(
           async (signature) =>
-            await authStore.loginWithSIWE(address.value, signature, currentConnector.value)
+            await authStore
+              .loginWithSIWE(address.value, signature, currentConnector.value)
               .then(() => invokeSuccessAlert())
               .catch(() => invokeErrorAlert()),
         );
@@ -469,14 +484,14 @@ watch(
 
         const encodedMessage = new TextEncoder().encode(
           `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-          `${siwsMessage.address}\n\n` +
-          `${siwsMessage.statement}\n\n` +
-          `URI: ${siwsMessage.uri}\n` +
-          `Version: ${siwsMessage.version}\n` +
-          `Chain ID: ${siwsMessage.chain_id}\n` +
-          `Nonce: ${siwsMessage.nonce}\n` +
-          `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
-          `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
+            `${siwsMessage.address}\n\n` +
+            `${siwsMessage.statement}\n\n` +
+            `URI: ${siwsMessage.uri}\n` +
+            `Version: ${siwsMessage.version}\n` +
+            `Chain ID: ${siwsMessage.chain_id}\n` +
+            `Nonce: ${siwsMessage.nonce}\n` +
+            `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
+            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
         );
 
         const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
@@ -489,8 +504,7 @@ watch(
             console.error(e);
           });
       }
-    } catch {
-    }
+    } catch {}
   },
   {
     immediate: true,

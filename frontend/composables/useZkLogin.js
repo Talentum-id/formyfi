@@ -6,7 +6,7 @@ import {
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { jwtDecode } from 'jwt-decode';
-import axiosService from '~/service/axiosService';
+import axiosService from '@/services/axiosService';
 import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import { Buffer } from 'buffer';
 
@@ -93,9 +93,8 @@ export const useZkLogin = () => {
         token: jwt,
       },
     );
-    const { access_token } = data;
 
-    return access_token;
+    return { email: data, address };
   };
 
   const connectZkLogin = async (provider) => {
@@ -120,8 +119,7 @@ export const useZkLogin = () => {
       `${process.env.API_URL}zk-identities/get-by-provider?provider=${provider}&provider_id=${sub}`,
     );
 
-    salt = data.salt;
-
+    salt = data?.salt;
     if (!salt) {
       console.info('User does not have a zk identity, attaching...');
 
@@ -131,24 +129,23 @@ export const useZkLogin = () => {
     }
 
     const ephemeralKeyPair = JSON.parse(localStorage.getItem('zklogin_ephemeral_keypair'));
-
     const extendedEphemeralPublicKey = getExtendedEphemeralPublicKey(
       Ed25519Keypair.fromSecretKey(
-        decodeSuiPrivateKey(data.secret_key).secretKey
+        data.secret_key ? decodeSuiPrivateKey(data.secret_key).secretKey : ephemeralKeyPair.privateKey
       ).getPublicKey()
     );
 
     await axiosService.post(
-      `${process.env.API_URL}/zk-identities/update-zero-proof`,
+      `${process.env.API_URL}zk-identities/update-zero-proof`,
       {
         jwt,
-        randomness: localStorage.randomness,
+        jwtRandomness: localStorage.randomness,
         extendedEphemeralPublicKey: extendedEphemeralPublicKey.toString(),
         salt: salt.toString(),
         keyClaimName: 'sub',
         chain: process.env.SUI_NET_ENV,
         maxEpoch: localStorage.max_epoch,
-        provider,
+        provider: provider,
         provider_id: sub,
         audience: aud,
         secret_key: ephemeralKeyPair.privateKey,

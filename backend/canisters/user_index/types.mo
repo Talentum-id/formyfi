@@ -15,5 +15,6 @@ module UserTypes {
     extraIdentities : ?[Text];
     title : ?Text;
     connector: ?Text;
+    zkLoginAddress: ?Text;
   };
 };

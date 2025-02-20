@@ -166,7 +166,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async initII(isProfile = false) {
       const principal = localStorage.getItem('extraCharacter');
-      if (principal === undefined || principal === null) {
+      if (!principal || isProfile) {
         const authClient = await AuthClient.create(defaultOptions.createOptions);
         this.authClient = authClient;
 
@@ -523,7 +523,7 @@ export const useAuthStore = defineStore('auth', {
           return window.ic?.plug?.accountId;
         case 'google':
           return this.getPrincipal.toString();
-        case 'x':
+        case 'twitter':
         case 'discord':
           return localStorage.socialInfo;
         default:
@@ -532,7 +532,7 @@ export const useAuthStore = defineStore('auth', {
     },
     register({ username, fullName }) {
       const zkLoginAddress = localStorage.getItem('zkLoginAddress');
-      console.log(zkLoginAddress);
+
       return this.actor
         ?.register(
           {

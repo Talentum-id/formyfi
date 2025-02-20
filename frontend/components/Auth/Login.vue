@@ -42,7 +42,6 @@ const plugConnected = computed(() => window.ic?.plug !== undefined);
 
 const readCode = async () => {
   if (Object.keys(route.query).length > 0) {
-    console.log(route.query);
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then(async ({ data }) => {

@@ -76,7 +76,6 @@ function closeModal() {
   }, 500);
 }
 watch(props.visible, () => {
-  console.log(123);
   setTimeout(() => {
     open.value = props.visible;
   }, 500);

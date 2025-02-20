@@ -340,13 +340,13 @@ const socialButtons = computed(
       {
         id: 4,
         icon: xIcon,
-        status: user.value.connector === 'x' || !!getExtraIdentity('x'),
+        status: user.value.connector === 'twitter' || !!getExtraIdentity('twitter'),
         name: 'X',
         value:
-          user.value.connector === 'x'
+          user.value.connector === 'twitter'
             ? user.value.title
-            : getExtraIdentity('x')
-              ? getExtraIdentity('x').title
+            : getExtraIdentity('twitter')
+              ? getExtraIdentity('twitter').title
               : false,
         fn: async () => {
           localStorage.socialProvider = 'twitter';
@@ -358,7 +358,7 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('x'));
+            await removeProvider(getExtraIdentity('twitter'));
             invokeSuccessAlert();
           } catch {
             invokeErrorAlert();

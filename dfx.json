@@ -19,16 +19,6 @@
       "main": "backend/canisters/qa_index/form.mo",
       "type": "motoko"
     },
-    "response_index": {
-      "dependencies": [
-        "vetkd_system_api",
-        "user_index",
-        "form_index",
-        "metrics_index"
-      ],
-      "main": "backend/canisters/response_index/main.mo",
-      "type": "motoko"
-    },
     "submissions_index": {
       "dependencies": [
         "vetkd_system_api",
@@ -51,7 +41,6 @@
         "internet_identity",
         "user_index",
         "form_index",
-        "response_index",
         "submissions_index",
         "metrics_index"
       ],

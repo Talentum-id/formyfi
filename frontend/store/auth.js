@@ -523,6 +523,9 @@ export const useAuthStore = defineStore('auth', {
           return window.ic?.plug?.accountId;
         case 'google':
           return this.getPrincipal.toString();
+        case 'sui':
+        case 'suiet':
+          return localStorage.getItem('globalAddress');
         case 'twitter':
         case 'discord':
           return localStorage.socialInfo;
@@ -660,14 +663,19 @@ export const useAuthStore = defineStore('auth', {
           } else if (identityUser.provider === 'twitter') {
             localStorage.setItem('extraCharacter', identityUser.title[0]);
             localStorage.setItem('connector', 'twitter');
+            localStorage.setItem('authenticationProvider', 'twitter')
             await this.initWeb2Auth();
           } else if (identityUser.provider === 'discord') {
             localStorage.setItem('extraCharacter', identityUser.title[0]);
             localStorage.setItem('connector', 'discord');
+            localStorage.setItem('authenticationProvider', 'discord')
             await this.initWeb2Auth();
           } else if (identityUser.provider === 'suiet' || identityUser.provider === 'sui') {
             localStorage.setItem('extraCharacter', identityUser.title[0]);
+            localStorage.setItem('globalAddress', identityUser.title[0]);
             localStorage.setItem('connector', identityUser.provider);
+            localStorage.setItem('authenticationProvider', identityUser.provider);
+            await this.initWeb2Auth();
           } else {
             localStorage.setItem('connector', 'ii');
             localStorage.setItem('extraCharacter', userByIdentity[0].identity);
@@ -722,6 +730,7 @@ export const useAuthStore = defineStore('auth', {
           extraIdentities: [data.extraIdentities],
           title: [data.title],
           connector: [data.connector],
+          zkLoginAddress: data.zkLoginAddress,
         },
       );
     },

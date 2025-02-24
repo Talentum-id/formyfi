@@ -45,12 +45,12 @@ export const useZkLogin = () => {
     );
   };
 
-  const getLoginParamsByProvider = (provider) => {
+  const getLoginParamsByProvider = (provider, customPath = null) => {
     switch (provider) {
       case 'google': {
         return new URLSearchParams({
           client_id: GOOGLE_CLIENT_ID,
-          redirect_uri: REDIRECT_URI,
+          redirect_uri: customPath || REDIRECT_URI,
           response_type: 'id_token',
           scope: 'openid profile email',
           nonce: nonce,
@@ -68,8 +68,8 @@ export const useZkLogin = () => {
     }
   };
 
-  const getRedirectPath = (provider) => {
-    const loginParams = getLoginParamsByProvider(provider);
+  const getRedirectPath = (provider, customPath = null) => {
+    const loginParams = getLoginParamsByProvider(provider, customPath);
     switch (provider) {
       case 'google': {
         return `https://accounts.google.com/o/oauth2/v2/auth?${loginParams}`;
@@ -97,10 +97,10 @@ export const useZkLogin = () => {
     return { email: data, address };
   };
 
-  const connectZkLogin = async (provider) => {
+  const connectZkLogin = async (provider, customPath = null) => {
     await init();
     localStorage.social = provider;
-    window.location.href = getRedirectPath(provider);
+    window.location.href = getRedirectPath(provider, customPath);
   };
 
   const generateSalt = async () => {

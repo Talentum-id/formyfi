@@ -326,7 +326,7 @@ const socialButtons = computed(
         name: 'Google',
         value:
           user.value.connector === 'google'
-            ? user.value.title
+            ? user.value.title + ' ' + (user.value.zkLoginAddress.length ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')' : false)
             : getExtraIdentity('google')
               ? getExtraIdentity('google').title
               : false,
@@ -406,16 +406,6 @@ const socialButtons = computed(
             socialLoading.value = false;
           }
         },
-      },
-      {
-        id: 6,
-        disabled: user.value.zkLoginAddress.length === 0,
-        icon: suiIcon,
-        name: 'zkLogin',
-        status: user.value.zkLoginAddress.length,
-        value: user.value.zkLoginAddress.length ? shortenAddress(user.value.zkLoginAddress[0]) : false,
-        fn: async () => {},
-        rm: async () => {},
       },
     ].filter((item) => item && !item.disabled),
   { dependsOn: [getExtraIdentities] },

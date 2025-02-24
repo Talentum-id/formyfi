@@ -62,13 +62,16 @@ const readCode = async () => {
 
         localStorage.removeItem('socialSignIn');
         localStorage.connector = provider;
-        await useAuthStore().loginWithWeb2(providerId, nickname, provider);
+        await useAuthStore().loginWithWeb2(nickname, nickname, provider);
       })
       .catch((e) => console.error(e));
   }
 
   const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
   if (idToken) {
+    localStorage.removeItem('social');
+    localStorage.removeItem('token');
+
     const { email, address } = await zkLoginAuthorize(idToken, 'google');
     if (email && address) {
       await authStore.loginWithGoogle(email, address);
@@ -218,7 +221,7 @@ const props = defineProps({
       <AuthButton @click="IIConnect()">
         <div class="container">
           <img src="@/assets/images/dfinity.svg" alt="Dfinity" />
-          <div class="name-social">Internet Identity</div>
+          <div class="name-social">II</div>
         </div>
       </AuthButton>
       <template v-for="connector in filteredConnectors" :key="connector.name">
@@ -255,7 +258,9 @@ const props = defineProps({
         </div>
       </AuthButton>
       <WalletMultiButton />
-      <hr />
+    </div>
+    <hr />
+    <div class="form-block">
       <AuthButton @click="connectZkLogin('google')">
         <div class="container">
           <img src="@/assets/icons/google.png" class="h-[20px]" alt="google" />
@@ -279,10 +284,9 @@ const props = defineProps({
           <div class="name-social">Submit the form anonymously</div>
         </div>
       </AuthButton>
-
-      <div class="agreement">
-        By proceeding, you agree to <span> Terms of Service</span> & <span>Privacy Policy</span>.
-      </div>
+    </div>
+    <div class="agreement">
+      By proceeding, you agree to <span> Terms of Service</span> & <span>Privacy Policy</span>.
     </div>
   </div>
 </template>
@@ -307,9 +311,22 @@ const props = defineProps({
 
   .form-block {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 27px;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+
+    .btn {
+      flex: 0 0 calc(50% - 5px);
+      min-width: calc(50% - 5px);
+      max-width: calc(50% - 5px);
+    }
+
+    .btn:last-child:nth-child(odd) {
+      flex: 0 0 100%;
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+    }
   }
 
   .container {

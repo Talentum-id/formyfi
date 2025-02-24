@@ -5,7 +5,7 @@
       <div class="naming w-full">
         <AvatarUploader :avatar="user.avatarUri" />
         <div class="info">
-          <InputName v-model="name" :placeholder="user.username" @input="setName()" />
+          <InputName v-model="name" placeholder="Enter username" @input="setName()" />
         </div>
       </div>
       <div class="info-block">
@@ -51,16 +51,6 @@
             <div v-show="false" class="w-0 h-0">
               <WalletMultiButton />
             </div>
-            <GoogleLogin
-              v-if="!getExtraIdentity('google')"
-              ref="googleLogin"
-              :callback="callback"
-              :buttonConfig="{
-                scope: 'profile email',
-                width: 240,
-                height: 37,
-              }"
-            />
           </div>
         </div>
         <div class="sidebar">
@@ -101,14 +91,16 @@ import xIcon from '@/assets/icons/x.png';
 import discordIcon from '@/assets/icons/discord.png';
 import suiIcon from '@/assets/icons/sui.svg';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
-import { GoogleLogin } from 'vue3-google-login';
 import bs58 from 'bs58';
 import { shortenAddress } from '@/util/helpers';
+import { useZkLogin } from '@/composables/useZkLogin';
+const { connectZkLogin, zkLoginAuthorize } = useZkLogin();
 
 const authStore = useAuthStore();
 const statsStore = useStatsStore();
 
 const router = useRouter();
+const route = useRoute();
 
 const stats = computed(() => statsStore.getStatistics);
 const user = computed(() => authStore.getProfileData);
@@ -127,7 +119,22 @@ onMounted(async () => {
 
   disconnect();
   await statsStore.findStatistics();
+  await readCode();
 });
+
+const readCode = async() => {
+  const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
+  if (idToken) {
+    try {
+      const { email, address } = await zkLoginAuthorize(idToken, 'google');
+      if (email && address) {
+        await authStore.loginWithGoogle(email, address, true);
+      }
+    } finally {
+      await router.push(`/profile`);
+    }
+  }
+}
 
 const handleStorageEvent = (event) => {
   if (event.key === 'socialInfo') {
@@ -169,6 +176,7 @@ const setName = useDebounceFn(async () => {
       connector: user.value.connector,
       extraIdentities: user.value.extraIdentities,
       forms_created: user.value.forms_created,
+      zkLoginAddress: user.value.zkLoginAddress,
     });
 
     await authStore.getProfile();
@@ -311,7 +319,7 @@ const socialButtons = computed(
           }
         },
       },
-      getExtraIdentity('google') && {
+      {
         id: 3,
         icon: 'Google',
         status: user.value.connector === 'google' || !!getExtraIdentity('google'),
@@ -322,7 +330,9 @@ const socialButtons = computed(
             : getExtraIdentity('google')
               ? getExtraIdentity('google').title
               : false,
-        fn: async () => {},
+        fn: async () => {
+          await connectZkLogin('google', window.location.href);
+        },
         rm: async () => {
           if (socialLoading.value) return;
 
@@ -434,6 +444,17 @@ const addWeb2ExtraIdentity = async () => {
 };
 
 watch(
+  () => user.value,
+  async (value) => {
+    if (value) {
+      name.value = value.username;
+    }
+  },
+  {
+    immediate: true,
+  }
+);
+watch(
   () => socialId.value,
   async () => {
     if (socialId.value && socialProviderId.value) {
@@ -516,7 +537,7 @@ const callback = async (response) => {
 
   socialLoading.value = true;
   try {
-    await useAuthStore().loginWithGoogle(response.credential, true);
+    await useAuthStore().loginWithGoogle(response.credential, null, true);
     invokeSuccessAlert();
   } catch {
     invokeErrorAlert();

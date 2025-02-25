@@ -90,10 +90,14 @@ import dfinityIcon from '@/assets/images/dfinity.svg';
 import xIcon from '@/assets/icons/x.png';
 import discordIcon from '@/assets/icons/discord.png';
 import suiIcon from '@/assets/icons/sui.svg';
+import suietIcon from '@/assets/icons/suiet.svg';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
 import bs58 from 'bs58';
 import { shortenAddress } from '@/util/helpers';
 import { useZkLogin } from '@/composables/useZkLogin';
+import { useSuiWallet } from '@/composables/useSuiWallet';
+const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
+
 const { connectZkLogin, zkLoginAuthorize } = useZkLogin();
 
 const authStore = useAuthStore();
@@ -399,6 +403,78 @@ const socialButtons = computed(
           socialLoading.value = true;
           try {
             await removeProvider(getExtraIdentity('discord'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
+          }
+        },
+      },
+      {
+        id: 6,
+        icon: suiIcon,
+        status: user.value.connector === 'sui' || !!getExtraIdentity('sui'),
+        name: 'Sui',
+        value:
+          user.value.connector === 'sui'
+            ? shortenAddress(user.value.title)
+            : getExtraIdentity('sui')
+              ? shortenAddress(getExtraIdentity('sui').title)
+              : false,
+        fn: async () => {
+          localStorage.socialProvider = 'sui';
+          localStorage.addingExtraSocial = 1;
+          await connectSui();
+          const address = await getGlobalAddress();
+
+          if (address && address !== 'undefined') {
+            localStorage.connector = 'sui';
+            await authStore.loginWithSui(address, 'sui', true);
+          }
+        },
+        rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
+          try {
+            await removeProvider(getExtraIdentity('sui'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
+          }
+        },
+      },
+      {
+        id: 7,
+        icon: suietIcon,
+        status: user.value.connector === 'suiet' || !!getExtraIdentity('suiet'),
+        name: 'Suiet',
+        value:
+          user.value.connector === 'suiet'
+            ? shortenAddress(user.value.title)
+            : getExtraIdentity('suiet')
+              ? shortenAddress(getExtraIdentity('suiet').title)
+              : false,
+        fn: async () => {
+          localStorage.socialProvider = 'suiet';
+          localStorage.addingExtraSocial = 1;
+          await connectSuiet();
+          const address = await getGlobalAddress();
+
+          if (address && address !== 'undefined') {
+            localStorage.connector = 'suiet';
+            await authStore.loginWithSui(address, 'suiet', true);
+          }
+        },
+        rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
+          try {
+            await removeProvider(getExtraIdentity('suiet'));
             invokeSuccessAlert();
           } catch {
             invokeErrorAlert();

@@ -85,7 +85,7 @@ const loginWithSuiet = async () => {
 
   if (address && address !== 'undefined') {
     localStorage.connector = 'suiet';
-    await authStore.loginWithSui(getGlobalAddress(), 'suiet');
+    await authStore.loginWithSui(address, 'suiet');
   }
 };
 const loginWithSui = async () => {
@@ -94,7 +94,7 @@ const loginWithSui = async () => {
 
   if (address && address !== 'undefined') {
     localStorage.connector = 'sui';
-    await authStore.loginWithSui(getGlobalAddress(), 'sui');
+    await authStore.loginWithSui(address, 'sui');
   }
 };
 const IIConnect = async () => {

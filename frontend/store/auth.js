@@ -211,13 +211,31 @@ export const useAuthStore = defineStore('auth', {
 
       this.setAuthenticationStorage(this.isAuthenticated, 'plug');
     },
-    async initIdentityDependencies(identity, isAuthenticated) {
+    async initIdentityDependencies(identity, isAuthenticated, isProfile = false) {
       const agent = identity ? new HttpAgent({ identity }) : null;
       await agent?.syncTime();
 
-      await this.assignIdentity(identity, agent, isAuthenticated);
-    },
-    async assignIdentity(identity, agent, isAuthenticated) {
+      if (isProfile) {
+        await this.actor
+          .addExtraIdentity(
+            (await agent.getPrincipal()).toText(),
+            'ii',
+            {
+              identity: process.env.DFX_ASSET_PRINCIPAL,
+              character: localStorage.extraCharacter,
+            },
+            INTERNET_IDENTITY_TITLE,
+            'ii',
+          )
+          .then(async () => await this.getProfile())
+          .catch((e) => {
+            console.error(e);
+            throw e;
+          });
+
+        return;
+      }
+
       this.isAuthenticated = isAuthenticated;
       this.identity = identity;
       this.actor = identity ? createActorFromIdentity(identity) : null;

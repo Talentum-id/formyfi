@@ -500,7 +500,7 @@ const invokeErrorAlert = () => {
 
 const addWeb2ExtraIdentity = async () => {
   await useAuthStore()
-    .loginWithWeb2(socialProviderId.value, socialId.value, localStorage.socialProvider, true)
+    .loginWithWeb2(socialId.value, socialId.value, localStorage.socialProvider, true)
     .finally(() => {
       localStorage.removeItem('socialProvider');
       localStorage.removeItem('addingExtraSocial');

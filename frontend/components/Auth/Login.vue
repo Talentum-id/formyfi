@@ -257,7 +257,9 @@ const props = defineProps({
           <div class="name-social">PLUG</div>
         </div>
       </AuthButton>
-      <WalletMultiButton />
+      <div class="btn">
+        <WalletMultiButton/>
+      </div>
     </div>
     <hr />
     <div class="form-block">
@@ -317,15 +319,15 @@ const props = defineProps({
 
     .btn {
       flex: 0 0 calc(50% - 5px);
-      min-width: calc(50% - 5px);
-      max-width: calc(50% - 5px);
+      min-width: calc(50% - 5px) !important;
+      max-width: calc(50% - 5px) !important;
     }
 
     .btn:last-child:nth-child(odd) {
       flex: 0 0 100%;
-      width: 100%;
-      min-width: 100%;
-      max-width: 100%;
+      width: 100% !important;
+      min-width: 100% !important;
+      max-width: 100% !important;
     }
   }
 

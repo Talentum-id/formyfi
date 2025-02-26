@@ -63,7 +63,7 @@ export default {
             type: 'loading',
           });
 
-          const profileData = useAuthStore().getProfileData;
+          const profileData = await useAuthStore().getProfileData;
 
           let avatar;
 
@@ -94,6 +94,7 @@ export default {
             connector: profileData.connector,
             extraIdentities: profileData.extraIdentities,
             forms_created: profileData.forms_created,
+            zkLoginAddress: profileData.zkLoginAddress,
           });
 
           await useAuthStore().getProfile();
@@ -159,6 +160,7 @@ export default {
         connector: profileData.connector,
         extraIdentities: profileData.extraIdentities,
         forms_created: profileData.forms_created,
+        zkLoginAddress: profileData.zkLoginAddress,
       });
 
       await useAuthStore().getProfile();

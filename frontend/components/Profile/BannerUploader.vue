@@ -91,6 +91,7 @@ export default {
             connector: profileData.connector,
             extraIdentities: profileData.extraIdentities,
             forms_created: profileData.forms_created,
+            zkLoginAddress: profileData.zkLoginAddress,
           });
 
           await useAuthStore().getProfile();
@@ -151,15 +152,16 @@ export default {
       }
 
       await useAuthStore().saveProfile({
-        fullName: useAuthStore().getProfileData.fullName,
-        username: useAuthStore().getProfileData.username,
-        avatar: useAuthStore().getProfileData.avatar,
-        forms_created: useAuthStore().getProfileData.forms_created,
+        fullName: profileData.fullName,
+        username: profileData.username,
+        avatar: profileData.avatar,
+        forms_created: profileData.forms_created,
         banner: [],
         provider: profileData.provider,
         title: profileData.title,
         connector: profileData.connector,
         extraIdentities: profileData.extraIdentities,
+        zkLoginAddress: profileData.zkLoginAddress,
       });
 
       await useAuthStore().getProfile();

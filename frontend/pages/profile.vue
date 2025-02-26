@@ -5,7 +5,7 @@
       <div class="naming w-full">
         <AvatarUploader :avatar="user.avatarUri" />
         <div class="info">
-          <InputName v-model="name" :placeholder="user.username" @input="setName()" />
+          <InputName v-model="name" placeholder="Enter username" @input="setName()" />
         </div>
       </div>
       <div class="info-block">
@@ -51,16 +51,6 @@
             <div v-show="false" class="w-0 h-0">
               <WalletMultiButton />
             </div>
-            <GoogleLogin
-              v-if="!getExtraIdentity('google')"
-              ref="googleLogin"
-              :callback="callback"
-              :buttonConfig="{
-                scope: 'profile email',
-                width: 240,
-                height: 37,
-              }"
-            />
           </div>
         </div>
         <div class="sidebar">
@@ -100,15 +90,21 @@ import dfinityIcon from '@/assets/images/dfinity.svg';
 import xIcon from '@/assets/icons/x.png';
 import discordIcon from '@/assets/icons/discord.png';
 import suiIcon from '@/assets/icons/sui.svg';
+import suietIcon from '@/assets/icons/suiet.svg';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
-import { GoogleLogin } from 'vue3-google-login';
 import bs58 from 'bs58';
 import { shortenAddress } from '@/util/helpers';
+import { useZkLogin } from '@/composables/useZkLogin';
+import { useSuiWallet } from '@/composables/useSuiWallet';
+const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
+
+const { connectZkLogin, zkLoginAuthorize } = useZkLogin();
 
 const authStore = useAuthStore();
 const statsStore = useStatsStore();
 
 const router = useRouter();
+const route = useRoute();
 
 const stats = computed(() => statsStore.getStatistics);
 const user = computed(() => authStore.getProfileData);
@@ -127,7 +123,22 @@ onMounted(async () => {
 
   disconnect();
   await statsStore.findStatistics();
+  await readCode();
 });
+
+const readCode = async() => {
+  const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
+  if (idToken) {
+    try {
+      const { email, address } = await zkLoginAuthorize(idToken, 'google');
+      if (email && address) {
+        await authStore.loginWithGoogle(email, address, true);
+      }
+    } finally {
+      await router.push(`/profile`);
+    }
+  }
+}
 
 const handleStorageEvent = (event) => {
   if (event.key === 'socialInfo') {
@@ -169,6 +180,7 @@ const setName = useDebounceFn(async () => {
       connector: user.value.connector,
       extraIdentities: user.value.extraIdentities,
       forms_created: user.value.forms_created,
+      zkLoginAddress: user.value.zkLoginAddress,
     });
 
     await authStore.getProfile();
@@ -311,18 +323,20 @@ const socialButtons = computed(
           }
         },
       },
-      getExtraIdentity('google') && {
+      {
         id: 3,
         icon: 'Google',
         status: user.value.connector === 'google' || !!getExtraIdentity('google'),
         name: 'Google',
         value:
           user.value.connector === 'google'
-            ? user.value.title
+            ? user.value.title + ' ' + (user.value.zkLoginAddress.length ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')' : '')
             : getExtraIdentity('google')
               ? getExtraIdentity('google').title
               : false,
-        fn: async () => {},
+        fn: async () => {
+          await connectZkLogin('google', window.location.href);
+        },
         rm: async () => {
           if (socialLoading.value) return;
 
@@ -399,13 +413,75 @@ const socialButtons = computed(
       },
       {
         id: 6,
-        disabled: user.value.zkLoginAddress.length === 0,
         icon: suiIcon,
-        name: 'zkLogin',
-        status: user.value.zkLoginAddress.length,
-        value: user.value.zkLoginAddress.length ? shortenAddress(user.value.zkLoginAddress[0]) : false,
-        fn: async () => {},
-        rm: async () => {},
+        status: user.value.connector === 'sui' || !!getExtraIdentity('sui'),
+        name: 'Sui',
+        value:
+          user.value.connector === 'sui'
+            ? shortenAddress(user.value.title)
+            : getExtraIdentity('sui')
+              ? shortenAddress(getExtraIdentity('sui').title)
+              : false,
+        fn: async () => {
+          localStorage.socialProvider = 'sui';
+          localStorage.addingExtraSocial = 1;
+          await connectSui();
+          const address = await getGlobalAddress();
+
+          if (address && address !== 'undefined') {
+            localStorage.connector = 'sui';
+            await authStore.loginWithSui(address, 'sui', true);
+          }
+        },
+        rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
+          try {
+            await removeProvider(getExtraIdentity('sui'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
+          }
+        },
+      },
+      {
+        id: 7,
+        icon: suietIcon,
+        status: user.value.connector === 'suiet' || !!getExtraIdentity('suiet'),
+        name: 'Suiet',
+        value:
+          user.value.connector === 'suiet'
+            ? shortenAddress(user.value.title)
+            : getExtraIdentity('suiet')
+              ? shortenAddress(getExtraIdentity('suiet').title)
+              : false,
+        fn: async () => {
+          localStorage.socialProvider = 'suiet';
+          localStorage.addingExtraSocial = 1;
+          await connectSuiet();
+          const address = await getGlobalAddress();
+
+          if (address && address !== 'undefined') {
+            localStorage.connector = 'suiet';
+            await authStore.loginWithSui(address, 'suiet', true);
+          }
+        },
+        rm: async () => {
+          if (socialLoading.value) return;
+
+          socialLoading.value = true;
+          try {
+            await removeProvider(getExtraIdentity('suiet'));
+            invokeSuccessAlert();
+          } catch {
+            invokeErrorAlert();
+          } finally {
+            socialLoading.value = false;
+          }
+        },
       },
     ].filter((item) => item && !item.disabled),
   { dependsOn: [getExtraIdentities] },
@@ -424,7 +500,7 @@ const invokeErrorAlert = () => {
 
 const addWeb2ExtraIdentity = async () => {
   await useAuthStore()
-    .loginWithWeb2(socialProviderId.value, socialId.value, localStorage.socialProvider, true)
+    .loginWithWeb2(socialId.value, socialId.value, localStorage.socialProvider, true)
     .finally(() => {
       localStorage.removeItem('socialProvider');
       localStorage.removeItem('addingExtraSocial');
@@ -433,6 +509,17 @@ const addWeb2ExtraIdentity = async () => {
     });
 };
 
+watch(
+  () => user.value,
+  async (value) => {
+    if (value) {
+      name.value = value.username;
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 watch(
   () => socialId.value,
   async () => {
@@ -516,7 +603,7 @@ const callback = async (response) => {
 
   socialLoading.value = true;
   try {
-    await useAuthStore().loginWithGoogle(response.credential, true);
+    await useAuthStore().loginWithGoogle(response.credential, null, true);
     invokeSuccessAlert();
   } catch {
     invokeErrorAlert();

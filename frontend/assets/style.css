@@ -8,9 +8,7 @@
     background-color: #fff !important;
     background-image: none !important;
     border: 1px solid #dadce0;
-    max-width: 400px;
-    min-width: 200px;
-    width: 392px;
+    width: 100%;
     border-radius: 20px;
     color: #3c4043 !important;
     cursor: pointer;

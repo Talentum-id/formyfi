@@ -38,7 +38,7 @@ onMounted(async () => {
             (res[0].reload !== undefined && res[0].reload) ||
             reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1
           ) {
-            await window.location.reload();
+            window.location.reload();
           }
         }
         emit('success');
@@ -78,7 +78,7 @@ const createAccount = () => {
         await router.push('/');
         modal.emit('closeModal', {});
         if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
-          await window.location.reload();
+          window.location.reload();
         }
       }
 

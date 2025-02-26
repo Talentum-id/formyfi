@@ -330,7 +330,7 @@ const socialButtons = computed(
         name: 'Google',
         value:
           user.value.connector === 'google'
-            ? user.value.title + ' ' + (user.value.zkLoginAddress.length ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')' : false)
+            ? user.value.title + ' ' + (user.value.zkLoginAddress.length ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')' : '')
             : getExtraIdentity('google')
               ? getExtraIdentity('google').title
               : false,

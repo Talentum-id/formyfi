@@ -566,3 +566,5 @@ export const wrapLinksInAHrefTag = text => {
     url => `<a href="${url}" target="_blank" class="generated-link" rel="noopener noreferrer">${url}</a>`,
   );
 }
+
+export const readCanisterErrorMessage = message => message.split('message: ')[1].split(/\n|\./)[0];

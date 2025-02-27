@@ -12,6 +12,7 @@ import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
 import { useSuiWallet } from '@/composables/useSuiWallet';
 import { useZkLogin } from '@/composables/useZkLogin';
+import { modal } from '@/mixins/modal';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -42,6 +43,12 @@ const plugConnected = computed(() => window.ic?.plug !== undefined);
 
 const readCode = async () => {
   if (Object.keys(route.query).length > 0) {
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
+
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then(async ({ data }) => {
@@ -64,11 +71,19 @@ const readCode = async () => {
         localStorage.connector = provider;
         await useAuthStore().loginWithWeb2(nickname, nickname, provider);
       })
-      .catch((e) => console.error(e));
+      .catch((e) => console.error(e))
+
+    modal.emit('closeModal', {});
   }
 
   const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
   if (idToken) {
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
+
     localStorage.removeItem('social');
     localStorage.removeItem('token');
 
@@ -76,6 +91,8 @@ const readCode = async () => {
     if (email && address) {
       await authStore.loginWithGoogle(email, address);
     }
+
+    modal.emit('closeModal', {});
   }
 };
 

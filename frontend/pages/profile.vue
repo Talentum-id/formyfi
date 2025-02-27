@@ -93,7 +93,7 @@ import suiIcon from '@/assets/icons/sui.svg';
 import suietIcon from '@/assets/icons/suiet.svg';
 import { useWallet, WalletMultiButton } from 'solana-wallets-vue';
 import bs58 from 'bs58';
-import { shortenAddress } from '@/util/helpers';
+import { readCanisterErrorMessage, shortenAddress } from '@/util/helpers';
 import { useZkLogin } from '@/composables/useZkLogin';
 import { useSuiWallet } from '@/composables/useSuiWallet';
 const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
@@ -126,7 +126,7 @@ onMounted(async () => {
   await readCode();
 });
 
-const readCode = async() => {
+const readCode = async () => {
   const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
   if (idToken) {
     try {
@@ -138,7 +138,7 @@ const readCode = async() => {
       await router.push(`/profile`);
     }
   }
-}
+};
 
 const handleStorageEvent = (event) => {
   if (event.key === 'socialInfo') {
@@ -228,7 +228,6 @@ const socialButtons = computed(
               currentConnector.value = connector.name;
             } catch {
               invokeErrorAlert();
-            } finally {
               socialLoading.value = false;
             }
           },
@@ -237,8 +236,7 @@ const socialButtons = computed(
 
             socialLoading.value = true;
             try {
-              await removeProvider(getExtraIdentity(connector.name));
-              invokeSuccessAlert();
+              await handleProviderRemoval(connector.name);
             } catch {
               invokeErrorAlert();
             } finally {
@@ -266,7 +264,7 @@ const socialButtons = computed(
             await authStore.loginWithII(true);
             invokeSuccessAlert();
           } catch (e) {
-            invokeErrorAlert();
+            invokeErrorAlert(readCanisterErrorMessage(e.reject_message));
             console.error(e);
           } finally {
             socialLoading.value = false;
@@ -277,10 +275,9 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('ii'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('ii');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -302,11 +299,10 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await triggerClick();
-          } catch {
-            invokeErrorAlert();
-          } finally {
+            triggerClick();
+          } catch ({ reject_message }) {
             socialLoading.value = false;
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           }
         },
         rm: async () => {
@@ -314,10 +310,9 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('siws'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('siws');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -330,7 +325,11 @@ const socialButtons = computed(
         name: 'Google',
         value:
           user.value.connector === 'google'
-            ? user.value.title + ' ' + (user.value.zkLoginAddress.length ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')' : '')
+            ? user.value.title +
+              ' ' +
+              (user.value.zkLoginAddress.length
+                ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')'
+                : '')
             : getExtraIdentity('google')
               ? getExtraIdentity('google').title
               : false,
@@ -342,10 +341,9 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('google'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('google');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -372,10 +370,9 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('twitter'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('twitter');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -402,10 +399,9 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('discord'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('discord');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -423,6 +419,7 @@ const socialButtons = computed(
               ? shortenAddress(getExtraIdentity('sui').title)
               : false,
         fn: async () => {
+          socialLoading.value = true;
           localStorage.socialProvider = 'sui';
           localStorage.addingExtraSocial = 1;
           await connectSui();
@@ -430,7 +427,14 @@ const socialButtons = computed(
 
           if (address && address !== 'undefined') {
             localStorage.connector = 'sui';
-            await authStore.loginWithSui(address, 'sui', true);
+            try {
+              await authStore.loginWithSui(address, 'sui', true);
+              invokeSuccessAlert();
+            } catch ({ reject_message }) {
+              invokeErrorAlert(readCanisterErrorMessage(reject_message));
+            } finally {
+              socialLoading.value = false;
+            }
           }
         },
         rm: async () => {
@@ -438,10 +442,9 @@ const socialButtons = computed(
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('sui'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('sui');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -459,6 +462,8 @@ const socialButtons = computed(
               ? shortenAddress(getExtraIdentity('suiet').title)
               : false,
         fn: async () => {
+          socialLoading.value = true;
+
           localStorage.socialProvider = 'suiet';
           localStorage.addingExtraSocial = 1;
           await connectSuiet();
@@ -468,16 +473,17 @@ const socialButtons = computed(
             localStorage.connector = 'suiet';
             await authStore.loginWithSui(address, 'suiet', true);
           }
+
+          socialLoading.value = false;
         },
         rm: async () => {
           if (socialLoading.value) return;
 
           socialLoading.value = true;
           try {
-            await removeProvider(getExtraIdentity('suiet'));
-            invokeSuccessAlert();
-          } catch {
-            invokeErrorAlert();
+            await handleProviderRemoval('suiet');
+          } catch ({ reject_message }) {
+            invokeErrorAlert(readCanisterErrorMessage(reject_message));
           } finally {
             socialLoading.value = false;
           }
@@ -492,11 +498,21 @@ const invokeSuccessAlert = () => {
 
   setTimeout(() => (successMessage.value = ''), 3000);
 };
-const invokeErrorAlert = () => {
-  error.value = 'Operation failed. Try again later.';
+const invokeErrorAlert = (message = null) => {
+  error.value = message || 'Operation failed. Try again later.';
 
   setTimeout(() => (error.value = ''), 3000);
 };
+
+const handleProviderRemoval = async (removalProvider) => {
+  const provider = getExtraIdentity(removalProvider);
+  if (provider) {
+    await removeProvider(provider);
+    invokeSuccessAlert();
+  } else {
+    invokeErrorAlert('Main provider cannot be removed');
+  }
+}
 
 const addWeb2ExtraIdentity = async () => {
   await useAuthStore()
@@ -518,13 +534,21 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 );
 watch(
   () => socialId.value,
   async () => {
     if (socialId.value && socialProviderId.value) {
-      await addWeb2ExtraIdentity();
+      socialLoading.value = true;
+
+      try {
+        await addWeb2ExtraIdentity();
+      } catch ({ reject_message}) {
+        invokeErrorAlert(readCanisterErrorMessage(reject_message));
+      } finally {
+        socialLoading.value = false;
+      }
     }
   },
 );
@@ -533,7 +557,15 @@ watch(
   () => socialProviderId.value,
   async () => {
     if (socialId.value && socialProviderId.value) {
-      await addWeb2ExtraIdentity();
+      socialLoading.value = false;
+
+      try {
+        await addWeb2ExtraIdentity();
+      } catch ({ reject_message}) {
+        invokeErrorAlert(readCanisterErrorMessage(reject_message));
+      } finally {
+        socialLoading.value = false;
+      }
     }
   },
 );
@@ -544,14 +576,15 @@ watch(
     if (value) {
       const message = await authStore.prepareSIWELogin(address.value);
       if (message === null) {
-        await disconnect();
+        disconnect();
       } else {
         await signMessageAsync({ message }).then(
           async (signature) =>
             await authStore
               .loginWithSIWE(address.value, signature, currentConnector.value)
               .then(() => invokeSuccessAlert())
-              .catch(() => invokeErrorAlert()),
+              .catch(() => invokeErrorAlert())
+              .finally(() => (socialLoading.value = false)),
         );
       }
     }
@@ -589,7 +622,8 @@ watch(
           .catch((e) => {
             invokeErrorAlert();
             console.error(e);
-          });
+          })
+          .finally(() => (socialLoading.value = false));
       }
     } catch {}
   },

@@ -346,7 +346,7 @@ import Answer from '@/components/Creating/Answer.vue';
 import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import Input from '@/components/Input.vue';
-import { transformDate, addDaysToDate, chunkData } from '@/util/helpers';
+import { transformDate, addDaysToDate, chunkData, readCanisterErrorMessage } from '@/util/helpers';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
@@ -386,11 +386,11 @@ const questsTypeItems = ref([
   { name: 'Quiz Question', id: 1, type: 'quiz' },
   { name: 'Multiple Choice', id: 2, type: 'multiple' },
   {
-    name: 'Twitter Connect',
+    name: 'X Connect',
     id: 3,
     type: 'twitter',
     info: {
-      icon: 'Twitter-Default',
+      icon: 'X-Default',
       title: 'Connect X',
       description:
         'Users will be asked to connect their Twitter Account by clicking the button bellow.',
@@ -847,7 +847,7 @@ const check = async () => {
     console.error(err);
     modal.emit('openModal', {
       title: 'Error Message',
-      message: 'Something went wrong!',
+      message: err.reject_message ? readCanisterErrorMessage(err.reject_message) : 'Something went wrong!',
       type: 'error',
       actionText: 'Try again',
       fn: check,

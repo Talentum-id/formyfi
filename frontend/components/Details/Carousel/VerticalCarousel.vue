@@ -481,7 +481,7 @@ const getDataByType = (type) => {
   switch (type) {
     case 'twitter':
       return {
-        icon: 'Twitter-Default',
+        icon: 'X-Default',
         title: !!newArr.value[currentIndex.value].answer.length
           ? `Disconnect ${newArr.value[currentIndex.value].answer}`
           : 'Connect X',

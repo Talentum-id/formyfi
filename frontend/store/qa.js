@@ -20,6 +20,7 @@ export const useQAStore = defineStore('qa', {
     actor: null,
     identity: null,
     qa: null,
+    qaCustomization: null,
     list: [],
     loaded: false,
     loadedQA: false,
@@ -42,7 +43,7 @@ export const useQAStore = defineStore('qa', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : form_index;
       }
     },
-    async initWithSIWSOrSIWE(provider){
+    async initWithSIWSOrSIWE(provider) {
       const { Ok: principal } =
         provider === 'siwe'
           ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
@@ -172,11 +173,24 @@ export const useQAStore = defineStore('qa', {
         })
         .finally(() => (this.loadedQA = true));
     },
+    async setQACustomization(params) {
+      await this.actor.saveQACustomization(params, {
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      });
+    },
+    async fetchQACustomization(identity) {
+      return await this.actor
+        ?.getQACustomization(identity)
+        .then(async (res) => (this.qaCustomization = res))
+        .catch((e) => console.error(e));
+    },
   },
   getters: {
     getStats: ({ stats }) => stats,
     getList: (state) => state.list,
     getQA: (state) => state.qa,
+    getQACustomization: ({  qaCustomization }) => qaCustomization,
     getLoadingStatusList: (state) => state.loaded,
     getLoadingStatusQA: (state) => state.loadedQA,
   },

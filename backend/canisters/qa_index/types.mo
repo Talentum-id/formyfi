@@ -1,4 +1,5 @@
 import PaginationTypes "../../types/pagination";
+import Text "mo:base/Text";
 
 module QATypes {
   public type Answer = {
@@ -71,5 +72,10 @@ module QATypes {
   public type ShowQAResult = {
     owner : Text;
     quest : QA;
+  };
+
+  public type QACustomization = {
+    color: ?Text;
+    url: ?Text;
   };
 };

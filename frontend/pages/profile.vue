@@ -96,6 +96,7 @@ import bs58 from 'bs58';
 import { readCanisterErrorMessage, shortenAddress } from '@/util/helpers';
 import { useZkLogin } from '@/composables/useZkLogin';
 import { useSuiWallet } from '@/composables/useSuiWallet';
+import { modal } from '@/mixins/modal';
 const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
 
 const { connectZkLogin, zkLoginAuthorize } = useZkLogin();
@@ -515,9 +516,12 @@ const handleProviderRemoval = async (removalProvider) => {
 }
 
 const addWeb2ExtraIdentity = async () => {
+  socialLoading.value = true;
+
   await useAuthStore()
     .loginWithWeb2(socialId.value, socialId.value, localStorage.socialProvider, true)
     .finally(() => {
+      socialLoading.value = false;
       localStorage.removeItem('socialProvider');
       localStorage.removeItem('addingExtraSocial');
       localStorage.removeItem('providerId');
@@ -540,14 +544,10 @@ watch(
   () => socialId.value,
   async () => {
     if (socialId.value && socialProviderId.value) {
-      socialLoading.value = true;
-
       try {
         await addWeb2ExtraIdentity();
       } catch ({ reject_message}) {
         invokeErrorAlert(readCanisterErrorMessage(reject_message));
-      } finally {
-        socialLoading.value = false;
       }
     }
   },
@@ -557,14 +557,10 @@ watch(
   () => socialProviderId.value,
   async () => {
     if (socialId.value && socialProviderId.value) {
-      socialLoading.value = false;
-
       try {
         await addWeb2ExtraIdentity();
       } catch ({ reject_message}) {
         invokeErrorAlert(readCanisterErrorMessage(reject_message));
-      } finally {
-        socialLoading.value = false;
       }
     }
   },
@@ -592,6 +588,21 @@ watch(
   {
     immediate: true,
   },
+);
+
+watch(
+  () => socialLoading.value,
+  async loading => {
+    if (loading) {
+      await modal.emit('openModal', {
+        title: 'Loading...',
+        message: 'Operation with provider in the process',
+        type: 'loading',
+      });
+    } else {
+      await modal.emit('closeModal', {});
+    }
+  }
 );
 
 watch(

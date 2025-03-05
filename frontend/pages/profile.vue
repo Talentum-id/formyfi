@@ -59,7 +59,7 @@
           </div>
         </div>
       </div>
-      <DeleteAccount/>
+      <DeleteAccount />
     </div>
   </Default>
   <Alert :message="error" type="error" v-if="error.trim().length > 0" />
@@ -140,8 +140,11 @@ const readCode = async () => {
 
       const { email, address } = await zkLoginAuthorize(idToken, 'google');
       if (email && address) {
-        await authStore.loginWithGoogle(email, address, true);
-
+        try {
+          await authStore.loginWithGoogle(email, address, true);
+        } catch ({ reject_message }) {
+          invokeErrorAlert(readCanisterErrorMessage(reject_message));
+        }
       }
     } finally {
       socialLoading.value = false;
@@ -353,7 +356,11 @@ const socialButtons = computed(
           try {
             await handleProviderRemoval('google');
           } catch ({ reject_message }) {
-            invokeErrorAlert(readCanisterErrorMessage(reject_message));
+            if (reject_message) {
+              invokeErrorAlert(readCanisterErrorMessage(reject_message));
+            } else {
+              invokeErrorAlert('Main provider cannot be removed');
+            }
           } finally {
             socialLoading.value = false;
           }
@@ -371,8 +378,7 @@ const socialButtons = computed(
               ? getExtraIdentity('twitter').title
               : false,
         fn: async () => {
-          localStorage.socialProvider = 'twitter';
-          localStorage.addingExtraSocial = 1;
+          clearSocialAttributes('twitter');
           await useAuthStore().connectSocial('twitter');
         },
         rm: async () => {
@@ -400,8 +406,7 @@ const socialButtons = computed(
               ? getExtraIdentity('discord').title
               : false,
         fn: async () => {
-          localStorage.socialProvider = 'discord';
-          localStorage.addingExtraSocial = 1;
+          clearSocialAttributes('discord');
           await useAuthStore().connectSocial('discord');
         },
         rm: async () => {
@@ -503,6 +508,13 @@ const socialButtons = computed(
   { dependsOn: [getExtraIdentities] },
 );
 
+const clearSocialAttributes = (provider) => {
+  localStorage.socialProvider = provider;
+  localStorage.addingExtraSocial = 1;
+  localStorage.removeItem('socialInfo');
+  localStorage.removeItem('providerId');
+};
+
 const invokeSuccessAlert = () => {
   successMessage.value = 'Operation successfully completed';
 
@@ -522,7 +534,7 @@ const handleProviderRemoval = async (removalProvider) => {
   } else {
     invokeErrorAlert('Main provider cannot be removed');
   }
-}
+};
 
 const addWeb2ExtraIdentity = async () => {
   socialLoading.value = true;
@@ -555,8 +567,11 @@ watch(
     if (socialId.value && socialProviderId.value) {
       try {
         await addWeb2ExtraIdentity();
-      } catch ({ reject_message}) {
+      } catch ({ reject_message }) {
         invokeErrorAlert(readCanisterErrorMessage(reject_message));
+      } finally {
+        socialId.value = '';
+        socialProviderId.value = '';
       }
     }
   },
@@ -568,8 +583,11 @@ watch(
     if (socialId.value && socialProviderId.value) {
       try {
         await addWeb2ExtraIdentity();
-      } catch ({ reject_message}) {
+      } catch ({ reject_message }) {
         invokeErrorAlert(readCanisterErrorMessage(reject_message));
+      } finally {
+        socialId.value = '';
+        socialProviderId.value = '';
       }
     }
   },
@@ -601,7 +619,7 @@ watch(
 
 watch(
   () => socialLoading.value,
-  async loading => {
+  async (loading) => {
     if (loading) {
       await modal.emit('openModal', {
         title: 'Loading...',
@@ -611,7 +629,7 @@ watch(
     } else {
       await modal.emit('closeModal', {});
     }
-  }
+  },
 );
 
 watch(

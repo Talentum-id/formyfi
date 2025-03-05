@@ -800,6 +800,12 @@ export const useAuthStore = defineStore('auth', {
         })
         .then(async () => await this.getProfile());
     },
+    async deleteAccount() {
+      await this.actor.deleteIdentity({
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      }).then(async () => await this.logout());
+    },
   },
   getters: {
     getAdmins: ({ admins }) => admins,

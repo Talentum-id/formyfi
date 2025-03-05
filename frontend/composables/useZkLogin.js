@@ -124,8 +124,6 @@ export const useZkLogin = () => {
       console.info('User does not have a zk identity, attaching...');
 
       salt = await generateSalt();
-    } else {
-      console.info('User has a zk identity, updating zero proof...');
     }
 
     const ephemeralKeyPair = JSON.parse(localStorage.getItem('zklogin_ephemeral_keypair'));

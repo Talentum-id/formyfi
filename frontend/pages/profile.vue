@@ -59,6 +59,7 @@
           </div>
         </div>
       </div>
+      <DeleteAccount/>
     </div>
   </Default>
   <Alert :message="error" type="error" v-if="error.trim().length > 0" />
@@ -97,6 +98,10 @@ import { readCanisterErrorMessage, shortenAddress } from '@/util/helpers';
 import { useZkLogin } from '@/composables/useZkLogin';
 import { useSuiWallet } from '@/composables/useSuiWallet';
 import { modal } from '@/mixins/modal';
+import Icon from '@/components/Icons/Icon.vue';
+import BaseButton from '@/components/BaseButton.vue';
+import Modal from '@/components/Quest/Modal.vue';
+import DeleteAccount from '@/components/Profile/DeleteAccount.vue';
 const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
 
 const { connectZkLogin, zkLoginAuthorize } = useZkLogin();
@@ -131,11 +136,15 @@ const readCode = async () => {
   const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
   if (idToken) {
     try {
+      socialLoading.value = true;
+
       const { email, address } = await zkLoginAuthorize(idToken, 'google');
       if (email && address) {
         await authStore.loginWithGoogle(email, address, true);
+
       }
     } finally {
+      socialLoading.value = false;
       await router.push(`/profile`);
     }
   }
@@ -642,20 +651,6 @@ watch(
     immediate: true,
   },
 );
-
-const callback = async (response) => {
-  if (socialLoading.value) return;
-
-  socialLoading.value = true;
-  try {
-    await useAuthStore().loginWithGoogle(response.credential, null, true);
-    invokeSuccessAlert();
-  } catch {
-    invokeErrorAlert();
-  } finally {
-    socialLoading.value = false;
-  }
-};
 
 const removeProvider = async (provider) => {
   await useAuthStore().removeExtraIdentity(provider);

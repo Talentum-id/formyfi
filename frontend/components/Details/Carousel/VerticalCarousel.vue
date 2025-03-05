@@ -524,6 +524,8 @@ const getDataByType = (type) => {
 };
 const connectSocial = async (provider) => {
   if (!newArr.value[currentIndex.value].answer) {
+    localStorage.removeItem('socialInfo');
+    localStorage.removeItem('socialProvider');
     await useAuthStore().connectSocial(provider);
   }
 };

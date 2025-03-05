@@ -95,6 +95,26 @@ actor UserIndex {
     };
   };
 
+  public shared ({ caller }) func deleteIdentity(character: Utils.Character): async () {
+    let identity = await Utils.authenticate(caller, false, character);
+    switch(users.get(identity)) {
+      case null Debug.trap("Identity not found");
+      case (?user) {
+        switch(user.extraIdentities) {
+          case null ignore null;
+          case (?identities) {
+            for(extraIdentity in identities.vals()) {
+              extraIdentities.delete(extraIdentity);
+            };
+          }
+        };
+
+        users.delete(identity);
+        usernames.delete(user.username);
+      }
+    }
+  };
+
   public query func getUsers(identities : [Text]) : async [?UserData] {
     let data = Buffer.fromArray<?UserData>([]);
 

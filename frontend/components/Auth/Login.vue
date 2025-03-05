@@ -134,6 +134,8 @@ const connectSIWE = async (connector, chainId) => {
   }
 };
 const loginWithSocial = async (provider) => {
+  localStorage.removeItem('socialInfo');
+  localStorage.removeItem('socialProvider');
   await useAuthStore().connectSocial(provider, true);
 };
 const logout = async () => {

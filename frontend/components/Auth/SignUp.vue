@@ -47,8 +47,9 @@ onMounted(async () => {
   } catch (e) {
     console.error(e);
     emit('reject');
+  } finally {
+    await modal.emit('closeModal', {});
   }
-  await modal.emit('closeModal', {});
 });
 
 const validationError = computed(() => {
@@ -76,7 +77,6 @@ const createAccount = () => {
 
       if (!useAuthStore().isQuest) {
         await router.push('/');
-        modal.emit('closeModal', {});
         if (reloadingProviders.indexOf(localStorage.getItem('authenticationProvider')) !== -1) {
           window.location.reload();
         }
@@ -86,7 +86,6 @@ const createAccount = () => {
       emit('success');
     })
     .catch((error) => {
-      modal.emit('closeModal', {});
       handleErrorModal();
       console.error(error);
       emit('reject');
@@ -95,6 +94,7 @@ const createAccount = () => {
       localStorage.removeItem('zkLoginAddress');
       localStorage.removeItem('socialInfo');
       form.value.loading = false;
+      modal.emit('closeModal', {});
     });
 };
 const validateUsername = () => {

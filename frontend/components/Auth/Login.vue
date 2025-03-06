@@ -2,7 +2,7 @@
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import axiosService from '@/services/axiosService';
 import { useAuthStore } from '@/store/auth';
-import { GoogleLogin, googleLogout } from 'vue3-google-login';
+import { googleLogout } from 'vue3-google-login';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import bs58 from 'bs58';

@@ -98,9 +98,6 @@ import { readCanisterErrorMessage, shortenAddress } from '@/util/helpers';
 import { useZkLogin } from '@/composables/useZkLogin';
 import { useSuiWallet } from '@/composables/useSuiWallet';
 import { modal } from '@/mixins/modal';
-import Icon from '@/components/Icons/Icon.vue';
-import BaseButton from '@/components/BaseButton.vue';
-import Modal from '@/components/Quest/Modal.vue';
 import DeleteAccount from '@/components/Profile/DeleteAccount.vue';
 const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
 
@@ -247,7 +244,6 @@ const socialButtons = computed(
           rm: async () => {
             if (socialLoading.value) return;
 
-            socialLoading.value = true;
             try {
               await handleProviderRemoval(connector.name);
             } catch {
@@ -286,7 +282,6 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('ii');
           } catch ({ reject_message }) {
@@ -321,7 +316,6 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('siws');
           } catch ({ reject_message }) {
@@ -344,7 +338,11 @@ const socialButtons = computed(
                 ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')'
                 : '')
             : getExtraIdentity('google')
-              ? getExtraIdentity('google').title
+              ? getExtraIdentity('google').title+
+                ' ' +
+                (user.value.zkLoginAddress.length
+                  ? '(' + shortenAddress(user.value.zkLoginAddress[0]) + ')'
+                  : '')
               : false,
         fn: async () => {
           await connectZkLogin('google', window.location.href);
@@ -352,13 +350,13 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('google');
-          } catch ({ reject_message }) {
-            if (reject_message) {
-              invokeErrorAlert(readCanisterErrorMessage(reject_message));
+          } catch (e) {
+            if (e.reject_message) {
+              invokeErrorAlert(readCanisterErrorMessage(e.reject_message));
             } else {
+              console.error(e);
               invokeErrorAlert('Main provider cannot be removed');
             }
           } finally {
@@ -384,7 +382,6 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('twitter');
           } catch ({ reject_message }) {
@@ -412,7 +409,6 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('discord');
           } catch ({ reject_message }) {
@@ -455,7 +451,6 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('sui');
           } catch ({ reject_message }) {
@@ -494,7 +489,6 @@ const socialButtons = computed(
         rm: async () => {
           if (socialLoading.value) return;
 
-          socialLoading.value = true;
           try {
             await handleProviderRemoval('suiet');
           } catch ({ reject_message }) {
@@ -528,7 +522,9 @@ const invokeErrorAlert = (message = null) => {
 
 const handleProviderRemoval = async (removalProvider) => {
   const provider = getExtraIdentity(removalProvider);
-  if (provider) {
+  if (provider && provider.identity) {
+    socialLoading.value = true;
+
     await removeProvider(provider);
     invokeSuccessAlert();
   } else {
@@ -600,13 +596,14 @@ watch(
       const message = await authStore.prepareSIWELogin(address.value);
       if (message === null) {
         disconnect();
+        socialLoading.value = false;
       } else {
         await signMessageAsync({ message }).then(
           async (signature) =>
             await authStore
               .loginWithSIWE(address.value, signature, currentConnector.value)
               .then(() => invokeSuccessAlert())
-              .catch(() => invokeErrorAlert())
+              .catch(({ reject_message }) => invokeErrorAlert(readCanisterErrorMessage(reject_message)))
               .finally(() => (socialLoading.value = false)),
         );
       }
@@ -657,10 +654,7 @@ watch(
         await authStore
           .loginWithSIWS(walletAddress, bs58.encode(signature), 'siws')
           .then(() => invokeSuccessAlert())
-          .catch((e) => {
-            invokeErrorAlert();
-            console.error(e);
-          })
+          .catch(({ reject_message }) => invokeErrorAlert(readCanisterErrorMessage(reject_message)))
           .finally(() => (socialLoading.value = false));
       }
     } catch {}

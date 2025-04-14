@@ -321,8 +321,22 @@ const handleCreateCollection = async () => {
   });
 
   try {
-    const image = await convertImage(item.file);
     await switchNetwork(item.blockchain_id);
+    if (typeof item.file !== 'string') {
+        const formData = new FormData();
+
+        formData.append('files[]', item.file);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-files`, formData)
+          .then(({ data }) => (item.file = data[0]))
+          .catch((e) => {
+            throw e;
+          });
+
+        index++;
+    }
 
     if (item.type === 'erc_721') {
       await deploy(item);
@@ -337,7 +351,7 @@ const handleCreateCollection = async () => {
       id: Math.floor(Math.random() * 1000),
       ...item,
       created_at: new Date().toISOString(),
-      image,
+      image: item.file,
       status: 'active',
     };
 

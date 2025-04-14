@@ -59,7 +59,7 @@ const isConfirmModalOpen = ref(false);
 const search = ref('');
 
 const page = ref(1);
-const total_pages = ref(5); // Mock total pages
+const total_pages = ref(5); 
 const collectionList = ref([]);
 const loaded = ref(true);
 const roles = inject('roles');

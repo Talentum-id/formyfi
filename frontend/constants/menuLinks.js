@@ -14,6 +14,11 @@ const MENU_LINKS = [
     img: 'Talents',
     to: '/leaderboard',
   },
+  {
+    name: 'Collections',
+    img: 'NFT-Circle',
+    to: '/collections',
+  },
 ];
 
 export default MENU_LINKS;

@@ -9,6 +9,7 @@ import Preview from '@/pages/preview.vue';
 import Profile from '@/pages/profile.vue';
 import Leaderboard from '@/pages/leaderboard.vue';
 import Stats from '@/pages/stats.vue';
+import Collections from '@/pages/collections.vue';
 import { useAuthStore } from '@/store/auth';
 
 const routes = [
@@ -103,6 +104,15 @@ const routes = [
     component: signUp,
     meta: {
       title: `Register`,
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/collections',
+    name: '/collections',
+    component: Collections,
+    meta: {
+      title: `Collections`,
       requiresAuth: true,
     },
   },

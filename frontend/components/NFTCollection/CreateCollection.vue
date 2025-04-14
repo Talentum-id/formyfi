@@ -294,18 +294,6 @@ const validateForm = () => {
   return !Object.values(errors).some((error) => error.isError);
 };
 
-const convertImage = (file) => {
-  return new Promise((resolve) => {
-    if (file && FileReader) {
-      const fr = new FileReader();
-      fr.onload = () => resolve(fr.result);
-      fr.readAsDataURL(file);
-    } else {
-      resolve(null);
-    }
-  });
-};
-
 const handleCreateCollection = async () => {
   if (!validateForm()) {
     showError.value = true;
@@ -347,17 +335,10 @@ const handleCreateCollection = async () => {
       item.token_id = await getTokenId();
     }
 
-    const mockCollection = {
-      id: Math.floor(Math.random() * 1000),
-      ...item,
-      created_at: new Date().toISOString(),
-      image: item.file,
-      status: 'active',
-    };
-
-    console.log('Created mock collection:', mockCollection);
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
+    await useCollectionsStore().createCollection(item);
+    await useCollectionsStore().getCollections();
     emit('update');
     emit('close');
   } catch (error) {

@@ -9,10 +9,10 @@
     :auto-upload="false"
     :accept="fileExtensions[video]"
     :class="{
-      'hide-upload': fileList.length >= 1,
+      'hide-upload': fileList && fileList.length >= 1,
     }"
   >
-    <template #default v-if="files.length < 1">
+    <template #default v-if="files && files.length < 1">
       <div class="flex items-center gap-2">
         <el-button class="add flex items-center gap-2">
           Add File <img src="@/assets/icons/add.svg" alt="" />

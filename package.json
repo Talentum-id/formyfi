@@ -28,6 +28,7 @@
     "bs58": "^6.0.0",
     "dotenv": "^16.4.5",
     "element-plus": "^2.8.4",
+    "ethers": "^6.13.5",
     "html2pdf.js": "^0.10.2",
     "idb-keyval": "^6.2.1",
     "jwt-decode": "^4.0.0",

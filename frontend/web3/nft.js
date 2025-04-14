@@ -1,0 +1,431 @@
+import { ethers } from 'ethers';
+import { abi, bytecode, erc1155abi } from '@/web3/abi/collection';
+import { Transaction } from '@mysten/sui/transactions';
+import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
+import { inputs } from '@/web3/abi/nftSuiInputs';
+import { fromB64 } from '@mysten/bcs';
+import AxiosService from '@/services/axiosService';
+const SUI_ADDRESS_LENGTH = 32;
+
+function normalizeSuiAddress(value, forceAdd0x = false) {
+  let address = value.toLowerCase();
+  if (!forceAdd0x && address.startsWith('0x')) {
+    address = address.slice(2);
+  }
+  return `0x${address.padStart(SUI_ADDRESS_LENGTH * 2, '0')}`;
+}
+
+function normalizeSuiObjectId(value, forceAdd0x = false) {
+  return normalizeSuiAddress(value, forceAdd0x);
+}
+
+let contractAddress;
+let contractMeta;
+let tokenId;
+export async function deploy(data) {
+  try {
+    if (!window.ethereum) {
+      throw new Error('No Ethereum provider found');
+    }
+
+    // Initialize provider and signer
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    const signer = await provider.getSigner();
+
+    // Create contract factory
+    const factory = new ethers.ContractFactory(abi, bytecode, signer);
+
+    // Calculate supply
+    const supply = data.unlimited_supply ? 1000000 : data.max_supply;
+
+    // Check balance
+    const balance = await provider.getBalance(signer.address);
+    if (balance === 0n) {
+      throw new Error('Low balance');
+    }
+
+    // Prepare deployment transaction
+    const deployTx = await factory.getDeployTransaction(
+      data.name,
+      data.symbol,
+      data.uri,
+      BigInt(supply),
+      data.transferable,
+    );
+
+    // Send transaction and wait for deployment
+    const tx = await signer.sendTransaction(deployTx);
+    const receipt = await tx.wait();
+
+    if (!receipt.contractAddress) {
+      throw new Error('Contract deployment failed');
+    }
+
+    console.log('Contract deployed at address:', receipt.contractAddress);
+    contractAddress = receipt.contractAddress;
+
+    return receipt.contractAddress;
+  } catch (error) {
+    console.error('Deployment error:', error);
+    throw new Error("Can't create collection: " + error.message);
+  }
+}
+export async function createNFTId() {
+  try {
+    if (!window.ethereum) {
+      throw new Error('No Ethereum provider found');
+    }
+
+    // Initialize provider and signer
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    const signer = await provider.getSigner();
+
+    // Get user address
+    const userAddress = await signer.getAddress();
+
+    // Initialize contract
+    const contract = new ethers.Contract(
+      useRuntimeConfig().public.erc1155Address,
+      erc1155abi,
+      signer,
+    );
+
+    // Get signature from backend
+    const response = await AxiosService.post(useRuntimeConfig().public.apiBase + 'nft/sign-1155', {
+      contract_address: useRuntimeConfig().public.erc1155Address,
+      address: userAddress,
+    });
+
+    try {
+      // Create new token ID
+      const tx = await contract.createNewTokenId(
+        response.data.nonce.toString(),
+        response.data.deadline.toString(),
+        response.data.args,
+        response.data.signature,
+      );
+
+      console.log('Transaction hash:', tx.hash);
+      const res = await tx.wait();
+      const events = await decodeTransferSingle(res);
+
+      contractAddress = useRuntimeConfig().public.erc1155Address;
+      tokenId = events.id;
+
+      return tokenId;
+    } catch (e) {
+      console.error('Token creation error:', e);
+      throw new Error("Can't create collection: " + e.message);
+    }
+  } catch (error) {
+    console.error('Create NFT ID error:', error);
+    throw new Error("Can't create collection: " + error.message);
+  }
+}
+function decodeTransferSingle(tx) {
+  const iface = new ethers.utils.Interface(erc1155abi);
+  const logs = tx.events;
+
+  for (const log of logs) {
+    try {
+      const parsedLog = iface.parseLog(log);
+      if ('id' in parsedLog.args) {
+        return {
+          event: parsedLog.name,
+          id: parsedLog.args.id.toString(),
+          fullArgs: parsedLog.args,
+        };
+      }
+    } catch (err) {}
+  }
+}
+
+export async function switchNetwork(blockchain_id) {
+  const chain = chains.find((chain) => chain.id === blockchain_id);
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: chain.chainId }],
+    });
+  } catch (switchError) {
+    try {
+      await addChainToWallet(chain);
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: chain.chainId }],
+      });
+    } catch {
+      console.error('Failed to add the chain:', switchError);
+      throw switchError;
+    }
+  }
+}
+
+export function getContractAddress() {
+  return contractAddress;
+}
+
+export function getTokenId() {
+  return tokenId;
+}
+export function getContractMeta() {
+  return contractMeta;
+}
+async function addChainToWallet(blockchain) {
+  const chain = JSON.parse(JSON.stringify(blockchain));
+  try {
+    delete chain.id;
+    await window.ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [chain],
+    });
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+}
+
+export const chains = [
+  {
+    id: 10143,
+    chainId: '0x279F',
+    chainName: 'Monad',
+    nativeCurrency: {
+      name: 'Monad',
+      symbol: 'MON',
+      decimals: 18,
+    },
+    rpcUrls: ['https://testnet-rpc.monad.xyz'],
+    blockExplorerUrls: ['https://testnet.monadexplorer.com/'],
+  },
+  {
+    id: 56,
+    chainId: '0x38', // 56 in hexadecimal
+    chainName: 'BNB',
+    nativeCurrency: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimals: 18,
+    },
+    rpcUrls: ['https://bsc-dataseed.bnbchain.org'],
+    blockExplorerUrls: ['https://bscscan.com'],
+  },
+  {
+    id: 59144,
+    chainId: '0xe708', // 59144 in hexadecimal
+    chainName: 'Linea',
+    nativeCurrency: {
+      name: 'Ethereum',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    rpcUrls: ['https://rpc.linea.build'],
+    blockExplorerUrls: ['https://explorer.linea.build'],
+  },
+  {
+    id: 1,
+    chainId: '0x1', // 1 in hexadecimal
+    chainName: 'Ethereum',
+    nativeCurrency: {
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    rpcUrls: ['https://mainnet.infura.io/v3/'],
+    blockExplorerUrls: ['https://etherscan.io'],
+  },
+  {
+    id: 137,
+    chainId: '0x89',
+    rpcUrls: ['https://polygon-rpc.com/'],
+    chainName: 'Polygon',
+    nativeCurrency: {
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://polygonscan.com/'],
+  },
+  {
+    id: 97,
+    chainId: '0x61', // 97 in hexadecimal
+    chainName: 'BSC Testnet',
+    nativeCurrency: {
+      name: 'Binance Coin',
+      symbol: 'BNB',
+      decimals: 18,
+    },
+    rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545'], // Example RPC URL for BSC Testnet
+    blockExplorerUrls: ['https://testnet.bscscan.com'],
+  },
+  {
+    id: 8453,
+    chainId: '0x2105',
+    rpcUrls: ['https://1rpc.io/base'],
+    chainName: 'Base',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://basescan.org'],
+  },
+  {
+    id: 64165,
+    chainId: '0xfaa5',
+    rpcUrls: ['https://rpc.testnet.soniclabs.com'],
+    chainName: 'Sonic Testnet',
+    nativeCurrency: {
+      name: 'S',
+      symbol: 'S',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://testnet.soniclabs.com'],
+  },
+  {
+    id: 743111,
+    chainId: '0xB56C7',
+    rpcUrls: ['https://testnet.rpc.hemi.network/rpc'],
+    chainName: 'Hemi Sepolia',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://testnet.explorer.hemi.xyz'],
+  },
+  {
+    id: 164,
+    chainId: '0xA4',
+    rpcUrls: ['https://omega.omni.network'],
+    chainName: 'Omni Omega Testnet',
+    nativeCurrency: {
+      name: 'OMNI',
+      symbol: 'OMNI',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://omega.omniscan.network'],
+  },
+  {
+    id: 161221135,
+    chainId: '0x99C0A0F',
+    rpcUrls: ['https://testnet-rpc.plumenetwork.xyz/http'],
+    chainName: 'Plume Testnet',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://testnet-explorer.plumenetwork.xyz/'],
+  },
+  {
+    id: 1513,
+    chainId: '0x5E9',
+    rpcUrls: ['https://testnet.storyrpc.io/'],
+    chainName: 'Story Public Testnet',
+    nativeCurrency: {
+      name: 'IP',
+      symbol: 'IP',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://testnet.storyscan.xyz/'],
+  },
+  {
+    id: 6636130,
+    chainId: '0x654262',
+    rpcUrls: ['https://brn.rpc.caldera.xyz/http'],
+    chainName: 't3rn',
+    nativeCurrency: {
+      name: 'BRN',
+      symbol: 'BRN',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://bridge.t1rn.io/explorer'],
+  },
+  {
+    id: 39,
+    chainId: '0x27',
+    rpcUrls: ['https://rpc-mainnet.uniultra.xyz'],
+    chainName: 'U2U Solaris Mainnet',
+    nativeCurrency: {
+      name: 'U2U',
+      symbol: 'U2U',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://u2uscan.xyz'],
+  },
+  {
+    id: 2484,
+    chainId: '0x9b4',
+    rpcUrls: ['https://rpc-nebulas-testnet.uniultra.xyz'],
+    chainName: 'Unicorn Ultra Nebulas Testnet',
+    nativeCurrency: {
+      name: 'U2U',
+      symbol: 'U2U',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://testnet.u2uscan.xyz'],
+  },
+  {
+    id: 23294,
+    chainId: '0x5afe',
+    rpcUrls: ['https://sapphire.oasis.io'],
+    chainName: 'Oasis Sapphire',
+    nativeCurrency: {
+      name: 'ROSE',
+      symbol: 'ROSE',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://explorer.sapphire.oasis.io'],
+  },
+  {
+    id: 1942999413,
+    chainId: '0x73CFD175',
+    rpcUrls: ['https://rpc.testnet.humanity.org'],
+    chainName: 'Humanity Testnet',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://explorer.testnet.humanity.org'],
+  },
+  {
+    id: 1,
+    chainId: '1',
+    rpcUrls: ['https://toncenter.com/api/v2/jsonRPC'],
+    chainName: 'TON',
+    nativeCurrency: {
+      name: 'TON',
+      symbol: 'TON',
+      decimals: 9,
+    },
+    blockExplorerUrls: ['https://tonscan.org'],
+  },
+  {
+    id: 911867,
+    chainId: '0xDE9FB',
+    rpcUrls: ['https://odyssey.ithaca.xyz'],
+    chainName: 'Odyssey Testnet',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    blockExplorerUrls: ['https://odyssey-explorer.ithaca.xyz'],
+  },
+  {
+    id: 101,
+    chainId: '101',
+    rpcUrls: ['https://fullnode.mainnet.sui.io'],
+    chainName: 'SUI',
+    nativeCurrency: {
+      name: 'SUI',
+      symbol: 'SUI',
+      decimals: 9,
+    },
+    blockExplorerUrls: ['https://explorer.sui.network/'],
+  },
+];

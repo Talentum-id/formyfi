@@ -73,6 +73,11 @@
               :answer="newArr[currentIndex]"
               :disabled="cacheAnswer !== null"
             />
+            <PaymentsBlock
+              v-else-if="newArr[currentIndex].questionType === 'payment'"
+              :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null"
+            />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea
                 placeholder="Your Answer"
@@ -309,6 +314,7 @@ import SignUp from '@/components/Auth/SignUp.vue';
 import Icon from '@/components/Icons/Icon.vue';
 import Rating from '@/components/Details/Carousel/Rating.vue';
 import NumberBlock from '@/components/Details/Carousel/NumberBlock.vue';
+import PaymentsBlock from '@/components/Details/Carousel/PaymentsBlock.vue';
 import EmailBlock from '@/components/Details/Carousel/EmailBlock.vue';
 import LinkBlock from '@/components/Details/Carousel/LinkBlock.vue';
 import DateBlock from '@/components/Details/Carousel/DateBlock.vue';

@@ -187,6 +187,69 @@ async function addChainToWallet(blockchain) {
   }
 }
 
+export async function mint(nft) {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = provider.getSigner();
+    const gasLimit = 1000000;
+    const userAddress = await signer.getAddress();
+    const balance = await provider.getBalance(userAddress);
+
+    // Convert balance to BigNumber
+    const balanceInWei = ethers.utils.parseEther(ethers.utils.formatEther(balance));
+
+    let url = `WEB2URL`;
+
+    console.log('Balance in Wei:', balanceInWei.toString());
+
+    const { data } = await api.post(url, {
+      wallet: userAddress,
+    });
+
+    const obj = data;
+
+    // Convert obj.price to BigNumber
+    const price = BigNumber.from(nft.price.toString());
+
+    if (balanceInWei.lt(price)) {
+      onErrorAlert('Low Balance for Claim');
+      throw new Error('Low Balance for Claim');
+    }
+
+    const contract = new ethers.Contract(nft.address, abi, signer);
+
+    const tx = await contract.create(
+      obj.nonce.toString(),
+      obj.deadline.toString(),
+      price,
+      obj.args,
+      obj.signature,
+      {
+        value: price,
+        gasLimit: gasLimit,
+      },
+    );
+
+    console.log('Transaction hash:', tx.hash);
+
+    const receipt = await tx.wait();
+
+    if (receipt.status === 1) {
+      console.log('Transaction successful:', tx);
+      return {
+        tx: tx.hash,
+        wallet: userAddress,
+      }
+    } else {
+      throw new Error('Transaction failed');
+    }
+  } catch (error) {
+    console.error('Error during NFT claim:', error.message || error);
+    onErrorAlert(error?.response ? error?.response?.data?.error : 'Can’t claim NFT Reward');
+    throw error;
+  }
+}
+
 export const chains = [
   {
     id: 10143,

@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
-            <Select class="w-1/2" :options="collections" @input="collection = $event" selectedStyle="h-10"/>
+            <Select class="w-1/2" :options="collections" @input="collection = $event" selectedStyle="h-10" />
             <BaseButton text="Create NFT Collection" @click="createCollection" />
         </div>
         <div v-if="collection" class="flex flex-col gap-1">
@@ -11,7 +11,7 @@
                 <input v-model="amount" type="number" :placeholder="100"
                     class="w-full py-2 px-3 text-lg bg-white outline-none" />
                 <div class="flex items-center justify-center bg-[#D7DCE5] px-6">
-                    <span class="text-black font-medium">{{ collection.chain }}</span>
+                    <span class="text-black font-medium">{{ collection.chain.nativeCurrency.symbol }}</span>
                 </div>
             </div>
         </div>
@@ -23,6 +23,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import { ref, watch } from 'vue';
 import defaultBg from '@/assets/images/default-avatar.png';
 import { useRouter } from 'vue-router';
+import { chains } from '@/web3/nft';
 const router = useRouter();
 const amount = ref('');
 const collection = ref(null);
@@ -51,7 +52,7 @@ const generateMockCollections = (count = 10) => {
         address: `0x${Math.random().toString(16).substr(2, 40)}`,
         created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
         status: ['active', 'pending', 'completed'][Math.floor(Math.random() * 3)],
-        chain: ['BSC', 'ETH', 'SOL', 'TRX'][Math.floor(Math.random() * 4)],
+        chain: chains[Math.floor(Math.random() * 4)],
     }));
 };
 
@@ -61,7 +62,7 @@ watch(amount, (amount) => {
     if (!amount) {
         amount = 0;
     }
-    emit('input', { payment: { price: amount, collection: collection.value } });
+    emit('input', { collection: { price: amount, ...collection.value } });
 });
 </script>
 <style scoped lang="scss">

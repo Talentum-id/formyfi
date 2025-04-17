@@ -83,10 +83,10 @@ export const useCollectionsStore = defineStore('collections', {
           throw e;
         });
     },
-    async fetchCollection(link) {
+    async fetchCollection(contractAddress) {
       this.loadedCollection = false;
       await this.actor
-        ?.show(link)
+        ?.show(contractAddress)
         .then(async (res) => {
           const arr = res.map((item) => {
             const { quest } = item;

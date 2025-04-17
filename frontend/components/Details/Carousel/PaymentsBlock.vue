@@ -7,8 +7,11 @@
         <div class="payments-block__description">
             You need to connect your wallet and then mint the NFT This is how the purchase process will be completed
         </div>
+        <div class="payments-block__title my-4">Price: {{ props.answer.payment.collection.price }}
+            {{ props.answer.payment.collection.chain.nativeCurrency.symbol }}</div>
+
         <div class="payments-block__connect">
-            <SocialConnect :data="data" class="cursor-pointer" @click="connectWallet" />
+            <SocialConnect :data="data" class="cursor-pointer" @click="mintNFT" />
         </div>
     </div>
 </template>
@@ -30,8 +33,7 @@ const props = defineProps({
     },
 });
 
-const connectWallet = async () => {
-    console.log(props.answer.payment);
+const mintNFT = async () => {
     try {
         await switchNetwork(props.answer.payment.collection.chain.id);
         await mint(props.answer.payment.collection);

@@ -193,6 +193,7 @@ export default {
   z-index: 98;
   line-height: 47px;
   border-radius: 8px;
+  height: 40px;
 }
 
 .custom-select .selected {
@@ -208,6 +209,10 @@ export default {
   line-height: 20px;
   padding: 4px 8px;
   color: $transparent-active-text;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .custom-select .selected.open {
@@ -227,7 +232,7 @@ export default {
 .custom-select .selected:after {
   position: absolute;
   content: '';
-  top: 12px;
+  top: 16px;
   right: 1em;
   width: 12px;
   height: 7px;
@@ -237,7 +242,7 @@ export default {
 .arrow {
   position: absolute;
   content: '';
-  top: 12px;
+  top: 16px;
   right: 1em;
   width: 12px;
   height: 7px;

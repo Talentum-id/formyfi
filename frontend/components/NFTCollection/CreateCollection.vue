@@ -192,6 +192,7 @@ const item = reactive({
   max_supply: 1,
   transferable: false,
   unlimited_supply: false,
+  contract_address: '',
 });
 
 // Error handling
@@ -328,17 +329,16 @@ const handleCreateCollection = async () => {
 
     if (item.type === 'erc_721') {
       await deploy(item);
-      item.address = await getContractAddress();
+      item.contract_address = await getContractAddress();
     } else {
       await createNFTId(item);
-      item.address = await getContractAddress();
+      item.contract_address = await getContractAddress();
       item.token_id = await getTokenId();
     }
 
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
     await useCollectionsStore().createCollection(item);
-    await useCollectionsStore().getCollections();
     emit('update');
     emit('close');
   } catch (error) {

@@ -21,7 +21,7 @@ import SocialConnect from '@/components/Creating/SocialConnect.vue';
 import { ref } from 'vue';
 import defaultBg from '@/assets/images/default-avatar.png';
 import { switchNetwork, mint } from '@/web3/nft';
-import { useZkLogin } from '@/web3/zkLogin';
+import { useZkLogin } from '@/composables/useZkLogin';
 const { mintSuiNft } = useZkLogin();
 
 const data = ref({

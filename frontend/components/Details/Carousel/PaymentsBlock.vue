@@ -21,6 +21,9 @@ import SocialConnect from '@/components/Creating/SocialConnect.vue';
 import { ref } from 'vue';
 import defaultBg from '@/assets/images/default-avatar.png';
 import { switchNetwork, mint } from '@/web3/nft';
+import { useZkLogin } from '@/web3/zkLogin';
+const { mintSuiNft } = useZkLogin();
+
 const data = ref({
     icon: 'NFT-Default',
     title: 'Mint NFT',
@@ -35,8 +38,12 @@ const props = defineProps({
 
 const mintNFT = async () => {
     try {
-        await switchNetwork(props.answer.payment.collection.chain.id);
-        await mint(props.answer.payment.collection);
+        if (props.answer.payment.collection.chain.id === 101) {
+            await mintSuiNft(props.answer.payment.collection);
+        } else {
+            await switchNetwork(props.answer.payment.collection.chain.id);
+            await mint(props.answer.payment.collection);
+        }
     } catch (error) {
         console.error(error);
     }

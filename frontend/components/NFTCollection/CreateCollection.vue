@@ -2,19 +2,14 @@
   <BaseModalNew :visible="true" @close="$emit('close')">
     <div class="p-10 flex flex-col gap-8">
       <div class="font-familyLight font-regular text-3xl">Create NFT Collection</div>
-      
+
       <div class="flex flex-col gap-2">
         <div class="text-md font-medium">Cover Image</div>
         <div class="text-xs font-medium text-secondary-60">
           Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
         </div>
-        <TaskBannerUploader
-          :setImage="handleFileUpload"
-          :banner="item.file"
-          :isEditingActive="true"
-          :isError="!item.file && errorItem.uri.isError && errorItem.uri.text"
-          errorText="Cover Image is Required"
-        />
+        <TaskBannerUploader :setImage="handleFileUpload" :banner="item.file" :isEditingActive="true"
+          :isError="!item.file && errorItem.uri.isError && errorItem.uri.text" errorText="Cover Image is Required" />
         <div v-if="errorItem.uri.isError && errorItem.uri.text" class="editor-error">
           {{ errorItem.uri.text }}
         </div>
@@ -24,27 +19,15 @@
         <div class="text-xs font-medium text-secondary-60">
           Choose the blockchain on which the collection is created.
         </div>
-        <Select
-          filter
-          isVertical
-          :options="chainList"
-          @input="setBlockchain"
-          type="create"
-          :default="chainList[0]"
-        />
+        <Select filter isVertical :options="chainList" @input="setBlockchain" type="create" :default="chainList[0]" />
       </div>
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2" v-if="+item.blockchain_id !== 101">
         <div class="text-md font-medium">Collection Type</div>
         <div class="text-xs font-medium text-secondary-60">
           Choose the type of NFT collection you want to create.
         </div>
-        <FilterToggle
-          :buttons="collectionTypes"
-          :id="collectionId"
-          @select="setCollection"
-          class="w-full"
-          fixedWidth="100%"
-        />
+        <FilterToggle :buttons="collectionTypes" :id="collectionId" @select="setCollection" class="w-full"
+          fixedWidth="100%" />
       </div>
 
 
@@ -53,13 +36,8 @@
         <div class="text-xs font-medium text-secondary-60">
           Enter at least 3 and no more than 15 characters.
         </div>
-        <Input
-          v-model="item.name"
-          :isError="errorItem.name.isError"
-          :error-text="errorItem.name.text"
-          @input="clearError('name')"
-          placeholder="Enter the collection name"
-        />
+        <Input v-model="item.name" :isError="errorItem.name.isError" :error-text="errorItem.name.text"
+          @input="clearError('name')" placeholder="Enter the collection name" />
       </div>
 
       <div class="flex flex-col">
@@ -67,13 +45,8 @@
         <div class="text-xs font-medium text-secondary-60">
           Enter at least 3 and no more than 6 characters.
         </div>
-        <Input
-          v-model="item.symbol"
-          :isError="errorItem.symbol.isError"
-          :error-text="errorItem.symbol.text"
-          @input="clearError('symbol')"
-          placeholder="Enter the collection symbol"
-        />
+        <Input v-model="item.symbol" :isError="errorItem.symbol.isError" :error-text="errorItem.symbol.text"
+          @input="clearError('symbol')" placeholder="Enter the collection symbol" />
       </div>
 
       <div class="flex flex-col gap-2">
@@ -81,13 +54,9 @@
         <div class="text-xs font-medium text-secondary-60">
           Enter at least 3 and no more than 20 characters.
         </div>
-        <Editor
-          :description="item.description"
-          @update="handleDescriptionUpdate"
-          :isError="errorItem.description.isError"
-          :errorText="errorItem.description.text"
-          placeholder="Enter the Collection description"
-        />
+        <Editor :description="item.description" @update="handleDescriptionUpdate"
+          :isError="errorItem.description.isError" :errorText="errorItem.description.text"
+          placeholder="Enter the Collection description" />
       </div>
 
 
@@ -95,29 +64,15 @@
 
       <div class="flex flex-col gap-2">
         <div class="text-md font-medium">Max Supply</div>
-        <NumberInput
-          v-model="item.max_supply"
-          placeholder="0"
-          type="number"
-          :required="true"
-          class="!w-full"
-          :isDisabled="item.unlimited_supply"
-        />
-        <Checkbox
-          label="The supply is not limited"
-          text="Unlimited"
-          @checked="setUnlimited"
-          :checkedProp="item.unlimited_supply"
-        />
+        <NumberInput v-model="item.max_supply" placeholder="0" type="number" :required="true" class="!w-full"
+          :isDisabled="item.unlimited_supply" />
+        <Checkbox label="The supply is not limited" text="Unlimited" @checked="setUnlimited"
+          :checkedProp="item.unlimited_supply" />
       </div>
 
       <div class="flex w-full gap-2 justify-between">
         <div class="text-md font-medium">Transferable</div>
-        <Switch
-          @checked="item.transferable = $event"
-          :checkedProp="item.transferable"
-          type="small"
-        />
+        <Switch @checked="item.transferable = $event" :checkedProp="item.transferable" type="small" />
       </div>
 
       <BaseButton type="normal" @click="handleCreateCollection" :loading="isLoading">
@@ -146,6 +101,8 @@ import Switch from '@/components/Creating/Switch.vue';
 import Select from '@/components/Select.vue';
 import Alert from '@/components/Alert.vue';
 import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
+import axiosService from '@/services/axiosService';
+import { useZkLogin } from '@/web3/zkLogin';
 // Web3
 import {
   deploy,
@@ -160,6 +117,7 @@ import { modal } from '@/mixins/modal';
 const emit = defineEmits(['close', 'update']);
 
 // State
+const { deploySui } = useZkLogin();
 const isLoading = ref(false);
 const isLoadingModalOpen = ref(false);
 const collectionId = ref(0);
@@ -310,36 +268,46 @@ const handleCreateCollection = async () => {
   });
 
   try {
-    await switchNetwork(item.blockchain_id);
     if (typeof item.file !== 'string') {
-        const formData = new FormData();
+      const formData = new FormData();
+      const realTime = Math.floor(new Date().getTime() / 1000);
+      let index = 0;
+      formData.append('files[]', item.file);
+      formData.append('paths[]', `/${process.env.DFX_NETWORK}/collection/${realTime}/${index}`);
 
-        formData.append('files[]', item.file);
-        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+      await axiosService
+        .post(`${process.env.API_URL}upload-files`, formData)
+        .then(({ data }) => (item.file = data[0]))
+        .catch((e) => {
+          throw e;
+        });
 
-        await axiosService
-          .post(`${process.env.API_URL}upload-files`, formData)
-          .then(({ data }) => (item.file = data[0]))
-          .catch((e) => {
-            throw e;
-          });
-
-        index++;
+      index++;
     }
-
-    if (item.type === 'erc_721') {
-      await deploy(item);
-      item.contract_address = await getContractAddress();
+    if (+item.blockchain_id === 101) {
+      await deploySui(item).then(async () => {
+        item.address = await getContractAddress();
+        item.meta = await getContractMeta();
+      });
     } else {
-      await createNFTId(item);
-      item.contract_address = await getContractAddress();
-      item.token_id = await getTokenId();
-    }
 
+      await switchNetwork(item.blockchain_id);
+
+      if (item.type === 'erc_721') {
+        await deploy(item);
+        item.contract_address = await getContractAddress();
+      } else {
+        await createNFTId(item);
+        item.contract_address = await getContractAddress();
+        item.token_id = await getTokenId();
+      }
+    }
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
+
     await useCollectionsStore().createCollection(item);
     emit('update');
+    modal.emit('closeModal', {});
     emit('close');
   } catch (error) {
     console.error('Error creating collection:', error);

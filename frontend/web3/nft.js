@@ -170,9 +170,11 @@ export function getContractAddress() {
 export function getTokenId() {
   return tokenId;
 }
+
 export function getContractMeta() {
   return contractMeta;
 }
+
 async function addChainToWallet(blockchain) {
   const chain = JSON.parse(JSON.stringify(blockchain));
   try {
@@ -239,7 +241,7 @@ export async function mint(nft) {
       return {
         tx: tx.hash,
         wallet: userAddress,
-      }
+      };
     } else {
       throw new Error('Transaction failed');
     }
@@ -335,17 +337,16 @@ export const chains = [
     },
     blockExplorerUrls: ['https://basescan.org'],
   },
-
   {
-    id: 911867,
-    chainId: '0xDE9FB',
-    rpcUrls: ['https://odyssey.ithaca.xyz'],
-    chainName: 'Odyssey Testnet',
+    id: 101,
+    chainId: '101',
+    rpcUrls: ['https://fullnode.mainnet.sui.io'],
+    chainName: 'SUI',
     nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18,
+      name: 'SUI',
+      symbol: 'SUI',
+      decimals: 9,
     },
-    blockExplorerUrls: ['https://odyssey-explorer.ithaca.xyz'],
+    blockExplorerUrls: ['https://explorer.sui.network/'],
   },
 ];

@@ -102,7 +102,7 @@ import Select from '@/components/Select.vue';
 import Alert from '@/components/Alert.vue';
 import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
 import axiosService from '@/services/axiosService';
-import { useZkLogin } from '@/web3/zkLogin';
+import { useZkLogin } from '@/composables/useZkLogin';
 // Web3
 import {
   deploy,

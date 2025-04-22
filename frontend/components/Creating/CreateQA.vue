@@ -224,7 +224,7 @@
             <Switch :checkedProp="rewardRequired" @checked="rewardRequired = $event" />
           </div>
         </div>
-        <PaymentsBlock v-if="rewardRequired" @input="reward = $event" />
+        <PaymentsBlock v-if="rewardRequired" @input="reward = $event" :isReward="true" />
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton :text="statusMessage" :disabled="!validationCheck || loading" type="normal" @click="check" />

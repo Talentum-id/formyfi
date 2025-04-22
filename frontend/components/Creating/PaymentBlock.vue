@@ -4,7 +4,7 @@
             <Select class="w-1/2" :options="collections" @input="collection = $event" selectedStyle="h-10" />
             <BaseButton text="Create NFT Collection" @click="createCollection" />
         </div>
-        <div v-if="collection" class="flex flex-col gap-1">
+        <div v-if="collection && !props.isReward" class="flex flex-col gap-1">
             <span class="title">Mint price</span>
             <span class="description">Choose a price for your NFT</span>
             <div class="flex h-10 rounded-lg overflow-hidden w-60 border border-[#DAD9F7] mt-1">
@@ -32,6 +32,14 @@ const emit = defineEmits(['input']);
 const createCollection = () => {
     router.push('/collections');
 }
+
+const props = defineProps({
+    isReward: {
+        type: Boolean,
+        default: false,
+    },
+});
+
 // Mock data generator
 const generateMockCollections = (count = 10) => {
     const mockProjects = [

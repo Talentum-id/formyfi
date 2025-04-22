@@ -3,24 +3,15 @@
     <div class="slider">
       <FirstEmptyItem v-if="items[currentIndex - 2]"></FirstEmptyItem>
       <Item v-if="items[currentIndex - 1]" :item="items[currentIndex - 1].question"></Item>
-      <CurrentItem
-        :class="{
-          marginTop: !items[currentIndex - 1],
-          marginBottom: !items[currentIndex + 1],
-        }"
-        @close="closeModal()"
-      >
+      <CurrentItem :class="{
+        marginTop: !items[currentIndex - 1],
+        marginBottom: !items[currentIndex + 1],
+      }" @close="closeModal()">
         <div class="flex flex-col gap-y-[24px] w-full content">
           <QuizProgress :length="items.length" :current-index="currentIndex"></QuizProgress>
-          <QuizProgressTitle
-            :size="items.length"
-            :current-step="currentIndex + 1"
-          ></QuizProgressTitle>
+          <QuizProgressTitle :size="items.length" :current-step="currentIndex + 1"></QuizProgressTitle>
 
-          <div
-            class="flex items-center justify-center"
-            v-if="newArr[currentIndex].file && questionFiles[currentIndex]"
-          >
+          <div class="flex items-center justify-center" v-if="newArr[currentIndex].file && questionFiles[currentIndex]">
             <video v-if="isVideo" controls>
               <source :src="questionFiles[currentIndex]" type="video/mp4" />
             </video>
@@ -29,144 +20,72 @@
               <source :src="questionFiles[currentIndex]" type="audio/mp3" />
               <source :src="questionFiles[currentIndex]" type="audio/mpeg" />
             </audio>
-            <CustomImage
-              v-else
-              :image="questionFiles[currentIndex]"
-              heigth="160"
-              width="160"
-            ></CustomImage>
+            <CustomImage v-else :image="questionFiles[currentIndex]" heigth="160" width="160"></CustomImage>
           </div>
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
-          <div
-            v-if="newArr[currentIndex].description"
-            class="question-description"
-            v-html="wrapLinksInAHrefTag(newArr[currentIndex].description)"
-          />
+          <div v-if="newArr[currentIndex].description" class="question-description"
+            v-html="wrapLinksInAHrefTag(newArr[currentIndex].description)" />
           <div v-if="getDataByType(newArr[currentIndex].questionType) === 'NOT_SOCIAL'">
-            <Rating
-              v-if="newArr[currentIndex].questionType === 'rate'"
-              :answer="newArr[currentIndex]"
-              :disabled="!!cacheAnswer"
-            />
-            <NumberBlock
-              v-else-if="newArr[currentIndex].questionType === 'number'"
-              :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null"
-            />
-            <EmailBlock
-              v-else-if="newArr[currentIndex].questionType === 'email'"
-              :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null"
-            />
-            <LinkBlock
-              v-else-if="newArr[currentIndex].questionType === 'link'"
-              :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null"
-            />
-            <DateBlock
-              v-else-if="newArr[currentIndex].questionType === 'date'"
-              :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null"
-            />
-            <AddressBlock
-              v-else-if="newArr[currentIndex].questionType === 'address'"
-              :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null"
-            />
-            <PaymentsBlock
-              v-else-if="newArr[currentIndex].questionType === 'payment'"
-              :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null"
-            />
+            <Rating v-if="newArr[currentIndex].questionType === 'rate'" :answer="newArr[currentIndex]"
+              :disabled="!!cacheAnswer" />
+            <NumberBlock v-else-if="newArr[currentIndex].questionType === 'number'" :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null" />
+            <EmailBlock v-else-if="newArr[currentIndex].questionType === 'email'" :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null" />
+            <LinkBlock v-else-if="newArr[currentIndex].questionType === 'link'" :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null" />
+            <DateBlock v-else-if="newArr[currentIndex].questionType === 'date'" :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null" />
+            <AddressBlock v-else-if="newArr[currentIndex].questionType === 'address'" :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null" />
+            <PaymentsBlock v-else-if="newArr[currentIndex].questionType === 'payment'" :answer="newArr[currentIndex]"
+              :disabled="cacheAnswer !== null" />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
-              <TextArea
-                placeholder="Your Answer"
-                v-model="newArr[currentIndex].answer"
-                class="w-full"
-                :disabled="cacheAnswer"
-              />
-              <CustomImage
-                v-if="answers[currentIndex] && answers[currentIndex].file"
-                class="banner"
-                heigth="160"
-                width="160"
-                :image="
-                  answers[currentIndex].file
-                    ? answerFiles[currentIndex]
-                    : newArr[currentIndex].uploadedFile
-                "
-              />
+              <TextArea placeholder="Your Answer" v-model="newArr[currentIndex].answer" class="w-full"
+                :disabled="cacheAnswer" />
+              <CustomImage v-if="answers[currentIndex] && answers[currentIndex].file" class="banner" heigth="160"
+                width="160" :image="answers[currentIndex].file
+                  ? answerFiles[currentIndex]
+                  : newArr[currentIndex].uploadedFile
+                  " />
 
-              <CustomUpload
-                v-if="disableUploader"
-                :files="newArr[currentIndex].answerFile"
-                @images="newArr[currentIndex].answerFile = $event"
-              ></CustomUpload>
-              <div
-                class="w-full text-center mt-[20px]"
-                v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"
-              ></div>
+              <CustomUpload v-if="disableUploader" :files="newArr[currentIndex].answerFile"
+                @images="newArr[currentIndex].answerFile = $event"></CustomUpload>
+              <div class="w-full text-center mt-[20px]"
+                v-if="newArr[currentIndex].answer || newArr[currentIndex].answerFile.length"></div>
             </div>
             <div v-else-if="newArr[currentIndex].questionType === 'quiz'">
-              <el-radio-group
-                v-model="newArr[currentIndex].answer"
-                class="flex flex-col gap-y-[8px] items-center content-center container-radio"
-                :border="false"
-              >
-                <el-radio-button
-                  class="radio"
-                  :label="answer.answer"
+              <el-radio-group v-model="newArr[currentIndex].answer"
+                class="flex flex-col gap-y-[8px] items-center content-center container-radio" :border="false">
+                <el-radio-button class="radio" :label="answer.answer"
                   :aria-selected="newArr[currentIndex].answer === answer.answer"
-                  v-for="answer in newArr[currentIndex].answers"
-                  :disabled="cacheAnswer"
-                />
-                <input
-                  class="allowed-input"
-                  type="text"
-                  v-model="newArr[currentIndex].myAnswer"
+                  v-for="answer in newArr[currentIndex].answers" :disabled="cacheAnswer" />
+                <input class="allowed-input" type="text" v-model="newArr[currentIndex].myAnswer"
                   v-if="newArr[currentIndex].openAnswerAllowed && isAdditionalAnswer"
-                  @focus="newArr[currentIndex].answer = ''"
-                  :placeholder="cacheAnswer || 'Your answer...'"
-                  :disabled="cacheAnswer"
-                  :class="{
+                  @focus="newArr[currentIndex].answer = ''" :placeholder="cacheAnswer || 'Your answer...'"
+                  :disabled="cacheAnswer" :class="{
                     selected:
                       cacheAnswer ||
                       (!newArr[currentIndex].answer && newArr[currentIndex].myAnswer),
-                  }"
-                />
+                  }" />
               </el-radio-group>
             </div>
             <div v-else class="flex justify-center">
-              <el-checkbox-group
-                v-model="newArr[currentIndex].myAnswers"
-                class="flex flex-col gap-y-[8px] items-center content-center container-radio"
-                :border="false"
-              >
-                <el-checkbox-button
-                  class="radio"
-                  :label="answer.answer"
+              <el-checkbox-group v-model="newArr[currentIndex].myAnswers"
+                class="flex flex-col gap-y-[8px] items-center content-center container-radio" :border="false">
+                <el-checkbox-button class="radio" :label="answer.answer"
                   :aria-selected="newArr[currentIndex].myAnswers.indexOf(answer.answer) !== -1"
-                  v-for="answer in newArr[currentIndex].answers"
-                  :disabled="cacheAnswer"
-                />
-                <input
-                  class="allowed-input"
-                  type="text"
-                  v-model="newArr[currentIndex].myAnswer"
-                  v-if="
-                    newArr[currentIndex].openAnswerAllowed &&
-                    isAdditionalAnswer &&
-                    cacheAnswer !== 'undeF1N3d'
-                  "
-                  @focus="newArr[currentIndex].answer = ''"
-                  :placeholder="cacheAnswer || 'Your answer...'"
-                  :disabled="cacheAnswer"
-                  :class="{
+                  v-for="answer in newArr[currentIndex].answers" :disabled="cacheAnswer" />
+                <input class="allowed-input" type="text" v-model="newArr[currentIndex].myAnswer" v-if="
+                  newArr[currentIndex].openAnswerAllowed &&
+                  isAdditionalAnswer &&
+                  cacheAnswer !== 'undeF1N3d'
+                " @focus="newArr[currentIndex].answer = ''" :placeholder="cacheAnswer || 'Your answer...'"
+                  :disabled="cacheAnswer" :class="{
                     selected:
                       cacheAnswer ||
                       (!newArr[currentIndex].answer && newArr[currentIndex].myAnswer),
-                  }"
-                />
+                  }" />
               </el-checkbox-group>
             </div>
           </div>
@@ -174,96 +93,45 @@
             <div class="flex gap-1 items-center wrapper-title font-semibold">
               {{ getDataByType(newArr[currentIndex].questionType).info.title }}
             </div>
-            <div
-              class="wrapper-subtitle w-[450px] mb-4"
-              v-html="getDataByType(newArr[currentIndex].questionType).info.description"
-            />
+            <div class="wrapper-subtitle w-[450px] mb-4"
+              v-html="getDataByType(newArr[currentIndex].questionType).info.description" />
 
-            <BaseButton
-              type="normal"
-              @click="getDataByType(newArr[currentIndex].questionType).fn()"
-            >
-              <Icon
-                :name="getDataByType(newArr[currentIndex].questionType).icon"
-                class="icon-soc"
-                :size="24"
-              />
+            <BaseButton type="normal" @click="getDataByType(newArr[currentIndex].questionType).fn()">
+              <Icon :name="getDataByType(newArr[currentIndex].questionType).icon" class="icon-soc" :size="24" />
               {{ getDataByType(newArr[currentIndex].questionType).title }}
             </BaseButton>
-            <SocialVerify
-              class="mt-4"
-              v-if="newArr[currentIndex].discord?.length && !!newArr[currentIndex].answer"
-              action="invite"
-              :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-              :action-type="newArr[currentIndex].discord[0].link"
-              :provider="newArr[currentIndex].questionType"
-              :provider-id="storedProviderId"
-              :title="`Join the ${newArr[currentIndex].discord[0].server}`"
-              :verified="
-                (cacheAnswer && !!cacheAnswer.length) ||
+            <SocialVerify class="mt-4" v-if="newArr[currentIndex].discord?.length && !!newArr[currentIndex].answer"
+              action="invite" :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
+              :action-type="newArr[currentIndex].discord[0].link" :provider="newArr[currentIndex].questionType"
+              :provider-id="storedProviderId" :title="`Join the ${newArr[currentIndex].discord[0].server}`" :verified="(cacheAnswer && !!cacheAnswer.length) ||
                 Object.keys(newArr[currentIndex].discord[0]).length ===
+                newArr[currentIndex].verificationAmount
+                " @verify="incrementVerification()" />
+            <div class="w-full flex flex-col gap-2 mt-4" v-for="social in newArr[currentIndex].twitter">
+              <SocialVerify v-if="social.reply && !!newArr[currentIndex].answer" action="reply"
+                :social-icon="getDataByType(newArr[currentIndex].questionType).icon" :action-type="social.reply"
+                :provider-id="storedProviderId" :provider="newArr[currentIndex].questionType" :verified="(cacheAnswer && !!cacheAnswer.length) ||
+                  Object.keys(newArr[currentIndex].twitter[0]).length ===
                   newArr[currentIndex].verificationAmount
-              "
-              @verify="incrementVerification()"
-            />
-            <div
-              class="w-full flex flex-col gap-2 mt-4"
-              v-for="social in newArr[currentIndex].twitter"
-            >
-              <SocialVerify
-                v-if="social.reply && !!newArr[currentIndex].answer"
-                action="reply"
-                :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-                :action-type="social.reply"
-                :provider-id="storedProviderId"
-                :provider="newArr[currentIndex].questionType"
-                :verified="
-                  (cacheAnswer && !!cacheAnswer.length) ||
+                  " title="Reply to this post" @verify="incrementVerification()" />
+              <SocialVerify v-if="social.retweet && !!newArr[currentIndex].answer" action="retweet"
+                :social-icon="getDataByType(newArr[currentIndex].questionType).icon" :action-type="social.retweet"
+                :provider-id="storedProviderId" :provider="newArr[currentIndex].questionType" :verified="(cacheAnswer && !!cacheAnswer.length) ||
                   Object.keys(newArr[currentIndex].twitter[0]).length ===
-                    newArr[currentIndex].verificationAmount
-                "
-                title="Reply to this post"
-                @verify="incrementVerification()"
-              />
-              <SocialVerify
-                v-if="social.retweet && !!newArr[currentIndex].answer"
-                action="retweet"
-                :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-                :action-type="social.retweet"
-                :provider-id="storedProviderId"
-                :provider="newArr[currentIndex].questionType"
-                :verified="
-                  (cacheAnswer && !!cacheAnswer.length) ||
+                  newArr[currentIndex].verificationAmount
+                  " title="Retweet this post" @verify="incrementVerification()" />
+              <SocialVerify v-if="social.follow && !!newArr[currentIndex].answer" action="follow"
+                :social-icon="getDataByType(newArr[currentIndex].questionType).icon" :action-type="social.follow"
+                :provider-id="storedProviderId" :provider="newArr[currentIndex].questionType"
+                :title="`Follow ${social.follow}`" :verified="(cacheAnswer && !!cacheAnswer.length) ||
                   Object.keys(newArr[currentIndex].twitter[0]).length ===
-                    newArr[currentIndex].verificationAmount
-                "
-                title="Retweet this post"
-                @verify="incrementVerification()"
-              />
-              <SocialVerify
-                v-if="social.follow && !!newArr[currentIndex].answer"
-                action="follow"
-                :social-icon="getDataByType(newArr[currentIndex].questionType).icon"
-                :action-type="social.follow"
-                :provider-id="storedProviderId"
-                :provider="newArr[currentIndex].questionType"
-                :title="`Follow ${social.follow}`"
-                :verified="
-                  (cacheAnswer && !!cacheAnswer.length) ||
-                  Object.keys(newArr[currentIndex].twitter[0]).length ===
-                    newArr[currentIndex].verificationAmount
-                "
-                @verify="incrementVerification()"
-              />
+                  newArr[currentIndex].verificationAmount
+                  " @verify="incrementVerification()" />
             </div>
           </div>
         </div>
         <div class="controllers">
-          <BaseButton
-            type="primary"
-            @click="prevSlide"
-            :class="{ invisible: !items[currentIndex - 1] }"
-          >
+          <BaseButton type="primary" @click="prevSlide" :class="{ invisible: !items[currentIndex - 1] }">
             Previous
           </BaseButton>
           <BaseButton :text="btnStatus" type="normal" @click="nextSlide" :disabled="disableBtn" />
@@ -276,13 +144,8 @@
   <TemplatePromise v-slot="{ resolve, reject }">
     <BaseModal :visible="show" width="500" @close="onClose">
       <div class="p-12">
-        <Login
-          @success="hasUser ? resolve(true) : (showSignUp = true)"
-          @reject="reject(null)"
-          @skip="resolve(true)"
-          is-quest
-          v-if="!showSignUp"
-        ></Login>
+        <Login @success="hasUser ? resolve(true) : (showSignUp = true)" @reject="reject(null)" @skip="resolve(true)"
+          is-quest v-if="!showSignUp"></Login>
         <SignUp v-else @success="resolve(true)" @reject="reject(null)"></SignUp>
       </div>
     </BaseModal>
@@ -324,6 +187,7 @@ import error from '@/assets/icons/modal/error.vue';
 import SocialVerify from '@/components/Details/Carousel/SocialVerify.vue';
 import { getRuleForCurrentType } from '@/constants/branchTypes';
 import { reloadingProviders } from '@/constants/reloadingProviders';
+import defaultBg from '@/assets/images/default-avatar.png';
 
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
@@ -333,7 +197,7 @@ const responseStore = useResponseStore();
 const props = defineProps({
   currentItem: {
     type: Object,
-    default: () => {},
+    default: () => { },
   },
   visible: {
     default: false,
@@ -356,6 +220,10 @@ const props = defineProps({
     default: () => [],
   },
   thankYouMessage: {
+    type: Object,
+    default: null,
+  },
+  reward: {
     type: Object,
     default: null,
   },
@@ -685,6 +553,31 @@ const handleSuccessModal = async () => {
   });
 };
 
+const handleRewardSuccessModal = async () => {
+  let customImg = defaultBg;
+  console.log(props.quest.rewards?.[0].collection)
+  const collection = props.quest.rewards?.[0].collection;
+  modal.emit('openModal', {
+    title: 'Reward Submitted',
+    message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
+    type: 'success',
+    actionText: 'Mint NFT',
+    customImg,
+    fn: async () => {
+      try {
+        if (collection.chain.id === 101) {
+          await mintSuiNft(collection);
+        } else {
+          await switchNetwork(collection.chain.id);
+          await mint(collection);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  });
+};
+
 const handleErrorModal = () => {
   modal.emit('openModal', {
     title: 'Error Message',
@@ -750,6 +643,7 @@ const checkUserIdentity = async () => {
 };
 const nextSlide = async () => {
   storedValue.value = storedProviderId.value = '';
+  await handleRewardSuccessModal();
 
   if (cacheAnswer.value || isPreview.value || step.value > props.items.length - 1) {
     if (currentIndex.value < props.items.length - 1) {
@@ -906,6 +800,7 @@ const branchCheck = async () => {
   }
 };
 const finishQuest = async () => {
+
   result.value = newArr.value.map((item) => {
     let answer = item.answer?.toString() || item.myAnswer?.toString() || '';
     const isOpenQuestion = item.questionType === 'open';
@@ -940,6 +835,7 @@ const finishQuest = async () => {
   await submitResponse();
 };
 const submitResponse = async (identityValidationAttempt = 0) => {
+
   if (!hasUser.value) {
     isGuest.value = true;
     try {
@@ -1004,7 +900,8 @@ watch(currentIndex, async () => {
       font-size: 32px;
       font-style: normal;
       font-weight: 500;
-      line-height: 40px; /* 125% */
+      line-height: 40px;
+      /* 125% */
       max-width: 100%;
     }
 
@@ -1021,7 +918,8 @@ watch(currentIndex, async () => {
       font-size: 20px;
       font-style: normal;
       font-weight: 500;
-      line-height: 32px; /* 160% */
+      line-height: 32px;
+      /* 160% */
 
       a {
         text-decoration: underline;
@@ -1107,6 +1005,7 @@ watch(currentIndex, async () => {
 }
 
 .container-radio {
+
   .is-active,
   .is-checked {
     border-radius: 8px;
@@ -1152,7 +1051,8 @@ watch(currentIndex, async () => {
       font-size: 14px;
       font-style: normal;
       font-weight: 500;
-      line-height: 20px; /* 142.857% */
+      line-height: 20px;
+      /* 142.857% */
       border: none !important;
       padding: 0 !important;
       white-space: pre-wrap;

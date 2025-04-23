@@ -117,7 +117,6 @@ import { modal } from '@/mixins/modal';
 
 const emit = defineEmits(['close', 'update']);
 
-// State
 const { deploySui } = useZkLogin();
 const isLoading = ref(false);
 const isLoadingModalOpen = ref(false);
@@ -154,7 +153,6 @@ const item = reactive({
   contract_address: '',
 });
 
-// Error handling
 const errorItem = reactive({
   name: { isError: false, text: '' },
   symbol: { isError: false, text: '' },
@@ -163,7 +161,6 @@ const errorItem = reactive({
   uri: { isError: false, text: '' },
 });
 
-// Methods
 const handleCloseLoading = (event) => {
   modal.emit('openModal', {
     title: 'Uploading collection...',
@@ -305,7 +302,7 @@ const handleCreateCollection = async () => {
     }
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
-
+console.log(item);
     await useCollectionsStore().createCollection(item);
     emit('update');
     modal.emit('closeModal', {});

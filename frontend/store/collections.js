@@ -1,15 +1,14 @@
 import { defineStore } from 'pinia';
-import { createActor, form_index } from '~/form_index';
+import { createActor, nft_index } from '~/nft_index';
 import { useAuthStore } from '@/store/auth';
 import { useResponseStore } from '@/store/response';
 import router from '@/router';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
-import axiosService from '@/services/axiosService';
 
 const createActorFromIdentity = (identity) => {
-  return createActor(process.env.CANISTER_ID_FORM_INDEX, {
+  return createActor(process.env.CANISTER_ID_NFT_INDEX, {
     agentOptions: { identity },
   });
 };
@@ -38,7 +37,7 @@ export const useCollectionsStore = defineStore('collections', {
           break;
         default:
           this.identity = useAuthStore().getIdentity;
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : form_index;
+          this.actor = this.identity ? createActorFromIdentity(this.identity) : nft_index;
       }
     },
     async initWithSIWSOrSIWE(provider){
@@ -119,7 +118,7 @@ export const useCollectionsStore = defineStore('collections', {
           } else {
             await useResponseStore().fetchResponse(arr?.[0].shareLink);
 
-            this.qa = arr?.[0];
+            this.collection = arr?.[0];
           }
         })  
         .catch((e) => {

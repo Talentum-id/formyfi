@@ -1,5 +1,5 @@
 <template>
-  <div class="main-wrapper" v-if="!loading && isDesktop">
+  <div class="main-wrapper" v-if="!loading && isDesktop" :style="{ backgroundColor: color }">
     <Header :open="toggleSidebar" />
     <div class="main-content" :class="{ open: sidebarOpen, mobile: isMobile() }">
       <Sidebar v-if="isAuthenticated" :open="toggleSidebar" :isOpen="sidebarOpen" />
@@ -31,6 +31,12 @@ const isDesktop = computed(
 
 const isAuthenticated = computed(() => {
   return useAuthStore().getAuthState;
+});
+const props = defineProps({
+  color: {
+    type: String,
+    default: '#f5f5fd',
+  },
 });
 </script>
 <script>

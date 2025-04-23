@@ -33,6 +33,8 @@ import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import CreateCollection from '@/components/NFTCollection/CreateCollection.vue';
 import Default from '@/layouts/default.vue';
 import { useCollectionsStore } from '@/store/collections';
+import { chains } from '@/web3/nft';
+import Badge from '@/components/Badge.vue';
 
 const router = useRouter();
 const modalVisible = ref(false);
@@ -40,8 +42,7 @@ const isConfirmModalOpen = ref(false);
 const search = ref('');
 
 const page = ref(1);
-const total_pages = ref(5);
-const collectionList = ref([]);
+const total_pages = ref(1);
 const loaded = ref(true);
 const roles = inject('roles');
 
@@ -50,8 +51,12 @@ const collectionsStore = useCollectionsStore();
 
 const params = computed(() => ({
   page: page.value,
-  per_page: 10,
-  ...(debouncedSearch.value && { search: debouncedSearch.value }),
+  pageSize: 10,
+  sortBy: {
+    key: 'symbol',
+    value: 'desc',
+  },
+  search: debouncedSearch.value || ''
 }));
 
 const handleCloseConfirm = () => {
@@ -70,56 +75,18 @@ watch(params, async () => {
   await getCollections();
 });
 
-// Mock data generator
-const generateMockCollections = (count = 10) => {
-  const mockProjects = [
-    { name: 'CryptoPunks', logo: defaultBg },
-    { name: 'Bored Ape Yacht Club', logo: defaultBg },
-    { name: 'Art Blocks', logo: defaultBg },
-    { name: 'Doodles', logo: defaultBg },
-    { name: 'Azuki', logo: defaultBg },
-  ];
-
-  return Array.from({ length: count }, (_, index) => ({
-    id: index + 1,
-    name: `Collection ${index + 1}`,
-    project: mockProjects[Math.floor(Math.random() * mockProjects.length)],
-    max_supply: Math.floor(Math.random() * 10000),
-    unlimited_supply: Math.random() > 0.7,
-    available: Math.floor(Math.random() * 5000),
-    address: `0x${Math.random().toString(16).substr(2, 40)}`,
-    created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-    status: ['active', 'pending', 'completed'][Math.floor(Math.random() * 3)],
-  }));
-};
-
 const getCollections = async () => {
   loaded.value = false;
   try {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Filter mock data based on search
-    let mockData = generateMockCollections();
-    if (search.value) {
-      mockData = mockData.filter(item =>
-        item.name.toLowerCase().includes(search.value.toLowerCase()) ||
-        item.project.name.toLowerCase().includes(search.value.toLowerCase())
-      );
-    }
-
-    // Simulate pagination
-    const start = (page.value - 1) * 10;
-    const end = start + 10;
-    collectionList.value = mockData.slice(start, end);
-    console.log(await collectionsStore.getCollections(params.value));
-
+    await collectionsStore.getCollections(params.value)
   } catch (error) {
     console.error('Error fetching collections:', error);
   } finally {
     loaded.value = true;
   }
 };
+
+const collectionList = computed(() => collectionsStore.getList);
 
 onMounted(async () => {
   await getCollections();
@@ -128,44 +95,50 @@ onMounted(async () => {
 const collectionColumns = computed(() => {
   return [
     { prop: 'name', label: 'Collection Name', width: '100%' },
-    { prop: 'project', label: 'Project Name', width: '120%' },
     { prop: 'supply', label: 'Supply', width: '60%' },
     { prop: 'available', label: 'Available', width: '60%' },
     { prop: 'address', label: 'Contract Address', width: '95%' },
+    { prop: 'blockchain', label: 'Blockchain', width: '95%' },
   ];
 });
 const collectionRows = computed(() => {
-  const collectionsArray = collectionList.value;
 
-  if (!collectionsArray?.length) {
+  const collectionsArray = collectionList.value;
+  if (!collectionsArray?.data?.length) {
     return [];
   }
+  page.value = Number(collectionsArray.pagination.current_page)
+  total_pages.value = Number(collectionsArray.pagination.total_pages)
 
-  return collectionsArray.map((item) => ({
+  return collectionsArray.data?.map((item) => ({
+  
     name: {
       content: item.name,
     },
-    project: {
-      component: Talent,
-      props: {
-        text: item.project ? item.project.name : '',
-        img: item.project.logo || defaultBg,
-      },
-    },
+    
     supply: {
-      content: item.unlimited_supply ? 'Unlimited' : item.max_supply,
+      content: item.unlimited_supply ? 'Unlimited' : Number(item.max_supply),
     },
     available: {
-      content: item.unlimited_supply ? 'Unlimited' : item.available,
+      content: item.unlimited_supply ? 'Unlimited' : Number(item.max_supply),
     },
     address: {
       component: Address,
       props: {
-        address: item.address ?? '',
+        address: item.contract_address ?? '',
       },
     },
+    blockchain: {
+      component: Badge,
+        props: {
+          text: chains.find(chain => chain.id === Number(item.blockchain_id))?.chainName || '',
+          value: '',
+          transparent: true,
+          big: false,
+        },
+    },
   }));
-});
+}, { deep: true });
 </script>
 
 <style>

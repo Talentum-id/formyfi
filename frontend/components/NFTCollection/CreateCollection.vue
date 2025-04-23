@@ -140,17 +140,20 @@ const chainList = chains.map((item) => ({
 
 // Form data
 const item = reactive({
+  id:1,
   name: '',
   symbol: '',
   uri: '',
   description: '',
-  type: 'erc_721',
+  nftType: 'erc_721',
   file: null,
   blockchain_id: 10143,
   max_supply: 1,
   transferable: false,
   unlimited_supply: false,
   contract_address: '',
+  token_id: { 'Null': null },
+  owner: '',
 });
 
 const errorItem = reactive({
@@ -171,7 +174,7 @@ const handleCloseLoading = (event) => {
 
 const setCollection = (event) => {
   collectionId.value = event.id;
-  item.type = event.name;
+  item.nftType = event.name;
 };
 
 const setBlockchain = (blockchain) => {
@@ -275,7 +278,7 @@ const handleCreateCollection = async () => {
 
       await axiosService
         .post(`${process.env.API_URL}upload-files`, formData)
-        .then(({ data }) => (item.file = data[0]))
+        .then(({ data }) => (item.file = data))
         .catch((e) => {
           throw e;
         });
@@ -291,7 +294,7 @@ const handleCreateCollection = async () => {
 
       await switchNetwork(item.blockchain_id);
 
-      if (item.type === 'erc_721') {
+      if (item.nftType === 'erc_721') {
         await deploy(item);
         item.contract_address = await getContractAddress();
       } else {
@@ -302,7 +305,7 @@ const handleCreateCollection = async () => {
     }
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
-console.log(item);
+    console.log(item);
     await useCollectionsStore().createCollection(item);
     emit('update');
     modal.emit('closeModal', {});
@@ -314,6 +317,10 @@ console.log(item);
   } finally {
     isLoading.value = false;
     isLoadingModalOpen.value = false;
+    showError.value = true;
+    emit('update');
+    modal.emit('closeModal', {});
+    emit('close');
     resetAlert();
   }
 };

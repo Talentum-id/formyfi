@@ -39,7 +39,7 @@
             <AddressBlock v-else-if="newArr[currentIndex].questionType === 'address'" :answer="newArr[currentIndex]"
               :disabled="cacheAnswer !== null" />
             <PaymentsBlock v-else-if="newArr[currentIndex].questionType === 'payment'" :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null" />
+              :disabled="cacheAnswer !== null" :preview="isPreview" />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea placeholder="Your Answer" v-model="newArr[currentIndex].answer" class="w-full"
                 :disabled="cacheAnswer" />
@@ -556,28 +556,33 @@ const handleSuccessModal = async () => {
 };
 
 const handleRewardSuccessModal = async () => {
-  let customImg = defaultBg;
-  console.log(props.quest.rewards?.[0].collection)
-  const collection = props.quest.rewards?.[0].collection;
-  modal.emit('openModal', {
-    title: 'Reward Submitted',
-    message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
-    type: 'success',
-    actionText: 'Mint NFT',
-    customImg,
-    fn: async () => {
-      try {
-        if (collection.chain.id === 101) {
-          await mintSuiNft(collection);
-        } else {
-          await switchNetwork(collection.chain.id);
-          await mint(collection);
+  console.log(props.quest)
+  const collection = props.quest.rewards?.[0]?.collection;
+  if (collection) {
+    let customImg = await readFile(collection?.file?.[0]);
+    modal.emit('openModal', {
+      title: 'Reward Submitted',
+      message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
+      type: 'success',
+      actionText: 'Mint NFT',
+      customImg,
+      fn: async () => {
+        if (isPreview.value) {
+          return;
         }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-  });
+        try {
+          if (Number(collection.blockchain_id) === 101) {
+            await mintSuiNft(collection);
+          } else {
+            await switchNetwork(Number(collection.blockchain_id));
+            await mint(collection);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
+  }
 };
 
 const handleErrorModal = () => {

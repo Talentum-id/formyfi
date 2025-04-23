@@ -226,7 +226,6 @@
         </div>
 
         <PaymentsBlock v-if="rewardRequired" @input="reward = $event" :isReward="true" />
-
         <div class="line my-8" />
         <div class="flex justify-between">
           <div class="section_item">
@@ -281,6 +280,8 @@ import BaseModalNew from '@/components/BaseModalNew.vue';
 import { TransitionRoot } from '@headlessui/vue';
 import PaymentsBlock from '@/components/Creating/PaymentBlock.vue';
 import ColorPicker from '@/components/Creating/ColorPicker.vue';
+import { useCollectionsStore } from '@/store/collections';
+import { onMounted } from 'vue';
 
 const emits = defineEmits('refresh');
 const loading = ref(false);
@@ -519,6 +520,19 @@ function uuidv4() {
   );
 }
 
+const params = computed(() => ({
+  page: 1,
+  pageSize: 20,
+  sortBy: {
+    key: 'symbol',
+    value: 'desc',
+  },
+  search: ''
+}));
+
+onMounted(() => {
+  useCollectionsStore().getCollections(params.value);
+});
 const loadFiles = () => {
   return new Promise(async (resolve, reject) => {
     try {

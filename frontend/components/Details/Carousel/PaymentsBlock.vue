@@ -1,14 +1,14 @@
 <template>
     <div class="payments-block mx-auto max-w-[400px]">
-        <div class="payments-block__image">
-            <img :src="defaultBg" alt="payments-block" />
+        <div class="payments-block__image" v-if="nftImage">
+            <CustomImage :src="nftImage" alt="payments-block" />
         </div>
         <div class="payments-block__title">Want to make a purchase?</div>
         <div class="payments-block__description">
             You need to connect your wallet and then mint the NFT This is how the purchase process will be completed
         </div>
-        <div class="payments-block__title my-4">Price: {{ props.answer.payment.collection.price }}
-            {{ props.answer.payment.collection.chain.nativeCurrency.symbol }}</div>
+        <div class="payments-block__title my-4">Price: {{ answer.payment.collection.price }}
+            {{ currencySymbol }}</div>
 
         <div class="payments-block__connect">
             <SocialConnect :data="data" class="cursor-pointer" @click="mintNFT" />
@@ -18,30 +18,54 @@
 
 <script setup>
 import SocialConnect from '@/components/Creating/SocialConnect.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import defaultBg from '@/assets/images/default-avatar.png';
 import { switchNetwork, mint } from '@/web3/nft';
 import { useZkLogin } from '@/composables/useZkLogin';
 const { mintSuiNft } = useZkLogin();
+import { chains } from '@/web3/nft';
+import { readFile } from '@/util/helpers';
+import { onMounted } from 'vue';
+import CustomImage from '@/components/CustomImage.vue';
 
 const data = ref({
     icon: 'NFT-Default',
     title: 'Mint NFT',
 });
+const nftImage = ref(null);
 
 const props = defineProps({
     answer: {
         type: Object,
         required: true,
     },
+    chains: {
+        type: Array,
+        required: true
+    },
+    preview: {
+        type: Boolean,
+        default: false
+    }
 });
 
+const currencySymbol = computed(() => {
+    return chains.find(chain => chain.id === Number(props.answer.payment.collection.blockchain_id))?.nativeCurrency.symbol
+});
+
+onMounted(async () => {
+    nftImage.value = await readFile(props.answer.payment.collection.file?.[0]);
+});
 const mintNFT = async () => {
+    if (props.preview) {
+        return;
+    }
+    const chainID = Number(props.answer.payment.collection.blockchain_id)
     try {
-        if (props.answer.payment.collection.chain.id === 101) {
+        if (chainID === 101) {
             await mintSuiNft(props.answer.payment.collection);
         } else {
-            await switchNetwork(props.answer.payment.collection.chain.id);
+            await switchNetwork(chainID);
             await mint(props.answer.payment.collection);
         }
     } catch (error) {

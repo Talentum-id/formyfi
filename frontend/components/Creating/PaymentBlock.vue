@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
-            <Select class="w-1/2" :options="collections" @input="collection = $event" selectedStyle="h-10" />
+            <Select class="w-1/2" :options="options" @input="collection = $event" selectedStyle="h-10" />
             <BaseButton text="Create NFT Collection" @click="createCollection" />
         </div>
         <div v-if="collection && !props.isReward" class="flex flex-col gap-1">
@@ -11,7 +11,8 @@
                 <input v-model="amount" type="number" :placeholder="100"
                     class="w-full py-2 px-3 text-lg bg-white outline-none" />
                 <div class="flex items-center justify-center bg-[#D7DCE5] px-6">
-                    <span class="text-black font-medium">{{ collection.chain.nativeCurrency.symbol }}</span>
+                    <span class="text-black font-medium">{{chains.find(chain => chain.id ===
+                        Number(collection.blockchain_id))?.nativeCurrency.symbol}}</span>
                 </div>
             </div>
         </div>
@@ -20,14 +21,15 @@
 <script setup>
 import Select from '@/components/Select.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import defaultBg from '@/assets/images/default-avatar.png';
 import { useRouter } from 'vue-router';
 import { chains } from '@/web3/nft';
+import { useCollectionsStore } from '@/store/collections';
+
 const router = useRouter();
 const amount = ref('');
 const collection = ref(null);
-const collections = ref([]);
 const emit = defineEmits(['input']);
 const createCollection = () => {
     router.push('/collections');
@@ -40,37 +42,21 @@ const props = defineProps({
     },
 });
 
-// Mock data generator
-const generateMockCollections = (count = 10) => {
-    const mockProjects = [
-        { name: 'CryptoPunks', logo: defaultBg },
-        { name: 'Bored Ape Yacht Club', logo: defaultBg },
-        { name: 'Art Blocks', logo: defaultBg },
-        { name: 'Doodles', logo: defaultBg },
-        { name: 'Azuki', logo: defaultBg },
-    ];
 
-    collections.value = Array.from({ length: count }, (_, index) => ({
-        id: index + 1,
-        name: `Collection ${index + 1}`,
-        project: mockProjects[Math.floor(Math.random() * mockProjects.length)],
-        max_supply: Math.floor(Math.random() * 10000),
-        unlimited_supply: Math.random() > 0.7,
-        available: Math.floor(Math.random() * 5000),
-        address: `0x${Math.random().toString(16).substr(2, 40)}`,
-        created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-        status: ['active', 'pending', 'completed'][Math.floor(Math.random() * 3)],
-        chain: chains[Math.floor(Math.random() * 4)],
-    }));
-};
-
-generateMockCollections();
+const collections = computed(() => useCollectionsStore().getList);
+const options = computed(() => {
+    const options = collections.value?.data?.map(item => ({ name: item.name, file: item.file, label: item.name, value: Number(item.id), id: Number(item.id), blockchain_id: Number(item.blockchain_id) })) || [];
+    return options;
+});
 
 watch(amount, (amount) => {
     if (!amount) {
         amount = 0;
     }
     emit('input', { collection: { price: amount, ...collection.value } });
+});
+watch(collection, (collection) => {
+    emit('input', { collection: { price: amount.value, ...collection } });
 });
 </script>
 <style scoped lang="scss">

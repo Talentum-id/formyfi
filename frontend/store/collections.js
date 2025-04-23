@@ -40,7 +40,7 @@ export const useCollectionsStore = defineStore('collections', {
           this.actor = this.identity ? createActorFromIdentity(this.identity) : nft_index;
       }
     },
-    async initWithSIWSOrSIWE(provider){
+    async initWithSIWSOrSIWE(provider) {
       const { Ok: principal } =
         provider === 'siwe'
           ? await ic_siwe_provider.get_principal(localStorage.getItem('address'))
@@ -66,16 +66,18 @@ export const useCollectionsStore = defineStore('collections', {
       this.identity = identity;
     },
     async createCollection(params) {
-      return await this.actor?.store(params, {
+      return await this.actor?.createCollection(params, {
         identity: process.env.DFX_ASSET_PRINCIPAL,
         character: localStorage.extraCharacter,
       });
     },
     async getCollections(params) {
+      let identity = useAuthStore().getPrincipal;
       return await this.actor
-        ?.list(params)
+        ?.getList({ ...params, identity: identity })
         .then(async (res) => {
-          return res;
+          console.log(res);
+          this.list = res;
         })
         .catch((e) => {
           console.error(e);
@@ -120,7 +122,7 @@ export const useCollectionsStore = defineStore('collections', {
 
             this.collection = arr?.[0];
           }
-        })  
+        })
         .catch((e) => {
           console.error(e);
 

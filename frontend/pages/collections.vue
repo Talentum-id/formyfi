@@ -4,35 +4,15 @@
       <div class="flex flex-row items-center justify-between">
         <div class="font-light font-familyLight text-secondary-10 text-5xl">NFT Collections</div>
         <div class="flex flex-row gap-6">
-          <InputWithSearch
-            :placeholder="'Find an NFT Collection...'"
-            :iconSize="24"
-            v-model="search"
-          />
+          <InputWithSearch :placeholder="'Find an NFT Collection...'" :iconSize="24" v-model="search" />
 
-          <BaseButton
-            class="!text-light font-medium"
-            text="Create NFT Collection"
-            @click="modalVisible = true"
-          />
+          <BaseButton class="!text-light font-medium" text="Create NFT Collection" @click="modalVisible = true" />
         </div>
       </div>
-      <BaseTable
-        v-if="loaded"
-        :columns="collectionColumns"
-        :rows="collectionRows"
-        pointer
-        title="So far, no NFT Collection has been created"
-        icon="icons8-futurama-nibbler"
-        sortFunction="sortTasks"
-      />
+      <BaseTable v-if="loaded" :columns="collectionColumns" :rows="collectionRows" pointer
+        title="So far, no NFT Collection has been created" icon="icons8-futurama-nibbler" sortFunction="sortTasks" />
       <TableSkeleton v-else />
-      <Pagination
-        :currentPage="page"
-        @pageChanged="nextPage($event)"
-        v-if="loaded"
-        :totalPages="total_pages"
-      />
+      <Pagination :currentPage="page" @pageChanged="nextPage($event)" v-if="loaded" :totalPages="total_pages" />
     </div>
     <CreateCollection @close="modalVisible = false" @update="getCollections()" v-if="modalVisible" />
   </Default>
@@ -52,6 +32,7 @@ import BaseTable from '@/components/Table/BaseTable.vue';
 import InputWithSearch from '@/components/Table/InputWithSearch.vue';
 import CreateCollection from '@/components/NFTCollection/CreateCollection.vue';
 import Default from '@/layouts/default.vue';
+import { useCollectionsStore } from '@/store/collections';
 
 const router = useRouter();
 const modalVisible = ref(false);
@@ -59,12 +40,13 @@ const isConfirmModalOpen = ref(false);
 const search = ref('');
 
 const page = ref(1);
-const total_pages = ref(5); 
+const total_pages = ref(5);
 const collectionList = ref([]);
 const loaded = ref(true);
 const roles = inject('roles');
 
 const debouncedSearch = useDebounce(search, 1000);
+const collectionsStore = useCollectionsStore();
 
 const params = computed(() => ({
   page: page.value,
@@ -116,11 +98,11 @@ const getCollections = async () => {
   try {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Filter mock data based on search
     let mockData = generateMockCollections();
     if (search.value) {
-      mockData = mockData.filter(item => 
+      mockData = mockData.filter(item =>
         item.name.toLowerCase().includes(search.value.toLowerCase()) ||
         item.project.name.toLowerCase().includes(search.value.toLowerCase())
       );
@@ -130,7 +112,8 @@ const getCollections = async () => {
     const start = (page.value - 1) * 10;
     const end = start + 10;
     collectionList.value = mockData.slice(start, end);
-    
+    console.log(await collectionsStore.getCollections(params.value));
+
   } catch (error) {
     console.error('Error fetching collections:', error);
   } finally {
@@ -151,7 +134,6 @@ const collectionColumns = computed(() => {
     { prop: 'address', label: 'Contract Address', width: '95%' },
   ];
 });
-
 const collectionRows = computed(() => {
   const collectionsArray = collectionList.value;
 

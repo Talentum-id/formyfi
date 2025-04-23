@@ -12,6 +12,7 @@ import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal, readFile, shortenAddress } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
+import { useCollectionsStore } from '@/store/collections';
 
 const WHITELIST = [
   process.env.CANISTER_ID_USER_INDEX,
@@ -244,6 +245,7 @@ export const useAuthStore = defineStore('auth', {
       await useQAStore().init();
       await useResponseStore().init();
       await useStatsStore().init();
+      await useCollectionsStore().init();
     },
     async loginWithII(isProfile = false) {
       if (this.authClient === null) {

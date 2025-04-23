@@ -103,6 +103,7 @@ import Alert from '@/components/Alert.vue';
 import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
 import axiosService from '@/services/axiosService';
 import { useZkLogin } from '@/composables/useZkLogin';
+import { useCollectionsStore } from '@/store/collections';
 // Web3
 import {
   deploy,
@@ -268,11 +269,11 @@ const handleCreateCollection = async () => {
   });
 
   try {
-    if (typeof item.file !== 'string') {
+    if (typeof file.value !== 'string') {
       const formData = new FormData();
       const realTime = Math.floor(new Date().getTime() / 1000);
       let index = 0;
-      formData.append('files[]', item.file);
+      formData.append('files[]', file.value);
       formData.append('paths[]', `/${process.env.DFX_NETWORK}/collection/${realTime}/${index}`);
 
       await axiosService

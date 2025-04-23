@@ -224,7 +224,11 @@
             <Switch :checkedProp="rewardRequired" @checked="rewardRequired = $event" />
           </div>
         </div>
+
         <PaymentsBlock v-if="rewardRequired" @input="reward = $event" :isReward="true" />
+        <div class="flex justify-between">
+          <ColorPicker v-model="color" label="With default value"  />
+        </div>
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton :text="statusMessage" :disabled="!validationCheck || loading" type="normal" @click="check" />
@@ -269,6 +273,7 @@ import NumberInput from '@/components/NumberInput.vue';
 import BaseModalNew from '@/components/BaseModalNew.vue';
 import { TransitionRoot } from '@headlessui/vue';
 import PaymentsBlock from '@/components/Creating/PaymentBlock.vue';
+import ColorPicker from '@/components/Creating/ColorPicker.vue';
 
 const emits = defineEmits('refresh');
 const loading = ref(false);
@@ -281,6 +286,8 @@ const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
+const color = ref('rgba(255, 69, 0, 0.68)')
+
 const reward = ref(null);
 const questsTypeItems = ref([
   { name: 'Open Question', id: 0, type: 'open' },
@@ -644,6 +651,8 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
+    color: color.value,
+
   };
 
   localStorage.previewData = JSON.stringify(obj);
@@ -657,6 +666,7 @@ const saveQA = async () => {
     description: description.value,
     image: bannerImage.value,
     participants: 0,
+    color: color.value,
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,

@@ -23,3 +23,7 @@
     text-align: center;
     font-weight: 400;
 }
+
+.el-popper.is-light.el-color-picker__panel.el-color-dropdown {
+    z-index: 9999999 !important;
+}

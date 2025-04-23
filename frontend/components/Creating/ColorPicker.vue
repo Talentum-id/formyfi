@@ -1,12 +1,7 @@
 <template>
-  <div class="demo-color-block z-10">
-    <span class="demonstration">{{ label }}</span>
-    <el-color-picker 
-      :model-value="modelValue" 
-      show-alpha 
-      :predefine="predefineColors"
-      @update:model-value="$emit('update:modelValue', $event)"
-    />
+  <div class="z-10">
+    <el-color-picker :model-value="modelValue" show-alpha :predefine="predefineColors"
+      @update:model-value="$emit('update:modelValue', $event)" />
   </div>
 </template>
 
@@ -16,11 +11,7 @@ import { ElColorPicker } from 'element-plus'
 const props = defineProps({
   modelValue: {
     type: String,
-    default: 'rgba(255, 69, 0, 0.68)'
-  },
-  label: {
-    type: String,
-    default: 'Color'
+    default: '#f5f5fd'
   }
 })
 
@@ -41,39 +32,6 @@ const predefineColors = ref([
   'hsl(181, 100%, 37%)',
   'hsla(209, 100%, 56%, 0.73)',
   '#c7158577',
+  '#f5f5fd',
 ])
 </script>
-
-<style scoped lang="scss">
-.demo-color-block {
-  z-index: 9999999;
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-  width: 100%;
-  justify-content: space-between;
-  padding: 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
-}
-
-.demonstration {
-  margin-right: 16px;
-  color: #606266;
-  font-size: 14px;
-}
-
-:deep(.el-color-picker) {
-  height: 32px;
-  width: 32px;
-}
-
-:deep(.el-color-picker__trigger) {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-}
-
-:deep(.el-color-picker__color) {
-  border: none;
-}
-</style> 

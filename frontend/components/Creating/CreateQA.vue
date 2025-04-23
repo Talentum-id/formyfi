@@ -226,8 +226,15 @@
         </div>
 
         <PaymentsBlock v-if="rewardRequired" @input="reward = $event" :isReward="true" />
+
+        <div class="line my-8" />
         <div class="flex justify-between">
-          <ColorPicker v-model="color" label="With default value"  />
+          <div class="section_item">
+            <div class="section_wrapper-title">Background Color</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <ColorPicker v-model="backgroundColor" label="With default value"  />
+          </div>
         </div>
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
@@ -286,7 +293,7 @@ const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
-const color = ref('rgba(255, 69, 0, 0.68)')
+const backgroundColor = ref('#f5f5fd')
 
 const reward = ref(null);
 const questsTypeItems = ref([
@@ -651,7 +658,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    color: color.value,
+    backgroundColor: backgroundColor.value,
 
   };
 
@@ -666,7 +673,7 @@ const saveQA = async () => {
     description: description.value,
     image: bannerImage.value,
     participants: 0,
-    color: color.value,
+    backgroundColor: backgroundColor.value,
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,

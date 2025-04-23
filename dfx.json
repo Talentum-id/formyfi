@@ -33,6 +33,13 @@
       "main": "backend/canisters/stats_index/metrics.mo",
       "type": "motoko"
     },
+    "nft_index": {
+      "main": "backend/canisters/nft_index/main.mo",
+      "type": "motoko",
+      "dependencies": [
+        "user_index"
+      ]
+    },
     "assets": {
       "dependencies": [
         "vetkd_system_api",

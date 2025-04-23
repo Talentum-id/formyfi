@@ -1,5 +1,4 @@
 import PaginationTypes "../../types/pagination";
-import Text "mo:base/Text";
 
 module QATypes {
   public type Answer = {

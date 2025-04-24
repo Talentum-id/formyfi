@@ -39,6 +39,7 @@ module QATypes {
 
   public type QA = {
     image : Text;
+    customization: ?QACustomization;
     title : Text;
     description : Text;
     shareLink : Text;
@@ -49,6 +50,7 @@ module QATypes {
     thxMessage : ?ThanksMessage;
     branches : ?Text;
     refCodePoints : ?Nat;
+    rewards: ?Nat;
   };
 
   public type ThanksMessage = {

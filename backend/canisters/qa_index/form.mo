@@ -22,7 +22,6 @@ actor FormIndex {
 
   stable var QAEntries : [(Text, [QA])] = [];
   stable var shareLinkEntries : [(Text, Text)] = [];
-  stable var QACustomizationEntries : [(Text, QACustomization)] = [];
 
   let QUESTION_TYPES : [Text] = [
     "open",
@@ -43,12 +42,6 @@ actor FormIndex {
 
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
   let shareLinks = Map.fromIter<Text, Text>(shareLinkEntries.vals(), 1000, Text.equal, Text.hash);
-  let QACustomizations = Map.fromIter<Text, QACustomization>(
-    QACustomizationEntries.vals(),
-    1000,
-    Text.equal,
-    Text.hash,
-  );
 
   public query func getFormsAmount() : async Nat {
     shareLinks.size();
@@ -151,6 +144,8 @@ actor FormIndex {
                 thxMessage = quest.thxMessage;
                 branches = quest.branches;
                 refCodePoints = quest.refCodePoints;
+                rewards = quest.rewards;
+                customization = quest.customization;
               },
             );
 
@@ -172,17 +167,6 @@ actor FormIndex {
     };
 
     shareLinks.delete(shareLink);
-  };
-
-  public query func getQACustomization(identity: Text) : async ?QACustomization
-  {
-    QACustomizations.get(identity);
-  };
-
-  public shared ({ caller }) func saveQACustomization(data: QACustomization, character : Utils.Character) : async ()
-  {
-    let identity = await Utils.authenticate(caller, false, character);
-    QACustomizations.put(identity, data);
   };
 
   func filter(qas : [QA], params : FetchParams) : List {
@@ -266,6 +250,8 @@ actor FormIndex {
         thxMessage = x.thxMessage;
         branches = x.branches;
         refCodePoints = x.refCodePoints;
+        rewards = x.rewards;
+        customization = x.customization;
       },
     );
 
@@ -349,12 +335,10 @@ actor FormIndex {
   system func preupgrade() {
     QAEntries := Iter.toArray(QAs.entries());
     shareLinkEntries := Iter.toArray(shareLinks.entries());
-    QACustomizationEntries := Iter.toArray(QACustomizations.entries());
   };
 
   system func postupgrade() {
     QAEntries := [];
     shareLinkEntries := [];
-    QACustomizationEntries := [];
   };
 };

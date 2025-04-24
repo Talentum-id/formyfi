@@ -38,6 +38,7 @@ actor FormIndex {
     "date",
     "address",
     "file",
+    "payment",
   ];
 
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);

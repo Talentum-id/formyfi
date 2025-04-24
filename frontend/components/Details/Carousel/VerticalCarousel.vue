@@ -559,6 +559,7 @@ const handleMinted = () => {
 }
 const handleRewardSuccessModal = async () => {
   console.log(props.quest)
+  console.log(props.rewards)
   const collection = props.quest.rewards?.[0];
   if (collection) {
     let customImg = await readFile(collection?.file?.[0]);
@@ -618,6 +619,7 @@ const storeResponseAndClose = async () => {
     if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
       refCode = route.query['ref-code'].trim();
     }
+    await handleRewardSuccessModal();
 
     await responseStore.storeResponse({
       filled: realTime.value,
@@ -631,7 +633,6 @@ const storeResponseAndClose = async () => {
     // if () {
     //   await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
     // }
-
     await closeModal();
     await handleSuccessModal();
   } catch (e) {
@@ -652,7 +653,6 @@ const checkUserIdentity = async () => {
 };
 const nextSlide = async () => {
   storedValue.value = storedProviderId.value = '';
-  await handleRewardSuccessModal();
 
   if (cacheAnswer.value || isPreview.value || step.value > props.items.length - 1) {
     if (currentIndex.value < props.items.length - 1) {

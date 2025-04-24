@@ -58,7 +58,7 @@ async function showModal() {
 </script>
 
 <template>
-  <Default :color="data?.color">
+  <Default :color="data?.customization?.color">
     <div class="header">
       <BackToList v-if="useAuthStore().isAuthenticated" />
       <div v-if="data && identity === data.owner" class="btn" @click="showModal">

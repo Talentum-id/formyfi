@@ -19,7 +19,7 @@ const closeTab = () => {
       <img src="@/assets/images/logo-dark.svg" alt="logo" width="108" height="28" />
       <BaseButton text="Back to Creating" @click="closeTab()" type="return"></BaseButton>
     </div>
-    <div class="content" :style="{ backgroundColor: data?.color }"><Quest :data="data"></Quest></div>
+    <div class="content" :style="{ backgroundColor: data?.customization?.color }"><Quest :data="data"></Quest></div>
   </div>
 </template>
 

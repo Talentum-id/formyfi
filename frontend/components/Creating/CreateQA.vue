@@ -232,7 +232,7 @@
             <div class="section_wrapper-title">Background Color</div>
           </div>
           <div class="check-btn_wrapper">
-            <ColorPicker v-model="color" label="With default value"  />
+            <ColorPicker v-model="color" label="With default value" />
           </div>
         </div>
         <div class="flex gap-6 footer">
@@ -672,7 +672,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    color: color.value,
+    customization: { color: color.value, url: [] },
 
   };
 

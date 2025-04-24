@@ -7,7 +7,7 @@
         <div class="payments-block__description">
             You need to connect your wallet and then mint the NFT This is how the purchase process will be completed
         </div>
-        <div class="payments-block__title my-4">Price: {{ answer.payment.price }}
+        <div class="payments-block__title my-4">Price: {{ answer.payment?.[0].price }}
             {{ currencySymbol }}</div>
 
         <div class="payments-block__connect">
@@ -56,7 +56,9 @@ const currencySymbol = computed(() => {
 const nft = ref(null);
 
 onMounted(async () => {
-    nft.value = await useCollectionsStore().getNft(props.answer.payment.nft_id);
+    const nft_id = Number(props.answer.payment?.[0].nft_id);
+    console.log(nft_id, 'nft_id');
+    nft.value = await useCollectionsStore().getNft(nft_id);
     console.log(nft.value, 'nft');
     nftImage.value = await readFile(nft.value.file?.[0]);
 });
@@ -66,12 +68,31 @@ const mintNFT = async () => {
     }
     const chainID = Number(nft.value.blockchain_id)
     try {
+        let tx;
+
+        useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
+
         if (chainID === 101) {
-            await mintSuiNft(nft.value);
+            tx = await mintSuiNft({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
         } else {
             await switchNetwork(chainID);
-            await mint(nft.value);
+            tx = await mint({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
         }
+
+
+        props.answer.answers = [{
+            answer: {
+                tx: tx.hash,
+                wallet: userAddress,
+                nft_id: nft.value.id,
+            },
+            isCorrect: !!tx.hash,
+        }];
+        useCollectionsStore().storeIdentityNftRelation({
+            nft_id: Number(nft.value.id),
+            hash: tx.hash,
+        });
+        console.log(res, 'res');
     } catch (error) {
         console.error(error);
     }

@@ -86,6 +86,17 @@ export const useCollectionsStore = defineStore('collections', {
     },
     async getNft(nft_id) {
       return await this.actor?.getCollection(nft_id);
+    },  
+    async checkIdentityNftRelation(nft_id) {
+      return await this.actor?.checkIdentityNftRelation(nft_id, {
+        identity: useAuthStore().getPrincipal,
+      });
+    },
+    async storeIdentityNftRelation(params) {
+      return await this.actor?.storeIdentityNftRelation(params, {
+        identity:  useAuthStore().getPrincipal,
+        character: localStorage.extraCharacter,
+      });
     },
     async fetchCollection(contractAddress) {
       this.loadedCollection = false;

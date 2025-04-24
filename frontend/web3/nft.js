@@ -5,6 +5,7 @@ import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { inputs } from '@/web3/abi/nftSuiInputs';
 import { fromB64 } from '@mysten/bcs';
 import AxiosService from '@/services/axiosService';
+import axios from 'axios';
 const SUI_ADDRESS_LENGTH = 32;
 
 function normalizeSuiAddress(value, forceAdd0x = false) {
@@ -192,40 +193,34 @@ async function addChainToWallet(blockchain) {
 export async function mint(nft) {
   try {
     const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = provider.getSigner();
+    const signer = await provider.getSigner();
     const gasLimit = 1000000;
     const userAddress = await signer.getAddress();
     const balance = await provider.getBalance(userAddress);
-
+    console.log(balance, 'balance');
     // Convert balance to BigNumber
-    const balanceInWei = ethers.utils.parseEther(ethers.utils.formatEther(balance));
 
     let url = `https://web2.formyfi.io/api/nft/collections/sign`;
+    console.log(nft, 'nft');
 
-    console.log('Balance in Wei:', balanceInWei.toString());
-
-    const { data } = await api.post(url, {
+    const { data } = await axios.post(url, {
       name: nft.name,
       wallet: userAddress,
       contractAddress: nft.address,
-      tokenId: nft.tokenId,
-      blockchain: nft.blockchain_id,
-      url: nft.file,
+      tokenId: Number(nft.tokenId),
+      blockchain: Number(nft.blockchain_id),
+      url: nft.file?.[0],
       description: nft.description,
-      price: nft.price,
+      price: Number(nft.price),
     
     });
 
     const obj = data;
-
+    console.log(obj, 'obj');
     // Convert obj.price to BigNumber
     const price = BigNumber.from(nft.price.toString());
 
-    if (balanceInWei.lt(price)) {
-      onErrorAlert('Low Balance for Claim');
-      throw new Error('Low Balance for Claim');
-    }
-    const ABI = nft.type === 'erc_721' ? abi : erc1155abi;
+    const ABI = nft.nftType === 'erc_721' ? abi : erc1155abi;
     const contract = new ethers.Contract(nft.address, ABI, signer);
 
     const tx = await contract.create(
@@ -249,13 +244,13 @@ export async function mint(nft) {
       return {
         tx: tx.hash,
         wallet: userAddress,
+        nft_id: Number(nft.id),
       };
     } else {
       throw new Error('Transaction failed');
     }
   } catch (error) {
     console.error('Error during NFT claim:', error.message || error);
-    onErrorAlert(error?.response ? error?.response?.data?.error : 'Can’t claim NFT Reward');
     throw error;
   }
 }

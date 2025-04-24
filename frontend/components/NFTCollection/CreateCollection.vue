@@ -117,7 +117,7 @@ import { modal } from '@/mixins/modal';
 
 const emit = defineEmits(['close', 'update']);
 
-const { deploySui } = useZkLogin();
+const { deploySui, getContractAddressSui, getContractMetaSui } = useZkLogin();
 const isLoading = ref(false);
 const isLoadingModalOpen = ref(false);
 const collectionId = ref(0);
@@ -287,8 +287,8 @@ const handleCreateCollection = async () => {
     }
     if (+item.blockchain_id === 101) {
       await deploySui(item).then(async () => {
-        item.address = await getContractAddress();
-        item.meta = await getContractMeta();
+        item.contract_address = await getContractAddressSui();
+        item.meta = await getContractMetaSui();
       });
     } else {
 

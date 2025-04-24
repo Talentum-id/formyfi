@@ -28,6 +28,8 @@ import { readFile } from '@/util/helpers';
 import { onMounted } from 'vue';
 import CustomImage from '@/components/CustomImage.vue';
 import { useCollectionsStore } from '@/store/collections';
+import { modal } from '@/mixins/modal';
+
 const data = ref({
     icon: 'NFT-Default',
     title: 'Mint NFT',
@@ -70,8 +72,12 @@ const mintNFT = async () => {
     try {
         let tx;
 
-        useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
-
+        //useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
+        await modal.emit('openModal', {
+            title: 'Loading...',
+            message: 'Please wait for a while',
+            type: 'loading',
+        });
         if (chainID === 101) {
             tx = await mintSuiNft({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
         } else {
@@ -95,6 +101,8 @@ const mintNFT = async () => {
         console.log(res, 'res');
     } catch (error) {
         console.error(error);
+    } finally {
+        modal.emit('closeModal');
     }
 };
 </script>

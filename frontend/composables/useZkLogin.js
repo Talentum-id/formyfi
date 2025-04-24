@@ -11,6 +11,13 @@ import axiosService from '@/services/axiosService';
 import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import { Buffer } from 'buffer';
 import axios from 'axios';
+import { inputs } from '@/web3/abi/nftSuiInputs';
+import { inputsSBT } from '@/web3/abi/nftSuiInputsSBT';
+import { Transaction } from '@mysten/sui/transactions';
+import { bcs } from '@mysten/sui/bcs';
+import { fromB64 } from '@mysten/bcs';
+import { chains } from '@/web3/nft';
+
 export const useZkLogin = () => {
   let nonce;
   let address;
@@ -19,13 +26,15 @@ export const useZkLogin = () => {
   const client = new SuiClient({
     url: getFullnodeUrl(SUI_NET_ENV),
   });
+  const SUI_ADDRESS_LENGTH = 32;
 
   window.Buffer = window.Buffer || Buffer;
 
   const GOOGLE_CLIENT_ID = process.env.CLIENT_ID;
   const REDIRECT_URI = `${window.location.origin}/login`;
   const ephemeralKeyPair = new Ed25519Keypair();
-
+  let contractAddress;
+  let contractMeta;
   const init = async () => {
     const { epoch } = await client.getLatestSuiSystemState();
     const maxEpoch = Number(epoch) + 30;
@@ -162,7 +171,12 @@ export const useZkLogin = () => {
 
     return salt;
   };
-
+   function getContractAddressSui() {
+    return contractAddress;
+  }
+   function getContractMetaSui() {
+    return contractMeta;
+  }
   async function getAddressObjects(userAddress, objectType) {
     try {
       const response = await client.getOwnedObjects({
@@ -198,7 +212,16 @@ export const useZkLogin = () => {
       return GlobalWallet.walletList.find((wallet) => wallet.name === walletName);
     }
   };
-
+  function normalizeSuiAddress(value, forceAdd0x = false) {
+    let address = value.toLowerCase();
+    if (!forceAdd0x && address.startsWith('0x')) {
+      address = address.slice(2);
+    }
+    return `0x${address.padStart(SUI_ADDRESS_LENGTH * 2, '0')}`;
+  }
+  function normalizeSuiObjectId(value, forceAdd0x = false) {
+    return normalizeSuiAddress(value, forceAdd0x);
+  }
   async function deploySui(item) {
     const suiWallet = getSuiProvider('Sui Wallet');
     if (!suiWallet) {
@@ -287,7 +310,7 @@ export const useZkLogin = () => {
       }
 
       const currentWallet = accounts[0].address;
-
+      console.log(currentWallet, 'currentWallet');
       if (!currentWallet) {
         throw {
           message: "You didn't connect this wallet to your profile",
@@ -295,12 +318,12 @@ export const useZkLogin = () => {
         };
       }
 
-      const SUI_ADDRESS = currentWallet.address;
+      const SUI_ADDRESS = currentWallet;
 
       let url = `https://web2.formyfi.io/api/nft/collections/sign`;
 
       const SUI_COIN_TYPE = '0x2::sui::SUI';
-
+      console.log(SUI_ADDRESS, 'SUI_ADDRESS');
       const gasCoins = await clientMainnet.getCoins({
         owner: SUI_ADDRESS,
         coinType: SUI_COIN_TYPE,
@@ -310,7 +333,7 @@ export const useZkLogin = () => {
         (acc, coin) => acc + parseInt(coin.balance, 10),
         0,
       );
-      const GAS_BUDGET = CONFIG.dailyActivityGasBudget;
+      const GAS_BUDGET = 100000000;
 
       if (totalGasBalance < GAS_BUDGET) {
         throw new Error('You do not have enough SUI to pay for transaction fees.');
@@ -319,12 +342,12 @@ export const useZkLogin = () => {
         .post(url, {
           name: nft.name,
           wallet: SUI_ADDRESS,
-          contractAddress: nft.address,
-          tokenId: nft.tokenId,
-          blockchain: nft.blockchain_id,
-          url: nft.file,
+          contractAddress: nft.contract_address,
+          tokenId: Number(nft.token_id),
+          blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
+          url: nft.file[0],
           description: nft.description,
-          price: nft.price,
+          price: Number(nft.price),
         })
         .then(async ({ data }) => {
           const obj = data[0];
@@ -336,7 +359,7 @@ export const useZkLogin = () => {
           }
 
           tx.setGasPrice(1000);
-          tx.setGasBudget(CONFIG.dailyActivityGasBudget);
+          tx.setGasBudget(10000000);
 
           const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${obj.price}`;
 
@@ -380,5 +403,7 @@ export const useZkLogin = () => {
     zkLoginAuthorize,
     connectZkLogin,
     deploySui,
+    getContractAddressSui,
+    getContractMetaSui,
   };
 };

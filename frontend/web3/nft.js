@@ -88,14 +88,15 @@ export async function createNFTId() {
 
     // Initialize contract
     const contract = new ethers.Contract(
-      useRuntimeConfig().public.erc1155Address,
+      '0x5CC9798C25528D3C972ECCaEde69A62b777f5798',
       erc1155abi,
       signer,
     );
+    let url = `https://web2.formyfi.io/api/nft/collections/sign-1155`;
 
     // Get signature from backend
-    const response = await AxiosService.post(useRuntimeConfig().public.apiBase + 'nft/sign-1155', {
-      contract_address: useRuntimeConfig().public.erc1155Address,
+    const response = await axios.post(url, {
+      contract_address: '0x5CC9798C25528D3C972ECCaEde69A62b777f5798',
       address: userAddress,
     });
 
@@ -112,7 +113,7 @@ export async function createNFTId() {
       const res = await tx.wait();
       const events = await decodeTransferSingle(res);
 
-      contractAddress = useRuntimeConfig().public.erc1155Address;
+      contractAddress = '0x5CC9798C25528D3C972ECCaEde69A62b777f5798';
       tokenId = events.id;
 
       return tokenId;
@@ -206,9 +207,9 @@ export async function mint(nft) {
     const { data } = await axios.post(url, {
       name: nft.name,
       wallet: userAddress,
-      contractAddress: nft.address,
+      contractAddress: nft.contract_address,
       tokenId: Number(nft.tokenId),
-      blockchain: Number(nft.blockchain_id),
+      blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
       url: nft.file?.[0],
       description: nft.description,
       price: Number(nft.price),
@@ -221,7 +222,7 @@ export async function mint(nft) {
     const price = BigNumber.from(nft.price.toString());
 
     const ABI = nft.nftType === 'erc_721' ? abi : erc1155abi;
-    const contract = new ethers.Contract(nft.address, ABI, signer);
+    const contract = new ethers.Contract(nft.contract_address, ABI, signer);
 
     const tx = await contract.create(
       obj.nonce.toString(),

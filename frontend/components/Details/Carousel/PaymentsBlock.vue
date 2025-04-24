@@ -10,7 +10,7 @@
         <div class="payments-block__title my-4">Price: {{ answer.payment?.[0].price }}
             {{ currencySymbol }}</div>
 
-        <div class="payments-block__connect">
+        <div class="payments-block__connect" v-if="!isMinted">
             <SocialConnect :data="data" class="cursor-pointer" @click="mintNFT" />
         </div>
     </div>
@@ -35,7 +35,7 @@ const data = ref({
     title: 'Mint NFT',
 });
 const nftImage = ref(null);
-
+const emit = defineEmits(['minted']);
 const props = defineProps({
     answer: {
         type: Object,
@@ -56,13 +56,20 @@ const currencySymbol = computed(() => {
 });
 
 const nft = ref(null);
-
+const isMinted = ref(false);    
 onMounted(async () => {
     const nft_id = Number(props.answer.payment?.[0].nft_id);
     console.log(nft_id, 'nft_id');
     nft.value = await useCollectionsStore().getNft(nft_id);
     console.log(nft.value, 'nft');
     nftImage.value = await readFile(nft.value.file?.[0]);
+
+    const res = await useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
+    console.log(res, 'res');
+    if (res) {
+        isMinted.value = true;
+        emit('minted');
+    }
 });
 const mintNFT = async () => {
     if (props.preview) {
@@ -71,8 +78,6 @@ const mintNFT = async () => {
     const chainID = Number(nft.value.blockchain_id)
     try {
         let tx;
-
-        //useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
         await modal.emit('openModal', {
             title: 'Loading...',
             message: 'Please wait for a while',
@@ -99,12 +104,19 @@ const mintNFT = async () => {
             hash: tx.hash,
         });
         console.log(res, 'res');
+        isMinted.value = true;
     } catch (error) {
         console.error(error);
     } finally {
         modal.emit('closeModal');
     }
 };
+
+watch(isMinted, (newVal) => {
+    if (newVal) {
+        props.answer.answers = [];
+    }
+});
 </script>
 
 <style scoped lang="scss">

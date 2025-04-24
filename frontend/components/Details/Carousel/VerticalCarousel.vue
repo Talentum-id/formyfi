@@ -39,7 +39,7 @@
             <AddressBlock v-else-if="newArr[currentIndex].questionType === 'address'" :answer="newArr[currentIndex]"
               :disabled="cacheAnswer !== null" />
             <PaymentsBlock v-else-if="newArr[currentIndex].questionType === 'payment'" :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null" :preview="isPreview" />
+              :disabled="cacheAnswer !== null" :preview="isPreview" @minted="handleMinted" />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea placeholder="Your Answer" v-model="newArr[currentIndex].answer" class="w-full"
                 :disabled="cacheAnswer" />
@@ -554,7 +554,9 @@ const handleSuccessModal = async () => {
     },
   });
 };
-
+const handleMinted = () => {
+  nextSlide();
+}
 const handleRewardSuccessModal = async () => {
   console.log(props.quest)
   const collection = props.quest.rewards?.[0]?.collection;

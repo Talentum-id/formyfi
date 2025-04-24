@@ -88,9 +88,9 @@ export const useCollectionsStore = defineStore('collections', {
       return await this.actor?.getCollection(nft_id);
     },  
     async checkIdentityNftRelation(nft_id) {
-      return await this.actor?.checkIdentityNftRelation(nft_id, {
-        identity: useAuthStore().getPrincipal,
-      });
+      console.log(useAuthStore().getPrincipal, 'useAuthStore().getPrincipal');
+      console.log(nft_id, 'nft_id');
+      return await this.actor?.checkIdentityNftRelation(useAuthStore().getPrincipal, nft_id);
     },
     async storeIdentityNftRelation(params) {
       return await this.actor?.storeIdentityNftRelation(params, {

@@ -16,22 +16,26 @@ actor NftIndex {
     type NFTCollection = Types.NFTCollection;
     type FetchParams = Types.QAGetParams;
     type List = Types.ListResult;
+    type IdentityNftKey = Types.IdentityNftKey;
+
+    private func hashIdentityNft(key: IdentityNftKey): Hash.Hash {
+        let identityHash = Text.hash(key.identity);
+        let hashHash = Text.hash(key.hash);
+        let nftHash = Hash.hash(key.nft_id);
+
+        return identityHash ^ hashHash ^ nftHash;
+    };
+
+    private func eqIdentityNft(a: IdentityNftKey, b: IdentityNftKey): Bool {
+        Text.equal(a.identity, b.identity) and Text.equal(a.hash, b.hash) and a.nft_id == b.nft_id
+    };
 
     private stable var nextId: Nat = 1;
     private stable var collectionsEntries : [(Nat, NFTCollection)] = [];
+    private stable var identityNftEntries : [(IdentityNftKey, Bool)] = [];
 
     private let collections = HashMap.HashMap<Nat, NFTCollection>(0, Nat.equal, Hash.hash);
-
-    system func preupgrade() {
-        collectionsEntries := Iter.toArray(collections.entries());
-    };
-
-    system func postupgrade() {
-        for ((id, collection) in Iter.fromArray(collectionsEntries)) {
-            collections.put(id, collection);
-        };
-        collectionsEntries := [];
-    };
+    private let identityNftRelations = HashMap.HashMap<IdentityNftKey, Bool>(0, eqIdentityNft, hashIdentityNft);
 
     public shared({ caller }) func createCollection(collection: NFTCollection, character : Utils.Character) : async () {
         let identity = await Utils.authenticate(caller, false, character);
@@ -212,5 +216,45 @@ actor NftIndex {
         );
 
         { data; pagination };
+    };
+
+    public shared({ caller }) func storeIdentityNftRelation(data : IdentityNftKey, character: Utils.Character) : async () {
+        let identity = await Utils.authenticate(caller, false, character);
+        
+        let key : IdentityNftKey = {
+            identity = identity;
+            hash = data.hash;
+            nft_id = data.nft_id;
+        };
+        
+        identityNftRelations.put(key, true);
+    };
+    
+    public query func checkIdentityNftRelation(identity: Text, nftId: Nat) : async Bool {
+        let allRelations = Iter.toArray(identityNftRelations.entries());
+        for ((k, exists) in allRelations.vals()) {
+            if (Text.equal(k.identity, identity) and k.nft_id == nftId and exists) {
+                return true;
+            };
+        };
+
+        return false;
+    };
+
+    system func preupgrade() {
+        collectionsEntries := Iter.toArray(collections.entries());
+        identityNftEntries := Iter.toArray(identityNftRelations.entries());
+    };
+
+    system func postupgrade() {
+        for ((id, collection) in Iter.fromArray(collectionsEntries)) {
+            collections.put(id, collection);
+        };
+        collectionsEntries := [];
+        
+        for ((key, exists) in Iter.fromArray(identityNftEntries)) {
+            identityNftRelations.put(key, exists);
+        };
+        identityNftEntries := [];
     };
 }

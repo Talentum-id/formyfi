@@ -29,6 +29,12 @@ module NftType {
         owner: Text;
     };
 
+    public type IdentityNftKey = {
+        identity: Text;
+        hash: Text;
+        nft_id: Nat;
+    };
+
     public type QAGetParams = {
         identity : Text;
         search : Text;

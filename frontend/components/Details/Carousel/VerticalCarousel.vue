@@ -39,7 +39,7 @@
             <AddressBlock v-else-if="newArr[currentIndex].questionType === 'address'" :answer="newArr[currentIndex]"
               :disabled="cacheAnswer !== null" />
             <PaymentsBlock v-else-if="newArr[currentIndex].questionType === 'payment'" :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null" :preview="isPreview" @minted="handleMinted" />
+              :disabled="cacheAnswer !== null" :preview="isPreview || isMinted" @minted="handleMinted" />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea placeholder="Your Answer" v-model="newArr[currentIndex].answer" class="w-full"
                 :disabled="cacheAnswer" />
@@ -559,7 +559,7 @@ const handleMinted = () => {
 }
 const handleRewardSuccessModal = async () => {
   console.log(props.quest)
-  const collection = props.quest.rewards?.[0]?.collection;
+  const collection = props.quest.rewards?.[0];
   if (collection) {
     let customImg = await readFile(collection?.file?.[0]);
     modal.emit('openModal', {

@@ -112,11 +112,7 @@ const mintNFT = async () => {
     }
 };
 
-watch(isMinted, (newVal) => {
-    if (newVal) {
-        props.answer.answers = [];
-    }
-});
+
 </script>
 
 <style scoped lang="scss">

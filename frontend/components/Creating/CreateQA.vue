@@ -232,7 +232,7 @@
             <div class="section_wrapper-title">Background Color</div>
           </div>
           <div class="check-btn_wrapper">
-            <ColorPicker v-model="backgroundColor" label="With default value"  />
+            <ColorPicker v-model="color" label="With default value"  />
           </div>
         </div>
         <div class="flex gap-6 footer">
@@ -294,7 +294,7 @@ const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
-const backgroundColor = ref('#f5f5fd')
+const color = ref('#f5f5fd')
 
 const reward = ref(null);
 const questsTypeItems = ref([
@@ -672,7 +672,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    backgroundColor: backgroundColor.value,
+    color: color.value,
 
   };
 
@@ -687,7 +687,7 @@ const saveQA = async () => {
     description: description.value,
     image: bannerImage.value,
     participants: 0,
-    backgroundColor: backgroundColor.value,
+    color: color.value,
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,

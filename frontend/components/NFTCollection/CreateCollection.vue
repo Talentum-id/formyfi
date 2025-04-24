@@ -21,14 +21,14 @@
         </div>
         <Select filter isVertical :options="chainList" @input="setBlockchain" type="create" :default="chainList[0]" />
       </div>
-      <div class="flex flex-col gap-2" v-if="+item.blockchain_id !== 101">
+      <!-- <div class="flex flex-col gap-2" v-if="+item.blockchain_id !== 101">
         <div class="text-md font-medium">Collection Type</div>
         <div class="text-xs font-medium text-secondary-60">
           Choose the type of NFT collection you want to create.
         </div>
         <FilterToggle :buttons="collectionTypes" :id="collectionId" @select="setCollection" class="w-full"
           fixedWidth="100%" />
-      </div>
+      </div> -->
 
 
       <div class="flex flex-col">

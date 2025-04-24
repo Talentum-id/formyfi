@@ -687,7 +687,7 @@ const saveQA = async () => {
     description: description.value,
     image: bannerImage.value,
     participants: 0,
-    color: color.value,
+    customization: { color: color.value, url: [] },
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,

@@ -70,7 +70,7 @@ watch(collection, (collection) => {
 
 watch(props.isReward, (isReward) => {
     if (isReward) {
-        emit('input', { nft_id: collection.value?.id });
+        emit('input', Number(collection.value?.id));
     }
 }, { immediate: true });
 

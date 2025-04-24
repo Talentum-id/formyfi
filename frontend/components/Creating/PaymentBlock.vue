@@ -4,15 +4,14 @@
             <Select class="w-1/2" :options="options" @input="collection = $event" selectedStyle="h-10" />
             <BaseButton text="Create NFT Collection" @click="createCollection" />
         </div>
-        <div v-if="collection && !props.isReward" class="flex flex-col gap-1">
+        <div v-if="collection && !props.isReward && chainSymbol" class="flex flex-col gap-1">
             <span class="title">Mint price</span>
             <span class="description">Choose a price for your NFT</span>
             <div class="flex h-10 rounded-lg overflow-hidden w-60 border border-[#DAD9F7] mt-1">
                 <input v-model="amount" type="number" :placeholder="100"
                     class="w-full py-2 px-3 text-lg bg-white outline-none" />
                 <div class="flex items-center justify-center bg-[#D7DCE5] px-6">
-                    <span class="text-black font-medium">{{chains.find(chain => chain.id ===
-                        Number(collection.blockchain_id))?.nativeCurrency.symbol}}</span>
+                    <span class="text-black font-medium">{{ chainSymbol }}</span>
                 </div>
             </div>
         </div>
@@ -44,9 +43,18 @@ const props = defineProps({
 
 
 const collections = computed(() => useCollectionsStore().getList);
+const chainSymbol = computed(() => {
+    if (!collection.value?.blockchain_id) return '';
+    return chains.find(chain => chain.id === Number(collection.value.blockchain_id))?.nativeCurrency.symbol || '';
+});
+
 const options = computed(() => {
-    const options = collections.value?.data?.map(item => ({ name: item.name, file: item.file, label: item.name, value: Number(item.id), id: Number(item.id), blockchain_id: Number(item.blockchain_id) })) || [];
-    return options;
+    if (collections.value?.data?.length > 0) {
+        const options = collections.value?.data?.map(item => ({ name: item.name, file: item.file, label: item.name, value: Number(item.id), id: Number(item.id), blockchain_id: Number(item.blockchain_id) })) || [{ name: 'No collections', file: null, label: 'No collections', value: 0, id: 0, blockchain_id: 0 }];
+        return options;
+    } else {
+        return [{ name: 'No collections', file: null, label: 'No collections', value: 0, id: 0, blockchain_id: 0 }];
+    }
 });
 
 watch(amount, (amount) => {

@@ -200,12 +200,20 @@ export async function mint(nft) {
     // Convert balance to BigNumber
     const balanceInWei = ethers.utils.parseEther(ethers.utils.formatEther(balance));
 
-    let url = `WEB2URL`;
+    let url = `https://web2.formyfi.io/api/nft/collections/sign`;
 
     console.log('Balance in Wei:', balanceInWei.toString());
 
     const { data } = await api.post(url, {
+      name: nft.name,
       wallet: userAddress,
+      contractAddress: nft.address,
+      tokenId: nft.tokenId,
+      blockchain: nft.blockchain_id,
+      url: nft.file,
+      description: nft.description,
+      price: nft.price,
+    
     });
 
     const obj = data;
@@ -217,8 +225,8 @@ export async function mint(nft) {
       onErrorAlert('Low Balance for Claim');
       throw new Error('Low Balance for Claim');
     }
-
-    const contract = new ethers.Contract(nft.address, abi, signer);
+    const ABI = nft.type === 'erc_721' ? abi : erc1155abi;
+    const contract = new ethers.Contract(nft.address, ABI, signer);
 
     const tx = await contract.create(
       obj.nonce.toString(),

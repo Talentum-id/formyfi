@@ -7,16 +7,16 @@
   >
     <div class="selected" :class="`${open && 'open'} !${selectedStyle}`" @click="toggle">
       <div :class="`${selectedLabelStyle}`">
-        {{ reduceStringLength(selected.name || 'Select option', stringLengthSelected) }}
+        {{ reduceStringLength(selected?.name || 'Select option', stringLengthSelected) }}
       </div>
       <div
-        v-if="!disabled && selected.name"
+        v-if="!disabled && selected?.name"
         class="arrow"
         :class="`${open && 'flipped'} ${arrowStyle}`"
       ></div>
     </div>
     <div
-      v-if="!disabled && selected.name"
+      v-if="!disabled && selected?.name"
       class="items"
       :class="`${itemsStyles} ${!open && 'selectHide'}`"
       :style="{
@@ -25,16 +25,16 @@
       }"
     >
       <div :class="`first ${firstStyles}`" @click="toggle">
-        {{ reduceStringLength(selected.name, stringLengthFirst - 2) }}
+        {{ reduceStringLength(selected?.name, stringLengthFirst - 2) }}
         <icon icon="Tik" :size="20"></icon>
       </div>
       <hr />
       <div
-        v-for="(option, i) in options.filter((i) => i.name !== selected.name)"
+        v-for="(option, i) in options.filter((i) => i.name !== selected?.name)"
         :key="i"
         @click.stop="selectOption(option)"
       >
-        {{ reduceStringLength(option.name, stringLength) }}
+        {{ reduceStringLength(option?.name, stringLength) }}
       </div>
     </div>
   </div>

@@ -559,10 +559,12 @@ const handleMinted = () => {
 }
 const handleRewardSuccessModal = async () => {
   console.log(props.quest)
-  console.log(props.rewards)
   const collection = props.quest.rewards?.[0];
   if (collection) {
-    let customImg = await readFile(collection?.file?.[0]);
+    const nft_id = Number(collection);
+    console.log(nft_id, 'nft_id');
+    const nft = await useCollectionsStore().getNft(nft_id);
+    let customImg = await readFile(nft.file?.[0]);
     modal.emit('openModal', {
       title: 'Reward Submitted',
       message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
@@ -574,11 +576,11 @@ const handleRewardSuccessModal = async () => {
           return;
         }
         try {
-          if (Number(collection.blockchain_id) === 101) {
-            await mintSuiNft(collection);
+          if (Number(nft.blockchain_id) === 101) {
+            await mintSuiNft({ ...nft, price: 0.00000000001 });
           } else {
-            await switchNetwork(Number(collection.blockchain_id));
-            await mint(collection);
+            await switchNetwork(Number(nft.blockchain_id));
+            await mint({ ...nft, price: 0.00000000001 });
           }
         } catch (error) {
           console.error(error);

@@ -84,6 +84,9 @@ export const useCollectionsStore = defineStore('collections', {
           throw e;
         });
     },
+    async getNft(nft_id) {
+      return await this.actor?.getCollection(nft_id);
+    },
     async fetchCollection(contractAddress) {
       this.loadedCollection = false;
       await this.actor

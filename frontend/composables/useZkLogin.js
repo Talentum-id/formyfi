@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 import axiosService from '@/services/axiosService';
 import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import { Buffer } from 'buffer';
-
+import axios from 'axios';
 export const useZkLogin = () => {
   let nonce;
   let address;
@@ -262,24 +262,7 @@ export const useZkLogin = () => {
   }
 
   const mintSuiNft = async (nft) => {
-    const currentWalletTypeObject = useAddressStore().getAddresses.find(
-      (i) => i.type_of_chain === 'SUI',
-    );
-
-    if (!currentWalletTypeObject) {
-      throw {
-        message: 'No SUI wallets detected. Please connect a wallet',
-        status: 'connectWallet',
-      };
-    }
-
-    let typeOfProvider = 'Sui Wallet';
-
-    if (currentWalletTypeObject) {
-      typeOfProvider = currentWalletTypeObject.type === 'SUI' ? 'Sui Wallet' : 'Suiet';
-    }
-
-    let suiProvider = getSuiProvider(typeOfProvider);
+    let suiProvider = getSuiProvider('Sui Wallet');
 
     if (!suiProvider) {
       window.open('https://suiwallet.com/', '_blank');
@@ -314,7 +297,7 @@ export const useZkLogin = () => {
 
       const SUI_ADDRESS = currentWallet.address;
 
-      let url = 'nft/collections/sign';
+      let url = `https://web2.formyfi.io/api/nft/collections/sign`;
 
       const SUI_COIN_TYPE = '0x2::sui::SUI';
 
@@ -332,50 +315,61 @@ export const useZkLogin = () => {
       if (totalGasBalance < GAS_BUDGET) {
         throw new Error('You do not have enough SUI to pay for transaction fees.');
       }
-      await axiosService.post(CONFIG.apiBase + url, params).then(async ({ data }) => {
-        const obj = data[0];
-        const tx = new Transaction();
-        const taxCount = obj.price + +GAS_BUDGET;
+      await axios
+        .post(url, {
+          name: nft.name,
+          wallet: SUI_ADDRESS,
+          contractAddress: nft.address,
+          tokenId: nft.tokenId,
+          blockchain: nft.blockchain_id,
+          url: nft.file,
+          description: nft.description,
+          price: nft.price,
+        })
+        .then(async ({ data }) => {
+          const obj = data[0];
+          const tx = new Transaction();
+          const taxCount = obj.price + +GAS_BUDGET;
 
-        if (totalGasBalance < taxCount) {
-          throw new Error('You do not have enough SUI to pay for transaction fees.');
-        }
+          if (totalGasBalance < taxCount) {
+            throw new Error('You do not have enough SUI to pay for transaction fees.');
+          }
 
-        tx.setGasPrice(1000);
-        tx.setGasBudget(CONFIG.dailyActivityGasBudget);
+          tx.setGasPrice(1000);
+          tx.setGasBudget(CONFIG.dailyActivityGasBudget);
 
-        const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${obj.price}`;
+          const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${obj.price}`;
 
-        const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(obj.price)]);
+          const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(obj.price)]);
 
-        tx.moveCall({
-          target: `${nft.address}::nft::mint`,
-          arguments: [
-            tx.object(obj.meta.pubKeyObjectID),
-            bcs.vector(bcs.U8).serialize(Buffer.from(message)),
-            bcs.vector(bcs.U8).serialize(Buffer.from(obj.signature, 'hex')),
-            tx.pure.u8(0),
-            tx.pure.u64(obj.endTime),
-            tx.object('0x6'),
-            bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftName)),
-            bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftDesc)),
-            bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftUrl)),
-            coin,
-            tx.object(obj.meta.tokenDataObjectID),
-          ],
+          tx.moveCall({
+            target: `${nft.address}::nft::mint`,
+            arguments: [
+              tx.object(obj.meta.pubKeyObjectID),
+              bcs.vector(bcs.U8).serialize(Buffer.from(message)),
+              bcs.vector(bcs.U8).serialize(Buffer.from(obj.signature, 'hex')),
+              tx.pure.u8(0),
+              tx.pure.u64(obj.endTime),
+              tx.object('0x6'),
+              bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftName)),
+              bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftDesc)),
+              bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftUrl)),
+              coin,
+              tx.object(obj.meta.tokenDataObjectID),
+            ],
+          });
+
+          const result = await suiProvider.features[
+            'sui:signAndExecuteTransactionBlock'
+          ].signAndExecuteTransactionBlock({
+            transactionBlock: tx,
+            account: userAccount,
+            signer: userAccount,
+            chain: `sui:mainnet`,
+          });
+          console.log('Wait tx: ', result);
+          return result.digest;
         });
-
-        const result = await suiProvider.features[
-          'sui:signAndExecuteTransactionBlock'
-        ].signAndExecuteTransactionBlock({
-          transactionBlock: tx,
-          account: userAccount,
-          signer: userAccount,
-          chain: `sui:mainnet`,
-        });
-        console.log('Wait tx: ', result);
-        return result.digest;
-      });
     } catch (e) {
       throw e;
     }

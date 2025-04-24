@@ -1,5 +1,5 @@
 <template>
-    <div class="payments-block mx-auto max-w-[400px]">
+    <div class="payments-block mx-auto max-w-[400px]" v-if="nft">
         <div class="payments-block__image" v-if="nftImage">
             <CustomImage :src="nftImage" alt="payments-block" />
         </div>
@@ -7,7 +7,7 @@
         <div class="payments-block__description">
             You need to connect your wallet and then mint the NFT This is how the purchase process will be completed
         </div>
-        <div class="payments-block__title my-4">Price: {{ answer.payment.collection.price }}
+        <div class="payments-block__title my-4">Price: {{ answer.payment.price }}
             {{ currencySymbol }}</div>
 
         <div class="payments-block__connect">
@@ -27,7 +27,7 @@ import { chains } from '@/web3/nft';
 import { readFile } from '@/util/helpers';
 import { onMounted } from 'vue';
 import CustomImage from '@/components/CustomImage.vue';
-
+import { useCollectionsStore } from '@/store/collections';
 const data = ref({
     icon: 'NFT-Default',
     title: 'Mint NFT',
@@ -50,23 +50,27 @@ const props = defineProps({
 });
 
 const currencySymbol = computed(() => {
-    return chains.find(chain => chain.id === Number(props.answer.payment.collection.blockchain_id))?.nativeCurrency.symbol
+    return chains.find(chain => chain.id === Number(nft.value.blockchain_id))?.nativeCurrency.symbol
 });
 
+const nft = ref(null);
+
 onMounted(async () => {
-    nftImage.value = await readFile(props.answer.payment.collection.file?.[0]);
+    nft.value = await useCollectionsStore().getNft(props.answer.payment.nft_id);
+    console.log(nft.value, 'nft');
+    nftImage.value = await readFile(nft.value.file?.[0]);
 });
 const mintNFT = async () => {
     if (props.preview) {
         return;
     }
-    const chainID = Number(props.answer.payment.collection.blockchain_id)
+    const chainID = Number(nft.value.blockchain_id)
     try {
         if (chainID === 101) {
-            await mintSuiNft(props.answer.payment.collection);
+            await mintSuiNft(nft.value);
         } else {
             await switchNetwork(chainID);
-            await mint(props.answer.payment.collection);
+            await mint(nft.value);
         }
     } catch (error) {
         console.error(error);

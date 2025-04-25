@@ -61,11 +61,16 @@ watch(amount, (amount) => {
     if (!amount) {
         amount = '0.0';
     }
-    emit('input', { price: parseFloat(amount), nft_id: Number(collection.value?.id) });
+    const floatValue = parseFloat(amount);
+    emit('input', { price: floatValue, nft_id: Number(collection.value?.id) });
+    if (Number.isInteger(floatValue)) {
+        amount.value = floatValue.toFixed(1);
+    }
 });
 watch(collection, (newCollection) => {
     if (!props.isReward) {
-        emit('input', { price: parseFloat(amount.value), nft_id: Number(newCollection) });
+        const floatValue = parseFloat(amount.value);
+        emit('input', { price: floatValue, nft_id: Number(newCollection) });
     } else {
         emit('input', newCollection.id);
     }
@@ -75,7 +80,8 @@ watch(props.isReward, (isReward) => {
     if (isReward) {
         emit('input', Number(collection.value?.id));
     } else {
-        emit('input', { price: parseFloat(amount.value), nft_id: Number(options.value[0]?.id) });
+        const floatValue = parseFloat(amount.value);
+        emit('input', { price: floatValue, nft_id: Number(options.value[0]?.id) });
     }
 }, { immediate: true });
 

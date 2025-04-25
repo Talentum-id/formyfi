@@ -295,7 +295,6 @@ const handleCreateCollection = async () => {
       item.contract_address = await getContractAddress();
       item.meta = [];
     }
-    console.log(item, 'item');
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
     await useCollectionsStore().createCollection(item);

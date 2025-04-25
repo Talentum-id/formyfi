@@ -85,7 +85,7 @@ export async function switchNetwork(chainId) {
             ],
           });
         } catch (addError) {
-          console.log('addError', addError);
+          console.error('addError', addError);
         }
       }
     }

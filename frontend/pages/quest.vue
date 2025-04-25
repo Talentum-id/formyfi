@@ -21,7 +21,6 @@ const deleting = ref(false);
 
 onMounted(() => {
   useQAStore().fetchQA(route.params.id);
-  useQAStore().fetchQACustomization(authStore.getPrincipal);
 });
 const show = ref(false);
 const data = computed(() => useQAStore().getQA);

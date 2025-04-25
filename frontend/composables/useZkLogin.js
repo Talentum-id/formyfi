@@ -21,7 +21,7 @@ import { chains } from '@/web3/nft';
 export const useZkLogin = () => {
   let nonce;
   let address;
-
+  let txData;
   const SUI_NET_ENV = process.env.SUI_NET_ENV;
   const client = new SuiClient({
     url: getFullnodeUrl(SUI_NET_ENV),
@@ -328,7 +328,7 @@ export const useZkLogin = () => {
 
       const SUI_ADDRESS = currentWallet;
 
-      let url = `https://web2.formyfi.io/api/nft/collections/sign`;
+      let url = `${process.env.API_URL}nft/collections/sign`;
 
       const SUI_COIN_TYPE = '0x2::sui::SUI';
       const gasCoins = await clientMainnet.getCoins({
@@ -348,6 +348,7 @@ export const useZkLogin = () => {
       if (nft.price === 0) {
         nft.price = 0.00000000001;
       }
+      const meta = nft.meta[0];
       await axios
         .post(url, {
           name: nft.name,
@@ -369,11 +370,10 @@ export const useZkLogin = () => {
           const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${Math.floor(Number(nft.price) * 1e9)}`;
 
           const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(Math.floor(Number(nft.price) * 1e9))]);
-
           tx.moveCall({
-            target: `${nft.address}::nft::mint`,
+            target: `${nft.contract_address}::nft::mint`,
             arguments: [
-              tx.object(obj.meta.pubKeyObjectID),
+              tx.object(meta.pubKeyObjectID),
               bcs.vector(bcs.U8).serialize(Buffer.from(message)),
               bcs.vector(bcs.U8).serialize(Buffer.from(obj.signature, 'hex')),
               tx.pure.u8(0),
@@ -383,7 +383,7 @@ export const useZkLogin = () => {
               bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftDesc)),
               bcs.vector(bcs.U8).serialize(Buffer.from(obj.nftUrl)),
               coin,
-              tx.object(obj.meta.tokenDataObjectID),
+              tx.object(meta.tokenDataObjectID),
             ],
           });
 
@@ -391,21 +391,24 @@ export const useZkLogin = () => {
             'sui:signAndExecuteTransactionBlock'
           ].signAndExecuteTransactionBlock({
             transactionBlock: tx,
-            account: userAccount,
-            signer: userAccount,
+            account: accounts[0],
+            signer: accounts[0],
             chain: `sui:mainnet`,
           });
-          return {
+          txData = {
             hash: result.digest,
             wallet: SUI_ADDRESS,
             nft_id: nft.id,
-          };
+          }
+          return txData;
         });
     } catch (e) {
       throw e;
     }
   };
-
+ const getTxData = async (tx) => {
+  return  txData 
+}
   return {
     mintSuiNft,
     zkLoginAuthorize,
@@ -413,5 +416,6 @@ export const useZkLogin = () => {
     deploySui,
     getContractAddressSui,
     getContractMetaSui,
+    getTxData,
   };
 };

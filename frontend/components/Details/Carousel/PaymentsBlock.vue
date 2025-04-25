@@ -1,7 +1,7 @@
 <template>
     <div class="payments-block mx-auto max-w-[400px]" v-if="nft">
-        <div class="payments-block__image" v-if="nftImage">
-            <CustomImage :src="nftImage" alt="payments-block" />
+        <div class="payments-block__image" v-if="image">
+            <CustomImage :image="image" alt="payments-block" heigth="160" width="160"/>
         </div>
         <div class="payments-block__title">Want to make a purchase?</div>
         <div class="payments-block__description">
@@ -22,7 +22,7 @@ import { ref, computed } from 'vue';
 import defaultBg from '@/assets/images/default-avatar.png';
 import { switchNetwork, mint } from '@/web3/nft';
 import { useZkLogin } from '@/composables/useZkLogin';
-const { mintSuiNft } = useZkLogin();
+const { mintSuiNft, getTxData } = useZkLogin();
 import { chains } from '@/web3/nft';
 import { readFile } from '@/util/helpers';
 import { onMounted } from 'vue';
@@ -34,7 +34,6 @@ const data = ref({
     icon: 'NFT-Default',
     title: 'Mint NFT',
 });
-const nftImage = ref(null);
 const emit = defineEmits(['minted']);
 const props = defineProps({
     answer: {
@@ -56,18 +55,19 @@ const currencySymbol = computed(() => {
 });
 
 const nft = ref(null);
+const image = ref(null);
 const isMinted = ref(false);
 onMounted(async () => {
     const nft_id = Number(props.answer.payment?.[0].nft_id);
     nft.value = await useCollectionsStore().getNft(nft_id);
-    nftImage.value = await readFile(nft.value.file?.[0]);
-
+    image.value = await readFile(nft.value.file?.[0]);
     const res = await useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
     if (res) {
         isMinted.value = true;
         emit('minted');
     }
 });
+
 const mintNFT = async () => {
     if (props.preview) {
         return;
@@ -81,12 +81,12 @@ const mintNFT = async () => {
             type: 'loading',
         });
         if (chainID === 101) {
-            tx = await mintSuiNft({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
+            await mintSuiNft({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
+            tx = await getTxData();
         } else {
             await switchNetwork(chainID);
             tx = await mint({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
         }
-
 
         props.answer.answers = [{
             answer: {

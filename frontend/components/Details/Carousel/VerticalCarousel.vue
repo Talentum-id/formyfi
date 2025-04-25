@@ -446,7 +446,6 @@ onMounted(async () => {
 
   await checkFileType();
 
-  handleRewardSuccessModal()
 });
 
 function findCurrentItemIndex() {
@@ -567,9 +566,7 @@ const handleRewardSuccessModal = async () => {
   if (collection) {
     const nft_id = Number(collection);
     const nft = await useCollectionsStore().getNft(nft_id);
-    console.log(nft, 'nft');
-    console.log(props.quest, 'props.quest');
-    let customImg = await readFile(nft.file?.[0]);
+     let customImg = await readFile(nft.file?.[0]);
     modal.emit('openModal', {
       title: 'Reward Submitted',
       message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
@@ -581,26 +578,29 @@ const handleRewardSuccessModal = async () => {
           return;
         }
         try {
+          await modal.emit('openModal', {
+            title: 'Loading...',
+            message: 'Please wait for a while',
+            type: 'loading',
+          });
           if (Number(nft.blockchain_id) === 101) {
-            await mintSuiNft({ ...nft, price: 0.00000000001 });
+            await mintSuiNft({ ...nft, price: 0.000001 });
           } else {
             await switchNetwork(Number(nft.blockchain_id));
-            await mint({ ...nft, price: 0.00000000001 });
-           
+            await mint({ ...nft, price: 0.000001 });
           }
-          await closeModal();
           await handleSuccessModal();
         } catch (error) {
           console.error(error);
         }
+
       },
     });
   } else {
-    await closeModal();
     await handleSuccessModal();
   }
 
- 
+
 };
 
 const handleErrorModal = () => {

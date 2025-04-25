@@ -36,7 +36,7 @@ function generateRandomNumber() {
 }
 
 async function signNFTMint(nft, userAddress) {
-  const url = `https://web2.formyfi.io/api/nft/collections/sign`;
+  const url = `${process.env.API_URL}nft/collections/sign`;
   const priceNumber = Number(nft.price) === 0 ? MIN_PRICE : Number(nft.price);
   
   const payload = {
@@ -49,7 +49,6 @@ async function signNFTMint(nft, userAddress) {
     price: priceNumber,
     nonce: generateRandomNumber(),
   };
-
   const { data } = await axios.post(url, payload);
   return { signature: data, priceInEther: ethers.parseEther(priceNumber.toString()) };
 }

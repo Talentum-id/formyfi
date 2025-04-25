@@ -114,63 +114,6 @@ class AxiosService {
       });
     }
 
-    // const extractObject = (key, index, objKeys, data, name = null) => {
-    //   objKeys.forEach((objKey, objIndex) => {
-    //     // tags[0].id
-    //     let fname = name ? name : `${key}[${index}][${objKey}]`
-    //
-    //     if(typeof data[objKey] === 'object') {
-    //       console.log(data) // tagx
-    //       extractObject(
-    //         key, //tags
-    //         index, // 0
-    //         Object.keys(data[objKey]), // [id]
-    //         data[objKey],
-    //         `${key}[${index}][${objKey}][${objIndex}]`
-    //       )
-    //
-    //
-    //     } else {
-    //       formData.append(fname, data[objKey]);
-    //     }
-    //   })
-    // }
-    // const extractArray = (key, data) => {
-    //   data.forEach((value, index) => {
-    //     if(typeof value === 'object' && value !== null) {
-    //       let objKeys = Object.keys(value)
-    //       extractObject(key, index, objKeys, value)
-    //     }
-    //
-    //     else if(Array.isArray(value)) {
-    //       extractArray(key, value)
-    //     }
-    //
-    //     else {
-    //       formData.append(`${key}[${index}]`, value);
-    //     }
-    //   });
-    // }
-    //
-    // if (isMultipart) {
-    //   for (let key in data) {
-    //     if (data[key] !== undefined) {
-    //       if(Array.isArray(data[key])) {
-    //         extractArray(key, data[key])
-    //       } else {
-    //         formData.append(key, data[key]);
-    //       }
-    //     }
-    //   }
-    //   formData.append('_method', 'PUT');
-    //   return await this._request({
-    //     method: 'post',
-    //     url,
-    //     data: formData,
-    //     headers,
-    //   });
-    // }
-
     return await this._request({
       method: 'put',
       url,
@@ -187,9 +130,7 @@ class AxiosService {
         }
       }
       formData.append('_method', 'patch');
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);
-      }
+
       return await this._request({
         method: 'post',
         url,

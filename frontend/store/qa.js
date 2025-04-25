@@ -179,18 +179,12 @@ export const useQAStore = defineStore('qa', {
         character: localStorage.extraCharacter,
       });
     },
-    async fetchQACustomization(identity) {
-      return await this.actor
-        ?.getQACustomization(identity)
-        .then(async (res) => (this.qaCustomization = res))
-        .catch((e) => console.error(e));
-    },
+  
   },
   getters: {
     getStats: ({ stats }) => stats,
     getList: (state) => state.list,
     getQA: (state) => state.qa,
-    getQACustomization: ({  qaCustomization }) => qaCustomization,
     getLoadingStatusList: (state) => state.loaded,
     getLoadingStatusQA: (state) => state.loadedQA,
   },

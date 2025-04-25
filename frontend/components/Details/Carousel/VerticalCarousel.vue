@@ -557,7 +557,7 @@ const handleSuccessModal = async () => {
           ...q,
           payment: q.payment?.map(p => ({
             ...p,
-            nft_id: typeof p.nft_id === 'bigint' ? p.nft_id.toString() : p.nft_id
+            nft_id: Number(p.nft_id)
           }))
         })),
 

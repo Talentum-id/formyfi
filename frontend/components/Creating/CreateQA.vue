@@ -672,7 +672,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    customization: { url: [], color: [color.value] },
+    customization: [{ url: [], color: [color.value] }],
 
   };
 
@@ -687,7 +687,7 @@ const saveQA = async () => {
     description: description.value,
     image: bannerImage.value,
     participants: 0,
-    customization: { url: [], color: [color.value] },
+    customization: [{ url: [], color: [color.value] }],
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,

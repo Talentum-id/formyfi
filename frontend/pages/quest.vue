@@ -27,7 +27,7 @@ const show = ref(false);
 const data = computed(() => useQAStore().getQA);
 const loaded = computed(() => useQAStore().getLoadingStatusQA);
 const identity = computed(() => authStore.getPrincipal);
-const customization = computed(() => useQAStore().getQACustomization);
+const backgroundColor = computed(() => data.value?.customization?.[0]?.color?.[0]);
 
 onUnmounted(() => {
   useQAStore().qa = null;
@@ -58,7 +58,7 @@ async function showModal() {
 </script>
 
 <template>
-  <Default :color="data?.customization?.color">
+  <Default :color="backgroundColor">
     <div class="header">
       <BackToList v-if="useAuthStore().isAuthenticated" />
       <div v-if="data && identity === data.owner" class="btn" @click="showModal">

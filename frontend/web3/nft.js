@@ -10,6 +10,52 @@ import axios from 'axios';
 let contractAddress;
 let contractMeta;
 let tokenId;
+
+const MIN_PRICE = 0.000001;
+const GAS_LIMIT = 1000000;
+
+async function setupProvider() {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const userAddress = await signer.getAddress();
+  const balance = await provider.getBalance(userAddress);
+  
+  return { provider, signer, userAddress, balance };
+}
+
+async function signNFTMint(nft, userAddress) {
+  const url = `https://web2.formyfi.io/api/nft/collections/sign`;
+  const priceNumber = Number(nft.price) === 0 ? MIN_PRICE : Number(nft.price);
+  
+  const payload = {
+    name: nft.name,
+    wallet: userAddress,
+    contractAddress: nft.contract_address,
+    tokenId: Number(nft.tokenId),
+    blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
+    url: nft.file?.[0],
+    description: nft.description,
+    price: priceNumber,
+  };
+
+  const { data } = await axios.post(url, payload);
+  return { signature: data, priceInEther: ethers.parseEther(priceNumber.toString()) };
+}
+
+async function createNFTTransaction(contract, signatureData, price) {
+  return await contract.create(
+    signatureData.nonce?.toString(),
+    signatureData.deadline?.toString(),
+    price,
+    signatureData.args,
+    signatureData.signature,
+    {
+      value: price,
+      gasLimit: GAS_LIMIT,
+    }
+  );
+}
+
 export async function deploy(data) {
   try {
     if (!window.ethereum) {
@@ -108,64 +154,31 @@ async function addChainToWallet(blockchain) {
 
 export async function mint(nft) {
   try {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const gasLimit = 1000000;
-    const userAddress = await signer.getAddress();
-    const balance = await provider.getBalance(userAddress);
-    console.log(balance, 'balance');
-    // Convert balance to BigNumber
+    // Setup provider and get user details
+    const { signer, userAddress } = await setupProvider();
 
-    let url = `https://web2.formyfi.io/api/nft/collections/sign`;
-    console.log(nft, 'nft');
-    if (nft.price === 0) {
-      nft.price = 0.00000000001;
-    }
-    const { data } = await axios.post(url, {
-      name: nft.name,
-      wallet: userAddress,
-      contractAddress: nft.contract_address,
-      tokenId: Number(nft.tokenId),
-      blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
-      url: nft.file?.[0],
-      description: nft.description,
-      price: ethers.parseEther(nft.price.toString()),
-    });
+    // Get signature and price
+    const { signature, priceInEther } = await signNFTMint(nft, userAddress);
 
-    const obj = data;
-    console.log(obj, 'obj');
-    // Convert obj.price to BigNumber with 18 decimals
-    const price = ethers.parseEther(nft.price.toString());
+    // Create and execute transaction
     const contract = new ethers.Contract(nft.contract_address, abi, signer);
-
-    const tx = await contract.create(
-      obj.nonce.toString(),
-      obj.deadline.toString(),
-      price,
-      obj.args,
-      obj.signature,
-      {
-        value: price,
-        gasLimit: gasLimit,
-      },
-    );
-
+    const tx = await createNFTTransaction(contract, signature, priceInEther);
+    
     console.log('Transaction hash:', tx.hash);
-
     const receipt = await tx.wait();
 
-    if (receipt.status === 1) {
-      console.log('Transaction successful:', tx);
-      return {
-        tx: tx.hash,
-        wallet: userAddress,
-        nft_id: Number(nft.id),
-      };
-    } else {
+    if (receipt.status !== 1) {
       throw new Error('Transaction failed');
     }
+
+    return {
+      tx: tx.hash,
+      wallet: userAddress,
+      nft_id: Number(nft.id),
+    };
+
   } catch (error) {
-    console.error('Error during NFT claim:', error.message || error);
+    console.error('Error during NFT mint:', error.message || error);
     throw error;
   }
 }

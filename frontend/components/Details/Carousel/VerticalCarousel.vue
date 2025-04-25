@@ -563,10 +563,11 @@ const handleMinted = () => {
 }
 const handleRewardSuccessModal = async () => {
   const collection = props.quest.rewards?.[0];
+
   if (collection) {
     const nft_id = Number(collection);
     const nft = await useCollectionsStore().getNft(nft_id);
-     let customImg = await readFile(nft.file?.[0]);
+    let customImg = await readFile(nft.file?.[0]);
     modal.emit('openModal', {
       title: 'Reward Submitted',
       message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
@@ -578,11 +579,7 @@ const handleRewardSuccessModal = async () => {
           return;
         }
         try {
-          await modal.emit('openModal', {
-            title: 'Loading...',
-            message: 'Please wait for a while',
-            type: 'loading',
-          });
+
           if (Number(nft.blockchain_id) === 101) {
             await mintSuiNft({ ...nft, price: 0.000001 });
           } else {
@@ -596,7 +593,17 @@ const handleRewardSuccessModal = async () => {
 
       },
     });
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
   } else {
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
     await handleSuccessModal();
   }
 

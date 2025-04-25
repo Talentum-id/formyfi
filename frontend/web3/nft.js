@@ -173,9 +173,9 @@ export async function mint(nft) {
     
     const receipt = await tx.wait();
 
-    // if (receipt.status !== 1) {
-    //   throw new Error('Transaction failed');
-    // }
+    if (receipt.status !== 1) {
+      throw new Error('Transaction failed');
+    }
 
     return {
       hash: tx.hash,

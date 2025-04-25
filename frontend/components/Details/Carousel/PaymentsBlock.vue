@@ -1,13 +1,13 @@
 <template>
     <div class="payments-block mx-auto max-w-[400px]" v-if="nft">
         <div class="payments-block__image" v-if="image">
-            <CustomImage :image="image" alt="payments-block" heigth="160" width="160"/>
+            <CustomImage :image="image" alt="payments-block" heigth="160" width="160" />
         </div>
         <div class="payments-block__title">Want to make a purchase?</div>
         <div class="payments-block__description">
             You need to connect your wallet and then mint the NFT This is how the purchase process will be completed
         </div>
-        <div class="payments-block__title my-4">Price: {{ answer.payment?.[0].price }}
+        <div class="payments-block__title my-4">Price: {{ props.preview ? props.answer.payment.price : answer.payment?.[0].price }}
             {{ currencySymbol }}</div>
 
         <div class="payments-block__connect" v-if="!isMinted">
@@ -58,14 +58,22 @@ const nft = ref(null);
 const image = ref(null);
 const isMinted = ref(false);
 onMounted(async () => {
-    const nft_id = Number(props.answer.payment?.[0].nft_id);
-    nft.value = await useCollectionsStore().getNft(nft_id);
-    image.value = await readFile(nft.value.file?.[0]);
-    const res = await useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
-    if (res) {
-        isMinted.value = true;
-        emit('minted');
+    if (props.preview) {
+        const nft_id = Number(props.answer.payment.nft_id.id);
+        nft.value = await useCollectionsStore().getNft(nft_id);
+        image.value = await readFile(nft.value.file?.[0]);
+    } else {
+        const nft_id = Number(props.answer.payment?.[0].nft_id);
+        nft.value = await useCollectionsStore().getNft(nft_id);
+        image.value = await readFile(nft.value.file?.[0]);
+        const res = await useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
+        if (res) {
+            isMinted.value = true;
+            emit('minted');
+        }
     }
+    console.log(props.answer.payment, 'props.answer.payment?.[0]');
+
 });
 
 const mintNFT = async () => {

@@ -5,7 +5,7 @@
 
       <div class="flex flex-col gap-2">
         <div class="text-md font-medium">Cover Image</div>
-        <div class="text-xs font-medium text-secondary-60">
+        <div class="text-xs font-medium text-secondary-60 subtitle">
           Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
         </div>
         <TaskBannerUploader :setImage="handleFileUpload" :banner="item.file" :isEditingActive="true"
@@ -16,7 +16,7 @@
       </div>
       <div class="flex flex-col gap-2">
         <div class="text-md font-medium">Blockchain</div>
-        <div class="text-xs font-medium text-secondary-60">
+        <div class="text-xs font-medium text-secondary-60 subtitle">
           Choose the blockchain on which the collection is created.
         </div>
         <Select filter isVertical :options="chainList" @input="setBlockchain" type="create" :default="chainList[0]" />
@@ -33,7 +33,7 @@
 
       <div class="flex flex-col">
         <div class="text-md font-medium">Collection Name</div>
-        <div class="text-xs font-medium text-secondary-60">
+        <div class="text-xs font-medium text-secondary-60 subtitle">
           Enter at least 3 and no more than 15 characters.
         </div>
         <Input v-model="item.name" :isError="errorItem.name.isError" :error-text="errorItem.name.text"
@@ -42,7 +42,7 @@
 
       <div class="flex flex-col">
         <div class="text-md font-medium">Collection Symbol</div>
-        <div class="text-xs font-medium text-secondary-60">
+        <div class="text-xs font-medium text-secondary-60 subtitle">
           Enter at least 3 and no more than 6 characters.
         </div>
         <Input v-model="item.symbol" :isError="errorItem.symbol.isError" :error-text="errorItem.symbol.text"
@@ -51,7 +51,7 @@
 
       <div class="flex flex-col gap-2">
         <div class="text-md font-medium">Collection Description</div>
-        <div class="text-xs font-medium text-secondary-60">
+        <div class="text-xs font-medium text-secondary-60 subtitle">
           Enter at least 3 and no more than 20 characters.
         </div>
         <Editor :description="item.description" @update="handleDescriptionUpdate"
@@ -325,3 +325,19 @@ const resetAlert = () => {
   }, 3000);
 };
 </script>
+
+<style scoped lang="scss">
+.subtitle {
+  font-family: $default_font;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.014em;
+  font-feature-settings:
+    'tnum' on,
+    'lnum' on,
+    'zero' on;
+  color: $secondary;
+}
+</style>

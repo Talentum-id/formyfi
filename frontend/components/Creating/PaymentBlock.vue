@@ -61,11 +61,12 @@ watch(amount, (newAmount) => {
     if (!newAmount) {
         newAmount = '0.0';
     }
-    const floatValue = parseFloat(newAmount);
-    emit('input', { price: floatValue, nft_id: Number(collection.value?.id) });
+    let floatValue = parseFloat(newAmount);
     if (Number.isInteger(floatValue)) {
-        amount.value = floatValue.toFixed(1);
+        floatValue = floatValue.toFixed(1);
     }
+    emit('input', { price: floatValue, nft_id: Number(collection.value?.id) });
+
 });
 watch(collection, (newCollection) => {
     if (!props.isReward) {

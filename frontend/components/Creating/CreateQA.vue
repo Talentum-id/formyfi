@@ -235,6 +235,8 @@
             <ColorPicker v-model="color" label="With default value" />
           </div>
         </div>
+        <TaskBannerUploader :setImage="setBgBanner" :banner="bgImage" :isEditingActive="true" />
+
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton :text="statusMessage" :disabled="!validationCheck || loading" type="normal" @click="check" />
@@ -295,7 +297,7 @@ const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
 const color = ref('#f5f5fd')
-
+const bgImage = ref(null);
 const reward = ref(null);
 const questsTypeItems = ref([
   { name: 'Open Question', id: 0, type: 'open' },
@@ -437,6 +439,9 @@ const setAllIncorrect = (index, item) => {
     };
   });
 };
+const setBgBanner = (value) => {
+  bgImage.value = value;
+};
 
 const handleImageError = (event) => {
   isImagesError.value = event;
@@ -530,6 +535,7 @@ const params = computed(() => ({
   search: ''
 }));
 
+const bgBanner = ref(null);
 onMounted(() => {
   useCollectionsStore().getCollections(params.value);
 });
@@ -552,6 +558,21 @@ const loadFiles = () => {
           });
 
         index++;
+      }
+
+      if (typeof bgImage.value !== 'string' && bgImage.value) {
+        const formData = new FormData();
+
+        formData.append('files[]', bgImage.value);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/customization/${realTime}/${0}`);
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-files`, formData)
+          .then(({ data }) => (bgBanner.value = data[0]))
+          .catch((e) => {
+            throw e;
+          });
+
       }
 
       let filePaths = [];
@@ -639,6 +660,7 @@ const preview = async () => {
   }
 
   const banner = await convertImage(bannerImage.value);
+  const bgBanner = await convertImage(bgImage.value);
 
   const questionsPromises = countOfQuestions.value.map(async (item) => {
     const file = item.image[0] ? await convertImage(item.image[0].raw) : null;
@@ -672,7 +694,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    customization: [{ url: [], color: [color.value] }],
+    customization: [{ url: [bgBanner], color: [color.value] }],
 
   };
 
@@ -681,13 +703,14 @@ const preview = async () => {
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
+  console.log(bgBanner.value);
   return await qaStore.storeQA({
     title: questionName.value,
     refCodePoints: refCode.value ? [parseInt(refCodePoints.value)] : [],
     description: description.value,
     image: bannerImage.value,
     participants: 0,
-    customization: [{ url: [], color: [color.value] }],
+    customization: [{ url: [bgBanner.value], color: [color.value] }],
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,

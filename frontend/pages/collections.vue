@@ -35,6 +35,7 @@ import Default from '@/layouts/default.vue';
 import { useCollectionsStore } from '@/store/collections';
 import { chains } from '@/web3/nft';
 import Badge from '@/components/Badge.vue';
+import Link from '@/components/Table/Link.vue';
 
 const router = useRouter();
 const modalVisible = ref(false);
@@ -123,9 +124,11 @@ const collectionRows = computed(() => {
       content: item.unlimited_supply ? 'Unlimited' : Number(item.max_supply),
     },
     address: {
-      component: Address,
+      component: Link,
       props: {
-        address: item.contract_address ?? '',
+        text: item.contract_address ?? '',
+        size: 12,
+        value: item.contract_address ?? '',
       },
     },
     blockchain: {

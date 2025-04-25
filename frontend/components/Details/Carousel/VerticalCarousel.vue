@@ -548,6 +548,8 @@ const handleSuccessModal = async () => {
       }
     },
     sendEmail: (email) => {
+      console.log(result.value, 'email');
+      console.log(props.quest, 'q quest');
       axiosService
         .post(`${process.env.API_URL}responses/dispatch`, {
           email: email,
@@ -559,7 +561,8 @@ const handleSuccessModal = async () => {
   });
 };
 const handleMinted = () => {
-  nextSlide();
+  newArr.value[currentIndex.value].answer = 'Minted';
+  newArr.value[currentIndex.value].isCorrect = true;
 }
 const handleRewardSuccessModal = async () => {
   const collection = props.quest.rewards?.[0];
@@ -593,17 +596,9 @@ const handleRewardSuccessModal = async () => {
 
       },
     });
-    await modal.emit('openModal', {
-      title: 'Loading...',
-      message: 'Please wait for a while',
-      type: 'loading',
-    });
+
   } else {
-    await modal.emit('openModal', {
-      title: 'Loading...',
-      message: 'Please wait for a while',
-      type: 'loading',
-    });
+
     await handleSuccessModal();
   }
 

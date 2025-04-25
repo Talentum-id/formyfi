@@ -7,7 +7,8 @@
         <div class="payments-block__description">
             You need to connect your wallet and then mint the NFT This is how the purchase process will be completed
         </div>
-        <div class="payments-block__title my-4">Price: {{ props.preview ? props.answer.payment.price : answer.payment?.[0].price }}
+        <div class="payments-block__title my-4">Price: {{ props.preview ? props.answer.payment.price :
+            answer.payment?.[0].price }}
             {{ currencySymbol }}</div>
 
         <div class="payments-block__connect" v-if="!isMinted">
@@ -72,7 +73,6 @@ onMounted(async () => {
             emit('minted');
         }
     }
-    console.log(props.answer.payment, 'props.answer.payment?.[0]');
 
 });
 
@@ -96,27 +96,12 @@ const mintNFT = async () => {
             tx = await mint({ ...nft.value, price: Number(props.answer.payment?.[0].price) });
         }
 
-        props.answer.answers = [{
-            answer: {
-                tx: tx.hash,
-                wallet: tx.wallet,
-                nft_id: Number(nft.value.id),
-            },
-            isCorrect: !!tx.hash,
-        }];
         useCollectionsStore().storeIdentityNftRelation({
             nft_id: Number(nft.value.id),
             hash: tx.hash,
         });
         isMinted.value = true;
-        emit('minted', {
-            answer: {
-                tx: tx.hash,
-                wallet: tx.wallet,
-                nft_id: Number(nft.value.id),
-            },
-            isCorrect: !!tx.hash,
-        });
+        emit('minted');
     } catch (error) {
         console.error(error);
     } finally {

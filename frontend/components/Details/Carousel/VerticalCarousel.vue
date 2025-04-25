@@ -548,9 +548,6 @@ const handleSuccessModal = async () => {
       }
     },
     sendEmail: (email) => {
-      console.log(result.value, 'email');
-      console.log(props.quest, 'q quest');
-
       const paymentData = {
 
         questions: props.quest.questions.map(q => ({

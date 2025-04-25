@@ -12,7 +12,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import BackToList from '@/components/BackToList.vue';
 import { modal } from '@/mixins/modal';
 import { useResponseStore } from '@/store/response';
-import { readFile } from 'xlsx';
+import { readFile } from '@/util/helpers';
 
 const authStore = useAuthStore();
 const router = useRouter();

@@ -564,7 +564,7 @@ const loadFiles = () => {
         const formData = new FormData();
 
         formData.append('files[]', bgImage.value);
-        formData.append('paths[]', `/${process.env.DFX_NETWORK}/customization/${realTime}/${0}`);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
 
         await axiosService
           .post(`${process.env.API_URL}upload-files`, formData)
@@ -572,7 +572,7 @@ const loadFiles = () => {
           .catch((e) => {
             throw e;
           });
-
+        index++;
       }
 
       let filePaths = [];
@@ -703,7 +703,6 @@ const preview = async () => {
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
-  console.log(bgBanner.value);
   return await qaStore.storeQA({
     title: questionName.value,
     refCodePoints: refCode.value ? [parseInt(refCodePoints.value)] : [],

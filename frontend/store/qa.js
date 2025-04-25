@@ -75,7 +75,6 @@ export const useQAStore = defineStore('qa', {
         .catch((e) => console.error(e));
     },
     async storeQA(params) {
-      console.log(params);
       return await this.actor?.store(params, {
         identity: process.env.DFX_ASSET_PRINCIPAL,
         character: localStorage.extraCharacter,

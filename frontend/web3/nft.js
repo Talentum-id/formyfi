@@ -23,6 +23,18 @@ async function setupProvider() {
   return { provider, signer, userAddress, balance };
 }
 
+function generateRandomNumber() {
+  // Generate a random number between 100000 and 999999
+  const min = 100000;
+  const max = 999999;
+  const randomBuffer = new Uint32Array(1);
+  crypto.getRandomValues(randomBuffer);
+  
+  // Scale to our desired range
+  const randomNumber = Math.floor(randomBuffer[0] / (0xffffffff + 1) * (max - min + 1) + min);
+  return randomNumber.toString();
+}
+
 async function signNFTMint(nft, userAddress) {
   const url = `https://web2.formyfi.io/api/nft/collections/sign`;
   const priceNumber = Number(nft.price) === 0 ? MIN_PRICE : Number(nft.price);
@@ -31,11 +43,11 @@ async function signNFTMint(nft, userAddress) {
     name: nft.name,
     wallet: userAddress,
     contractAddress: nft.contract_address,
-    tokenId: Number(nft.tokenId),
     blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
     url: nft.file?.[0],
     description: nft.description,
     price: priceNumber,
+    nonce: generateRandomNumber(),
   };
 
   const { data } = await axios.post(url, payload);
@@ -65,19 +77,16 @@ export async function deploy(data) {
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send('eth_requestAccounts', []);
     const signer = await provider.getSigner();
-    console.log(signer, 'signer');
     // Create contract factory
     const factory = new ethers.ContractFactory(abi, bytecode, signer);
 
     // Calculate supply
     const supply = data.unlimited_supply ? 1000000 : data.max_supply;
-
     // Check balance
     const balance = await provider.getBalance(signer.address);
     if (balance === 0n) {
       throw new Error('Low balance');
     }
-
     // Prepare deployment transaction
     const deployTx = await factory.getDeployTransaction(
       data.name,
@@ -95,7 +104,6 @@ export async function deploy(data) {
       throw new Error('Contract deployment failed');
     }
 
-    console.log('Contract deployed at address:', receipt.contractAddress);
     contractAddress = receipt.contractAddress;
 
     return receipt.contractAddress;
@@ -164,15 +172,14 @@ export async function mint(nft) {
     const contract = new ethers.Contract(nft.contract_address, abi, signer);
     const tx = await createNFTTransaction(contract, signature, priceInEther);
     
-    console.log('Transaction hash:', tx.hash);
     const receipt = await tx.wait();
 
-    if (receipt.status !== 1) {
-      throw new Error('Transaction failed');
-    }
+    // if (receipt.status !== 1) {
+    //   throw new Error('Transaction failed');
+    // }
 
     return {
-      tx: tx.hash,
+      hash: tx.hash,
       wallet: userAddress,
       nft_id: Number(nft.id),
     };

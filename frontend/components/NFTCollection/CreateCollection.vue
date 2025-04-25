@@ -66,7 +66,7 @@
         <div class="text-md font-medium">Max Supply</div>
         <NumberInput v-model="item.max_supply" placeholder="0" type="number" :required="true" class="!w-full"
           :isDisabled="item.unlimited_supply" />
-        <Checkbox label="The supply is not limited" text="Unlimited" @checked="setUnlimited"
+        <Checkbox label="The supply is not limited" text="Unlimited" @check="setUnlimited"
           :checkedProp="item.unlimited_supply" />
       </div>
 
@@ -182,7 +182,7 @@ const setBlockchain = (blockchain) => {
 
 const setUnlimited = (event) => {
   item.unlimited_supply = event;
-  item.max_supply = event ? null : 1;
+  item.max_supply = event ? 1000000 : 1;
 };
 
 const clearError = (field) => {
@@ -296,7 +296,6 @@ const handleCreateCollection = async () => {
     }
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
-    console.log(item);
     await useCollectionsStore().createCollection(item);
     emit('update');
     modal.emit('closeModal', {});

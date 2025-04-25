@@ -55,7 +55,6 @@ export const getAprosPetraProvider = () => {
 };
 
 export const getCurrentWalletIcon = (type) => {
-  console.log('getCurrentWalletIcon type', type);
   switch (type) {
     case ConnectionType.METAMASK:
       return metamask;

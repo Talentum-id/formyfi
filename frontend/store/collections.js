@@ -76,7 +76,6 @@ export const useCollectionsStore = defineStore('collections', {
       return await this.actor
         ?.getList({ ...params, identity: identity })
         .then(async (res) => {
-          console.log(res);
           this.list = res;
         })
         .catch((e) => {
@@ -88,8 +87,6 @@ export const useCollectionsStore = defineStore('collections', {
       return await this.actor?.getCollection(nft_id);
     },  
     async checkIdentityNftRelation(nft_id) {
-      console.log(useAuthStore().getPrincipal, 'useAuthStore().getPrincipal');
-      console.log(nft_id, 'nft_id');
       return await this.actor?.checkIdentityNftRelation(useAuthStore().getPrincipal, nft_id);
     },
     async storeIdentityNftRelation(params) {

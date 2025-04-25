@@ -558,11 +558,9 @@ const handleMinted = () => {
   nextSlide();
 }
 const handleRewardSuccessModal = async () => {
-  console.log(props.quest)
   const collection = props.quest.rewards?.[0];
   if (collection) {
     const nft_id = Number(collection);
-    console.log(nft_id, 'nft_id');
     const nft = await useCollectionsStore().getNft(nft_id);
     let customImg = await readFile(nft.file?.[0]);
     modal.emit('openModal', {

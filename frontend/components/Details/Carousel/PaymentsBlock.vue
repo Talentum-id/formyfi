@@ -56,16 +56,13 @@ const currencySymbol = computed(() => {
 });
 
 const nft = ref(null);
-const isMinted = ref(false);    
+const isMinted = ref(false);
 onMounted(async () => {
     const nft_id = Number(props.answer.payment?.[0].nft_id);
-    console.log(nft_id, 'nft_id');
     nft.value = await useCollectionsStore().getNft(nft_id);
-    console.log(nft.value, 'nft');
     nftImage.value = await readFile(nft.value.file?.[0]);
 
     const res = await useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
-    console.log(res, 'res');
     if (res) {
         isMinted.value = true;
         emit('minted');
@@ -94,7 +91,7 @@ const mintNFT = async () => {
         props.answer.answers = [{
             answer: {
                 tx: tx.hash,
-                wallet: userAddress,
+                wallet: tx.wallet,
                 nft_id: nft.value.id,
             },
             isCorrect: !!tx.hash,
@@ -103,8 +100,15 @@ const mintNFT = async () => {
             nft_id: Number(nft.value.id),
             hash: tx.hash,
         });
-        console.log(res, 'res');
         isMinted.value = true;
+        emit('minted', {
+            answer: {
+                tx: tx.hash,
+                wallet: tx.wallet,
+                nft_id: nft.value.id,
+            },
+            isCorrect: !!tx.hash,
+        });
     } catch (error) {
         console.error(error);
     } finally {

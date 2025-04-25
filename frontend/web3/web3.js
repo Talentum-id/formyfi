@@ -30,10 +30,7 @@ export function getNonHumanValueSumm(amounts) {
 }
 
 export function isSupportedChain(chainId) {
-  console.log('isSupportedChain chainId', chainId);
-  console.log('CHAIN_INFO', CHAIN_INFO);
   const supportedChainsIds = Object.keys(CHAIN_INFO);
-  console.log('supportedChainsIds', supportedChainsIds);
   return !!chainId && supportedChainsIds.includes(String(chainId));
   // return !!chainId && SUPPORTED_CHAIN_ID.includes(+chainId);
 }

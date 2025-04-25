@@ -171,10 +171,10 @@ export const useZkLogin = () => {
 
     return salt;
   };
-   function getContractAddressSui() {
+  function getContractAddressSui() {
     return contractAddress;
   }
-   function getContractMetaSui() {
+  function getContractMetaSui() {
     return contractMeta;
   }
   async function getAddressObjects(userAddress, objectType) {
@@ -299,7 +299,6 @@ export const useZkLogin = () => {
     try {
       await suiProvider.features['standard:disconnect'].disconnect();
     } catch (e) {
-      console.log(e);
     }
 
     try {
@@ -310,7 +309,6 @@ export const useZkLogin = () => {
       }
 
       const currentWallet = accounts[0].address;
-      console.log(currentWallet, 'currentWallet');
       if (!currentWallet) {
         throw {
           message: "You didn't connect this wallet to your profile",
@@ -323,7 +321,6 @@ export const useZkLogin = () => {
       let url = `https://web2.formyfi.io/api/nft/collections/sign`;
 
       const SUI_COIN_TYPE = '0x2::sui::SUI';
-      console.log(SUI_ADDRESS, 'SUI_ADDRESS');
       const gasCoins = await clientMainnet.getCoins({
         owner: SUI_ADDRESS,
         coinType: SUI_COIN_TYPE,
@@ -393,8 +390,11 @@ export const useZkLogin = () => {
             signer: userAccount,
             chain: `sui:mainnet`,
           });
-          console.log('Wait tx: ', result);
-          return result.digest;
+          return {
+            hash: result.digest,
+            wallet: SUI_ADDRESS,
+            nft_id: nft.id,
+          };
         });
     } catch (e) {
       throw e;

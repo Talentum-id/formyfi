@@ -64,9 +64,12 @@ watch(amount, (amount) => {
     emit('input', { price: amount, nft_id: collection.value?.id });
 });
 watch(collection, (collection) => {
-    emit('input', { price: amount.value, nft_id: collection.value?.id });
-
-});
+    if (!props.isReward) {
+        emit('input', { price: amount.value, nft_id: collection });
+    } else {
+        emit('input', collection);
+    }
+}, { deep: true });
 
 watch(props.isReward, (isReward) => {
     if (isReward) {

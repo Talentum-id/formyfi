@@ -27,7 +27,7 @@ import { chains } from '@/web3/nft';
 import { useCollectionsStore } from '@/store/collections';
 
 const router = useRouter();
-const amount = ref('');
+const amount = ref('1');
 const collection = ref(null);
 const emit = defineEmits(['input']);
 const createCollection = () => {

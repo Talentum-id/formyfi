@@ -140,7 +140,7 @@ const chainList = chains.map((item) => ({
 
 // Form data
 const item = reactive({
-  id:1,
+  id: 1,
   name: '',
   symbol: '',
   uri: '',
@@ -262,7 +262,7 @@ const handleCreateCollection = async () => {
     return;
   }
 
-  modal.emit('openModal', {
+  await modal.emit('openModal', {
     title: 'Uploading collection...',
     message: 'Please wait for a while',
     type: 'loading',
@@ -291,17 +291,9 @@ const handleCreateCollection = async () => {
         item.meta = await getContractMetaSui();
       });
     } else {
-
       await switchNetwork(item.blockchain_id);
-
-      if (item.nftType === 'erc_721') {
-        await deploy(item);
-        item.contract_address = await getContractAddress();
-      } else {
-        await createNFTId(item);
-        item.contract_address = await getContractAddress();
-        item.token_id = await getTokenId();
-      }
+      await deploy(item);
+      item.contract_address = await getContractAddress();
     }
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';

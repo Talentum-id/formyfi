@@ -28,12 +28,11 @@ export async function deploy(data) {
     if (!window.ethereum) {
       throw new Error('No Ethereum provider found');
     }
-
     // Initialize provider and signer
     const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send('eth_requestAccounts', []);
     const signer = await provider.getSigner();
-
+    console.log(signer, 'signer');
     // Create contract factory
     const factory = new ethers.ContractFactory(abi, bytecode, signer);
 

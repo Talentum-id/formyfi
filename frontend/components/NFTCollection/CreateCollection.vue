@@ -287,13 +287,15 @@ const handleCreateCollection = async () => {
     if (+item.blockchain_id === 101) {
       await deploySui(item).then(async () => {
         item.contract_address = await getContractAddressSui();
-        item.meta = await getContractMetaSui();
+        item.meta = [{ pubKeyObjectID: await getContractMetaSui().pubKeyObjectID, tokenDataObjectID: await getContractMetaSui().tokenDataObjectID }];
       });
     } else {
       await switchNetwork(item.blockchain_id);
       await deploy(item);
       item.contract_address = await getContractAddress();
+      item.meta = [];
     }
+    console.log(item, 'item');
     showSuccess.value = true;
     successMessage.value = 'Collection created successfully';
     await useCollectionsStore().createCollection(item);

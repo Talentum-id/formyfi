@@ -188,7 +188,9 @@ import SocialVerify from '@/components/Details/Carousel/SocialVerify.vue';
 import { getRuleForCurrentType } from '@/constants/branchTypes';
 import { reloadingProviders } from '@/constants/reloadingProviders';
 import defaultBg from '@/assets/images/default-avatar.png';
-
+import { useCollectionsStore } from '@/store/collections';
+import { useZkLogin } from '@/composables/useZkLogin';
+import { mint, switchNetwork } from '@/web3/nft';
 const TemplatePromise = createTemplatePromise();
 const showSignUp = ref(false);
 const route = useRoute();
@@ -291,6 +293,7 @@ const isAdditionalAnswer = computed(() => {
     return item.answer === cacheAnswer.value;
   });
 });
+const { mintSuiNft } = useZkLogin();
 const btnStatus = computed(() => {
   if (currentIndex.value + 1 === props.items.length && !isPreview.value && !loading.value) {
     return 'Send';
@@ -442,6 +445,8 @@ onMounted(async () => {
   }
 
   await checkFileType();
+
+  handleRewardSuccessModal()
 });
 
 function findCurrentItemIndex() {
@@ -562,6 +567,8 @@ const handleRewardSuccessModal = async () => {
   if (collection) {
     const nft_id = Number(collection);
     const nft = await useCollectionsStore().getNft(nft_id);
+    console.log(nft, 'nft');
+    console.log(props.quest, 'props.quest');
     let customImg = await readFile(nft.file?.[0]);
     modal.emit('openModal', {
       title: 'Reward Submitted',
@@ -579,13 +586,21 @@ const handleRewardSuccessModal = async () => {
           } else {
             await switchNetwork(Number(nft.blockchain_id));
             await mint({ ...nft, price: 0.00000000001 });
+           
           }
+          await closeModal();
+          await handleSuccessModal();
         } catch (error) {
           console.error(error);
         }
       },
     });
+  } else {
+    await closeModal();
+    await handleSuccessModal();
   }
+
+ 
 };
 
 const handleErrorModal = () => {
@@ -619,7 +634,6 @@ const storeResponseAndClose = async () => {
     if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
       refCode = route.query['ref-code'].trim();
     }
-    await handleRewardSuccessModal();
 
     await responseStore.storeResponse({
       filled: realTime.value,
@@ -633,8 +647,9 @@ const storeResponseAndClose = async () => {
     // if () {
     //   await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
     // }
-    await closeModal();
-    await handleSuccessModal();
+
+    await handleRewardSuccessModal();
+
   } catch (e) {
     console.error(e);
     handleErrorModal();

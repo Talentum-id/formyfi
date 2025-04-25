@@ -67,7 +67,9 @@ watch(collection, (collection) => {
     if (!props.isReward) {
         emit('input', { price: amount.value, nft_id: collection });
     } else {
-        emit('input', collection);
+        emit('input', collection.id);
+
+        console.log(collection, 'collection');
     }
 }, { deep: true });
 

@@ -283,7 +283,17 @@ export const useZkLogin = () => {
       throw e;
     }
   }
-
+  function generateRandomNumber() {
+    // Generate a random number between 100000 and 999999
+    const min = 100000;
+    const max = 999999;
+    const randomBuffer = new Uint32Array(1);
+    crypto.getRandomValues(randomBuffer);
+    
+    // Scale to our desired range
+    const randomNumber = Math.floor(randomBuffer[0] / (0xffffffff + 1) * (max - min + 1) + min);
+    return randomNumber.toString();
+  }
   const mintSuiNft = async (nft) => {
     let suiProvider = getSuiProvider('Sui Wallet');
 
@@ -343,27 +353,22 @@ export const useZkLogin = () => {
           name: nft.name,
           wallet: SUI_ADDRESS,
           contractAddress: nft.contract_address,
-          tokenId: Number(nft.token_id),
           blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
           url: nft.file[0],
           description: nft.description,
           price: Math.floor(Number(nft.price) * 1e9),
+          nonce: generateRandomNumber(),
         })
         .then(async ({ data }) => {
-          const obj = data[0];
+          const obj = data;
           const tx = new Transaction();
-          const taxCount = BigInt(obj.price) + BigInt(GAS_BUDGET);
-
-          if (totalGasBalance < taxCount) {
-            throw new Error('You do not have enough SUI to pay for transaction fees.');
-          }
 
           tx.setGasPrice(1000);
           tx.setGasBudget(10000000);
 
-          const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${obj.price}`;
+          const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${Math.floor(Number(nft.price) * 1e9)}`;
 
-          const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(obj.price)]);
+          const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(Math.floor(Number(nft.price) * 1e9))]);
 
           tx.moveCall({
             target: `${nft.address}::nft::mint`,

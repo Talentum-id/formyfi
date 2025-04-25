@@ -57,6 +57,7 @@ actor NftIndex {
             contract_address = collection.contract_address;
             token_id = collection.token_id;
             owner = identity;
+            meta = collection.meta;
         };
 
         collections.put(id, newCollection);
@@ -89,6 +90,7 @@ actor NftIndex {
                     contract_address = updates.contract_address;
                     token_id = updates.token_id;
                     owner = existingCollection.owner;
+                    meta = updates.meta;
                 };
                 
                 collections.put(id, updatedCollection);
@@ -212,6 +214,7 @@ actor NftIndex {
                 contract_address = x.contract_address;
                 token_id = x.token_id;
                 owner = x.owner;
+                meta = x.meta;
             },
         );
 

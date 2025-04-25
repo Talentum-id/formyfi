@@ -7,6 +7,11 @@ module NftType {
         #Null;
     };
 
+    public type Meta = {
+        pubKeyObjectID: Text;
+        tokenDataObjectID: Text;
+    };
+
     public type ListResult = {
         data : [NFTCollection];
         pagination : PaginationTypes.Pagination;
@@ -27,6 +32,7 @@ module NftType {
         contract_address: Text;
         token_id: TokenId;
         owner: Text;
+        meta: ?Meta;
     };
 
     public type IdentityNftKey = {

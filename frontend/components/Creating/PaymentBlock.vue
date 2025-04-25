@@ -57,11 +57,11 @@ const options = computed(() => {
     }
 });
 
-watch(amount, (amount) => {
-    if (!amount) {
-        amount = '0.0';
+watch(amount, (newAmount) => {
+    if (!newAmount) {
+        newAmount = '0.0';
     }
-    const floatValue = parseFloat(amount);
+    const floatValue = parseFloat(newAmount);
     emit('input', { price: floatValue, nft_id: Number(collection.value?.id) });
     if (Number.isInteger(floatValue)) {
         amount.value = floatValue.toFixed(1);

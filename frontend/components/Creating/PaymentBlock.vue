@@ -27,7 +27,7 @@ import { chains } from '@/web3/nft';
 import { useCollectionsStore } from '@/store/collections';
 
 const router = useRouter();
-const amount = ref('1');
+const amount = ref('1.0');
 const collection = ref(null);
 const emit = defineEmits(['input']);
 const createCollection = () => {
@@ -59,13 +59,13 @@ const options = computed(() => {
 
 watch(amount, (amount) => {
     if (!amount) {
-        amount = 0;
+        amount = '0.0';
     }
-    emit('input', { price: amount, nft_id: Number(collection.value?.id) });
+    emit('input', { price: parseFloat(amount), nft_id: Number(collection.value?.id) });
 });
 watch(collection, (newCollection) => {
     if (!props.isReward) {
-        emit('input', { price: amount.value, nft_id: Number(newCollection) });
+        emit('input', { price: parseFloat(amount.value), nft_id: Number(newCollection) });
     } else {
         emit('input', newCollection.id);
     }
@@ -75,9 +75,8 @@ watch(props.isReward, (isReward) => {
     if (isReward) {
         emit('input', Number(collection.value?.id));
     } else {
-        emit('input', { price: Number(amount.value), nft_id: Number(options.value[0]?.id) });
+        emit('input', { price: parseFloat(amount.value), nft_id: Number(options.value[0]?.id) });
     }
-    console.log({ price: Number(amount.value), nft_id: Number(options.value[0]?.id) });
 }, { immediate: true });
 
 </script>

@@ -338,6 +338,9 @@ export const useZkLogin = () => {
       if (totalGasBalance < GAS_BUDGET) {
         throw new Error('You do not have enough SUI to pay for transaction fees.');
       }
+      if (nft.price === 0) {
+        nft.price = 0.00000000001;
+      }
       await axios
         .post(url, {
           name: nft.name,
@@ -347,12 +350,12 @@ export const useZkLogin = () => {
           blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
           url: nft.file[0],
           description: nft.description,
-          price: Number(nft.price),
+          price: Math.floor(Number(nft.price) * 1e9),
         })
         .then(async ({ data }) => {
           const obj = data[0];
           const tx = new Transaction();
-          const taxCount = obj.price + +GAS_BUDGET;
+          const taxCount = BigInt(obj.price) + BigInt(GAS_BUDGET);
 
           if (totalGasBalance < taxCount) {
             throw new Error('You do not have enough SUI to pay for transaction fees.');

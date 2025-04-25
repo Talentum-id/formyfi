@@ -107,7 +107,6 @@ import { useCollectionsStore } from '@/store/collections';
 // Web3
 import {
   deploy,
-  createNFTId,
   getContractAddress,
   getTokenId,
   switchNetwork,

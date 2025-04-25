@@ -6,19 +6,6 @@ import { inputs } from '@/web3/abi/nftSuiInputs';
 import { fromB64 } from '@mysten/bcs';
 import AxiosService from '@/services/axiosService';
 import axios from 'axios';
-const SUI_ADDRESS_LENGTH = 32;
-
-function normalizeSuiAddress(value, forceAdd0x = false) {
-  let address = value.toLowerCase();
-  if (!forceAdd0x && address.startsWith('0x')) {
-    address = address.slice(2);
-  }
-  return `0x${address.padStart(SUI_ADDRESS_LENGTH * 2, '0')}`;
-}
-
-function normalizeSuiObjectId(value, forceAdd0x = false) {
-  return normalizeSuiAddress(value, forceAdd0x);
-}
 
 let contractAddress;
 let contractMeta;
@@ -69,77 +56,6 @@ export async function deploy(data) {
   } catch (error) {
     console.error('Deployment error:', error);
     throw new Error("Can't create collection: " + error.message);
-  }
-}
-export async function createNFTId() {
-  try {
-    if (!window.ethereum) {
-      throw new Error('No Ethereum provider found');
-    }
-
-    // Initialize provider and signer
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send('eth_requestAccounts', []);
-    const signer = await provider.getSigner();
-
-    // Get user address
-    const userAddress = await signer.getAddress();
-
-    // Initialize contract
-    const contract = new ethers.Contract(
-      '0x5CC9798C25528D3C972ECCaEde69A62b777f5798',
-      erc1155abi,
-      signer,
-    );
-    let url = `https://web2.formyfi.io/api/nft/collections/sign-1155`;
-
-    // Get signature from backend
-    const response = await axios.post(url, {
-      contract_address: '0x5CC9798C25528D3C972ECCaEde69A62b777f5798',
-      address: userAddress,
-    });
-
-    try {
-      // Create new token ID
-      const tx = await contract.createNewTokenId(
-        response.data.nonce.toString(),
-        response.data.deadline.toString(),
-        response.data.args,
-        response.data.signature,
-      );
-
-      console.log('Transaction hash:', tx.hash);
-      const res = await tx.wait();
-      const events = await decodeTransferSingle(res);
-
-      contractAddress = '0x5CC9798C25528D3C972ECCaEde69A62b777f5798';
-      tokenId = events.id;
-
-      return tokenId;
-    } catch (e) {
-      console.error('Token creation error:', e);
-      throw new Error("Can't create collection: " + e.message);
-    }
-  } catch (error) {
-    console.error('Create NFT ID error:', error);
-    throw new Error("Can't create collection: " + error.message);
-  }
-}
-function decodeTransferSingle(tx) {
-  const iface = new ethers.utils.Interface(erc1155abi);
-  const logs = tx.events;
-
-  for (const log of logs) {
-    try {
-      const parsedLog = iface.parseLog(log);
-      if ('id' in parsedLog.args) {
-        return {
-          event: parsedLog.name,
-          id: parsedLog.args.id.toString(),
-          fullArgs: parsedLog.args,
-        };
-      }
-    } catch (err) {}
   }
 }
 
@@ -202,7 +118,9 @@ export async function mint(nft) {
 
     let url = `https://web2.formyfi.io/api/nft/collections/sign`;
     console.log(nft, 'nft');
-
+    if (nft.price === 0) {
+      nft.price = 0.00000000001;
+    }
     const { data } = await axios.post(url, {
       name: nft.name,
       wallet: userAddress,
@@ -211,17 +129,14 @@ export async function mint(nft) {
       blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
       url: nft.file?.[0],
       description: nft.description,
-      price: Number(nft.price),
-    
+      price: ethers.parseEther(nft.price.toString()),
     });
 
     const obj = data;
     console.log(obj, 'obj');
-    // Convert obj.price to BigNumber
-    const price = BigNumber.from(nft.price.toString());
-
-    const ABI = nft.nftType === 'erc_721' ? abi : erc1155abi;
-    const contract = new ethers.Contract(nft.contract_address, ABI, signer);
+    // Convert obj.price to BigNumber with 18 decimals
+    const price = ethers.parseEther(nft.price.toString());
+    const contract = new ethers.Contract(nft.contract_address, abi, signer);
 
     const tx = await contract.create(
       obj.nonce.toString(),

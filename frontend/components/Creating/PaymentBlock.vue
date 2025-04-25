@@ -61,11 +61,11 @@ watch(amount, (amount) => {
     if (!amount) {
         amount = 0;
     }
-    emit('input', { price: amount, nft_id: collection.value?.id });
+    emit('input', { price: amount, nft_id: Number(collection.value?.id) });
 });
 watch(collection, (newCollection) => {
     if (!props.isReward) {
-        emit('input', { price: amount.value, nft_id: newCollection });
+        emit('input', { price: amount.value, nft_id: Number(newCollection) });
     } else {
         emit('input', newCollection.id);
     }

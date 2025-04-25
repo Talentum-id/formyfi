@@ -550,10 +550,22 @@ const handleSuccessModal = async () => {
     sendEmail: (email) => {
       console.log(result.value, 'email');
       console.log(props.quest, 'q quest');
+
+      const paymentData = {
+
+        questions: props.quest.questions.map(q => ({
+          ...q,
+          payment: q.payment?.map(p => ({
+            ...p,
+            nft_id: typeof p.nft_id === 'bigint' ? p.nft_id.toString() : p.nft_id
+          }))
+        })),
+
+      };
       axiosService
         .post(`${process.env.API_URL}responses/dispatch`, {
           email: email,
-          quest: props.quest,
+          quest: { ...props.quest, ...paymentData },
           answers: result.value,
         })
         .catch((e) => console.error(e));
@@ -563,7 +575,7 @@ const handleSuccessModal = async () => {
 const handleMinted = () => {
   newArr.value[currentIndex.value].answer = 'Minted';
   newArr.value[currentIndex.value].isCorrect = true;
-}
+};
 const handleRewardSuccessModal = async () => {
   const collection = props.quest.rewards?.[0];
 

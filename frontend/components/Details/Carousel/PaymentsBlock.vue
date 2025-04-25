@@ -100,7 +100,7 @@ const mintNFT = async () => {
             answer: {
                 tx: tx.hash,
                 wallet: tx.wallet,
-                nft_id: nft.value.id,
+                nft_id: Number(nft.value.id),
             },
             isCorrect: !!tx.hash,
         }];
@@ -113,7 +113,7 @@ const mintNFT = async () => {
             answer: {
                 tx: tx.hash,
                 wallet: tx.wallet,
-                nft_id: nft.value.id,
+                nft_id: Number(nft.value.id),
             },
             isCorrect: !!tx.hash,
         });

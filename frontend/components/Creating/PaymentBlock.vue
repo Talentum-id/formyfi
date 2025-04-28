@@ -71,14 +71,14 @@ watch(amount, (newAmount) => {
 watch(collection, (newCollection) => {
     if (!props.isReward) {
         const floatValue = parseFloat(amount.value);
-        emit('input', { price: floatValue, nft_id: Number(newCollection) });
+        emit('input', { price: floatValue, nft_id: Number(newCollection.id) });
     } else {
         emit('input', newCollection.id);
     }
-}, { deep: true });
+});
 
 watch(props.isReward, (isReward) => {
-    if (isReward) {
+    if (!!isReward) {
         emit('input', Number(collection.value?.id));
     } else {
         const floatValue = parseFloat(amount.value);

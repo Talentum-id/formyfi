@@ -183,12 +183,7 @@ export async function mint(nft) {
     throw error;
   }
 }
-export const getMetaData = async (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
 
-  return AxiosService.post(`${process.env.API_URL}nft/file`, formData).then(({ data }) => data);
-};
 export const chains = [
   {
     id: 10143,

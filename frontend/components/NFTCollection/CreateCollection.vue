@@ -104,6 +104,7 @@ import TaskBannerUploader from '@/components/Creating/TaskBannerUploader.vue';
 import axiosService from '@/services/axiosService';
 import { useZkLogin } from '@/composables/useZkLogin';
 import { useCollectionsStore } from '@/store/collections';
+import { getMetaData } from '@/services/api/nftCollection';
 // Web3
 import {
   deploy,
@@ -111,7 +112,6 @@ import {
   getTokenId,
   switchNetwork,
   chains,
-  getMetaData
 } from '@/web3/nft';
 import { modal } from '@/mixins/modal';
 
@@ -199,7 +199,7 @@ const handleDescriptionUpdate = (e) => {
 const handleFileUpload = async (image) => {
   file.value = image;
   item.file = image[0]?.raw;
-  item.uri = await getMetaData(item.file);
+ 
   clearError('uri');
 };
 
@@ -269,6 +269,8 @@ const handleCreateCollection = async () => {
   });
 
   try {
+    item.uri = await getMetaData(item.file, item.name);
+
     if (typeof file.value !== 'string') {
       const formData = new FormData();
       const realTime = Math.floor(new Date().getTime() / 1000);

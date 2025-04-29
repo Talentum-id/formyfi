@@ -23,9 +23,10 @@ export const getUserCollection = async (params) => {
   return api.get(`nft/user/collections`, { params }).then(({ data }) => data);
 };
 
-export const getMetaData = async (file) => {
+export const getMetaData = async (file, name) => {
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('name', name);
 
   return api.post(`/nft/file`, formData).then(({ data }) => data);
 };

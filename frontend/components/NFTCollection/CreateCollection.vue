@@ -9,10 +9,7 @@
           Recommended size — 480 x 480 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
         </div>
         <TaskBannerUploader square :setImage="handleFileUpload" :banner="item.file" :isEditingActive="true"
-          :isError="!item.file && errorItem.uri.isError && errorItem.uri.text" errorText="Cover Image is Required" />
-        <div v-if="errorItem.uri.isError && errorItem.uri.text" class="editor-error">
-          {{ errorItem.uri.text }}
-        </div>
+          :isError="!item.file && errorItem.uri.isError && errorItem.uri.text" errorText="Collection Image is Required" />
       </div>
       <div class="flex flex-col gap-2">
         <div class="text-md font-medium">Blockchain</div>
@@ -196,10 +193,9 @@ const handleDescriptionUpdate = (e) => {
   item.description = e;
 };
 
-const handleFileUpload = async (image) => {
+const handleFileUpload = (image) => {
   file.value = image;
-  item.file = image[0]?.raw;
- 
+  item.file = image;
   clearError('uri');
 };
 
@@ -255,6 +251,8 @@ const validateForm = () => {
 };
 
 const handleCreateCollection = async () => {
+  item.uri = await getMetaData(item.file, item.name);
+
   if (!validateForm()) {
     showError.value = true;
     errorMessage.value = 'Please fix the errors in the form';
@@ -269,7 +267,6 @@ const handleCreateCollection = async () => {
   });
 
   try {
-    item.uri = await getMetaData(item.file, item.name);
 
     if (typeof file.value !== 'string') {
       const formData = new FormData();

@@ -121,7 +121,7 @@ const collectionRows = computed(() => {
       content: item.unlimited_supply ? 'Unlimited' : Number(item.max_supply),
     },
     available: {
-      content: item.unlimited_supply ? 'Unlimited' : Number(item.max_supply),
+      content: item.unlimited_supply ? 'Unlimited' : Number(item.available),
     },
     address: {
       component: Link,

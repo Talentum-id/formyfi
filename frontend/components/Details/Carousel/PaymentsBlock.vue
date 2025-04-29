@@ -60,7 +60,6 @@ const nft = ref(null);
 const image = ref(null);
 const isMinted = ref(false);
 onMounted(async () => {
-    console.log(props.preview);
     if (props.preview) {
         const nft_id = Number(props.answer.payment.nft_id);
         nft.value = await useCollectionsStore().getNft(nft_id);
@@ -82,6 +81,11 @@ const mintNFT = async () => {
     if (props.preview) {
         return;
     }
+
+    if (nft.value.available < 1) {
+        return;
+    }
+
     const chainID = Number(nft.value.blockchain_id)
     try {
         let tx;

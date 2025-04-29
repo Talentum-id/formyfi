@@ -151,7 +151,7 @@ const item = reactive({
   contract_address: '',
   token_id: { 'Null': null },
   owner: '',
-  available: 1,
+  available: 1, 
 });
 
 const errorItem = reactive({

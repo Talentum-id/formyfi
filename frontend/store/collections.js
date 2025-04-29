@@ -66,11 +66,6 @@ export const useCollectionsStore = defineStore('collections', {
       this.identity = identity;
     },
     async createCollection(params) {
-      params = {
-        ...params,
-        available: params.max_supply,
-      };
-
       return await this.actor?.createCollection(params, {
         identity: process.env.DFX_ASSET_PRINCIPAL,
         character: localStorage.extraCharacter,
@@ -97,7 +92,7 @@ export const useCollectionsStore = defineStore('collections', {
     async storeIdentityNftRelation(params) {
       return await this.actor?.storeIdentityNftRelation(
         { ...params, identity: useAuthStore().getPrincipal },
-        { character: localStorage.extraCharacter, identity: process.env.DFX_ASSET_PRINCIPAL, },
+        { character: localStorage.extraCharacter, identity: process.env.DFX_ASSET_PRINCIPAL },
       );
     },
     async fetchCollection(contractAddress) {

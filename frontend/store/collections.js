@@ -66,7 +66,10 @@ export const useCollectionsStore = defineStore('collections', {
       this.identity = identity;
     },
     async createCollection(params) {
-      params.available = params.max_supply;
+      params = {
+        ...params,
+        available: params.max_supply,
+      };
 
       return await this.actor?.createCollection(params, {
         identity: process.env.DFX_ASSET_PRINCIPAL,

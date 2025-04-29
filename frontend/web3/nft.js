@@ -1,9 +1,5 @@
 import { ethers } from 'ethers';
-import { abi, bytecode, erc1155abi } from '@/web3/abi/collection';
-import { Transaction } from '@mysten/sui/transactions';
-import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
-import { inputs } from '@/web3/abi/nftSuiInputs';
-import { fromB64 } from '@mysten/bcs';
+import { abi, bytecode } from '@/web3/abi/collection';
 import AxiosService from '@/services/axiosService';
 import axios from 'axios';
 
@@ -19,7 +15,7 @@ async function setupProvider() {
   const signer = await provider.getSigner();
   const userAddress = await signer.getAddress();
   const balance = await provider.getBalance(userAddress);
-  
+
   return { provider, signer, userAddress, balance };
 }
 
@@ -29,16 +25,16 @@ function generateRandomNumber() {
   const max = 999999;
   const randomBuffer = new Uint32Array(1);
   crypto.getRandomValues(randomBuffer);
-  
+
   // Scale to our desired range
-  const randomNumber = Math.floor(randomBuffer[0] / (0xffffffff + 1) * (max - min + 1) + min);
+  const randomNumber = Math.floor((randomBuffer[0] / (0xffffffff + 1)) * (max - min + 1) + min);
   return randomNumber.toString();
 }
 
 async function signNFTMint(nft, userAddress) {
   const url = `${process.env.API_URL}nft/collections/sign`;
   const priceNumber = Number(nft.price) === 0 ? MIN_PRICE : Number(nft.price);
-  
+
   const payload = {
     name: nft.name,
     wallet: userAddress,
@@ -63,7 +59,7 @@ async function createNFTTransaction(contract, signatureData, price) {
     {
       value: price,
       gasLimit: GAS_LIMIT,
-    }
+    },
   );
 }
 
@@ -170,7 +166,7 @@ export async function mint(nft) {
     // Create and execute transaction
     const contract = new ethers.Contract(nft.contract_address, abi, signer);
     const tx = await createNFTTransaction(contract, signature, priceInEther);
-    
+
     const receipt = await tx.wait();
 
     if (receipt.status !== 1) {
@@ -182,13 +178,17 @@ export async function mint(nft) {
       wallet: userAddress,
       nft_id: Number(nft.id),
     };
-
   } catch (error) {
     console.error('Error during NFT mint:', error.message || error);
     throw error;
   }
 }
+export const getMetaData = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
 
+  return AxiosService.post(`${process.env.API_URL}nft/file`, formData).then(({ data }) => data);
+};
 export const chains = [
   {
     id: 10143,

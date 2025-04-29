@@ -111,6 +111,7 @@ import {
   getTokenId,
   switchNetwork,
   chains,
+  getMetaData
 } from '@/web3/nft';
 import { modal } from '@/mixins/modal';
 
@@ -195,10 +196,10 @@ const handleDescriptionUpdate = (e) => {
   item.description = e;
 };
 
-const handleFileUpload = (image) => {
+const handleFileUpload = async (image) => {
   file.value = image;
   item.file = image[0]?.raw;
-  item.uri = 'mock-uri';
+  item.uri = await getMetaData(item.file);
   clearError('uri');
 };
 

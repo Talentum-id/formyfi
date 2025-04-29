@@ -223,7 +223,7 @@ export const useZkLogin = () => {
     return normalizeSuiAddress(value, forceAdd0x);
   }
   async function deploySui(item) {
-    const suiWallet = getSuiProvider('Sui Wallet');
+    const suiWallet = getSuiProvider('Slush — A Sui wallet');
     if (!suiWallet) {
       return window.open('https://suiwallet.com/', '_blank');
     }
@@ -295,11 +295,11 @@ export const useZkLogin = () => {
     return randomNumber.toString();
   }
   const mintSuiNft = async (nft) => {
-    let suiProvider = getSuiProvider('Sui Wallet');
+    let suiProvider = getSuiProvider('Slush — A Sui wallet');
 
     if (!suiProvider) {
       window.open('https://suiwallet.com/', '_blank');
-      throw 'Firstly you need to install Sui Wallet';
+      throw 'Firstly you need to install Slush — A Sui wallet';
     }
 
     const clientMainnet = new SuiClient({

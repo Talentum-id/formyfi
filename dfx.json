@@ -49,7 +49,8 @@
         "user_index",
         "form_index",
         "submissions_index",
-        "metrics_index"
+        "metrics_index",
+        "nft_index"
       ],
       "frontend": {
         "entrypoint": "dist/index.html"

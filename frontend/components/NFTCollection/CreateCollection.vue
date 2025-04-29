@@ -4,11 +4,11 @@
       <div class="font-familyLight font-regular text-3xl">Create NFT Collection</div>
 
       <div class="flex flex-col gap-2">
-        <div class="text-md font-medium">Cover Image</div>
+        <div class="text-md font-medium">Collection Image</div>
         <div class="text-xs font-medium text-secondary-60 subtitle">
-          Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
+          Recommended size — 480 x 480 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
         </div>
-        <TaskBannerUploader :setImage="handleFileUpload" :banner="item.file" :isEditingActive="true"
+        <TaskBannerUploader square :setImage="handleFileUpload" :banner="item.file" :isEditingActive="true"
           :isError="!item.file && errorItem.uri.isError && errorItem.uri.text" errorText="Cover Image is Required" />
         <div v-if="errorItem.uri.isError && errorItem.uri.text" class="editor-error">
           {{ errorItem.uri.text }}

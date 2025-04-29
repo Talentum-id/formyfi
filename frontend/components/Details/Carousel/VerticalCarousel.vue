@@ -39,7 +39,7 @@
             <AddressBlock v-else-if="newArr[currentIndex].questionType === 'address'" :answer="newArr[currentIndex]"
               :disabled="cacheAnswer !== null" />
             <PaymentsBlock v-else-if="newArr[currentIndex].questionType === 'payment'" :answer="newArr[currentIndex]"
-              :disabled="cacheAnswer !== null" :preview="isPreview || isMinted" @minted="handleMinted" />
+              :disabled="cacheAnswer !== null" :preview="isPreview" @minted="handleMinted" />
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea placeholder="Your Answer" v-model="newArr[currentIndex].answer" class="w-full"
                 :disabled="cacheAnswer" />
@@ -1102,7 +1102,7 @@ watch(currentIndex, async () => {
 }
 
 .icon-soc {
-  filter: invert(99%) sepia(0%) saturate(7494%) hue-rotate(201deg) brightness(153%) contrast(100%);
+  filter: invert(53%) sepia(72%) saturate(81%) hue-rotate(0) brightness(225%) contrast(254%) !important;
 }
 
 .wrapper-title {

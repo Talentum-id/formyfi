@@ -125,6 +125,6 @@ const verify = () => {
 }
 
 .icon-soc {
-  filter: invert(99%) sepia(0%) saturate(7494%) hue-rotate(201deg) brightness(0%) contrast(100%);
+  filter: invert(53%) sepia(72%) saturate(81%) hue-rotate(0) brightness(225%) contrast(254%) !important;
 }
 </style>

@@ -199,14 +199,14 @@ watch(
         } else {
           const encodedMessage = new TextEncoder().encode(
             `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-              `${siwsMessage.address}\n\n` +
-              `${siwsMessage.statement}\n\n` +
-              `URI: ${siwsMessage.uri}\n` +
-              `Version: ${siwsMessage.version}\n` +
-              `Chain ID: ${siwsMessage.chain_id}\n` +
-              `Nonce: ${siwsMessage.nonce}\n` +
-              `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
-              `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
+            `${siwsMessage.address}\n\n` +
+            `${siwsMessage.statement}\n\n` +
+            `URI: ${siwsMessage.uri}\n` +
+            `Version: ${siwsMessage.version}\n` +
+            `Chain ID: ${siwsMessage.chain_id}\n` +
+            `Nonce: ${siwsMessage.nonce}\n` +
+            `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
+            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
           );
 
           const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
@@ -246,12 +246,7 @@ const props = defineProps({
       <template v-for="connector in filteredConnectors" :key="connector.name">
         <AuthButton v-if="connector.id !== 'metaMaskSDK'" @click="connectSIWE(connector, chainId)">
           <div class="container">
-            <img
-              v-if="connector.icon"
-              :src="connector.icon"
-              :alt="connector.name"
-              class="h-[24px]"
-            />
+            <img v-if="connector.icon" :src="connector.icon" :alt="connector.name" class="h-[24px]" />
             <div class="name-social">
               {{ connector.name }}
             </div>
@@ -260,8 +255,8 @@ const props = defineProps({
       </template>
       <AuthButton @click="loginWithSui()">
         <div class="container">
-          <img src="@/assets/icons/sui.svg" alt="Sui Wallet" class="h-[24px]" />
-          <div class="name-social">Sui Wallet</div>
+          <img src="@/assets/icons/sui.svg" alt="Slush" class="h-[24px]" />
+          <div class="name-social">Slush</div>
         </div>
       </AuthButton>
       <AuthButton @click="loginWithSuiet()">
@@ -277,7 +272,7 @@ const props = defineProps({
         </div>
       </AuthButton>
       <div class="btn">
-        <WalletMultiButton/>
+        <WalletMultiButton />
       </div>
     </div>
     <hr />

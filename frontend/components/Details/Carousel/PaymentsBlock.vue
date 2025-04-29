@@ -15,6 +15,7 @@
             <SocialConnect :data="data" class="cursor-pointer" @click="mintNFT" />
         </div>
     </div>
+    <Alert message="Success" type="success" v-if="showSuccess"></Alert>
 </template>
 
 <script setup>
@@ -30,7 +31,7 @@ import { onMounted } from 'vue';
 import CustomImage from '@/components/CustomImage.vue';
 import { useCollectionsStore } from '@/store/collections';
 import { modal } from '@/mixins/modal';
-
+import Alert from '@/components/Alert.vue';
 const data = ref({
     icon: 'NFT-Default',
     title: 'Mint NFT',
@@ -54,13 +55,14 @@ const props = defineProps({
 const currencySymbol = computed(() => {
     return chains.find(chain => chain.id === Number(nft.value.blockchain_id))?.nativeCurrency.symbol
 });
-
+const showSuccess = ref(false);
 const nft = ref(null);
 const image = ref(null);
 const isMinted = ref(false);
 onMounted(async () => {
+    console.log(props.preview);
     if (props.preview) {
-        const nft_id = Number(props.answer.payment.nft_id.id);
+        const nft_id = Number(props.answer.payment.nft_id);
         nft.value = await useCollectionsStore().getNft(nft_id);
         image.value = await readFile(nft.value.file?.[0]);
     } else {
@@ -102,6 +104,10 @@ const mintNFT = async () => {
         });
         isMinted.value = true;
         emit('minted');
+        showSuccess.value = true;
+        setTimeout(() => {
+            showSuccess.value = false;
+        }, 3000);
     } catch (error) {
         console.error(error);
     } finally {

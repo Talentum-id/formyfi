@@ -16,6 +16,11 @@ module QATypes {
     server : Text;
   };
 
+  public type Payment = {
+    nft_id : Nat;
+    price : Float;
+  };
+
   public type Question = {
     question : Text;
     questionType : Text;
@@ -29,10 +34,12 @@ module QATypes {
     twitter : ?TwitterVerification;
     discord : ?DiscordVerification;
     points: ?Nat;
+    payment: ?Payment;
   };
 
   public type QA = {
     image : Text;
+    customization: ?QACustomization;
     title : Text;
     description : Text;
     shareLink : Text;
@@ -43,6 +50,7 @@ module QATypes {
     thxMessage : ?ThanksMessage;
     branches : ?Text;
     refCodePoints : ?Nat;
+    rewards: ?Nat;
   };
 
   public type ThanksMessage = {
@@ -71,5 +79,10 @@ module QATypes {
   public type ShowQAResult = {
     owner : Text;
     quest : QA;
+  };
+
+  public type QACustomization = {
+    color: ?Text;
+    url: ?Text;
   };
 };

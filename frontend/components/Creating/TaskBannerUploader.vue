@@ -1,6 +1,6 @@
 <template>
   <Alert :message="errorMessage" type="error" v-if="showError" />
-  <div class="main">
+  <div class="main" :class="{ square: square }">
     <input
       type="file"
       @change="handleFileUpload"
@@ -20,7 +20,7 @@
       <div v-if="isEditingActive" class="overlay">
         <div class="requirements">
           <span class="requirements__title">
-            Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
+            Recommended size — 480 x {{ square ? '480' : '760' }} px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
           </span>
         </div>
         <div class="controllers">
@@ -48,6 +48,10 @@ const props = defineProps({
     default: '',
   },
   isEditingActive: {
+    type: Boolean,
+    default: false,
+  },
+  square: {
     type: Boolean,
     default: false,
   },
@@ -218,5 +222,13 @@ const uploadImage = () => {
     'tnum' on,
     'lnum' on,
     'zero' on;
+}
+.square {
+  width: 260px !important;
+  height: 260px !important;
+  .background-block {
+    width: 260px !important;
+    height: 260px !important;
+  }
 }
 </style>

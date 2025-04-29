@@ -2,7 +2,7 @@
 import AuthButton from '@/components/Auth/AuthButton.vue';
 import axiosService from '@/services/axiosService';
 import { useAuthStore } from '@/store/auth';
-import { GoogleLogin, googleLogout } from 'vue3-google-login';
+import { googleLogout } from 'vue3-google-login';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import bs58 from 'bs58';
@@ -12,6 +12,7 @@ import { siweConnectors } from '@/constants/siweConnectors';
 import { WalletMultiButton, useWallet } from 'solana-wallets-vue';
 import { useSuiWallet } from '@/composables/useSuiWallet';
 import { useZkLogin } from '@/composables/useZkLogin';
+import { modal } from '@/mixins/modal';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
@@ -42,6 +43,12 @@ const plugConnected = computed(() => window.ic?.plug !== undefined);
 
 const readCode = async () => {
   if (Object.keys(route.query).length > 0) {
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
+
     axiosService
       .get(`${process.env.API_URL}auth/callback/${localStorage.socialProvider}`, route.query)
       .then(async ({ data }) => {
@@ -64,11 +71,19 @@ const readCode = async () => {
         localStorage.connector = provider;
         await useAuthStore().loginWithWeb2(nickname, nickname, provider);
       })
-      .catch((e) => console.error(e));
+      .catch((e) => console.error(e))
+
+    modal.emit('closeModal', {});
   }
 
   const idToken = new URLSearchParams(route.hash.substring(1)).get('id_token');
   if (idToken) {
+    await modal.emit('openModal', {
+      title: 'Loading...',
+      message: 'Please wait for a while',
+      type: 'loading',
+    });
+
     localStorage.removeItem('social');
     localStorage.removeItem('token');
 
@@ -76,6 +91,8 @@ const readCode = async () => {
     if (email && address) {
       await authStore.loginWithGoogle(email, address);
     }
+
+    modal.emit('closeModal', {});
   }
 };
 
@@ -117,6 +134,8 @@ const connectSIWE = async (connector, chainId) => {
   }
 };
 const loginWithSocial = async (provider) => {
+  localStorage.removeItem('socialInfo');
+  localStorage.removeItem('socialProvider');
   await useAuthStore().connectSocial(provider, true);
 };
 const logout = async () => {
@@ -180,14 +199,14 @@ watch(
         } else {
           const encodedMessage = new TextEncoder().encode(
             `${siwsMessage.domain} wants you to sign in with your Solana account:\n` +
-              `${siwsMessage.address}\n\n` +
-              `${siwsMessage.statement}\n\n` +
-              `URI: ${siwsMessage.uri}\n` +
-              `Version: ${siwsMessage.version}\n` +
-              `Chain ID: ${siwsMessage.chain_id}\n` +
-              `Nonce: ${siwsMessage.nonce}\n` +
-              `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
-              `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
+            `${siwsMessage.address}\n\n` +
+            `${siwsMessage.statement}\n\n` +
+            `URI: ${siwsMessage.uri}\n` +
+            `Version: ${siwsMessage.version}\n` +
+            `Chain ID: ${siwsMessage.chain_id}\n` +
+            `Nonce: ${siwsMessage.nonce}\n` +
+            `Issued At: ${new Date(Number(siwsMessage.issued_at / BigInt(1000000))).toISOString()}\n` +
+            `Expiration Time: ${new Date(Number(siwsMessage.expiration_time / BigInt(1000000))).toISOString()}`,
           );
 
           const signature = await solanaWallet.value.adapter.signMessage(encodedMessage);
@@ -227,12 +246,7 @@ const props = defineProps({
       <template v-for="connector in filteredConnectors" :key="connector.name">
         <AuthButton v-if="connector.id !== 'metaMaskSDK'" @click="connectSIWE(connector, chainId)">
           <div class="container">
-            <img
-              v-if="connector.icon"
-              :src="connector.icon"
-              :alt="connector.name"
-              class="h-[24px]"
-            />
+            <img v-if="connector.icon" :src="connector.icon" :alt="connector.name" class="h-[24px]" />
             <div class="name-social">
               {{ connector.name }}
             </div>
@@ -241,8 +255,8 @@ const props = defineProps({
       </template>
       <AuthButton @click="loginWithSui()">
         <div class="container">
-          <img src="@/assets/icons/sui.svg" alt="Sui Wallet" class="h-[24px]" />
-          <div class="name-social">Sui Wallet</div>
+          <img src="@/assets/icons/sui.svg" alt="Slush" class="h-[24px]" />
+          <div class="name-social">Slush</div>
         </div>
       </AuthButton>
       <AuthButton @click="loginWithSuiet()">
@@ -258,7 +272,7 @@ const props = defineProps({
         </div>
       </AuthButton>
       <div class="btn">
-        <WalletMultiButton/>
+        <WalletMultiButton />
       </div>
     </div>
     <hr />

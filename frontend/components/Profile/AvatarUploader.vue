@@ -68,20 +68,29 @@ export default {
           let avatar;
 
           if (typeof this.image !== 'string') {
-            if (profileData.avatar.length) {
-              await axiosService.post(`${process.env.API_URL}delete-files`, {
-                paths: [profileData.avatar[0]],
-              });
-            }
-
             const formData = new FormData();
 
             formData.append('files[]', this.image);
             formData.append('paths[]', `/${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/avatar`);
 
-            await axiosService.post(`${process.env.API_URL}upload-files`, formData)
-              .then(({ data }) => avatar = data[0])
-              .catch(e => console.error(e));
+            try {
+              const { data } = await axiosService.post(`${process.env.API_URL}upload-files`, formData)
+              avatar = data[0];
+            } catch (e) {
+              console.error(e);
+              await modal.emit('closeModal', {});
+
+              this.errorMessage = 'Failed to upload file.';
+              setTimeout(() => (this.errorMessage = ''), 3000);
+
+              return;
+            }
+          }
+
+          if (profileData.avatar.length) {
+            await axiosService.post(`${process.env.API_URL}delete-files`, {
+              paths: [profileData.avatar[0]],
+            });
           }
 
           await useAuthStore().saveProfile({

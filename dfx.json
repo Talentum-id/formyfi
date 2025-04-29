@@ -33,6 +33,13 @@
       "main": "backend/canisters/stats_index/metrics.mo",
       "type": "motoko"
     },
+    "nft_index": {
+      "main": "backend/canisters/nft_index/main.mo",
+      "type": "motoko",
+      "dependencies": [
+        "user_index"
+      ]
+    },
     "assets": {
       "dependencies": [
         "vetkd_system_api",
@@ -42,7 +49,8 @@
         "user_index",
         "form_index",
         "submissions_index",
-        "metrics_index"
+        "metrics_index",
+        "nft_index"
       ],
       "frontend": {
         "entrypoint": "dist/index.html"
@@ -83,10 +91,6 @@
     }
   },
   "networks": {
-    "local": {
-      "bind": "127.0.0.1:4943",
-      "type": "ephemeral"
-    },
     "ic": {
       "providers": [
         "https://mainnet.dfinity.network"

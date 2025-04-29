@@ -113,7 +113,7 @@ const requestsRows = computed(
       user: {
         component: Talent,
         props: {
-          text: users.value[index]?.fullName.trim() || users.value[index]?.username,
+          text: users.value[index]?.fullName?.trim() || users.value[index]?.username || 'Deleted user',
           img: users.value[index]?.avatar ?? null,
           big: true,
         },

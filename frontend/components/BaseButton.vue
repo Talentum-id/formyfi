@@ -119,6 +119,31 @@ const props = defineProps({
     color: $white;
   }
 }
+.danger {
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: fit-content;
+  background: $danger-bg;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  color: $danger-text;
+
+  &.disabled {
+    background-color: $secondary;
+    cursor: inherit;
+  }
+
+  span {
+    margin-left: 8px;
+    font-family: $default_font;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: $danger-text;
+  }
+}
 .primary {
   display: flex;
   flex-direction: row;

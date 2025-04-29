@@ -11,6 +11,8 @@ localforage.getItem('previewData', function (err, value) {
 const closeTab = () => {
   window.close();
 };
+const backgroundColor = computed(() => data.value?.customization?.[0]?.color?.[0]);
+const backgroundImage = computed(() => data.value?.customization?.[0]?.url?.[0]);
 </script>
 
 <template>
@@ -19,7 +21,7 @@ const closeTab = () => {
       <img src="@/assets/images/logo-dark.svg" alt="logo" width="108" height="28" />
       <BaseButton text="Back to Creating" @click="closeTab()" type="return"></BaseButton>
     </div>
-    <div class="content"><Quest :data="data"></Quest></div>
+    <div class="content" :style="{ backgroundColor: backgroundColor, backgroundImage: `url(${backgroundImage})` }"><Quest :data="data"></Quest></div>
   </div>
 </template>
 
@@ -37,12 +39,15 @@ const closeTab = () => {
     align-items: center;
     align-self: stretch;
     background: #344054;
+
   }
   .content {
     padding: 48px 40px 120px;
     min-height: 100vh;
     display: flex;
     justify-content: center;
+    background-size: cover;
+    background-position: center;
   }
 }
 </style>

@@ -18,6 +18,7 @@ actor FormIndex {
   type QaResponse = Types.ShowQAResult;
   type Question = Types.Question;
   type List = Types.ListResult;
+  type QACustomization = Types.QACustomization;
 
   stable var QAEntries : [(Text, [QA])] = [];
   stable var shareLinkEntries : [(Text, Text)] = [];
@@ -36,6 +37,7 @@ actor FormIndex {
     "date",
     "address",
     "file",
+    "payment",
   ];
 
   let QAs = Map.fromIter<Text, [QA]>(QAEntries.vals(), 1000, Text.equal, Text.hash);
@@ -142,6 +144,8 @@ actor FormIndex {
                 thxMessage = quest.thxMessage;
                 branches = quest.branches;
                 refCodePoints = quest.refCodePoints;
+                rewards = quest.rewards;
+                customization = quest.customization;
               },
             );
 
@@ -246,6 +250,8 @@ actor FormIndex {
         thxMessage = x.thxMessage;
         branches = x.branches;
         refCodePoints = x.refCodePoints;
+        rewards = x.rewards;
+        customization = x.customization;
       },
     );
 

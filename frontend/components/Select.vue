@@ -1,40 +1,25 @@
 <template>
-  <div
-    :class="`custom-select ${mainStyles}`"
-    :style="{ zIndex: open ? 1000 : 98 }"
-    :tabindex="tabindex"
-    ref="selectContainer"
-  >
+  <div :class="`custom-select ${mainStyles}`" :style="{ zIndex: open ? 1000 : 98 }" :tabindex="tabindex"
+    ref="selectContainer">
     <div class="selected" :class="`${open && 'open'} !${selectedStyle}`" @click="toggle">
       <div :class="`${selectedLabelStyle}`">
-        {{ reduceStringLength(selected.name || 'Select option', stringLengthSelected) }}
+        {{ reduceStringLength(selected?.name || 'Select option', stringLengthSelected) }}
       </div>
-      <div
-        v-if="!disabled && selected.name"
-        class="arrow"
-        :class="`${open && 'flipped'} ${arrowStyle}`"
-      ></div>
+      <div v-if="!disabled && selected?.name" class="arrow" :class="`${open && 'flipped'} ${arrowStyle}`"></div>
     </div>
-    <div
-      v-if="!disabled && selected.name"
-      class="items"
-      :class="`${itemsStyles} ${!open && 'selectHide'}`"
-      :style="{
+    <div v-if="!disabled && selected?.name && options.filter((i) => i.id !== selected?.id).length > 0" class="items"
+      :class="`${itemsStyles} ${!open && 'selectHide'}`" :style="{
         overflowX: scrollHorizontalHidden ? 'hidden' : '',
         maxHeight: height + 'px',
-      }"
-    >
+      }">
       <div :class="`first ${firstStyles}`" @click="toggle">
-        {{ reduceStringLength(selected.name, stringLengthFirst - 2) }}
+        {{ reduceStringLength(selected?.name, stringLengthFirst - 2) }}
         <icon icon="Tik" :size="20"></icon>
       </div>
       <hr />
-      <div
-        v-for="(option, i) in options.filter((i) => i.name !== selected.name)"
-        :key="i"
-        @click.stop="selectOption(option)"
-      >
-        {{ reduceStringLength(option.name, stringLength) }}
+      <div v-for="(option, i) in options.filter((i) => i.id !== selected?.id)" :key="i"
+        @click.stop="selectOption(option)">
+        {{ reduceStringLength(option?.name, stringLength) }}
       </div>
     </div>
   </div>
@@ -193,6 +178,7 @@ export default {
   z-index: 98;
   line-height: 47px;
   border-radius: 8px;
+  height: 40px;
 }
 
 .custom-select .selected {
@@ -208,6 +194,10 @@ export default {
   line-height: 20px;
   padding: 4px 8px;
   color: $transparent-active-text;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .custom-select .selected.open {
@@ -227,7 +217,7 @@ export default {
 .custom-select .selected:after {
   position: absolute;
   content: '';
-  top: 12px;
+  top: 16px;
   right: 1em;
   width: 12px;
   height: 7px;
@@ -237,7 +227,7 @@ export default {
 .arrow {
   position: absolute;
   content: '';
-  top: 12px;
+  top: 16px;
   right: 1em;
   width: 12px;
   height: 7px;
@@ -311,6 +301,5 @@ hr {
   width: 4px;
 }
 
-::-webkit-scrollbar-thumb:horizontal {
-}
+::-webkit-scrollbar-thumb:horizontal {}
 </style>

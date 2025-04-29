@@ -12,6 +12,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import BackToList from '@/components/BackToList.vue';
 import { modal } from '@/mixins/modal';
 import { useResponseStore } from '@/store/response';
+import { readFile } from '@/util/helpers';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -19,16 +20,22 @@ const route = useRoute();
 
 const deleting = ref(false);
 
-onMounted(() => {
-  useQAStore().fetchQA(route.params.id);
+onMounted(async () => {
+  await useQAStore().fetchQA(route.params.id);
+  if (backgroundImage.value) {
+    bgImage.value = await readFile(backgroundImage.value);
+  }
 });
 const show = ref(false);
+const bgImage = ref(null);
 const data = computed(() => useQAStore().getQA);
 const loaded = computed(() => useQAStore().getLoadingStatusQA);
 const identity = computed(() => authStore.getPrincipal);
-
+const backgroundColor = computed(() => data.value?.customization?.[0]?.color?.[0]);
+const backgroundImage = computed(() => data.value?.customization?.[0]?.url?.[0]);
 onUnmounted(() => {
   useQAStore().qa = null;
+
 });
 
 async function deleteQuest() {
@@ -56,7 +63,7 @@ async function showModal() {
 </script>
 
 <template>
-  <Default>
+  <Default :color="backgroundColor" :backgroundImage="bgImage">
     <div class="header">
       <BackToList v-if="useAuthStore().isAuthenticated" />
       <div v-if="data && identity === data.owner" class="btn" @click="showModal">
@@ -68,12 +75,8 @@ async function showModal() {
         <span>Are you sure you want to delete Q&A?</span>
         <div class="controllers">
           <BaseButton text="Cancel" @click="showModal()" type="primary"></BaseButton>
-          <BaseButton
-            :text="!deleting ? 'Delete' : 'Deleting...'"
-            @click="deleteQuest()"
-            :disabled="deleting"
-            type="normal"
-          />
+          <BaseButton :text="!deleting ? 'Delete' : 'Deleting...'" @click="deleteQuest()" :disabled="deleting"
+            type="normal" />
         </div>
       </div>
     </Modal>

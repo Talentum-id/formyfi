@@ -7,12 +7,12 @@ import { toRaw } from 'vue';
 import { HttpAgent } from '@dfinity/agent';
 import { useQAStore } from './qa';
 import { useResponseStore } from '@/store/response';
-import { decodeCredential } from 'vue3-google-login';
 import { useStatsStore } from '@/store/stats';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
-import { generateIdentityFromPrincipal, readFile } from '@/util/helpers';
+import { generateIdentityFromPrincipal, readFile, shortenAddress } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
+import { useCollectionsStore } from '@/store/collections';
 
 const WHITELIST = [
   process.env.CANISTER_ID_USER_INDEX,
@@ -21,7 +21,6 @@ const WHITELIST = [
   process.env.CANISTER_ID_METRICS_INDEX,
 ];
 const HOST = process.env.DFX_NETWORK === 'local' ? window.location.origin : 'https://ic0.app';
-const INTERNET_IDENTITY_TITLE = 'Linked';
 const defaultOptions = {
   createOptions: {
     idleOptions: {
@@ -216,15 +215,16 @@ export const useAuthStore = defineStore('auth', {
       await agent?.syncTime();
 
       if (isProfile) {
+        const principal = (await agent.getPrincipal()).toText();
         await this.actor
           .addExtraIdentity(
-            (await agent.getPrincipal()).toText(),
+            principal,
             'ii',
             {
               identity: process.env.DFX_ASSET_PRINCIPAL,
               character: localStorage.extraCharacter,
             },
-            INTERNET_IDENTITY_TITLE,
+            shortenAddress(principal),
             'ii',
           )
           .then(async () => await this.getProfile())
@@ -245,6 +245,7 @@ export const useAuthStore = defineStore('auth', {
       await useQAStore().init();
       await useResponseStore().init();
       await useStatsStore().init();
+      await useCollectionsStore().init();
     },
     async loginWithII(isProfile = false) {
       if (this.authClient === null) {
@@ -548,7 +549,7 @@ export const useAuthStore = defineStore('auth', {
         case 'discord':
           return localStorage.socialInfo;
         default:
-          return INTERNET_IDENTITY_TITLE;
+          return shortenAddress(this.getPrincipal);
       }
     },
     register({ username, fullName }) {
@@ -609,7 +610,7 @@ export const useAuthStore = defineStore('auth', {
           user.connector = [localStorage.connector];
         }
 
-        if (!user.title.length) {
+        if (user.provider === 'ii' || !user.title.length) {
           const title = this.getTitleByProvider();
           await this.actor.addTitle(title, {
             character: localStorage.extraCharacter,
@@ -799,6 +800,12 @@ export const useAuthStore = defineStore('auth', {
           character: localStorage.extraCharacter,
         })
         .then(async () => await this.getProfile());
+    },
+    async deleteAccount() {
+      await this.actor.deleteIdentity({
+        identity: process.env.DFX_ASSET_PRINCIPAL,
+        character: localStorage.extraCharacter,
+      }).then(async () => await this.logout());
     },
   },
   getters: {

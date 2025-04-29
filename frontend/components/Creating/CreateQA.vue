@@ -9,51 +9,30 @@
         <div class="upload-requirements">
           Recommended size — 480 x 760 px. PNG, JPG, GIF, SVG, JPEG. Maximum 5 MB.
         </div>
-        <TaskBannerUploader
-          :setImage="setTaskBanner"
-          :banner="bannerImage"
-          :isEditingActive="true"
-          :isError="!bannerImage && touched"
-          errorText="Cover Image is Required"
-        />
+        <TaskBannerUploader :setImage="setTaskBanner" :banner="bannerImage" :isEditingActive="true"
+          :isError="!bannerImage && touched" errorText="Cover Image is Required" />
       </div>
       <div class="section_wrapper">
         <div class="section_wrapper-title">Q&A title</div>
-        <Input
-          v-model="questionName"
-          name=""
-          placeholder="Enter Q&A title"
-          :isError="!questionName && touched"
-          errorText="Enter Q&A title"
-        />
+        <Input v-model="questionName" name="" placeholder="Enter Q&A title" :isError="!questionName && touched"
+          errorText="Enter Q&A title" />
       </div>
       <div class="section_wrapper">
         <div class="section_wrapper-title">Description</div>
         <div class="section_wrapper-subtitle">These are the instructions to complete Q&A.</div>
-        <Editor
-          :description="description"
-          @update="setDescription"
-          :isError="!description.replace(/<[^>]*>/g, '') && touched"
-          errorText="Description is Required"
-        />
+        <Editor :description="description" @update="setDescription"
+          :isError="!description.replace(/<[^>]*>/g, '') && touched" errorText="Description is Required" />
       </div>
       <div class="section_wrapper last">
         <div class="section_item">
           <div class="section_wrapper-title">Start Date</div>
-          <CustomDatePicker
-            :defaultDate="transformDate(startDate)"
-            :minDate="todayDate"
-            :maxDate="transformDate(addDaysToDate(endDate, -1))"
-            @selectedDate="setStartDate"
-          />
+          <CustomDatePicker :defaultDate="transformDate(startDate)" :minDate="todayDate"
+            :maxDate="transformDate(addDaysToDate(endDate, -1))" @selectedDate="setStartDate" />
         </div>
         <div class="section_item">
           <div class="section_wrapper-title">End Date</div>
-          <CustomDatePicker
-            :defaultDate="transformDate(endDate)"
-            :minDate="transformDate(startDate)"
-            @selectedDate="setEndDate"
-          />
+          <CustomDatePicker :defaultDate="transformDate(endDate)" :minDate="transformDate(startDate)"
+            @selectedDate="setEndDate" />
         </div>
       </div>
       <div class="line"></div>
@@ -66,45 +45,26 @@
           Create up to 30 questions. <br />
           Enter a question and up to 5 answer options, mark the correct answer.
         </div>
-        <div
-          class="section_wrapper rewards-type"
-          v-for="(question, index) in countOfQuestions"
-          :key="question.id"
-        >
+        <div class="section_wrapper rewards-type" v-for="(question, index) in countOfQuestions" :key="question.id">
           <div class="section_wrapper-title head-control">
             Questions #{{ index + 1 }}
             <div class="flex items-center">
-              <img
-                src="@/assets/icons/up.svg"
-                @click="shiftQuestionBackward(index)"
-                alt=""
-                :class="{ 'blur-custom': index === 0 }"
-              />
-              <img
-                src="@/assets/icons/down.svg"
-                @click="shiftQuestionForward(index)"
-                alt=""
-                :class="{ 'blur-custom': index === countOfQuestions.length - 1 }"
-              />
-              <img
-                src="@/assets/icons/delete.svg"
-                @click="deleteQuestion(index)"
-                alt=""
-                :class="{ 'blur-custom': countOfQuestions.length === 1 }"
-              />
+              <img src="@/assets/icons/up.svg" @click="shiftQuestionBackward(index)" alt=""
+                :class="{ 'blur-custom': index === 0 }" />
+              <img src="@/assets/icons/down.svg" @click="shiftQuestionForward(index)" alt=""
+                :class="{ 'blur-custom': index === countOfQuestions.length - 1 }" />
+              <img src="@/assets/icons/delete.svg" @click="deleteQuestion(index)" alt=""
+                :class="{ 'blur-custom': countOfQuestions.length === 1 }" />
             </div>
           </div>
           <div class="section_wrapper-subtitle">
             Set a descriptive header and outline the criteria the user must meet to complete and
             answer this question
           </div>
-          <Select
-            :options="questsTypeItems"
-            @input="
-              question.type = $event;
-              question.parameters = {};
-            "
-          />
+          <Select :options="questsTypeItems" @input="
+            question.type = $event;
+          question.parameters = {};
+          " />
           <div class="body">
             <span class="section_wrapper-subtitle">{{ question.type?.info?.description }}</span>
             <div class="content-block">
@@ -112,11 +72,8 @@
                 <SocialConnect :data="question.type?.info"></SocialConnect>
               </div>
               <div v-else class="flex items-center gap-4">
-                <CustomUpload
-                  :files="question.image"
-                  @images="question.image = $event"
-                  @changeError="handleImageError"
-                />
+                <CustomUpload :files="question.image" @images="question.image = $event"
+                  @changeError="handleImageError" />
               </div>
 
               <div class="check-btn_wrapper">
@@ -125,38 +82,22 @@
               </div>
             </div>
             <div class="flex gap-6 flex-col">
-              <Input
-                name=""
-                placeholder="Question"
-                v-model="question.question"
-                :isError="!question.question && touched"
-                errorText="Question is Required"
-              />
+              <Input name="" placeholder="Question" v-model="question.question" :isError="!question.question && touched"
+                errorText="Question is Required" />
               <TextArea placeholder="Description (optional)" v-model="question.description" />
               <div class="flex items-center gap-x-[8px]" v-if="question.type?.id === 0">
-                <Checkbox
-                  label="Allow respondent to add file"
-                  @check="question.fileAllowed = $event"
-                />
+                <Checkbox label="Allow respondent to add file" @check="question.fileAllowed = $event" />
                 <!--                <TooltipIcon tooltipText="tooltipText" />-->
               </div>
-              <TwitterBlock
-                v-if="question.type?.id === 3"
-                :question="question"
-                @input="question.twitter = $event"
-              />
-              <DiscordBlock
-                v-if="question.type?.id === 4"
-                :question="question"
-                @input="question.discord = $event"
-              />
+              <TwitterBlock v-if="question.type?.id === 3" :question="question" @input="question.twitter = $event" />
+              <DiscordBlock v-if="question.type?.id === 4" :question="question" @input="question.discord = $event" />
               <Rating v-if="question.type?.id === 6" :question="question" />
               <NumberBlock v-if="question.type?.id === 7" :question="question" />
               <EmailBlock v-if="question.type?.id === 8" :question="question" />
               <LinkBlock v-if="question.type?.id === 9" :question="question" />
               <DateBlock v-if="question.type?.id === 10" :question="question" />
               <AddressBlock v-if="question.type?.id === 11" :question="question" />
-
+              <PaymentsBlock v-if="question.type?.id === 12" :question="question" @input="question.payment = $event" />
               <div v-if="question.type?.id === 2">
                 <div class="section_wrapper-subtitle">
                   Users will be asked to choose answers from listed below.
@@ -164,27 +105,16 @@
                 <div class="answers">
                   <div class="answer" v-for="(answer, id) in question.answers" :key="id">
                     <CheckboxAnswer @check="answer.isCorrect = !answer.isCorrect" />
-                    <Answer
-                      v-model="answer.answer"
-                      :isError="!answer.answer && touched"
-                      :isCorrect="answer.isCorrect"
-                      errorText="Answer is Required"
-                      :is-last="question.answers.length === 1"
-                      @remove="question.answers.splice(id, 1)"
-                    />
-                    <div
-                      class="add-answer"
-                      :class="{ hidden: question.answers.length - 1 !== id }"
-                      @click="addAnswers(question.answers)"
-                    >
+                    <Answer v-model="answer.answer" :isError="!answer.answer && touched" :isCorrect="answer.isCorrect"
+                      errorText="Answer is Required" :is-last="question.answers.length === 1"
+                      @remove="question.answers.splice(id, 1)" />
+                    <div class="add-answer" :class="{ hidden: question.answers.length - 1 !== id }"
+                      @click="addAnswers(question.answers)">
                       <img src="@/assets/icons/add.svg" alt="" />
                     </div>
                   </div>
                   <div class="flex items-center gap-x-[8px] ml-[40px]">
-                    <Checkbox
-                      label="Allow own answer"
-                      @check="question.openAnswerAllowed = $event"
-                    />
+                    <Checkbox label="Allow own answer" @check="question.openAnswerAllowed = $event" />
                     <!--                    <TooltipIcon tooltipText="tooltipText" />-->
                   </div>
                 </div>
@@ -195,48 +125,28 @@
                 <div class="answer" v-for="(answer, id) in question.answers" :key="id">
                   <div class="status">
                     <div class="tooltip-checkbox">Mark this answer as correct.</div>
-                    <Icon
-                      name="Tik"
-                      :class="{ isCorrect: answer.isCorrect }"
-                      @click="setAllIncorrect(index, id)"
-                      :size="24"
-                    ></Icon>
+                    <Icon name="Tik" :class="{ isCorrect: answer.isCorrect }" @click="setAllIncorrect(index, id)"
+                      :size="24"></Icon>
                   </div>
-                  <Answer
-                    v-model="answer.answer"
-                    :isError="!answer.answer && touched"
-                    :isCorrect="answer.isCorrect"
-                    errorText="Answer is Required"
-                    :is-last="question.answers.length === 1"
-                    @remove="question.answers.splice(id, 1)"
-                  />
-                  <div
-                    class="add-answer"
-                    :class="{ hidden: question.answers.length - 1 !== id }"
-                    @click="addAnswers(question.answers)"
-                  >
+                  <Answer v-model="answer.answer" :isError="!answer.answer && touched" :isCorrect="answer.isCorrect"
+                    errorText="Answer is Required" :is-last="question.answers.length === 1"
+                    @remove="question.answers.splice(id, 1)" />
+                  <div class="add-answer" :class="{ hidden: question.answers.length - 1 !== id }"
+                    @click="addAnswers(question.answers)">
                     <img src="@/assets/icons/add.svg" alt="" />
                   </div>
                 </div>
                 <div class="flex items-center gap-x-[8px] ml-[40px]">
-                  <Checkbox
-                    label="Allow own answer"
-                    @check="question.openAnswerAllowed = $event"
-                  ></Checkbox>
+                  <Checkbox label="Allow own answer" @check="question.openAnswerAllowed = $event"></Checkbox>
                   <!--                  <TooltipIcon tooltipText="tooltipText" />-->
                 </div>
               </div>
             </div>
             <div class="line my-6" />
             <div class="section_wrapper-subtitle mb-4">Points Reward</div>
-            <NumberInput
-              class="w-[136px]"
-              placeholder="Points"
-              v-model="question.points"
-              :rule="question.points < 1 || question.points > 10"
-              :isError="question.points < 1 || question.points > 10"
-              errorText="Points value must be in the range of 1 and 10"
-            />
+            <NumberInput class="w-[136px]" placeholder="Points" v-model="question.points"
+              :rule="question.points < 1 || question.points > 10" :isError="question.points < 1 || question.points > 10"
+              errorText="Points value must be in the range of 1 and 10" />
           </div>
         </div>
         <div class="add-talent-btn" @click="addQuestion">
@@ -260,21 +170,13 @@
               <div class="upload-requirements">
                 Recommended size — 480 x 760 px. PNG, JPEG. Maximum 1 MB.
               </div>
-              <CustomUpload
-                :files="thxMessage.image"
-                @images="thxMessage.image = $event"
-                @changeError="handleImageError"
-              />
+              <CustomUpload :files="thxMessage.image" @images="thxMessage.image = $event"
+                @changeError="handleImageError" />
             </div>
             <div class="section_wrapper">
               <div class="section_wrapper-title">Title</div>
-              <Input
-                v-model="thxMessage.title"
-                name=""
-                placeholder="Title"
-                :isError="!thxMessage.title && touched"
-                errorText="Enter the title"
-              />
+              <Input v-model="thxMessage.title" name="" placeholder="Title" :isError="!thxMessage.title && touched"
+                errorText="Enter the title" />
             </div>
             <div class="section_wrapper">
               <div class="section_wrapper-title">Description</div>
@@ -298,14 +200,9 @@
         </div>
         <div class="section_wrapper" v-if="refCode">
           <div class="section_wrapper-title">Referral Bonus Points</div>
-          <NumberInput
-            withoutName
-            class="w-[136px]"
-            placeholder="Number"
-            v-model="refCodePoints"
+          <NumberInput withoutName class="w-[136px]" placeholder="Number" v-model="refCodePoints"
             :isError="(refCode && !refCodePoints) || refCodePoints > 10 || refCodePoints < 1"
-            errorText="Points value must be in the range of 1 and 10"
-          />
+            errorText="Points value must be in the range of 1 and 10" />
         </div>
         <div class="line my-8" />
         <div class="flex justify-between">
@@ -317,19 +214,32 @@
             <Switch :checkedProp="branchRequired" @checked="branchRequired = $event" />
           </div>
         </div>
-        <LogicBranching
-          :quests="countOfQuestions"
-          v-if="branchRequired"
-          @input="branches = $event"
-        />
+        <LogicBranching :quests="countOfQuestions" v-if="branchRequired" @input="branches = $event" />
+        <div class="line my-8" />
+        <div class="flex justify-between">
+          <div class="section_item">
+            <div class="section_wrapper-title">Rewards</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <Switch :checkedProp="rewardRequired" @checked="rewardRequired = $event" />
+          </div>
+        </div>
+
+        <PaymentsBlock v-if="rewardRequired" @input="reward = $event" :isReward="true" />
+        <div class="line my-8" />
+        <div class="flex justify-between">
+          <div class="section_item">
+            <div class="section_wrapper-title">Background Color</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <ColorPicker v-model="color" label="With default value" />
+          </div>
+        </div>
+        <TaskBannerUploader :setImage="setBgBanner" :banner="bgImage" :isEditingActive="true" />
+
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
-          <BaseButton
-            :text="statusMessage"
-            :disabled="!validationCheck || loading"
-            type="normal"
-            @click="check"
-          />
+          <BaseButton :text="statusMessage" :disabled="!validationCheck || loading" type="normal" @click="check" />
         </div>
       </div>
     </div>
@@ -346,7 +256,7 @@ import Answer from '@/components/Creating/Answer.vue';
 import CustomDatePicker from '@/components/Creating/CustomDatePicker.vue';
 import CustomUpload from '@/components/Creating/CustomUpload.vue';
 import Input from '@/components/Input.vue';
-import { transformDate, addDaysToDate, chunkData } from '@/util/helpers';
+import { transformDate, addDaysToDate, chunkData, readCanisterErrorMessage } from '@/util/helpers';
 import Switch from '@/components/Creating/Switch.vue';
 import TextArea from '@/components/Creating/TextArea.vue';
 import Icon from '@/components/Icons/Icon.vue';
@@ -370,27 +280,35 @@ import LogicBranching from '@/components/Creating/LogicBranching.vue';
 import NumberInput from '@/components/NumberInput.vue';
 import BaseModalNew from '@/components/BaseModalNew.vue';
 import { TransitionRoot } from '@headlessui/vue';
+import PaymentsBlock from '@/components/Creating/PaymentBlock.vue';
+import ColorPicker from '@/components/Creating/ColorPicker.vue';
+import { useCollectionsStore } from '@/store/collections';
+import { onMounted } from 'vue';
 
 const emits = defineEmits('refresh');
 const loading = ref(false);
 const isImagesError = ref(false);
 const thxRequired = ref(false);
 const branchRequired = ref(false);
+const rewardRequired = ref(false);
 const refCode = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
 const endDate = ref(twoDaysFromNow);
+const color = ref('#f5f5fd')
+const bgImage = ref(null);
+const reward = ref(null);
 const questsTypeItems = ref([
   { name: 'Open Question', id: 0, type: 'open' },
   { name: 'Quiz Question', id: 1, type: 'quiz' },
   { name: 'Multiple Choice', id: 2, type: 'multiple' },
   {
-    name: 'Twitter Connect',
+    name: 'X Connect',
     id: 3,
     type: 'twitter',
     info: {
-      icon: 'Twitter-Default',
+      icon: 'X-Default',
       title: 'Connect X',
       description:
         'Users will be asked to connect their Twitter Account by clicking the button bellow.',
@@ -423,6 +341,13 @@ const questsTypeItems = ref([
   { name: 'Link', id: 9, type: 'link' },
   { name: 'Date', id: 10, type: 'date' },
   { name: 'Address', id: 11, type: 'address' },
+  {
+    name: 'Payments', id: 12, type: 'payment', info: {
+      icon: 'NFT-Default',
+      title: 'Mint NFT',
+      description: 'Users will be asked to mint an NFT by clicking the button bellow.',
+    },
+  },
 ]);
 
 const qaStore = useQAStore();
@@ -448,6 +373,7 @@ const countOfQuestions = ref([
     parameters: {},
     twitter: {},
     discord: {},
+    payment: {},
     required: false,
     answers: [{ answer: '', isCorrect: false }],
   },
@@ -513,6 +439,9 @@ const setAllIncorrect = (index, item) => {
     };
   });
 };
+const setBgBanner = (value) => {
+  bgImage.value = value;
+};
 
 const handleImageError = (event) => {
   isImagesError.value = event;
@@ -535,6 +464,7 @@ const addQuestion = () => {
       parameters: {},
       twitter: {},
       discord: {},
+      payment: {},
       answers: [{ answer: '', isCorrect: false }],
     });
   }
@@ -595,6 +525,20 @@ function uuidv4() {
   );
 }
 
+const params = computed(() => ({
+  page: 1,
+  pageSize: 20,
+  sortBy: {
+    key: 'symbol',
+    value: 'desc',
+  },
+  search: ''
+}));
+
+const bgBanner = ref('');
+onMounted(() => {
+  useCollectionsStore().getCollections(params.value);
+});
 const loadFiles = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -613,6 +557,21 @@ const loadFiles = () => {
             throw e;
           });
 
+        index++;
+      }
+
+      if (typeof bgImage.value !== 'string' && bgImage.value) {
+        const formData = new FormData();
+
+        formData.append('files[]', bgImage.value);
+        formData.append('paths[]', `/${process.env.DFX_NETWORK}/qa/${realTime}/${index}`);
+
+        await axiosService
+          .post(`${process.env.API_URL}upload-files`, formData)
+          .then(({ data }) => (bgBanner.value = data[0]))
+          .catch((e) => {
+            throw e;
+          });
         index++;
       }
 
@@ -701,6 +660,7 @@ const preview = async () => {
   }
 
   const banner = await convertImage(bannerImage.value);
+  const bgBanner = await convertImage(bgImage.value);
 
   const questionsPromises = countOfQuestions.value.map(async (item) => {
     const file = item.image[0] ? await convertImage(item.image[0].raw) : null;
@@ -733,10 +693,13 @@ const preview = async () => {
     questions: questions,
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
+    rewards: rewardRequired.value && reward.value ? [reward.value] : [],
+    customization: [{ url: [bgBanner], color: [color.value] }],
+
   };
 
   localStorage.previewData = JSON.stringify(obj);
-  await localForage.setItem('previewData', JSON.stringify(obj), () => {});
+  await localForage.setItem('previewData', JSON.stringify(obj), () => { });
   await window.open('/preview', '_blank');
 };
 const saveQA = async () => {
@@ -746,6 +709,7 @@ const saveQA = async () => {
     description: description.value,
     image: bannerImage.value,
     participants: 0,
+    customization: [{ url: [bgBanner.value], color: [color.value] }],
     shareLink: uuidv4(),
     end: Date.parse(endDate.value) / 1000,
     start: Date.parse(startDate.value) / 1000,
@@ -768,10 +732,12 @@ const saveQA = async () => {
         points: [parseInt(item.points)],
         twitter: Object.keys(item.twitter).length ? [item.twitter] : [],
         discord: Object.keys(item.discord).length ? [item.discord] : [],
+        payment: Object.keys(item.payment).length ? [item.payment] : [],
       };
     }),
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value && branches.value ? [branches.value] : [],
+    rewards: rewardRequired.value && reward.value ? [reward.value] : [],
   });
 };
 
@@ -847,7 +813,7 @@ const check = async () => {
     console.error(err);
     modal.emit('openModal', {
       title: 'Error Message',
-      message: 'Something went wrong!',
+      message: err.reject_message ? readCanisterErrorMessage(err.reject_message) : 'Something went wrong!',
       type: 'error',
       actionText: 'Try again',
       fn: check,
@@ -971,7 +937,7 @@ export default defineComponent({
           background-color: #dad9f7;
           top: 0;
 
-          & > svg {
+          &>svg {
             display: inline-block;
           }
         }
@@ -1105,7 +1071,7 @@ export default defineComponent({
     border-radius: 6px;
     padding: 3px 8px;
 
-    & > span {
+    &>span {
       font-family: $default_font;
       font-size: 12px;
       font-style: normal;

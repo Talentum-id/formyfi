@@ -11,12 +11,12 @@
     <Icon
       v-if="!hideRemove"
       class="remove-tag"
-      @click="$emit('remove')"
+      @click="triggerRemove"
       icon="Cancel"
       :size="16"
     />
   </span>
-  <span v-else class="tag" :class="{'disabled': disabled}" @click="$emit('connect')">
+  <span v-else class="tag" :class="{'disabled': disabled}" @click="triggerConnect">
     <Icon
       v-if="data.icon.includes('-Default') || data.icon === 'Google'"
       class="icon"
@@ -73,6 +73,16 @@ export default {
       }
 
       return url;
+    },
+    triggerRemove() {
+      if (this.disabled) return;
+
+      this.$emit('remove');
+    },
+    triggerConnect() {
+      if (this.disabled) return;
+
+      this.$emit('connect');
     },
     goToLink(value) {
       if (this.disabled) return;

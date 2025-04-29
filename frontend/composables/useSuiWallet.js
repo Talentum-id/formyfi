@@ -21,7 +21,7 @@ export const useSuiWallet = () => {
   };
 
   const connectSui = async () => {
-    const suiWallet = getSuiProvider('Sui Wallet');
+    const suiWallet = getSuiProvider('Slush — A Sui wallet');
 
     if (!suiWallet) {
       return window.open('https://suiwallet.com/', '_blank');
@@ -62,7 +62,7 @@ export const useSuiWallet = () => {
     if (currentProvider) {
       const event = new CustomEvent('wallet-standard:app-ready', { detail: GlobalWallet });
       window.dispatchEvent(event);
-
+      console.log(GlobalWallet.walletList);
       return GlobalWallet.walletList.find((wallet) => wallet.name === currentProvider);
     }
   };

@@ -65,20 +65,32 @@ export default {
           let banner;
 
           if (typeof this.file !== 'string') {
-            if (profileData.banner.length) {
-              await axiosService.post(`${process.env.API_URL}delete-files`, {
-                paths: [profileData.banner[0]],
-              });
-            }
-
             const formData = new FormData();
 
             formData.append('files[]', this.file);
-            formData.append('paths[]', `${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/banner`);
+            formData.append(
+              'paths[]',
+              `${process.env.DFX_NETWORK}/assets/${useAuthStore().getPrincipal}/banner`,
+            );
 
-            await axiosService.post(`${process.env.API_URL}upload-files`, formData)
-              .then(({ data }) => banner = data[0])
-              .catch(e => console.error(e));
+            try {
+              const { data } = await axiosService.post(`${process.env.API_URL}upload-files`, formData)
+              banner = data[0];
+            } catch (e) {
+              console.error(e);
+              await modal.emit('closeModal', {});
+
+              this.errorMessage = 'Failed to upload file.';
+              setTimeout(() => (this.errorMessage = ''), 3000);
+
+              return;
+            }
+          }
+
+          if (profileData.banner.length) {
+            await axiosService.post(`${process.env.API_URL}delete-files`, {
+              paths: [profileData.banner[0]],
+            });
           }
 
           await useAuthStore().saveProfile({
@@ -110,10 +122,10 @@ export default {
       const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
       if (file.size > maxSizeInBytes) {
-        this.errorMessage = 'The file size can\'t be more than 1MB';
+        this.errorMessage = "The file size can't be more than 1MB";
         this.showError = true;
 
-        setTimeout(() => this.showError = false, 3000);
+        setTimeout(() => (this.showError = false), 3000);
 
         return;
       }

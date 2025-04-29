@@ -237,6 +237,25 @@ actor SubmissionsIndex {
 		Buffer.toArray(answerImages);
 	};
 
+	public shared func removeResponsesByShareLink(shareLink : Text) : async () {
+		for ((key, _) in responses.entries()) {
+			if (Text.endsWith(key, #text ("-" # shareLink))) {
+				responses.delete(key);
+			};
+		};
+
+		for ((key, value) in qasViaAuthor.entries()) {
+			let filteredValue = Array.filter<QA>(value, func item = item.shareLink != shareLink);
+			if (filteredValue.size() > 0) {
+				qasViaAuthor.put(key, filteredValue);
+			} else {
+				qasViaAuthor.delete(key);
+			};
+		};
+
+		authorsViaQA.delete(shareLink);
+	};
+
 	public shared ({ caller }) func export(shareLink : Text, character : Utils.Character) : async ExportResponse {
 		let identity = await Utils.authenticate(caller, true, character);
 

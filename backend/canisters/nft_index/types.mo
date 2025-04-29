@@ -27,6 +27,7 @@ module NftType {
         file: ?Text;
         blockchain_id: Nat;
         max_supply: Nat;
+        available: Nat;
         transferable: Bool;
         unlimited_supply: Bool;
         contract_address: Text;

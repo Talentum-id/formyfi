@@ -52,6 +52,7 @@ actor NftIndex {
             file = collection.file;
             blockchain_id = collection.blockchain_id;
             max_supply = collection.max_supply;
+            available = collection.available;
             transferable = collection.transferable;
             unlimited_supply = collection.unlimited_supply;
             contract_address = collection.contract_address;
@@ -85,6 +86,7 @@ actor NftIndex {
                     file = updates.file;
                     blockchain_id = updates.blockchain_id;
                     max_supply = updates.max_supply;
+                    available = updates.available;
                     transferable = updates.transferable;
                     unlimited_supply = updates.unlimited_supply;
                     contract_address = updates.contract_address;
@@ -209,6 +211,7 @@ actor NftIndex {
                 file = x.file;
                 blockchain_id = x.blockchain_id;
                 max_supply = x.max_supply;
+                available = x.available;
                 transferable = x.transferable;
                 unlimited_supply = x.unlimited_supply;
                 contract_address = x.contract_address;
@@ -223,6 +226,40 @@ actor NftIndex {
 
     public shared({ caller }) func storeIdentityNftRelation(data : IdentityNftKey, character: Utils.Character) : async () {
         let identity = await Utils.authenticate(caller, false, character);
+        
+        switch (collections.get(data.nft_id)) {
+            case null {
+                Debug.trap("NFT collection not found");
+            };
+            case (?collection) {
+                if (collection.available < 1) {
+                    Debug.trap("NFT collection is sold out");
+                };
+
+                if (not collection.unlimited_supply) {
+                    let updatedCollection : NFTCollection = {
+                        id = collection.id;
+                        name = collection.name;
+                        symbol = collection.symbol;
+                        uri = collection.uri;
+                        description = collection.description;
+                        nftType = collection.nftType;
+                        file = collection.file;
+                        blockchain_id = collection.blockchain_id;
+                        max_supply = collection.max_supply;
+                        available = collection.available - 1;
+                        transferable = collection.transferable;
+                        unlimited_supply = collection.unlimited_supply;
+                        contract_address = collection.contract_address;
+                        token_id = collection.token_id;
+                        owner = collection.owner;
+                        meta = collection.meta;
+                    };
+                    
+                    collections.put(collection.id, updatedCollection);
+                };
+            };
+        };
         
         let key : IdentityNftKey = {
             identity = identity;

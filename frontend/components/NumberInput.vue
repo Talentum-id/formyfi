@@ -80,27 +80,27 @@ export default {
         const [integerPart, decimalPart] = String(event.target.value).split('.');
         const shortDecimal = decimalPart ? decimalPart.slice(0, 6) : '';
         const newNum = integerPart + (shortDecimal ? '.' + shortDecimal : '');
-        event.target.value = newNum;
-        this.$emit('update:modelValue', newNum);
+        event.target.value = +newNum;
+        this.$emit('update:modelValue', Number(newNum));
         return;
       }
 
       if (/^0[0-9]+$/.test(event.target.value)) {
         const trimmedValue = String(Number(event.target.value));
-        event.target.value = trimmedValue;
-        this.$emit('update:modelValue', trimmedValue);
+        event.target.value = +trimmedValue;
+        this.$emit('update:modelValue', Number(trimmedValue));
         return;
       }
 
       if (isNaN(event.target.value) || event.target.value < 0) return;
 
       if (this.required && event.target.value === '') {
-        event.target.value = '0';
-        this.$emit('update:modelValue', '0');
+        event.target.value = 0;
+        this.$emit('update:modelValue', 0);
       }
 
       if (/^[\d.]+$/.test(event.target.value)) {
-        this.$emit('update:modelValue', event.target.value);
+        this.$emit('update:modelValue', +event.target.value);
       }
     },
     handleKeyDown(event) {
@@ -124,7 +124,7 @@ export default {
     incrementValue() {
       if (this.isDisabled) return;
       const currentValue = parseFloat(this.modelValue) || 0;
-      this.$emit('update:modelValue', this.toResult(currentValue + this.step));
+      this.$emit('update:modelValue', +this.toResult(currentValue + this.step));
       if (this.handleIsOnChainEdit) {
         this.handleIsOnChainEdit();
       }
@@ -134,7 +134,7 @@ export default {
       const currentValue = parseFloat(this.modelValue) || 0;
       const isNegative = currentValue <= 0;
       if (isNegative) return;
-      this.$emit('update:modelValue', this.toResult(currentValue - this.step));
+      this.$emit('update:modelValue', +this.toResult(currentValue - this.step));
       if (this.handleIsOnChainEdit) {
         this.handleIsOnChainEdit();
       }

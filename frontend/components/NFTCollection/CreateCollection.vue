@@ -151,6 +151,7 @@ const item = reactive({
   contract_address: '',
   token_id: { 'Null': null },
   owner: '',
+  available: 1,
 });
 
 const errorItem = reactive({
@@ -181,6 +182,7 @@ const setBlockchain = (blockchain) => {
 const setUnlimited = (event) => {
   item.unlimited_supply = event;
   item.max_supply = event ? 1000000 : 1;
+  item.available = item.max_supply;
 };
 
 const clearError = (field) => {

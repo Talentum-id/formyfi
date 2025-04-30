@@ -80,14 +80,15 @@ export const useResponseStore = defineStore('response', {
           const owner = useAuthStore().getPrincipal ?? param.owner;
           const key = `${owner}-${param.shareLink}`;
 
-          const encryptedAnswer = !!param.answer.length && owner !== undefined
-            ? await this.crypto.encrypt(key, owner, JSON.stringify(params))
-            : null;
+          // TODO: This will be uncommented once vetkd canister is topped up
+          // const encryptedAnswer = !!param.answer.length && owner !== undefined
+          //   ? await this.crypto.encrypt(key, owner, JSON.stringify(params))
+          //   : null;
 
           return {
             ...param,
             encryptedAnswer: [],
-            // encryptedAnswer: encryptedAnswer ? [encryptedAnswer] : [], This will be used once vetkd canister is topped up
+            // encryptedAnswer: encryptedAnswer ? [encryptedAnswer] : [], This will be uncommented once vetkd canister is topped up
             owner: owner ? [owner] : [],
           };
         }),

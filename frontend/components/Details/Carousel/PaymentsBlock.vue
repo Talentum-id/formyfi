@@ -1,7 +1,7 @@
 <template>
     <div class="payments-block mx-auto max-w-[400px]" v-if="nft">
         <div class="payments-block__image" v-if="image">
-            <CustomImage :image="image" alt="payments-block" heigth="160" width="160" />
+            <CustomImage :image="image" alt="payments-block" height="160" width="160" />
         </div>
         <div class="payments-block__title">Want to make a purchase?</div>
         <div class="payments-block__description">

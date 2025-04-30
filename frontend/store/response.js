@@ -86,7 +86,8 @@ export const useResponseStore = defineStore('response', {
 
           return {
             ...param,
-            encryptedAnswer: encryptedAnswer ? [encryptedAnswer] : [],
+            encryptedAnswer: [],
+            // encryptedAnswer: encryptedAnswer ? [encryptedAnswer] : [], This will be used once vetkd canister is topped up
             owner: owner ? [owner] : [],
           };
         }),

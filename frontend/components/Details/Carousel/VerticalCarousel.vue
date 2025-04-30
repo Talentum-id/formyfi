@@ -20,7 +20,7 @@
               <source :src="questionFiles[currentIndex]" type="audio/mp3" />
               <source :src="questionFiles[currentIndex]" type="audio/mpeg" />
             </audio>
-            <CustomImage v-else :image="questionFiles[currentIndex]" heigth="160" width="160"></CustomImage>
+            <CustomImage v-else :image="questionFiles[currentIndex]" height="160" width="160"></CustomImage>
           </div>
           <div class="question-title">{{ newArr[currentIndex].question }}</div>
           <div v-if="newArr[currentIndex].description" class="question-description"
@@ -43,7 +43,7 @@
             <div class="answer-textarea" v-else-if="isOpenQuestion">
               <TextArea placeholder="Your Answer" v-model="newArr[currentIndex].answer" class="w-full"
                 :disabled="cacheAnswer" />
-              <CustomImage v-if="answers[currentIndex] && answers[currentIndex].file" class="banner" heigth="160"
+              <CustomImage v-if="answers[currentIndex] && answers[currentIndex].file" class="banner" height="160"
                 width="160" :image="answers[currentIndex].file
                   ? answerFiles[currentIndex]
                   : newArr[currentIndex].uploadedFile
@@ -573,6 +573,7 @@ const handleMinted = () => {
   newArr.value[currentIndex.value].answer = 'Minted';
   newArr.value[currentIndex.value].isCorrect = true;
 };
+
 const handleRewardSuccessModal = async () => {
   const collection = props.quest.rewards?.[0];
 
@@ -613,7 +614,6 @@ const handleRewardSuccessModal = async () => {
 
 
 };
-
 const handleErrorModal = () => {
   modal.emit('openModal', {
     title: 'Error Message',

@@ -124,7 +124,7 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
             <div class="required" v-if="question.required">Required</div>
           </div>
           <div v-if="question.file" class="w-full flex justify-center">
-            <CustomImage :image="questionFiles[idx]" width="160" heigth="160" />
+            <CustomImage :image="questionFiles[idx]" width="160" height="160" />
           </div>
           <span class="title">{{ question.question }}</span>
           <div v-if="answers[idx]">
@@ -192,7 +192,7 @@ const isAdditionalMultipleAnswer = (answer, variants) => {
             </div>
           </div>
           <div v-if="answers[idx]?.file">
-            <CustomImage :image="answerFiles[idx]" width="160" heigth="160" />
+            <CustomImage :image="answerFiles[idx]" width="160" height="160" />
           </div>
         </ResultCard>
       </div>

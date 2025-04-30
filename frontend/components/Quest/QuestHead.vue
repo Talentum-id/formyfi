@@ -1,6 +1,6 @@
 <template>
   <div class="head-container">
-    <CustomImage :image="banner || defaultBg" width="712" heigth="240" />
+    <CustomImage :image="banner || defaultBg" width="712" height="240" />
     <div class="info w-full">
       <Talent
         v-if="qaAuthor !== null"

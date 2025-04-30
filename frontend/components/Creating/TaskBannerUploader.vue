@@ -6,7 +6,7 @@
       @change="handleFileUpload"
       ref="fileInput"
       style="display: none"
-      accept=".jpeg, .png, .jpg, .gif, .svg"
+      accept=".jpeg, .png, .jpg, .gif, .svg, .webp"
     />
     <div
       v-if="!banner && !image"
@@ -71,7 +71,7 @@ const handleFileUpload = () => {
 
   const maxSizeInMB = 5;
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-  const formats = ['jpeg', 'png', 'jpg', 'gif', 'svg'];
+  const formats = ['jpeg', 'png', 'jpg', 'gif', 'svg', 'webp'];
 
   if (file.size > maxSizeInBytes) {
     image.value = null;

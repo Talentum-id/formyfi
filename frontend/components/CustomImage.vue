@@ -16,7 +16,7 @@ defineProps({
     type: String,
     default: '',
   },
-  heigth: {
+  height: {
     type: String,
     default: '',
   },
@@ -24,10 +24,10 @@ defineProps({
 </script>
 
 <template>
-  <div :style="`width: ${width}px; height: ${heigth}px`" class="container">
+  <div :style="`width: ${width}px; height: ${height}px`" class="container">
     <Loading v-if="loadingImage"></Loading>
     <el-image
-      :style="`width: ${width}px; height: ${heigth}px`"
+      :style="`width: ${width}px; height: ${height}px`"
       @load="loading"
       loading="eager"
       class="banner"

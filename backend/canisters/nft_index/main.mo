@@ -52,7 +52,7 @@ actor NftIndex {
             file = collection.file;
             blockchain_id = collection.blockchain_id;
             max_supply = collection.max_supply;
-            available = collection.available;
+            available = collection.max_supply;
             transferable = collection.transferable;
             unlimited_supply = collection.unlimited_supply;
             contract_address = collection.contract_address;

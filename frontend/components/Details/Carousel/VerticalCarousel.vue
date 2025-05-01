@@ -582,10 +582,10 @@ const handleRewardSuccessModal = async () => {
     const nft = await useCollectionsStore().getNft(nft_id);
     let customImg = await readFile(nft.file?.[0]);
     modal.emit('openModal', {
-      title: 'Reward Submitted',
-      message: 'Thank you for taking the time to submit your responses! Be sure to follow us on X to stay updated!',
+      title: '🏆 Your Reward Awaits!',
+      message: "You've successfully completed the form! 🎉 Now it's time to mint your exclusive reward — grab it below 👇",
       type: 'success',
-      actionText: 'Mint NFT',
+      actionText: 'Mint Reward',
       customImg,
       fn: async () => {
         if (isPreview.value) {

@@ -14,7 +14,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import success from '@/assets/icons/modal/success.vue';
-
+import axiosService from '@/services/axiosService';
 const emit = defineEmits(['verified', 'error']);
 const isLoading = ref(false);
 const error = ref('');
@@ -43,15 +43,25 @@ const verifyRecaptcha = async () => {
     try {
         isLoading.value = true;
         error.value = '';
-        
+
         const recaptcha = await loadRecaptcha();
         const token = await recaptcha.execute(SITE_KEY, { action: 'verify' });
-        
-        console.log('reCAPTCHA token:', token);
-        completed.value = true;
-        setTimeout(() => {
-            emit('verified', token);
-        }, 5000);
+        await axiosService
+            .get(`${process.env.API_URL}verify-captcha?g-recaptcha-response=${token}`)
+            .then(({ data }) => {
+                if (!!data.success) {
+                    completed.value = true;
+                    setTimeout(() => {
+                        emit('verified', token);
+                    }, 5000);
+                } else {
+                    error.value = 'Verification failed. Please try again.';
+                }
+            })
+            .catch((e) => {
+                throw e;
+            });
+
     } catch (err) {
         console.error('reCAPTCHA error:', err);
         error.value = 'Verification failed. Please try again.';

@@ -52,7 +52,7 @@
                   class="action mt-4 w-full bg-blue-600 text-white rounded-lg py-2 font-medium" @click="handleAction">
                   {{ actionText }}
                 </button>
-                <Captcha v-if="type === 'captcha'" @verified="handleAction" />
+                <Captcha v-if="type === 'captcha'" @verified="action()" />
               </div>
             </div>
           </DialogPanel>
@@ -100,12 +100,14 @@ const handleAction = () => {
     if (isEmail.value && email.value) sendEmail(email.value);
     action();
   }
-  closeModal();
+  if (type.value !== 'captcha') {
+    closeModal();
+  }
 };
 
 // Icon component based on type
 const getIcon = (type) => {
-  const icons = { warning, success, error, loading};
+  const icons = { warning, success, error, loading };
   return icons[type] || '';
 };
 

@@ -645,24 +645,20 @@ const storeResponseAndClose = async () => {
     if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
       refCode = route.query['ref-code'].trim();
     }
-
-    await responseStore.storeResponse({
-      filled: realTime.value,
-      shareLink: props.shareLink,
-      answers: result.value,
-      owner: authStore.getPrincipal,
-      refCode,
-    });
     await counterStore.setValue(props.items.length);
 
-    // if () {
-    //   await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
-    // }
-    if (props.quest.captcha) {
+    if (!!props.quest.captcha[0]) {
       await handleCaptcha();
+    } else {
+      await responseStore.storeResponse({
+        filled: realTime.value,
+        shareLink: props.shareLink,
+        answers: result.value,
+        owner: authStore.getPrincipal,
+        refCode,
+      });
+      await handleRewardSuccessModal();
     }
-    await handleRewardSuccessModal();
-
 
   } catch (e) {
     console.error(e);
@@ -680,13 +676,18 @@ const handleCaptcha = async () => {
     title: 'Captcha',
     message: 'Please solve the captcha',
     type: 'captcha',
-    showActionBtn: false,
-    fn: () => {
-      console.log('Captcha verified');
+    fn: async () => {
+      await responseStore.storeResponse({
+        filled: realTime.value,
+        shareLink: props.shareLink,
+        answers: result.value,
+        owner: authStore.getPrincipal,
+        refCode,
+      });
+      await handleRewardSuccessModal();
     },
   });
 }
-
 
 const checkUserIdentity = async () => {
   show.value = true;

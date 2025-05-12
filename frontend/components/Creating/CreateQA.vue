@@ -236,7 +236,7 @@
           </div>
         </div>
         <TaskBannerUploader :setImage="setBgBanner" :banner="bgImage" :isEditingActive="true" />
-        <div class="flex justify-between">  
+        <div class="flex justify-between">
           <div class="section_item">
             <div class="section_wrapper-title">Captcha</div>
           </div>
@@ -702,7 +702,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    captcha: captcha.value,
+    captcha: [captcha.value],
     customization: [{ url: [bgBanner], color: [color.value] }],
 
   };
@@ -747,7 +747,7 @@ const saveQA = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value && branches.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
-    captcha: captcha.value,
+    captcha: [captcha.value],
   });
 };
 

@@ -658,8 +658,11 @@ const storeResponseAndClose = async () => {
     // if () {
     //   await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
     // }
-
+    if (props.quest.captcha) {
+      await handleCaptcha();
+    }
     await handleRewardSuccessModal();
+
 
   } catch (e) {
     console.error(e);
@@ -671,6 +674,20 @@ const closeModal = async () => {
   await emit('close');
   document.body.style.overflow = '';
 };
+
+const handleCaptcha = async () => {
+  modal.emit('openModal', {
+    title: 'Captcha',
+    message: 'Please solve the captcha',
+    type: 'captcha',
+    showActionBtn: false,
+    fn: () => {
+      console.log('Captcha verified');
+    },
+  });
+}
+
+
 const checkUserIdentity = async () => {
   show.value = true;
   await TemplatePromise.start();

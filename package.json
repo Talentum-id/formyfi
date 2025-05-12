@@ -44,6 +44,8 @@
     "vue-draggable-next": "^2.2.1",
     "vue-icomoon": "^0.6.1",
     "vue-load-image": "^1.1.0",
+    "vue-recaptcha": "^3.0.0-alpha.2",
+    "vue-recaptcha-v3": "^2.0.1",
     "vue-router": "^4.4.5",
     "vue3-google-login": "^2.0.33",
     "vuedraggable": "^2.24.3",

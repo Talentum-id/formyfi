@@ -223,7 +223,7 @@ export const useZkLogin = () => {
     return normalizeSuiAddress(value, forceAdd0x);
   }
   async function deploySui(item) {
-    const suiWallet = getSuiProvider('Slush — A Sui wallet');
+    const suiWallet = getSuiProvider('Slush');
     if (!suiWallet) {
       return window.open('https://suiwallet.com/', '_blank');
     }
@@ -295,7 +295,7 @@ export const useZkLogin = () => {
     return randomNumber.toString();
   }
   const mintSuiNft = async (nft) => {
-    let suiProvider = getSuiProvider('Slush — A Sui wallet');
+    let suiProvider = getSuiProvider('Slush');
 
     if (!suiProvider) {
       window.open('https://suiwallet.com/', '_blank');

@@ -52,6 +52,7 @@
                   class="action mt-4 w-full bg-blue-600 text-white rounded-lg py-2 font-medium" @click="handleAction">
                   {{ actionText }}
                 </button>
+                <Captcha v-if="type === 'captcha'" @verified="handleAction" />
               </div>
             </div>
           </DialogPanel>
@@ -74,7 +75,7 @@ import warning from '@/assets/icons/modal/warning.vue';
 import success from '@/assets/icons/modal/success.vue';
 import error from '@/assets/icons/modal/error.vue';
 import loading from '@/assets/icons/modal/loading.vue';
-
+import Captcha from '@/components/Captcha.vue';
 // Props and state variables
 const visible = ref(false);
 const isEmail = ref(false);
@@ -104,8 +105,8 @@ const handleAction = () => {
 
 // Icon component based on type
 const getIcon = (type) => {
-  const icons = { warning, success, error, loading };
-  return icons[type] || warning;
+  const icons = { warning, success, error, loading};
+  return icons[type] || '';
 };
 
 // Modal open handler
@@ -131,7 +132,7 @@ const checkFileType = async () => {
 
 // Computed properties
 const isLoading = computed(() => type.value === 'loading');
-const showActionBtn = computed(() => !isLoading.value && action);
+const showActionBtn = computed(() => !isLoading.value && action && type.value !== 'captcha');
 
 // Disable scroll when modal is visible
 watchEffect(() => {

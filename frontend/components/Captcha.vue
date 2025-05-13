@@ -19,7 +19,7 @@ const emit = defineEmits(['verified', 'error']);
 const isLoading = ref(false);
 const error = ref('');
 const completed = ref(false);
-const SITE_KEY = process.env.VUE_APP_RECAPTCHA_SITE_KEY;
+const SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
 
 const loadRecaptcha = () => {
     return new Promise((resolve) => {

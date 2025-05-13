@@ -99,5 +99,6 @@ export default defineConfig({
     'process.env.NFID_URL': JSON.stringify(process.env.NFID_URL),
     'process.env.AWS_ENDPOINT': JSON.stringify(process.env.AWS_ENDPOINT),
     'process.env.DISCORD_BOT_CONNECT_URL': JSON.stringify(process.env.DISCORD_BOT_CONNECT_URL),
+    'process.env.RECAPTCHA_SITE_KEY': JSON.stringify(process.env.RECAPTCHA_SITE_KEY),
   },
 });

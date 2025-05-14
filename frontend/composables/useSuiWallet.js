@@ -21,7 +21,7 @@ export const useSuiWallet = () => {
   };
 
   const connectSui = async () => {
-    const suiWallet = getSuiProvider('Slush — A Sui wallet');
+    const suiWallet = getSuiProvider('Slush');
 
     if (!suiWallet) {
       return window.open('https://suiwallet.com/', '_blank');

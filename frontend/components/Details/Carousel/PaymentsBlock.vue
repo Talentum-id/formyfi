@@ -70,7 +70,7 @@ onMounted(async () => {
         image.value = await readFile(nft.value.file?.[0]);
         const res = await useCollectionsStore().checkIdentityNftRelation(Number(nft.value.id));
         if (res) {
-            isMinted.value = true;
+            isMinted.value = false; // TODO: Should be true, making it false for testing
             emit('minted');
         }
     }

@@ -349,6 +349,8 @@ export const useZkLogin = () => {
         nft.price = 0.00000000001;
       }
       const meta = nft.meta[0];
+      const price = nft.price;
+
       await axios
         .post(url, {
           name: nft.name,
@@ -357,7 +359,7 @@ export const useZkLogin = () => {
           blockchain: chains.find((chain) => chain.id === Number(nft.blockchain_id))?.chainName,
           url: nft.file[0],
           description: nft.description,
-          price: Math.floor(Number(nft.price) * 1e9),
+          price,
           nonce: generateRandomNumber(),
         })
         .then(async ({ data }) => {
@@ -367,9 +369,9 @@ export const useZkLogin = () => {
           tx.setGasPrice(1000);
           tx.setGasBudget(10000000);
 
-          const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${Math.floor(Number(nft.price) * 1e9)}`;
+          const message = `${obj.nftName}${obj.nftDesc}${obj.nftUrl}${obj.endTime}${obj.price}`;
 
-          const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(Math.floor(Number(nft.price) * 1e9))]);
+          const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(obj.price)]);
           tx.moveCall({
             target: `${nft.contract_address}::nft::mint`,
             arguments: [

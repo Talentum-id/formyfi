@@ -82,6 +82,11 @@
       "type": "custom",
       "candid": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.did",
       "wasm": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.wasm.gz"
+    },
+    "ic_sis_provider": {
+      "type": "custom",
+      "candid": "https://github.com/Talentum-id/ic_sis/releases/latest/download/ic_sis_provider.did",
+      "wasm": "https://github.com/Talentum-id/ic_sis/releases/latest/download/ic_sis_provider.wasm.gz"
     }
   },
   "defaults": {

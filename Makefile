@@ -39,6 +39,19 @@ start:
 			session_expires_in = opt 2592000000000000; \
 		}\
 	)"
+	@echo "Deploying ic_sis_provider canister with runtime configurations..."
+	dfx deploy ic_sis_provider --argument "( \
+		record { \
+			domain = \"127.0.0.1\"; \
+			uri = \"http://127.0.0.1:3000\"; \
+			salt = \"app-dev-salt\"; \
+		  	network = opt \"devnet\"; \
+			scheme = opt \"http\"; \
+			statement = opt \"Login to the app\"; \
+			sign_in_expires_in = opt 2592000000000000; \
+			session_expires_in = opt 2592000000000000; \
+		}\
+	)"
 	@echo "Deploying canisters..."
 	dfx deploy internet_identity --argument '(null)'
 	dfx generate

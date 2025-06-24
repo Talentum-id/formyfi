@@ -736,6 +736,7 @@ const removeProvider = async (provider) => {
         display: flex;
         flex-direction: column;
         gap: 16px;
+        margin-bottom: 0;
       }
     }
   }

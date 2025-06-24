@@ -68,7 +68,7 @@ command:
    dfx canister create --all
    ```
 
-   Third, deploy `ic_siwe_provider` and `ic_siws_provider` canisters with runtime arguments:
+   Third, deploy `ic_siwe_provider`, `ic_sis_provider` and `ic_siws_provider` canisters with runtime arguments:
 
    ```bash
    dfx deploy ic_siwe_provider --argument $'(
@@ -99,6 +99,22 @@ command:
       session_expires_in = opt 2592000000000000;
       targets = opt vec {
         "'$(dfx canister id ic_siws_provider)'";
+        "'$(dfx canister id assets)'";
+      };
+    }
+   )'
+   dfx deploy ic_sis_provider --argument $'(
+    record {
+      domain = "127.0.0.1";
+      uri = "http://127.0.0.1:3000";
+      salt = "app-dev-salt";
+      network = opt "devnet"; 
+      scheme = opt "http";
+      statement = opt "Login to the app";
+      sign_in_expires_in = opt 2592000000000000;
+      session_expires_in = opt 2592000000000000;
+      targets = opt vec {
+        "'$(dfx canister id ic_sis_provider)'";
         "'$(dfx canister id assets)'";
       };
     }

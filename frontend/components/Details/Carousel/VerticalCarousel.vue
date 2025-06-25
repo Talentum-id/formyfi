@@ -197,6 +197,10 @@ const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
 const props = defineProps({
+  author: {
+    type: Object,
+    default: null,
+  },
   currentItem: {
     type: Object,
     default: () => { },
@@ -564,6 +568,7 @@ const handleSuccessModal = async () => {
           email: email,
           quest: { ...props.quest, ...paymentData },
           answers: result.value,
+          author: props.author,
         })
         .catch((e) => console.error(e));
     },

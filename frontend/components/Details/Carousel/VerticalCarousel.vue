@@ -563,12 +563,18 @@ const handleSuccessModal = async () => {
         })),
 
       };
+
+      const { author } = props;
       axiosService
         .post(`${process.env.API_URL}responses/dispatch`, {
           email: email,
           quest: { ...props.quest, ...paymentData },
           answers: result.value,
-          author: props.author,
+          author: {
+            fullName: author.fullName,
+            username: author.username,
+            avatar: author.avatar,
+          },
         })
         .catch((e) => console.error(e));
     },

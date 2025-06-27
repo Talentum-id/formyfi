@@ -553,7 +553,6 @@ const handleSuccessModal = async () => {
     },
     sendEmail: (email) => {
       const paymentData = {
-
         questions: props.quest.questions.map(q => ({
           ...q,
           payment: q.payment?.map(p => ({
@@ -561,7 +560,6 @@ const handleSuccessModal = async () => {
             nft_id: Number(p.nft_id)
           }))
         })),
-
       };
 
       const { author } = props;

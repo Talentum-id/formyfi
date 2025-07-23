@@ -113,11 +113,15 @@ export const useAuthStore = defineStore('auth', {
         }
 
         if (this.isQuest) {
+          this.initDefault();
           await this.initStores();
         }
       }
 
       this.isReady = true;
+    },
+    initDefault(){
+      this.actor = this.identity ? createActorFromIdentity(this.identity) : user_index;
     },
     async initSIWE(walletAddress = null) {
       const address = walletAddress ?? localStorage.getItem('address');

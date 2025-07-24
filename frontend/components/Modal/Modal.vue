@@ -1,22 +1,12 @@
 <template>
   <TransitionRoot appear :show="visible" as="template" :key="'modal-one'">
     <Dialog as="div" class="relative z-[999999999]" @close="closeModal">
-      <div
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-        aria-hidden="true"
-      ></div>
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
 
       <div class="fixed inset-0 flex items-center justify-center p-4">
-        <TransitionChild
-          as="div"
-          class="body"
-          enter="ease-out duration-300"
-          enter-from="opacity-0 scale-95"
-          enter-to="opacity-100 scale-100"
-          leave="ease-in duration-200"
-          leave-from="opacity-100 scale-100"
-          leave-to="opacity-0 scale-95"
-        >
+        <TransitionChild as="div" class="body" enter="ease-out duration-300" enter-from="opacity-0 scale-95"
+          enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100"
+          leave-to="opacity-0 scale-95">
           <DialogPanel class="relative">
             <!-- Close button -->
             <div class="close absolute -right-10 -top-10" @click="closeModal" v-if="!isLoading">
@@ -34,7 +24,8 @@
                     <source :src="customImg" type="audio/ogg" />
                     <source :src="customImg" type="audio/mp3" />
                   </audio>
-                  <CustomImage v-else :image="customImg" height="160" width="160" />
+                  <CustomImage v-else :image="customImg" height="160" width="160"
+                    style="height: 160px; width: 160px;" />
                 </div>
 
                 <!-- Icon based on type -->
@@ -46,15 +37,9 @@
 
                 <!-- Bonus link section -->
                 <div v-if="refBonusData && refBonusData.link" class="w-full text-center mt-4">
-                  <span class="text-center text-lg font-bold"
-                    >Earn more points +{{ refBonusData.bonus }} per invite</span
-                  >
-                  <Link
-                    class="bg-gray-100 mt-2 block"
-                    :text="refBonusData.link"
-                    :value="refBonusData.link"
-                    :size="0"
-                  />
+                  <span class="text-center text-lg font-bold">Earn more points +{{ refBonusData.bonus }} per
+                    invite</span>
+                  <Link class="bg-gray-100 mt-2 block" :text="refBonusData.link" :value="refBonusData.link" :size="0" />
                 </div>
 
                 <!-- Email input -->
@@ -63,13 +48,11 @@
                 </div>
 
                 <!-- Action button -->
-                <button
-                  v-if="showActionBtn"
-                  class="action mt-4 w-full bg-blue-600 text-white rounded-lg py-2 font-medium"
-                  @click="handleAction"
-                >
+                <button v-if="showActionBtn"
+                  class="action mt-4 w-full bg-blue-600 text-white rounded-lg py-2 font-medium" @click="handleAction">
                   {{ actionText }}
                 </button>
+                <Captcha v-if="type === 'captcha'" @verified="action()" />
               </div>
             </div>
           </DialogPanel>
@@ -92,7 +75,7 @@ import warning from '@/assets/icons/modal/warning.vue';
 import success from '@/assets/icons/modal/success.vue';
 import error from '@/assets/icons/modal/error.vue';
 import loading from '@/assets/icons/modal/loading.vue';
-
+import Captcha from '@/components/Captcha.vue';
 // Props and state variables
 const visible = ref(false);
 const isEmail = ref(false);
@@ -117,13 +100,15 @@ const handleAction = () => {
     if (isEmail.value && email.value) sendEmail(email.value);
     action();
   }
-  closeModal();
+  if (type.value !== 'captcha') {
+    closeModal();
+  }
 };
 
 // Icon component based on type
 const getIcon = (type) => {
   const icons = { warning, success, error, loading };
-  return icons[type] || warning;
+  return icons[type] || '';
 };
 
 // Modal open handler
@@ -149,7 +134,7 @@ const checkFileType = async () => {
 
 // Computed properties
 const isLoading = computed(() => type.value === 'loading');
-const showActionBtn = computed(() => !isLoading.value && action);
+const showActionBtn = computed(() => !isLoading.value && action && type.value !== 'captcha');
 
 // Disable scroll when modal is visible
 watchEffect(() => {
@@ -173,8 +158,10 @@ modal.on('closeModal', closeModal);
   display: flex;
   justify-content: center;
 }
+
 .body {
   margin: auto;
+
   .close {
     width: 40px;
     height: 40px;
@@ -183,10 +170,12 @@ modal.on('closeModal', closeModal);
     display: flex;
     align-items: center;
     justify-content: center;
+
     &:hover {
       cursor: pointer;
     }
   }
+
   .modal {
     display: flex;
     flex-direction: column;
@@ -196,16 +185,19 @@ modal.on('closeModal', closeModal);
     padding: 32px;
     border-radius: 16px;
     background: #f5f7fa;
+
     .title {
       color: #333;
       font-size: 24px;
       font-weight: 500;
     }
+
     .message {
       color: #666;
       text-align: center;
       font-size: 16px;
     }
+
     .action {
       font-size: 16px;
       font-weight: 500;

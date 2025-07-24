@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="footer">
-        <div>Copyright © Formyfi 2024</div>
+        <div>Copyright © FormyFi {{ (new Date()).getFullYear() }}</div>
       </div>
     </div>
   </div>

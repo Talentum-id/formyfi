@@ -13,6 +13,7 @@ import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal, readFile, shortenAddress } from '@/util/helpers';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { useCollectionsStore } from '@/store/collections';
+import { ic_sis_provider } from '~/ic_sis_provider';
 
 const WHITELIST = [
   process.env.CANISTER_ID_USER_INDEX,
@@ -65,14 +66,23 @@ export const useAuthStore = defineStore('auth', {
 
       if (IIIdentification.indexOf(authenticationProvider) !== -1) {
         await this.initII();
-      } else if (authenticationProvider === 'siwe') {
-        await this.initSIWE();
-      } else if (authenticationProvider === 'siws') {
-        await this.initSIWS();
-      } else if (authenticationProvider === 'plug') {
-        await this.initPlug();
       } else {
-        await this.initWeb2Auth();
+        switch (authenticationProvider) {
+          case 'siwe':
+            await this.initSIWE();
+            break;
+          case 'siws':
+            await this.initSIWS();
+            break;
+          case 'sis':
+            await this.initSIS();
+            break;
+          case 'plug':
+            await this.initPlug();
+            break;
+          default:
+            await this.initWeb2Auth();
+        }
       }
 
       if (this.isAuthenticated) {
@@ -103,11 +113,15 @@ export const useAuthStore = defineStore('auth', {
         }
 
         if (this.isQuest) {
+          this.initDefault();
           await this.initStores();
         }
       }
 
       this.isReady = true;
+    },
+    initDefault(){
+      this.actor = this.identity ? createActorFromIdentity(this.identity) : user_index;
     },
     async initSIWE(walletAddress = null) {
       const address = walletAddress ?? localStorage.getItem('address');
@@ -145,6 +159,31 @@ export const useAuthStore = defineStore('auth', {
 
           if (principal !== undefined) {
             await this.generateWeb3WalletIdentity(principal, 'siws', address);
+          }
+        } catch (e) {
+          console.error(e);
+
+          await this.logout();
+        }
+      } else {
+        await this.logout();
+      }
+    },
+    async initSIS(walletAddress = null) {
+      const address = walletAddress ?? localStorage.getItem('address');
+
+      if (address) {
+        if (walletAddress !== null) {
+          localStorage.setItem('address', walletAddress);
+        }
+
+        try {
+          const { Ok: principal } = await ic_sis_provider.get_principal(address);
+
+          if (principal !== undefined) {
+            await this.generateWeb3WalletIdentity(principal, 'siws', address);
+          } else {
+            this.initWeb2Auth();
           }
         } catch (e) {
           console.error(e);
@@ -417,6 +456,38 @@ export const useAuthStore = defineStore('auth', {
         await router.push('/sign-up');
       }
     },
+    async prepareSISLogin(address) {
+      const data = await ic_sis_provider.sis_prepare_login(address);
+
+      return data?.Ok || null;
+    },
+    async loginWithSIS(address, signature, nonce, provider, connectorName = false) {
+      try {
+        const sessionKey = Ed25519KeyIdentity.generate().getPublicKey().toDer();
+
+        await ic_sis_provider.sis_login(signature, address, new Uint8Array(sessionKey), nonce);
+        const { Ok: principal } = await ic_sis_provider.get_principal(address);
+
+        if (principal) {
+          await this.generateWeb3WalletIdentity(principal, 'sis', address, connectorName);
+        } else {
+          await this.loginWithSui(address, provider)
+        }
+
+        if (connectorName) return;
+
+        localStorage.setItem('address', address);
+
+        await this.initStores();
+
+        if (!this.isQuest) {
+          await router.push('/sign-up');
+        }
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
     async prepareSIWELogin(address) {
       const data = await ic_siwe_provider.siwe_prepare_login(address);
 
@@ -429,7 +500,6 @@ export const useAuthStore = defineStore('auth', {
         await ic_siwe_provider.siwe_login(signature, address, new Uint8Array(sessionKey));
 
         const { Ok: principal } = await ic_siwe_provider.get_principal(address);
-
         await this.generateWeb3WalletIdentity(principal, 'siwe', address, connectorName);
 
         if (connectorName) return;
@@ -537,6 +607,7 @@ export const useAuthStore = defineStore('auth', {
       switch (localStorage.authenticationProvider) {
         case 'siwe':
         case 'siws':
+        case 'sis':
           return localStorage.getItem('address');
         case 'plug':
           return window.ic?.plug?.accountId;

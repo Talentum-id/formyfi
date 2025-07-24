@@ -20,6 +20,7 @@
         <VerticalCarousel
           :visible="showQuestion"
           @close="showQuestion = false"
+          :author="qaAuthor"
           :current-item="currentItem"
           :items="data.questions"
           :share-link="data.shareLink"
@@ -39,7 +40,7 @@ import VerticalCarousel from '@/components/Details/Carousel/VerticalCarousel.vue
 import { computed, onMounted, ref } from 'vue';
 import { useCounterStore } from '@/store';
 import { useResponseStore } from '@/store/response';
-import { wrapLinksInAHrefTag } from '@/util/helpers';
+import { useAuthStore } from '@/store/auth';
 
 const counterStore = useCounterStore();
 
@@ -52,6 +53,10 @@ const props = defineProps({
 });
 const showQuestion = ref(false);
 const currentItem = ref(null);
+const qaAuthor = ref(null);
+
+const userStore = useAuthStore();
+
 const answers = computed(() => useResponseStore().getResponse);
 const isAvailable = computed(() => Date.now() > Number(props.data.start) * 1000);
 const branches = computed(() => {
@@ -59,12 +64,21 @@ const branches = computed(() => {
     return JSON.parse(props.data.branches);
   }
 });
-onMounted(() => {
+onMounted(async () => {
   props.data.questions.forEach((item) => {
     if (item.verificationAmount === undefined) {
       item.verificationAmount = 0;
     }
   });
+
+  await userStore
+    .findUser(props.data.owner, false)
+    .then((res) => {
+      if (res !== undefined && res.length) {
+        qaAuthor.value = res[0];
+      }
+    })
+    .catch((e) => console.error(e));
 });
 
 const openQuestion = (item) => {

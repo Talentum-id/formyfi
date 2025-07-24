@@ -7,6 +7,7 @@ import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
 import axiosService from '@/services/axiosService';
 import { CryptoService } from '@/services/crypto';
+import { ic_sis_provider } from '~/ic_sis_provider';
 
 const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_SUBMISSIONS_INDEX, {
@@ -34,12 +35,14 @@ export const useResponseStore = defineStore('response', {
         case 'siws':
           await this.initWithSIWSOrSIWE(provider);
           break;
+        case 'sis':
+          await this.initWithSIS();
+          break;
         case 'plug':
           await this.initWithPlug();
           break;
         default:
-          this.identity = useAuthStore().getIdentity;
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : submissions_index;
+          this.initDefault();
       }
 
       this.crypto = new CryptoService(this.actor);
@@ -58,6 +61,19 @@ export const useResponseStore = defineStore('response', {
         this.actor = actor;
       }
     },
+    async initWithSIS() {
+      const { Ok: principal } = await ic_sis_provider.get_principal(localStorage.getItem('address'));
+
+      if (principal !== undefined) {
+        const identity = generateIdentityFromPrincipal(principal);
+        const actor = identity ? createActorFromIdentity(identity) : null;
+
+        this.identity = identity;
+        this.actor = actor;
+      } else {
+        this.initDefault();
+      }
+    },
     async initWithPlug() {
       const plug = window?.ic?.plug;
       if (plug?.agent === undefined) {
@@ -68,6 +84,10 @@ export const useResponseStore = defineStore('response', {
       const identity = generateIdentityFromPrincipal(principal);
       this.actor = createActorFromIdentity(identity);
       this.identity = identity;
+    },
+    initDefault() {
+      this.identity = useAuthStore().getIdentity;
+      this.actor = this.identity ? createActorFromIdentity(this.identity) : submissions_index;
     },
     async storeResponse(params, attempts = 0) {
       const { refCode } = params;

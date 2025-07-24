@@ -51,6 +51,7 @@ module QATypes {
     branches : ?Text;
     refCodePoints : ?Nat;
     rewards: ?Nat;
+    captcha: ?Bool;
   };
 
   public type ThanksMessage = {

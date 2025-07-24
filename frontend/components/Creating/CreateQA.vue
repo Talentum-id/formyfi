@@ -236,7 +236,14 @@
           </div>
         </div>
         <TaskBannerUploader :setImage="setBgBanner" :banner="bgImage" :isEditingActive="true" />
-
+        <div class="flex justify-between">
+          <div class="section_item">
+            <div class="section_wrapper-title">Captcha</div>
+          </div>
+          <div class="check-btn_wrapper">
+            <Switch :checkedProp="captcha" @checked="captcha = $event" />
+          </div>
+        </div>
         <div class="flex gap-6 footer">
           <BaseButton type="primary" @click="preview" icon="View"> Preview</BaseButton>
           <BaseButton :text="statusMessage" :disabled="!validationCheck || loading" type="normal" @click="check" />
@@ -292,6 +299,7 @@ const thxRequired = ref(false);
 const branchRequired = ref(false);
 const rewardRequired = ref(false);
 const refCode = ref(false);
+const captcha = ref(false);
 const todayDate = new Date();
 const startDate = ref(todayDate);
 const twoDaysFromNow = new Date(todayDate);
@@ -694,6 +702,7 @@ const preview = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
+    captcha: [captcha.value],
     customization: [{ url: [bgBanner], color: [color.value] }],
 
   };
@@ -738,6 +747,7 @@ const saveQA = async () => {
     thxMessage: thxRequired.value ? [thxMessage.value] : [],
     branches: branchRequired.value && branches.value ? [branches.value] : [],
     rewards: rewardRequired.value && reward.value ? [reward.value] : [],
+    captcha: [captcha.value],
   });
 };
 

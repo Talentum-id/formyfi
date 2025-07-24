@@ -16,7 +16,7 @@ import { modal } from '@/mixins/modal';
 
 const authStore = useAuthStore();
 const { connected, publicKey, wallet: solanaWallet } = useWallet();
-const { connectSuiet, connectSui, getGlobalAddress } = useSuiWallet();
+const { connectSuiet, connectSui, getGlobalAddress, signMessage } = useSuiWallet();
 
 const { connect, connectors } = useConnect();
 const { address, isConnected } = useAccount();
@@ -96,22 +96,26 @@ const readCode = async () => {
   }
 };
 
-const loginWithSuiet = async () => {
-  await connectSuiet();
-  const address = await getGlobalAddress();
-
-  if (address && address !== 'undefined') {
-    localStorage.connector = 'suiet';
-    await authStore.loginWithSui(address, 'suiet');
+const loginWithSIS = async (provider) => {
+  localStorage.connector = provider;
+  if (provider === 'Suiet') {
+    await connectSuiet();
+  } else {
+    await connectSui();
   }
-};
-const loginWithSui = async () => {
-  await connectSui();
-  const address = await getGlobalAddress();
 
+  const address = await getGlobalAddress();
   if (address && address !== 'undefined') {
-    localStorage.connector = 'sui';
-    await authStore.loginWithSui(address, 'sui');
+    const { sis_message, nonce } = await authStore.prepareSISLogin(address);
+
+    if (!sis_message) {
+      await logout();
+    } else {
+      const signature = await signMessage(provider, sis_message);
+
+      await authStore.loginWithSIS(address, signature, nonce, provider.toLowerCase())
+        .catch(e => console.error(e));
+    }
   }
 };
 const IIConnect = async () => {
@@ -253,13 +257,13 @@ const props = defineProps({
           </div>
         </AuthButton>
       </template>
-      <AuthButton @click="loginWithSui()">
+      <AuthButton @click="loginWithSIS('Slush')">
         <div class="container">
           <img src="@/assets/icons/sui.svg" alt="Slush" class="h-[24px]" />
           <div class="name-social">Slush</div>
         </div>
       </AuthButton>
-      <AuthButton @click="loginWithSuiet()">
+      <AuthButton @click="loginWithSIS('Suiet')">
         <div class="container">
           <img src="@/assets/icons/suiet.svg" alt="Suiet Wallet" class="h-[24px]" />
           <div class="name-social">Suiet</div>

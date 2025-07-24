@@ -45,6 +45,7 @@
         "vetkd_system_api",
         "ic_siwe_provider",
         "ic_siws_provider",
+        "ic_sis_provider",
         "internet_identity",
         "user_index",
         "form_index",
@@ -82,6 +83,11 @@
       "type": "custom",
       "candid": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.did",
       "wasm": "https://github.com/kristoferlund/ic-siws/releases/download/v0.0.1/ic_siws_provider.wasm.gz"
+    },
+    "ic_sis_provider": {
+      "type": "custom",
+      "candid": "https://github.com/Talentum-id/ic_sis/releases/download/v0.2.2/ic_sis_provider.did",
+      "wasm": "https://github.com/Talentum-id/ic_sis/releases/download/v0.2.2/ic_sis_provider.wasm.gz"
     }
   },
   "defaults": {

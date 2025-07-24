@@ -146,6 +146,7 @@ actor FormIndex {
                 refCodePoints = quest.refCodePoints;
                 rewards = quest.rewards;
                 customization = quest.customization;
+                captcha = quest.captcha;
               },
             );
 
@@ -252,6 +253,7 @@ actor FormIndex {
         refCodePoints = x.refCodePoints;
         rewards = x.rewards;
         customization = x.customization;
+        captcha = x.captcha;
       },
     );
 

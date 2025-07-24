@@ -197,6 +197,10 @@ const route = useRoute();
 const counterStore = useCounterStore();
 const responseStore = useResponseStore();
 const props = defineProps({
+  author: {
+    type: Object,
+    default: null,
+  },
   currentItem: {
     type: Object,
     default: () => { },
@@ -549,7 +553,6 @@ const handleSuccessModal = async () => {
     },
     sendEmail: (email) => {
       const paymentData = {
-
         questions: props.quest.questions.map(q => ({
           ...q,
           payment: q.payment?.map(p => ({
@@ -557,13 +560,19 @@ const handleSuccessModal = async () => {
             nft_id: Number(p.nft_id)
           }))
         })),
-
       };
+
+      const { author } = props;
       axiosService
         .post(`${process.env.API_URL}responses/dispatch`, {
           email: email,
           quest: { ...props.quest, ...paymentData },
           answers: result.value,
+          author: {
+            fullName: author.fullName,
+            username: author.username,
+            avatar: author.avatar,
+          },
         })
         .catch((e) => console.error(e));
     },
@@ -645,21 +654,20 @@ const storeResponseAndClose = async () => {
     if (route.query['ref-code'] !== undefined && route.query['ref-code'].trim() !== '') {
       refCode = route.query['ref-code'].trim();
     }
-
-    await responseStore.storeResponse({
-      filled: realTime.value,
-      shareLink: props.shareLink,
-      answers: result.value,
-      owner: authStore.getPrincipal,
-      refCode,
-    });
     await counterStore.setValue(props.items.length);
 
-    // if () {
-    //   await responseStore.creditPoints(props.shareLink, route.query['ref-code'].trim());
-    // }
-
-    await handleRewardSuccessModal();
+    if (!!props.quest.captcha[0]) {
+      await handleCaptcha();
+    } else {
+      await responseStore.storeResponse({
+        filled: realTime.value,
+        shareLink: props.shareLink,
+        answers: result.value,
+        owner: authStore.getPrincipal,
+        refCode,
+      });
+      await handleRewardSuccessModal();
+    }
 
   } catch (e) {
     console.error(e);
@@ -671,6 +679,25 @@ const closeModal = async () => {
   await emit('close');
   document.body.style.overflow = '';
 };
+
+const handleCaptcha = async () => {
+  modal.emit('openModal', {
+    title: 'Captcha',
+    message: 'Please solve the captcha',
+    type: 'captcha',
+    fn: async () => {
+      await responseStore.storeResponse({
+        filled: realTime.value,
+        shareLink: props.shareLink,
+        answers: result.value,
+        owner: authStore.getPrincipal,
+        refCode,
+      });
+      await handleRewardSuccessModal();
+    },
+  });
+}
+
 const checkUserIdentity = async () => {
   show.value = true;
   await TemplatePromise.start();

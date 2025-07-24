@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/auth';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider} from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
+import { ic_sis_provider } from '~/ic_sis_provider';
 
 const createActorFromIdentity = identity => {
   return createActor(process.env.CANISTER_ID_METRICS_INDEX, {
@@ -30,12 +31,14 @@ export const useStatsStore = defineStore('stats', {
         case 'siws':
           await this.initWithSIWSOrSIWE(provider);
           break;
+        case 'sis':
+          await this.initWithSIS();
+          break;
         case 'plug':
           await this.initWithPlug();
           break;
         default:
-          this.identity = useAuthStore().getIdentity;
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : metrics_index;
+          this.initDefault();
       }
     },
     async initWithSIWSOrSIWE(provider){
@@ -50,6 +53,19 @@ export const useStatsStore = defineStore('stats', {
 
         this.identity = identity;
         this.actor = actor;
+      }
+    },
+    async initWithSIS() {
+      const { Ok: principal } = await ic_sis_provider.get_principal(localStorage.getItem('address'));
+
+      if (principal !== undefined) {
+        const identity = generateIdentityFromPrincipal(principal);
+        const actor = identity ? createActorFromIdentity(identity) : null;
+
+        this.identity = identity;
+        this.actor = actor;
+      } else {
+        this.initDefault();
       }
     },
     async initWithPlug() {
@@ -78,6 +94,10 @@ export const useStatsStore = defineStore('stats', {
           }
         })
         .catch(e => console.error(e));
+    },
+    initDefault() {
+      this.identity = useAuthStore().getIdentity;
+      this.actor = this.identity ? createActorFromIdentity(this.identity) : metrics_index;
     },
     async fetchStatsList(identities) {
       return this.actor?.findUserStats(identities)

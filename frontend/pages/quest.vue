@@ -35,7 +35,6 @@ const backgroundColor = computed(() => data.value?.customization?.[0]?.color?.[0
 const backgroundImage = computed(() => data.value?.customization?.[0]?.url?.[0]);
 onUnmounted(() => {
   useQAStore().qa = null;
-
 });
 
 async function deleteQuest() {

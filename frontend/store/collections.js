@@ -6,6 +6,7 @@ import router from '@/router';
 import { ic_siwe_provider } from '~/ic_siwe_provider';
 import { ic_siws_provider } from '~/ic_siws_provider';
 import { generateIdentityFromPrincipal } from '@/util/helpers';
+import { ic_sis_provider } from '~/ic_sis_provider';
 
 const createActorFromIdentity = (identity) => {
   return createActor(process.env.CANISTER_ID_NFT_INDEX, {
@@ -32,12 +33,14 @@ export const useCollectionsStore = defineStore('collections', {
         case 'siws':
           await this.initWithSIWSOrSIWE(provider);
           break;
+        case 'sis':
+          await this.initWithSIS();
+          break;
         case 'plug':
           await this.initWithPlug();
           break;
         default:
-          this.identity = useAuthStore().getIdentity;
-          this.actor = this.identity ? createActorFromIdentity(this.identity) : nft_index;
+          this.initDefault();
       }
     },
     async initWithSIWSOrSIWE(provider) {
@@ -54,6 +57,19 @@ export const useCollectionsStore = defineStore('collections', {
         this.actor = actor;
       }
     },
+    async initWithSIS() {
+      const { Ok: principal } = await ic_sis_provider.get_principal(localStorage.getItem('address'));
+
+      if (principal !== undefined) {
+        const identity = generateIdentityFromPrincipal(principal);
+        const actor = identity ? createActorFromIdentity(identity) : null;
+
+        this.identity = identity;
+        this.actor = actor;
+      } else {
+        this.initDefault();
+      }
+    },
     async initWithPlug() {
       const plug = window?.ic?.plug;
       if (plug?.agent === undefined) {
@@ -64,6 +80,10 @@ export const useCollectionsStore = defineStore('collections', {
       const identity = generateIdentityFromPrincipal(principal);
       this.actor = createActorFromIdentity(identity);
       this.identity = identity;
+    },
+    initDefault() {
+      this.identity = useAuthStore().getIdentity;
+      this.actor = this.identity ? createActorFromIdentity(this.identity) : nft_index;
     },
     async createCollection(params) {
       return await this.actor?.createCollection(params, {

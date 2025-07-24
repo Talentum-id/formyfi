@@ -5,6 +5,8 @@ import { useCounterStore } from '@/store';
 import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
+import { modal } from '@/mixins/modal';
+import router from '@/router';
 
 const props = defineProps({
   data: {
@@ -35,12 +37,34 @@ onMounted(() => {
       const startTimeDifference = startDate.getTime() - currentDate.getTime();
       const endTimeDifference = endDate.getTime() - currentDate.getTime();
 
-      if (Math.ceil(endTimeDifference / (1000 * 60 * 60 * 24)) < 0) {
-        useRouter().push('/');
+      if (Math.ceil(startTimeDifference / (1000 * 60 * 60 * 24)) > 0) {
+        modal.emit('openModal', {
+          title: 'This form has not been started yet',
+          message: 'The form you are trying to access is not available yet',
+          type: 'warning',
+          actionText: 'Go to Homepage',
+          fn: () => router.push('/'),
+        });
+
+        setTimeout(() => {
+          modal.emit('closeModal');
+          router.push('/');
+        }, 5000);
       }
 
-      if (Math.ceil(startTimeDifference / (1000 * 60 * 60 * 24)) > 0) {
-        useRouter().push('/');
+      if (Math.ceil(endTimeDifference / (1000 * 60 * 60 * 24)) < 0) {
+        modal.emit('openModal', {
+          title: 'This form has expired',
+          message: 'The form you are trying to access is no longer available',
+          type: 'warning',
+          actionText: 'Go to Homepage',
+          fn: () => router.push('/'),
+        });
+
+        setTimeout(() => {
+          modal.emit('closeModal');
+          router.push('/');
+        }, 5000);
       }
     }
   }
